@@ -12,13 +12,15 @@ class AppTheme {
     return ThemeData(
       colorScheme: ColorScheme.fromSeed(
         seedColor: lilac,
-        background: cream,
+        surface: cream, // ใช้ surface แทน background
       ),
       scaffoldBackgroundColor: cream,
       textTheme: GoogleFonts.fredokaTextTheme(),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
         ),
       ),
@@ -27,7 +29,9 @@ class AppTheme {
         fillColor: Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.black.withOpacity(.08)),
+          borderSide: BorderSide(
+            color: Colors.black.withValues(alpha: .08), // ใช้ withValues แทน withOpacity
+          ),
         ),
       ),
     );

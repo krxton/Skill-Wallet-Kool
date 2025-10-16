@@ -14,43 +14,48 @@ class LoginScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // ปุ่ม Back
+              // ← BACK
               Align(
                 alignment: Alignment.centerLeft,
                 child: TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('← BACK',
-                      style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w700)),
+                  child: const Text(
+                    '← BACK',
+                    style: TextStyle(
+                      color: Colors.redAccent,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(height: 24),
 
-              // Logo / Illustration
-              Center(
-                child: Image.asset(
-                  'assets/images/skill_wallet_kool.png',
-                  height: 200,
+              const SizedBox(height: 12),
+
+              // ✨ แทนรูปด้วยข้อความหัวเรื่อง
+              const Center(
+                child: Text(
+                  'Welcome Back!',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w900,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
               ),
+
               const SizedBox(height: 32),
 
-              // ปุ่ม Login Facebook
+              // ปุ่ม Login Facebook/Google
               SocialButton(
                 label: 'CONTINUE WITH FACEBOOK',
                 icon: Icons.facebook,
-                onPressed: () {
-                  Navigator.pushNamed(context, AppRoutes.home);
-                },
+                onPressed: () => Navigator.pushNamed(context, AppRoutes.home),
               ),
               const SizedBox(height: 12),
-
-              // ปุ่ม Login Google
               SocialButton(
                 label: 'CONTINUE WITH GOOGLE',
                 icon: Icons.g_mobiledata,
-                onPressed: () {
-                  Navigator.pushNamed(context, AppRoutes.home);
-                },
+                onPressed: () => Navigator.pushNamed(context, AppRoutes.home),
               ),
             ],
           ),

@@ -42,7 +42,7 @@ class SignInScreen extends StatelessWidget {
                 label: 'CONTINUE WITH FACEBOOK',
                 icon: Icons.facebook,
                 onPressed: () {
-                  // TODO: เชื่อมจริงภายหลัง
+                
                 },
               ),
               const SizedBox(height: 12),
@@ -50,7 +50,7 @@ class SignInScreen extends StatelessWidget {
                 label: 'CONTINUE WITH GOOGLE',
                 icon: Icons.g_mobiledata,
                 onPressed: () {
-                  // TODO: เชื่อมจริงภายหลัง
+                  
                 },
               ),
 

@@ -32,12 +32,13 @@ class WelcomeScreen extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(24),
                 child: Image.asset(
-                  'assets/images/skill_wallet_kool.png',
-                  width: 220,
-                  height: 220,
-                  fit: BoxFit.cover,
+                  'assets/images/SWK_home.png',
+                width: 220,
+                height: 220,
+                fit: BoxFit.cover,
                 ),
               ),
+
 
               // ปุ่ม
               Column(

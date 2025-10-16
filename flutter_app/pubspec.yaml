@@ -9,6 +9,8 @@ dependencies:
   flutter:
     sdk: flutter
   google_fonts: ^6.1.0
+  shared_preferences: ^2.2.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -17,4 +19,4 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-    - assets/images/skill_wallet_kool.png
+    - assets/images/SWK_home.png
