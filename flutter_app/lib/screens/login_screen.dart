@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../routes/app_routes.dart';
 import '../widgets/social_button.dart';
+import '../theme/app_theme.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -8,55 +9,33 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.cream,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(24),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // ← BACK
               Align(
                 alignment: Alignment.centerLeft,
                 child: TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text(
-                    '← BACK',
-                    style: TextStyle(
-                      color: Colors.redAccent,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+                  child: const Text('← BACK', style: TextStyle(color: AppTheme.pink)),
                 ),
               ),
-
               const SizedBox(height: 12),
-
-              // ✨ แทนรูปด้วยข้อความหัวเรื่อง
               const Center(
-                child: Text(
-                  'Welcome Back!',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w900,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
+                child: Text('Welcome Back!',
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.w900, color: AppTheme.pink)),
               ),
-
               const SizedBox(height: 32),
-
-              // ปุ่ม Login Facebook/Google
-              SocialButton(
-                label: 'CONTINUE WITH FACEBOOK',
-                icon: Icons.facebook,
-                onPressed: () => Navigator.pushNamed(context, AppRoutes.home),
-              ),
+              SocialButton(label: 'CONTINUE WITH FACEBOOK', icon: Icons.facebook, onPressed: () {
+                Navigator.pushNamed(context, AppRoutes.home);
+              }),
               const SizedBox(height: 12),
-              SocialButton(
-                label: 'CONTINUE WITH GOOGLE',
-                icon: Icons.g_mobiledata,
-                onPressed: () => Navigator.pushNamed(context, AppRoutes.home),
-              ),
+              SocialButton(label: 'CONTINUE WITH GOOGLE', icon: Icons.g_mobiledata, onPressed: () {
+                Navigator.pushNamed(context, AppRoutes.home);
+              }),
             ],
           ),
         ),
