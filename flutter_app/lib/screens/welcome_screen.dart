@@ -1,65 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../routes/app_routes.dart';
-import '../widgets/primary_button.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
-  void _goSignIn(BuildContext context) {
-    Navigator.pushNamed(context, AppRoutes.signin);
-  }
-
-  void _goLogin(BuildContext context) {
-    Navigator.pushNamed(context, AppRoutes.login);
-  }
-
-  void _goHome(BuildContext context) {
-    Navigator.pushNamed(context, AppRoutes.home);
-  }
+  static const cream = Color(0xFFFFF5CD);
+  static const blue  = Color(0xFF77BEF0);
+  static const red   = Color(0xFFEA5B6F);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
+      backgroundColor: cream,
+      body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const SizedBox(height: 24),
+              Image.asset('assets/images/SWK_home.png', height: 260),
+              const SizedBox(height: 32),
 
-              // โลโก้ / รูป
-              ClipRRect(
-                borderRadius: BorderRadius.circular(24),
-                child: Image.asset(
-                  'assets/images/SWK_home.png',
-                width: 220,
-                height: 220,
-                fit: BoxFit.cover,
+              GestureDetector(
+                onTap: () => Navigator.pushNamed(context, AppRoutes.home),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 48),
+                  decoration: BoxDecoration(
+                    color: blue, borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Text('PLAY',
+                      style: GoogleFonts.luckiestGuy(fontSize: 28, color: Colors.white)),
                 ),
               ),
 
-
-              // ปุ่ม
-              Column(
+              const SizedBox(height: 40),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  PrimaryButton(
-                    label: 'Play',
-                    onPressed: () => _goHome(context),   // <-- ไปหน้า Home
+                  // ไปหน้า Register (เริ่ม step 0)
+                  GestureDetector(
+                    onTap: () => Navigator.pushNamed(context, AppRoutes.register),
+                    child: Text('SIGN-UP',
+                        style: GoogleFonts.luckiestGuy(fontSize: 18, color: red)),
                   ),
-                  const SizedBox(height: 16),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      TextButton(
-                        onPressed: () => _goSignIn(context),
-                        child: const Text('SIGN-IN', style: TextStyle(color: Colors.redAccent)),
-                      ),
-                      TextButton(
-                        onPressed: () => _goLogin(context),
-                        child: const Text('LOG IN', style: TextStyle(color: Colors.redAccent)),
-                      ),
-                    ],
+                  const SizedBox(width: 48),
+                  // ไปหน้า Login
+                  GestureDetector(
+                    onTap: () => Navigator.pushNamed(context, AppRoutes.login),
+                    child: Text('LOG IN',
+                        style: GoogleFonts.luckiestGuy(fontSize: 18, color: red)),
                   ),
                 ],
               ),
