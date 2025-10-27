@@ -1,79 +1,42 @@
+// lib/screens/home_screen.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../routes/app_routes.dart'; // ✅ ใส่กลับมา
+import '../routes/app_routes.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String _category = 'CATEGORY';
-
+  // สีหลักให้โทนเดียวกับแอป
   static const cream = Color(0xFFFFF5CD);
-  static const sky = Color(0xFF77BEF0);
-  static const yellow = Color(0xFFFFCC00);
-  static const blue = Color(0xFF0D92F4);
-  static const chipGrey = Color(0xFFE3E3E3);
+  static const sky = Color(0xFF0D92F4);
 
-  void _openCategorySheet() {
-    final items = ['MATH', 'PHYSICAL', 'LANGUAGE'];
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (_) {
-        return SafeArea(
-          child: ListView.separated(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            itemCount: items.length,
-            separatorBuilder: (_, __) => const Divider(height: 1),
-            itemBuilder: (_, i) {
-              final text = items[i];
-              return ListTile(
-                title: Text(text, style: GoogleFonts.luckiestGuy(fontSize: 20)),
-                onTap: () {
-                  Navigator.pop(context);
-                  if (text == 'LANGUAGE') {
-                    // ✅ ไปหน้า Language Hub
-                    Navigator.pushNamed(context, AppRoutes.languageHub);
-                  } else {
-                    setState(() => _category = text);
-                  }
-                },
-              );
-            },
-          ),
-        );
-      },
-    );
+  // ค่า dropdown ปัจจุบัน
+  String _categoryValue = 'CATEGORY';
+
+  // เรียกเมื่อเปลี่ยนค่า Category
+  void _onCategoryChanged(String? value) {
+    if (value == null) return;
+
+    // อัปเดต UI ก่อน
+    setState(() => _categoryValue = value);
+
+    // ถ้าเลือก Language → ไป LanguageHubScreen
+    if (value.toUpperCase() == 'LANGUAGE') {
+      // รีเซ็ตกลับเป็น "CATEGORY" ตอนกลับมา
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushNamed(context, AppRoutes.languageHub).then((_) {
+          if (mounted) {
+            setState(() => _categoryValue = 'CATEGORY');
+          }
+        });
+      });
+    }
   }
-
-  Widget _sectionTitle(String text, {Color? color}) => Padding(
-        padding: const EdgeInsets.only(top: 16, bottom: 8),
-        child: Text(
-          text,
-          style: GoogleFonts.luckiestGuy(
-            fontSize: 22,
-            color: color ?? yellow,
-            letterSpacing: 0.5,
-          ),
-        ),
-      );
-
-  Widget _activityCard(String label) => Container(
-        width: 140,
-        height: 120,
-        decoration: BoxDecoration(
-          color: chipGrey,
-          borderRadius: BorderRadius.circular(24),
-        ),
-        alignment: Alignment.center,
-        child: Text(label, style: GoogleFonts.luckiestGuy(fontSize: 22)),
-      );
 
   @override
   Widget build(BuildContext context) {
@@ -81,189 +44,182 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: cream,
       appBar: AppBar(
         backgroundColor: cream,
-        elevation: 0,
         centerTitle: true,
-        title: Text('SKILL WALLET KOOL',
-            style: GoogleFonts.luckiestGuy(color: Colors.black, fontSize: 24)),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
-          onPressed: () => Navigator.pop(context),
-        ),
+        elevation: 0,
+      
       ),
-      bottomNavigationBar: _BottomBar(
-        onHome: () {},
-        onPlus: () {},
-        onProfile: () {},
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // search bar
-              Container(
-                height: 56,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF4D9E5),
-                  borderRadius: BorderRadius.circular(28),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          // แถบค้นหา (ตกแต่งให้ดูนุ่ม ๆ)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFEFD4E8),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              children: [
+                const Icon(Icons.menu, color: Colors.black87),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text('search...',
+                      style: GoogleFonts.luckiestGuy(
+                          color: Colors.black54, fontSize: 14)),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 18),
-                child: Row(
-                  children: [
-                    const Icon(Icons.menu, color: Colors.black54),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text('SEARCH...',
-                          style: GoogleFonts.luckiestGuy(
-                              color: Colors.black54, fontSize: 16)),
-                    ),
-                    const Icon(Icons.search, color: Colors.black54),
-                  ],
-                ),
+                const Icon(Icons.search, color: Colors.black87),
+              ],
+            ),
+          ),
+          const SizedBox(height: 18),
+
+          // หัวข้อ SWK
+          Text('SWK',
+              style:
+                  GoogleFonts.luckiestGuy(fontSize: 26, color: sky)),
+
+          const SizedBox(height: 10),
+
+          // ปุ่ม Category (Dropdown) — เลือก LANGUAGE แล้วนำทาง
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF9BD0FF),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(color: sky, width: 2),
               ),
-
-              const SizedBox(height: 18),
-
-              Text('SWK',
-                  style: GoogleFonts.luckiestGuy(color: blue, fontSize: 28)),
-
-              const SizedBox(height: 8),
-
-              // ▼ ปุ่ม CATEGORY (ถ้าอยากเอาปุ่ม LANGUAGE สีน้ำเงินออก ให้ลบบล็อกที่คอมเมนต์ไว้ด้านล่าง)
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: _openCategorySheet,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 18, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: sky,
-                        borderRadius: BorderRadius.circular(28),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(_category,
-                              style: GoogleFonts.luckiestGuy(
-                                  color: Colors.white, fontSize: 18)),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.keyboard_arrow_down,
-                              color: Colors.white),
-                        ],
-                      ),
-                    ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: _categoryValue,
+                  icon: const Icon(Icons.keyboard_arrow_down_rounded),
+                  style: GoogleFonts.luckiestGuy(
+                    color: Colors.white,
+                    fontSize: 14,
                   ),
-
-                ],
-              ),
-
-              const SizedBox(height: 16),
-
-              // big clip
-              Container(
-                height: 220,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFDDDDDD),
-                  borderRadius: BorderRadius.circular(36),
-                  border: Border.all(color: blue, width: 3),
-                ),
-                alignment: Alignment.center,
-                child: Text('CLIP VDO',
-                    style: GoogleFonts.luckiestGuy(fontSize: 32)),
-              ),
-
-              _sectionTitle('POPULAR ACTIVITIES', color: blue),
-              SizedBox(
-                height: 130,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 3,
-                  separatorBuilder: (_, __) => const SizedBox(width: 12),
-                  itemBuilder: (_, i) => _activityCard('CLIP'),
+                  dropdownColor: Colors.white,
+                  onChanged: _onCategoryChanged,
+                  items: const [
+                    'CATEGORY',
+                    'LANGUAGE',
+                    'MATH',
+                    'PHYSICAL',
+                  ].map((e) {
+                    return DropdownMenuItem<String>(
+                      value: e,
+                      child: Text(
+                        e,
+                        style: GoogleFonts.luckiestGuy(
+                          color: e == 'CATEGORY' ? Colors.white : Colors.blue,
+                          fontSize: 14,
+                        ),
+                      ),
+                    );
+                  }).toList(),
                 ),
               ),
+            ),
+          ),
 
-              _sectionTitle('NEW', color: blue),
-              const SizedBox(height: 80),
+          const SizedBox(height: 16),
+
+          // การ์ด CLIP VDO (placeholder)
+          Container(
+            height: 180,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade300,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: sky, width: 3),
+            ),
+            alignment: Alignment.center,
+            child: Text('CLIP VDO',
+                style: GoogleFonts.luckiestGuy(
+                    fontSize: 28, color: Colors.black87)),
+          ),
+
+          const SizedBox(height: 22),
+
+          // หัวข้อ Popular Activities
+          Text('POPULAR ACTIVITIES',
+              style: GoogleFonts.luckiestGuy(
+                  fontSize: 22, color: const Color(0xFF7DBEF1))),
+
+          const SizedBox(height: 12),
+
+          // แถวการ์ดย่อย (placeholder)
+          Row(
+            children: [
+              for (int i = 0; i < 3; i++) ...[
+                Expanded(
+                  child: Container(
+                    height: 82,
+                    margin: EdgeInsets.only(right: i == 2 ? 0 : 10),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text('CLIP',
+                        style: GoogleFonts.luckiestGuy(fontSize: 16)),
+                  ),
+                ),
+              ]
             ],
           ),
+          const SizedBox(height: 28),
+
+          // NEW
+          Text('NEW',
+              style: GoogleFonts.luckiestGuy(
+                  fontSize: 22, color: const Color(0xFF0D92F4))),
+          const SizedBox(height: 12),
+
+          // การ์ดใหม่ (placeholder)
+          Container(
+            height: 82,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade300,
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+          const SizedBox(height: 90), // เว้นพื้นที่ให้พ้น bottom bar ถ้ามี
+        ],
+      ),
+
+      // แถบล่าง (ไอคอน 3 อัน — placeholder)
+      bottomNavigationBar: Container(
+        height: 72,
+        decoration: BoxDecoration(
+          color: const Color(0xFFF06277),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: const [
+            _BottomIcon(bg: Color(0xFFFFD33D), icon: Icons.home),
+            _BottomIcon(bg: Color(0xFFE57373), icon: Icons.add),
+            _BottomIcon(bg: Color(0xFFFFD33D), icon: Icons.person),
+          ],
         ),
       ),
     );
   }
 }
 
-class _BottomBar extends StatelessWidget {
-  const _BottomBar(
-      {required this.onHome, required this.onPlus, required this.onProfile});
-  final VoidCallback onHome;
-  final VoidCallback onPlus;
-  final VoidCallback onProfile;
-
-  static const red = Color(0xFFEA5B6F);
-  static const yellow = Color(0xFFFFCC00);
-  static const cream = Color(0xFFFFF5CD);
+class _BottomIcon extends StatelessWidget {
+  final Color bg;
+  final IconData icon;
+  const _BottomIcon({required this.bg, required this.icon});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 86,
-      decoration: const BoxDecoration(
-        color: red,
-        borderRadius:
-            BorderRadius.only(topLeft: Radius.circular(24), topRight: Radius.circular(24)),
-      ),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Positioned(
-            top: 6,
-            child: GestureDetector(
-              onTap: onPlus,
-              child: Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  color: red.withValues(alpha: 0.92),
-                  shape: BoxShape.circle,
-                  boxShadow: const [
-                    BoxShadow(color: Colors.black26, blurRadius: 6, offset: Offset(0, 3))
-                  ],
-                ),
-                child: const Center(child: Icon(Icons.add, size: 34, color: Colors.white)),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                GestureDetector(
-                  onTap: onHome,
-                  child: Container(
-                    width: 64,
-                    height: 64,
-                    decoration: const BoxDecoration(color: yellow, shape: BoxShape.circle),
-                    child: const Icon(Icons.home_rounded, color: cream, size: 36),
-                  ),
-                ),
-                GestureDetector(
-                  onTap: onProfile,
-                  child: Container(
-                    width: 64,
-                    height: 64,
-                    decoration: const BoxDecoration(color: yellow, shape: BoxShape.circle),
-                    child: const Icon(Icons.person, color: cream, size: 34),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+      width: 56,
+      height: 56,
+      decoration: BoxDecoration(color: bg, shape: BoxShape.circle),
+      child: Icon(icon, color: Colors.white),
     );
   }
 }
