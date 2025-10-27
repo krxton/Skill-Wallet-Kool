@@ -13,48 +13,65 @@ class WelcomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: cream,
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset('assets/images/SWK_home.png', height: 260),
-              const SizedBox(height: 32),
-
-              GestureDetector(
-                onTap: () => Navigator.pushNamed(context, AppRoutes.home),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 48),
-                  decoration: BoxDecoration(
-                    color: blue, borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: Text('PLAY',
-                      style: GoogleFonts.luckiestGuy(fontSize: 28, color: Colors.white)),
+      body: SafeArea(
+        child: Stack(
+          children: [
+            // เนื้อหากลางหน้าจอ
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Image.asset('assets/images/SWK_home.png', height: 260),
+                    // เลื่อนปุ่ม PLAY ลงมาอีกนิดนึง
+                    const SizedBox(height: 48),
+                    GestureDetector(
+                      onTap: () => Navigator.pushNamed(context, AppRoutes.home),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 16, horizontal: 48),
+                        decoration: BoxDecoration(
+                          color: blue, borderRadius: BorderRadius.circular(18),
+                        ),
+                        child: Text(
+                          'PLAY',
+                          style: GoogleFonts.luckiestGuy(
+                            fontSize: 28, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
+            ),
 
-              const SizedBox(height: 40),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // ไปหน้า Register (เริ่ม step 0)
-                  GestureDetector(
-                    onTap: () => Navigator.pushNamed(context, AppRoutes.register),
-                    child: Text('SIGN-UP',
-                        style: GoogleFonts.luckiestGuy(fontSize: 18, color: red)),
-                  ),
-                  const SizedBox(width: 48),
-                  // ไปหน้า Login
-                  GestureDetector(
-                    onTap: () => Navigator.pushNamed(context, AppRoutes.login),
-                    child: Text('LOG IN',
-                        style: GoogleFonts.luckiestGuy(fontSize: 18, color: red)),
-                  ),
-                ],
+            // ปุ่ม SIGN-UP ล่างซ้าย
+            Positioned(
+              left: 24,
+              bottom: 20,
+              child: GestureDetector(
+                onTap: () => Navigator.pushNamed(context, AppRoutes.register),
+                child: Text(
+                  'SIGN-UP',
+                  style: GoogleFonts.luckiestGuy(fontSize: 18, color: red),
+                ),
               ),
-            ],
-          ),
+            ),
+
+            // ปุ่ม LOG IN ล่างขวา
+            Positioned(
+              right: 24,
+              bottom: 20,
+              child: GestureDetector(
+                onTap: () => Navigator.pushNamed(context, AppRoutes.login),
+                child: Text(
+                  'LOG IN',
+                  style: GoogleFonts.luckiestGuy(fontSize: 18, color: red),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

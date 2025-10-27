@@ -156,23 +156,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
 
-                  // // ❌ เอาปุ่ม LANGUAGE ออกโดยลบบล็อกนี้ทั้งก้อน
-                  // const SizedBox(width: 12),
-                  // GestureDetector(
-                  //   onTap: () =>
-                  //       Navigator.pushNamed(context, AppRoutes.languageHub),
-                  //   child: Container(
-                  //     padding: const EdgeInsets.symmetric(
-                  //         horizontal: 16, vertical: 12),
-                  //     decoration: BoxDecoration(
-                  //       color: blue,
-                  //       borderRadius: BorderRadius.circular(28),
-                  //     ),
-                  //     child: Text('LANGUAGE',
-                  //         style: GoogleFonts.luckiestGuy(
-                  //             color: Colors.white, fontSize: 16)),
-                  //   ),
-                  // ),
                 ],
               ),
 
