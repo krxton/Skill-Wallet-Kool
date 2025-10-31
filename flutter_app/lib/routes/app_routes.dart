@@ -1,4 +1,4 @@
-// lib/routes/app_routes.dart (ฉบับแก้ไข)
+// lib/routes/app_routes.dart
 
 import 'package:flutter/material.dart';
 
@@ -11,7 +11,8 @@ import '../screens/language_list_screen.dart';
 import '../screens/item_intro_screen.dart';
 import '../screens/record_screen.dart';
 import '../screens/result_screen.dart';
-import '../screens/video_detail_screen.dart'; // 🆕 Import หน้าจอใหม่
+import '../screens/video_detail_screen.dart';
+import '../models/activity.dart'; // 🆕 ต้อง Import Activity Model
 
 class AppRoutes {
   // core
@@ -28,7 +29,7 @@ class AppRoutes {
   static const String itemIntro = '/item-intro';
   static const String record = '/record';
   static const String result = '/result';
-  static const String videoDetail = '/video-detail'; // 🆕 เพิ่มชื่อ Route
+  static const String videoDetail = '/video-detail';
 
   static Map<String, WidgetBuilder> get routes => <String, WidgetBuilder>{
         welcome: (_) => const WelcomeScreen(),
@@ -47,14 +48,13 @@ class AppRoutes {
 
         // 🆕 Route สำหรับ VideoDetailScreen
         videoDetail: (context) {
-          // รับ Arguments ที่ถูกส่งมาในรูปแบบ Map<String, String>
-          final args =
-              ModalRoute.of(context)!.settings.arguments as Map<String, String>;
+          // 🆕 เปลี่ยนไปรับ Activity Object โดยตรง
+          final activity =
+              ModalRoute.of(context)!.settings.arguments as Activity;
 
           return VideoDetailScreen(
-            // ดึงค่า htmlContent และ title ออกจาก Map
-            htmlContent: args['htmlContent']!,
-            title: args['title']!,
+            // 🆕 ส่ง Activity Object ไปยัง Constructor
+            activity: activity,
           );
         },
       };

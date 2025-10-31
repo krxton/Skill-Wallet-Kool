@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import '../routes/app_routes.dart';
 import '../providers/user_provider.dart';
 import '../services/activity_service.dart';
-import '../models/activity.dart'; // 🆕 Activity Model
+import '../models/activity.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -21,6 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
   static const sky = Color(0xFF0D92F4);
   static const deepSky = Color(0xFF7DBEF1);
 
+  // 🆕 นำตัวแปร Category กลับมา
   String _categoryValue = 'CATEGORY';
 
   final ActivityService _activityService = ActivityService();
@@ -33,7 +34,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // ใช้งาน context หลัง build เพื่อดึงข้อมูลจาก Provider
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadData();
     });
@@ -42,13 +42,11 @@ class _HomeScreenState extends State<HomeScreen> {
   void _loadData() {
     if (!mounted) return;
 
-    // ดึง ID ผู้ใช้ (PR2/CH2) จาก Provider
     final childId = context.read<UserProvider>().currentChildId;
 
     if (childId != null) {
       setState(() {
         _currentChildId = childId;
-        // 🆕 เริ่มดึงข้อมูลจาก Service จริง
         _physicalActivityClipFuture =
             _activityService.fetchPhysicalActivityClip(childId);
         _popularActivitiesFuture =
@@ -57,6 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  // 🆕 นำ Logic Dropdown กลับมา
   void _onCategoryChanged(String? value) {
     if (value == null) return;
     setState(() => _categoryValue = value);
@@ -72,24 +71,22 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // 3. WIDGET BUILDERS
-
-  // 🆕 Widget สำหรับแสดง Thumbnail และนำทางเมื่อกด
+  // 3. WIDGET BUILDERS (ส่วน TikTok และ Activity Card เหมือนเดิม)
   Widget _buildTikTokThumbnail({
-    required String thumbnailUrl,
-    required String title,
-    required String htmlContent,
+    required Activity activity, // 👈 รับ Activity Object
   }) {
+    // ใช้ฟิลด์จาก Activity Object
+    final String thumbnailUrl = activity.thumbnailUrl!;
+    final String title = activity.name;
+    final String htmlContent = activity.tiktokHtmlContent!;
+
     return GestureDetector(
       onTap: () {
-        // นำทางไปยัง VideoDetailScreen พร้อมส่ง Arguments
+        // 🆕 แก้ไข: ส่ง Activity Object โดยตรง
         Navigator.pushNamed(
           context,
           AppRoutes.videoDetail,
-          arguments: {
-            'htmlContent': htmlContent,
-            'title': title,
-          },
+          arguments: activity, // 👈 ส่ง Activity Object นี้ไป!
         );
       },
       child: Column(
@@ -127,7 +124,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // 🆕 Widget สำหรับการ์ดกิจกรรมย่อย
   Widget _activityCard(Activity activity) {
     return Container(
       width: 150,
@@ -146,7 +142,6 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Mock Image Placeholder
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             child: Container(
@@ -187,10 +182,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // 4. MAIN BUILD METHOD
-
   @override
   Widget build(BuildContext context) {
-    // แสดง loading state หาก childId ยังเป็น null
     if (_currentChildId == null) {
       return const Scaffold(
         backgroundColor: cream,
@@ -224,7 +217,69 @@ class _HomeScreenState extends State<HomeScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // ... (Search Bar, Dropdown)
+          // 🆕 แถบค้นหาและ Dropdown (นำกลับมา)
+          Row(
+            children: [
+              // Search Bar
+              Expanded(
+                child: Container(
+                  height: 48,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: sky, width: 2),
+                  ),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Search activities...',
+                      hintStyle: GoogleFonts.openSans(color: Colors.grey),
+                      border: InputBorder.none,
+                      icon: const Icon(Icons.search, color: sky),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+
+              // Dropdown Category
+              Container(
+                height: 48,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: sky,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: _categoryValue,
+                    icon:
+                        const Icon(Icons.arrow_drop_down, color: Colors.white),
+                    style: GoogleFonts.luckiestGuy(
+                        fontSize: 16, color: Colors.white),
+                    dropdownColor: sky,
+                    items: <String>[
+                      'CATEGORY',
+                      'PHYSICAL',
+                      'LANGUAGE',
+                      'CREATIVE'
+                    ].map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: _onCategoryChanged, // 🔗 เชื่อมต่อ
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+
+          // หัวข้อ SWK (แยกออกมาจาก AppBar)
+          Text('SWK', style: GoogleFonts.luckiestGuy(fontSize: 26, color: sky)),
+          const SizedBox(height: 10),
 
           // 1. CLIP VDO (FutureBuilder เพื่อดึงข้อมูล TikTok)
           Container(
@@ -245,7 +300,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 final activity = snapshot.data;
 
-                // ตรวจสอบ Error และข้อมูลที่จำเป็น
                 if (snapshot.hasError ||
                     activity == null ||
                     activity.thumbnailUrl == null ||
@@ -262,9 +316,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 // แสดง Thumbnail และเพิ่มฟังก์ชัน Tap
                 return _buildTikTokThumbnail(
-                  thumbnailUrl: activity.thumbnailUrl!,
-                  title: activity.name,
-                  htmlContent: activity.tiktokHtmlContent!,
+                  activity: activity!, // ส่ง Activity Object ที่ดึงมาจาก API
                 );
               },
             ),
@@ -272,7 +324,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
           const SizedBox(height: 30),
 
-          // 2. POPULAR ACTIVITIES (FutureBuilder เพื่อดึงข้อมูลกิจกรรมยอดนิยม)
+          // 2. POPULAR ACTIVITIES (FutureBuilder)
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -322,7 +374,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
 
-          // ... (ส่วน NEW ACTIVITIES)
+          // 3. NEW ACTIVITIES
           const SizedBox(height: 30),
           Text('NEW ACTIVITIES',
               style:
