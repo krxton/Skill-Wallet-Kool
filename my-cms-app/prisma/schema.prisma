@@ -1,0 +1,139 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.lyd/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Datasource: ตรวจสอบให้แน่ใจว่า provider และ url ถูกต้อง
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =======================================================
+// ENTITIES / MODELS
+// =======================================================
+
+// 1. ผู้ปกครอง (Parent)
+model Parent {
+  id           String @id @default(cuid())
+  fullName     String
+  email        String @unique
+  createdAt    DateTime @default(now())
+  status       String @default("Active") // "Active", "Inactive"
+  
+  // --- [NEW FIELD] เพิ่ม Field นี้เพื่อให้ตรงกับ Wireframe ---
+  verification String @default("Unverified") // "Verified", "Unverified"
+  // --------------------------------------------------------
+
+  // ความสัมพันธ์
+  children        ParentChild[]
+  activities      ActivityRecord[] @relation("ParentRecords")
+  rewards         ParentReward[]
+  redeemedRewards RewardRedemption[]
+}
+
+// 2. เด็ก (Child)
+model Child {
+  id              String @id @default(cuid())
+  fullName        String
+  dob             DateTime?
+  score           Int @default(0)
+  scoreUpdate     Int @default(0)
+
+  // ความสัมพันธ์
+  parents         ParentChild[]
+  activities      ActivityRecord[] @relation("ChildRecords")
+  redeemedRewards RewardRedemption[]
+}
+
+// 3. กิจกรรม (Activity)
+model Activity {
+  id            String @id @default(cuid())
+  name          String
+  category      String
+  content       String
+  difficulty    String
+  maxScore      Int
+  description   String?
+  videoUrl      String?
+  segments      Json?
+
+  // ความสัมพันธ์
+  activities     ActivityRecord[] @relation("ActivityRecords")
+}
+
+// 4. รางวัล (Reward)
+model Reward {
+  id              String @id @default(cuid())
+  name            String
+  cost            Int
+  
+  parents         ParentReward[]
+  redeemedRewards RewardRedemption[]
+}
+
+// =======================================================
+// JUNCTION TABLES (ตารางเชื่อมโยง)
+// =======================================================
+
+// 5. ผู้ปกครองและเด็ก (ParentChild)
+model ParentChild {
+  parentId     String
+  childId      String
+  relationship String
+
+  // ความสัมพันธ์
+  parent       Parent @relation(fields: [parentId], references: [id])
+  child        Child  @relation(fields: [childId], references: [id])
+
+  @@id([parentId, childId])
+}
+
+// 6. ผู้ปกครองและรางวัล (ParentReward)
+model ParentReward {
+  parentId String
+  rewardId String
+
+  parent   Parent @relation(fields: [parentId], references: [id])
+  reward   Reward @relation(fields: [rewardId], references: [id])
+
+  @@id([parentId, rewardId])
+}
+
+// 7. บันทึกกิจกรรม (ActivityRecord / Submissions)
+model ActivityRecord {
+  id                 String   @id @default(cuid())
+  activityId         String
+  parentId           String
+  childId            String
+  
+  dateCompleted      DateTime @default(now())
+  timeSpentSeconds   Int?     // เวลาที่ใช้ (วินาที) - OPTIONAL
+  status             String   @default("Pending") // Pending, Approved, Failed
+  detailResults      Json?    // ผลลัพธ์โดยละเอียดของ Quest (JSON Object)
+  scoreEarned        Int      // คะแนนรวมที่ได้รับ
+  roundNumber        Int      // รอบที่ทำภารกิจ
+
+  // ความสัมพันธ์
+  activity           Activity @relation("ActivityRecords", fields: [activityId], references: [id])
+  parent             Parent   @relation("ParentRecords", fields: [parentId], references: [id])
+  child              Child    @relation("ChildRecords", fields: [childId], references: [id])
+}
+
+// 8. การแลกรางวัล (RewardRedemption)
+model RewardRedemption {
+  id           String @id @default(cuid())
+  childId      String
+  parentId     String
+  rewardId     String
+  
+  dateRedeemed DateTime
+  scoreUsed    Int
+
+  // ความสัมพันธ์ 
+  child        Child @relation(fields: [childId], references: [id])
+  parent       Parent @relation(fields: [parentId], references: [id])
+  reward       Reward @relation(fields: [rewardId], references: [id])
+}
