@@ -44,12 +44,22 @@ class AppRoutes {
         // อื่น ๆ
         languageHub: (_) => const LanguageHubScreen(),
         languageList: (_) => const LanguageListScreen(),
-        // ⚠️ ItemIntroScreen ควรถูกแก้ไขให้รับ Activity Model ใน Constructor
-        itemIntro: (_) => const ItemIntroScreen(),
+
+        // 🆕 แก้ไข: itemIntro ต้องรับ Activity Model
+        itemIntro: (context) {
+          // 🛑 แก้ Error: รับ Argument เป็น Activity Model
+          final activity =
+              ModalRoute.of(context)!.settings.arguments as Activity;
+
+          return ItemIntroScreen(
+            activity: activity, // 👈 ส่ง Argument ที่ required
+          );
+        },
+
         record: (_) => const RecordScreen(),
         result: (_) => const ResultScreen(),
 
-        // 1. Route สำหรับ VideoDetailScreen
+        // 1. Route สำหรับ VideoDetailScreen (ไม่เปลี่ยนแปลง)
         videoDetail: (context) {
           final activity =
               ModalRoute.of(context)!.settings.arguments as Activity;
@@ -58,12 +68,10 @@ class AppRoutes {
           );
         },
 
-        // 2. 🆕 Route สำหรับ LanguageDetailScreen (แก้ไขโครงสร้าง)
+        // 2. Route สำหรับ LanguageDetailScreen (ไม่เปลี่ยนแปลง)
         languageDetail: (context) {
-          // รับ Activity Object โดยตรง
           final activity =
               ModalRoute.of(context)!.settings.arguments as Activity;
-
           return LanguageDetailScreen(
             activity: activity,
           );

@@ -5,10 +5,12 @@ import 'package:provider/provider.dart'; // 🆕 ต้องเพิ่ม imp
 import 'routes/app_routes.dart';
 import 'theme/app_theme.dart';
 import 'providers/user_provider.dart'; // 🆕 Import UserProvider
+import 'package:media_kit/media_kit.dart';
 // import 'services/activity_service.dart'; // 🆕 Import ActivityService (ถ้าต้องการ Provider)
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  MediaKit.ensureInitialized();
 
   // 🆕 ห่อหุ้มแอปด้วย MultiProvider เพื่อให้ UserProvider ใช้งานได้
   runApp(
