@@ -57,7 +57,7 @@ class AppRoutes {
         },
 
         record: (_) => const RecordScreen(),
-        result: (_) => const ResultScreen(),
+        // result: (_) => const ResultScreen(),
 
         // 1. Route สำหรับ VideoDetailScreen (ไม่เปลี่ยนแปลง)
         videoDetail: (context) {
@@ -75,6 +75,17 @@ class AppRoutes {
           return LanguageDetailScreen(
             activity: activity,
           );
+        },
+
+        result: (context) {
+          // 🆕 รับ Argument เป็น Map<String, dynamic>
+          final args = ModalRoute.of(context)!.settings.arguments
+              as Map<String, dynamic>?;
+
+          // ResultScreen เป็น StatefulWidget, เราสามารถส่ง Map ไปโดยตรงได้
+          return ResultScreen(
+              // ไม่จำเป็นต้องส่ง args ผ่าน Constructor เพราะเราเข้าถึงผ่าน ModalRoute แล้ว
+              );
         },
       };
 }

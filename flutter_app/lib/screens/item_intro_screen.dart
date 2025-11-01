@@ -292,8 +292,11 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
       // 2. นำทางไป Result Screen
       Navigator.pushReplacementNamed(context, AppRoutes.result, arguments: {
         'activityName': widget.activity.name,
-        'totalScore': result['calculatedScore'] as int? ?? 0,
+        'totalScore':
+            result['calculatedScore'] as int? ?? 0, // % สำหรับเกณฑ์ผ่าน
+        'scoreEarned': result['scoreEarned'] as int? ?? 0, // 🆕 คะแนนดิบ
         'timeSpend': 120,
+        'activityObject': widget.activity, // 🆕 ส่ง Activity Object
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

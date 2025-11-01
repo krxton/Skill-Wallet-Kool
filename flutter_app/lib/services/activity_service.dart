@@ -243,7 +243,8 @@ class ActivityService {
       final res = await _apiService.post('/complete-quest', payload);
 
       // ส่งคะแนนที่คำนวณแล้วกลับไปให้ ItemIntroScreen
-      res['calculatedScore'] = scoreEarned;
+      res['scoreEarned'] = scoreEarned; // คะแนนดิบ (85)
+      res['calculatedScore'] = averageAccuracy.round(); // % (85%)
 
       return res;
     } catch (e) {
