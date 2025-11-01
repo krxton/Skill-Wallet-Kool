@@ -1,4 +1,5 @@
 // lib/screens/item_intro_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -6,6 +7,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
+import 'package:audioplayers/audioplayers.dart'; // 🆕 สำหรับเล่นเสียงที่บันทึก
 
 import '../providers/user_provider.dart';
 import '../services/activity_service.dart';
@@ -34,6 +36,8 @@ class YoutubePlayer {
   }
 }
 
+// ⚠️ Note: SegmentResult class must be defined in activity_service.dart
+
 class ItemIntroScreen extends StatefulWidget {
   final Activity activity;
   const ItemIntroScreen({super.key, required this.activity});
@@ -43,6 +47,10 @@ class ItemIntroScreen extends StatefulWidget {
 }
 
 class _ItemIntroScreenState extends State<ItemIntroScreen> {
+  // ----------------------------------------------------
+  // 1. CONSTANTS & STATE
+  // ----------------------------------------------------
+
   static const cream = Color(0xFFFFF5CD);
   static const sky = Color(0xFF0D92F4);
   static const lilac = Color(0xFFC68AF6);
@@ -55,10 +63,12 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
   static const nextBlue = Color(0xFF1487FF);
   static const prevGrey = Color(0xFFD6D5D3);
 
-  // 🆕 เปลี่ยนจาก VideoPlayerController เป็น media_kit
   Player? _player;
   VideoController? _videoController;
-  String _youtubeVideoId = '';
+  final AudioPlayer _playbackPlayer =
+      AudioPlayer(); // 🆕 Player สำหรับฟังเสียงตัวเอง
+
+  String _youtubeVideoId = ''; // ID จาก URL
 
   late List<dynamic> _rawSegments;
   late final int totalSegments;
@@ -74,19 +84,23 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
   bool _isPlayerReady = false;
   bool _isVideoLoading = true;
   String? _videoError;
+  bool _isPlaybackPlaying = false; // 🆕 สถานะ Playback
 
   @override
   void initState() {
     super.initState();
 
-    _rawSegments =
-        (widget.activity.segments as List<dynamic>?)?.where((segment) {
-              final text = (segment['text'] as String?)?.trim() ?? '';
-              return text.isNotEmpty && text != '[Music]';
-            }).toList() ??
-            [];
+    // 1. เตรียม Segment Data
+    _rawSegments = (widget.activity.segments as List<dynamic>?)
+            ?.whereType<Map<String, dynamic>>()
+            .where((segment) {
+          final text = (segment['text'] as String?)?.trim() ?? '';
+          return text.isNotEmpty && text != '[Music]';
+        }).toList() ??
+        [];
     totalSegments = _rawSegments.length;
 
+    // 2. ตั้งค่า Segment Results
     _segmentResults = _rawSegments.asMap().entries.map((entry) {
       final segment = entry.value as Map<String, dynamic>;
       return SegmentResult(
@@ -95,60 +109,72 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
           maxScore: 0);
     }).toList();
 
+    // 3. กำหนด YouTube Video ID
     if (widget.activity.videoUrl != null) {
       _youtubeVideoId =
           YoutubePlayer.convertUrlToId(widget.activity.videoUrl!) ?? '';
     }
 
-    // 🆕 เริ่มโหลดวิดีโอ
-    if (_youtubeVideoId.isNotEmpty) {
-      _initializeVideo();
-    }
-
+    // 4. โหลด User ID และ Direct URL
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _childId = context.read<UserProvider>().currentChildId;
+      if (_youtubeVideoId.isNotEmpty) {
+        _initializeVideo();
+      }
+    });
+
+    // 🆕 Listener เมื่อไฟล์เสียงเล่นจบ
+    _playbackPlayer.onPlayerComplete.listen((event) {
+      if (mounted) {
+        setState(() => _isPlaybackPlaying = false);
+      }
     });
   }
 
-  // 🆕 ฟังก์ชันโหลดวิดีโอ
+  // 🆕 NEW: โหลด Direct URL และ Initialize Player
   Future<void> _initializeVideo() async {
     setState(() => _isVideoLoading = true);
 
     try {
-      // เรียก API Backend ดึง Direct URL
       final directUrl = await YouTubeService.getDirectVideoUrl(_youtubeVideoId);
 
       if (directUrl != null && mounted) {
-        // สร้าง Player
         _player = Player();
         _videoController = VideoController(_player!);
 
-        // เปิดวิดีโอ
         await _player!.open(Media(directUrl));
 
         setState(() {
+          _videoError = null;
           _isVideoLoading = false;
           _isPlayerReady = true;
         });
-      } else {
+      } else if (mounted) {
         setState(() {
           _isVideoLoading = false;
-          _videoError = 'ไม่สามารถโหลดวิดีโอได้';
+          _videoError = 'ไม่สามารถโหลด URL วิดีโอโดยตรงได้';
         });
       }
     } catch (e) {
-      setState(() {
-        _isVideoLoading = false;
-        _videoError = e.toString();
-      });
+      if (mounted) {
+        setState(() {
+          _isVideoLoading = false;
+          _videoError = 'Video Error: ${e.toString()}';
+        });
+      }
     }
   }
 
   @override
   void dispose() {
     _player?.dispose();
+    _playbackPlayer.dispose(); // 🆕 ต้อง dispose playback player
     super.dispose();
   }
+
+  // ----------------------------------------------------
+  // 2. HELPERS (Logic)
+  // ----------------------------------------------------
 
   SegmentResult get _currentSegmentResult {
     if (current > 0 && current <= totalSegments) {
@@ -168,7 +194,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
         'Text not found.';
   }
 
-  // 🆕 ฟังก์ชันเล่น Section ด้วย media_kit
+  // 🆕 Logic การเล่น Section ด้วย media_kit.seekTo()
   void _playSection() {
     if (_player == null || !_isPlayerReady) return;
     if (_rawSegments.isEmpty || current > totalSegments) return;
@@ -178,19 +204,43 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
     final end = (currentSegment['end'] as num?)?.toDouble();
 
     if (start != null && end != null) {
-      // Seek ไปยังเวลาเริ่มต้น
       _player!.seek(Duration(milliseconds: (start * 1000).toInt()));
       _player!.play();
 
-      // หยุดเมื่อถึงเวลาสิ้นสุด
-      final durationMs = ((end - start) * 1000).toInt();
-      Timer(Duration(milliseconds: durationMs), () {
+      final duration = (end * 1000).toInt() - (start * 1000).toInt();
+      Timer(Duration(milliseconds: duration), () {
         if (mounted && _player != null) {
           _player!.pause();
         }
       });
     }
   }
+
+  // 🆕 Logic สำหรับ Playback เสียงที่บันทึก
+  void _playOwnRecording(String? audioPath) async {
+    if (audioPath == null || audioPath.isEmpty) return;
+
+    if (_isPlaybackPlaying) {
+      await _playbackPlayer.pause();
+      setState(() => _isPlaybackPlaying = false);
+      return;
+    }
+
+    try {
+      // 1. เล่นไฟล์เสียงจาก Local Path
+      await _playbackPlayer.play(DeviceFileSource(audioPath));
+      setState(() => _isPlaybackPlaying = true);
+    } catch (e) {
+      debugPrint('Self-Playback Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to play back recording.')));
+      setState(() => _isPlaybackPlaying = false);
+    }
+  }
+
+  // ----------------------------------------------------
+  // 3. EVENT HANDLERS
+  // ----------------------------------------------------
 
   Future<void> _handleRecord() async {
     if (_childId == null || _rawSegments.isEmpty) return;
@@ -229,11 +279,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
   Future<void> _handleFinishQuest() async {
     if (_childId == null) return;
 
-    if (completedSegmentsCount < totalSegments) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Please complete all segments before finishing.')));
-      return;
-    }
+    // ⚠️ Logic การนำทางที่ถูกแก้ไข (กด Next/Finish ได้เสมอ)
 
     try {
       final result = await _activityService.finalizeQuest(
@@ -243,6 +289,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
         activityMaxScore: widget.activity.maxScore,
       );
 
+      // 2. นำทางไป Result Screen
       Navigator.pushReplacementNamed(context, AppRoutes.result, arguments: {
         'activityName': widget.activity.name,
         'totalScore': result['calculatedScore'] as int? ?? 0,
@@ -253,6 +300,10 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
           SnackBar(content: Text('Error completing quest: ${e.toString()}')));
     }
   }
+
+  // ----------------------------------------------------
+  // 4. BUILD METHOD (UI)
+  // ----------------------------------------------------
 
   @override
   Widget build(BuildContext context) {
@@ -308,96 +359,138 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // 🆕 Video Player ด้วย media_kit
-              if (_youtubeVideoId.isNotEmpty)
-                Container(
-                  height: 250,
-                  decoration: BoxDecoration(
-                    color: Colors.black,
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(18),
-                    child: _isVideoLoading
-                        ? Center(child: CircularProgressIndicator(color: sky))
-                        : _videoError != null
-                            ? Center(
-                                child: Text(_videoError!,
-                                    style: GoogleFonts.luckiestGuy(
-                                        color: Colors.white)))
-                            : _videoController != null
-                                ? Video(controller: _videoController!)
-                                : Center(
-                                    child: Text('Video not available',
-                                        style: GoogleFonts.luckiestGuy(
-                                            color: Colors.white))),
-                  ),
-                )
-              else
-                Container(
-                  height: 250,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: Center(
-                      child: Text('No video available',
-                          style: GoogleFonts.luckiestGuy(fontSize: 16))),
+              Container(
+                height: 250,
+                decoration: BoxDecoration(
+                  color: Colors.black, // สีพื้นหลังสำหรับวิดีโอ
+                  borderRadius: BorderRadius.circular(18),
                 ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(18),
+                  child: _isVideoLoading
+                      ? Center(child: CircularProgressIndicator(color: sky))
+                      : _videoError != null
+                          ? Center(
+                              child: Text('Video Error: $_videoError',
+                                  style: GoogleFonts.luckiestGuy(
+                                      color: Colors.white)))
+                          : _isPlayerReady && _videoController != null
+                              ? Video(
+                                  controller:
+                                      _videoController!) // 🆕 แสดง Video
+                              : Center(
+                                  child: Text('Video not available',
+                                      style: GoogleFonts.luckiestGuy(
+                                          color: Colors.white))),
+                ),
+              ),
 
               const SizedBox(height: 8),
 
+              // Caption
               Center(
-                child: Text('TAP TO PLAY/PAUSE',
-                    style:
-                        GoogleFonts.luckiestGuy(fontSize: 11, color: deepGrey)),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.25),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    'Segment $current of $totalSegments',
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14),
+                  ),
+                ),
               ),
               const SizedBox(height: 14),
 
+              // ปุ่ม Cast / AirPlay (Placeholder)
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.cast, size: 28, color: deepGrey.withOpacity(0.5)),
-                  const SizedBox(width: 16),
-                  Icon(Icons.airplay,
-                      size: 28, color: deepGrey.withOpacity(0.5)),
+                  _pillButton('CAST TO TV', lilac,
+                      textDark: true, onTap: () {}),
+                  const SizedBox(width: 10),
+                  _pillButton('AIRPLAY', sunshine,
+                      textDark: true, onTap: () {}),
                 ],
               ),
               const SizedBox(height: 14),
 
+              // การ์ดเนื้อหา (Segment Controls)
               _contentCard(
-                  text: currentText,
-                  score: currentSegmentResult.maxScore,
-                  recognizedText: currentSegmentResult.recognizedText),
+                text: currentText,
+                score: currentSegmentResult.maxScore,
+                recognizedText: currentSegmentResult.recognizedText,
+              ),
               const SizedBox(height: 10),
 
-              _statusCard(currentSegmentResult),
+              // การ์ดสถานะ
+              _statusCard(currentSegmentResult), // 🆕 ถูกอัปเดตแล้ว
               const SizedBox(height: 20),
 
+              // หน้า
               Center(
-                  child: Text('PAGE $current OF $totalSegments',
-                      style: GoogleFonts.luckiestGuy(
-                          fontSize: 13, color: deepGrey))),
+                child: Text(
+                  '$current / $totalSegments',
+                  style: GoogleFonts.luckiestGuy(fontSize: 16, color: deepGrey),
+                ),
+              ),
               const SizedBox(height: 10),
 
+              // ปุ่มล่าง (Navigation)
               Row(
                 children: [
                   Expanded(
-                      child: _bottomBtn(
-                          label: 'PREVIOUS',
-                          bg: prevGrey,
-                          fg: Colors.white,
-                          onTap: current > 1
-                              ? () => setState(() => current--)
-                              : null)),
-                  const SizedBox(width: 12),
+                    child: _bottomBtn(
+                      label: '< PREVIOUS',
+                      bg: prevGrey,
+                      fg: deepGrey,
+                      onTap: current > 1
+                          ? () => setState(() {
+                                current--;
+                                this.state = 'idle';
+                              })
+                          : null,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    width: 80,
+                    height: 48,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Text(
+                      '$completedSegmentsCount/$totalSegments',
+                      style: GoogleFonts.luckiestGuy(fontSize: 16),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // 🛑 Logic การนำทางที่ถูกแก้ไข (กด Next/Finish ได้เสมอ)
                   Expanded(
-                      child: _bottomBtn(
-                          label: current < totalSegments ? 'NEXT' : 'FINISH',
-                          bg: nextBlue,
-                          fg: Colors.white,
-                          onTap: current < totalSegments
-                              ? () => setState(() => current++)
-                              : _handleFinishQuest)),
+                    child: _bottomBtn(
+                      label: current == totalSegments ? 'FINISH >' : 'NEXT >',
+                      bg: nextBlue,
+                      fg: Colors.white,
+                      onTap: () {
+                        if (current < totalSegments) {
+                          setState(() {
+                            current++;
+                            this.state = _currentSegmentResult.maxScore > 0
+                                ? 'reviewed'
+                                : 'idle';
+                          });
+                        } else {
+                          _handleFinishQuest();
+                        }
+                      },
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -407,9 +500,14 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
     );
   }
 
+  // ----------------------------------------------------
+  // 5. HELPER WIDGETS
+  // ----------------------------------------------------
+
   Widget _pillButton(String text, Color bg,
       {bool textDark = false, VoidCallback? onTap}) {
     final Color actualBg = onTap == null ? bg.withOpacity(0.6) : bg;
+
     return Expanded(
       child: InkWell(
         onTap: onTap,
@@ -417,11 +515,17 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
         child: Container(
           height: 42,
           decoration: BoxDecoration(
-              color: actualBg, borderRadius: BorderRadius.circular(14)),
+            color: bg,
+            borderRadius: BorderRadius.circular(14),
+          ),
           alignment: Alignment.center,
-          child: Text(text,
-              style: GoogleFonts.luckiestGuy(
-                  color: textDark ? Colors.black : Colors.white, fontSize: 14)),
+          child: Text(
+            text,
+            style: GoogleFonts.luckiestGuy(
+              color: textDark ? Colors.black : Colors.white,
+              fontSize: 14,
+            ),
+          ),
         ),
       ),
     );
@@ -432,13 +536,17 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
     final isReviewed = score != null && score > 0;
     return Container(
       decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(18)),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+      ),
       padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('SPEAK: ${text.toUpperCase()}',
-              style: GoogleFonts.luckiestGuy(fontSize: 15, color: deepGrey)),
+          Text(
+            'SPEAK: ${text.toUpperCase()}',
+            style: GoogleFonts.luckiestGuy(fontSize: 15, color: deepGrey),
+          ),
           const SizedBox(height: 10),
           Row(
             children: [
@@ -448,8 +556,10 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                       : null),
               const SizedBox(width: 10),
               _pillButton(
-                  'RECORD', isReviewed ? greenPill : const Color(0xFFE7686B),
-                  onTap: _handleRecord),
+                'RECORD',
+                isReviewed ? greenPill : const Color(0xFFE7686B),
+                onTap: _handleRecord,
+              ),
             ],
           ),
           const SizedBox(height: 10),
@@ -465,18 +575,24 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
             ],
           ),
           const SizedBox(height: 8),
+          // Progress Bar
           Container(
             height: 16,
             decoration: BoxDecoration(
-                color: progressTrack, borderRadius: BorderRadius.circular(12)),
+              color: progressTrack,
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: isReviewed
                 ? FractionallySizedBox(
                     widthFactor: score! / 100,
                     alignment: Alignment.centerLeft,
                     child: Container(
-                        decoration: BoxDecoration(
-                            color: greenPill,
-                            borderRadius: BorderRadius.circular(12))))
+                      decoration: BoxDecoration(
+                        color: greenPill,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  )
                 : null,
           ),
         ],
@@ -485,58 +601,107 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
   }
 
   Widget _statusCard(SegmentResult result) {
+    // 🆕 แสดงผลเต็ม (ไม่ต้องย่อ)
+    final String recognizedTextDisplay = result.recognizedText?.trim() ?? "N/A";
+
     final statusText = switch (state) {
       'processing' => 'STATUS: AI PROCESSING…',
+      // 🆕 แก้ไข: แสดง recognizedText เต็ม
       'reviewed' =>
-        'STATUS AI: "${result.recognizedText ?? "N/A"}" ✅ CORRECTNESS : ${result.maxScore}%',
+        'STATUS AI: "${recognizedTextDisplay}" ✅ CORRECTNESS : ${result.maxScore}%',
       'finished' => 'STATUS: ALL SEGMENTS COMPLETED ✅',
       _ =>
         'STATUS: Ready to record Segment $current ${!_isPlayerReady ? '(Player Loading)' : ''}',
     };
 
+    final bool isRecordingAvailable =
+        result.audioUrl != null && result.audioUrl!.isNotEmpty;
+
     return Container(
       decoration: BoxDecoration(
-          color: greyCard, borderRadius: BorderRadius.circular(18)),
+        color: greyCard,
+        borderRadius: BorderRadius.circular(18),
+      ),
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(statusText,
-              style: TextStyle(
-                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                  fontSize: 12,
-                  color: deepGrey)),
+          // 1. สถานะ (แสดงผลเต็มบรรทัด)
+          Text(
+            statusText,
+            // ⚠️ Warning: TextStyle ภายใน GoogleFonts.luckiestGuy อาจมีปัญหาการ wrap
+            style: TextStyle(
+              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+              fontSize: 12,
+              color: deepGrey,
+            ),
+          ),
           const SizedBox(height: 10),
+          // 2. 🆕 ปุ่มฟังเสียงตัวเองซ้ำ
           Container(
             height: 40,
             decoration: BoxDecoration(
-                color: Colors.white, borderRadius: BorderRadius.circular(14)),
-            alignment: Alignment.center,
-            child: Text(
-                'Audio Playback Controls Placeholder (Recording ID: ${result.audioUrl?.split('/').last ?? "N/A"})',
-                style: GoogleFonts.openSans(fontSize: 12, color: deepGrey)),
+              color: isRecordingAvailable ? Colors.white : Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: isRecordingAvailable
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.volume_up, size: 20, color: deepGrey),
+                      const SizedBox(width: 8),
+                      Text(
+                          _isPlaybackPlaying
+                              ? 'PAUSE PLAYBACK...'
+                              : 'LISTEN TO YOUR RECORDING',
+                          style: GoogleFonts.luckiestGuy(
+                              fontSize: 13, color: deepGrey)),
+                      const SizedBox(width: 10),
+                      // 🆕 ปุ่ม Playback
+                      IconButton(
+                        icon: Icon(
+                            _isPlaybackPlaying
+                                ? Icons.pause_circle
+                                : Icons.play_circle,
+                            color: sky,
+                            size: 28),
+                        onPressed: () => _playOwnRecording(result.audioUrl),
+                      ),
+                    ],
+                  )
+                : Center(
+                    child: Text('Record to enable playback',
+                        style: GoogleFonts.openSans(
+                            fontSize: 12, color: deepGrey.withOpacity(0.5))),
+                  ),
           ),
         ],
       ),
     );
   }
 
-  Widget _bottomBtn(
-      {required String label,
-      required Color bg,
-      required Color fg,
-      VoidCallback? onTap}) {
+  Widget _bottomBtn({
+    required String label,
+    required Color bg,
+    required Color fg,
+    VoidCallback? onTap,
+  }) {
     final Color actualBg = onTap == null ? bg.withOpacity(0.6) : bg;
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(16),
       child: Container(
         height: 48,
         decoration: BoxDecoration(
-            color: actualBg, borderRadius: BorderRadius.circular(16)),
+          color: actualBg,
+          borderRadius: BorderRadius.circular(16),
+        ),
         alignment: Alignment.center,
-        child: Text(label,
-            style: GoogleFonts.luckiestGuy(color: fg, fontSize: 15)),
+        child: Text(
+          label,
+          style: GoogleFonts.luckiestGuy(color: fg, fontSize: 15),
+        ),
       ),
     );
   }

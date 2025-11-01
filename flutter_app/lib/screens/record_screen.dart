@@ -6,9 +6,12 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart'; // สำหรับ Path ชั่วคราว
 import 'package:record/record.dart'; // สำหรับบันทึกเสียง
 import 'package:google_fonts/google_fonts.dart';
+import 'package:audioplayers/audioplayers.dart'; // 🆕 สำหรับเล่นไฟล์เสียง
+import '../routes/app_routes.dart'; // ⚠️ อาจไม่ได้ใช้ แต่ควรมี
 import '../services/activity_service.dart'; // สำหรับประเมิน AI
 
 // ⚠️ Note: สมมติว่า Palette Class ถูกกำหนดค่าสีไว้แล้ว
+// (ใช้ค่าคงที่สีแทนในโค้ดนี้)
 
 class RecordScreen extends StatefulWidget {
   const RecordScreen({super.key});
@@ -20,17 +23,35 @@ class RecordScreen extends StatefulWidget {
 class _RecordScreenState extends State<RecordScreen> {
   final AudioRecorder _audioRecorder = AudioRecorder();
   final ActivityService _activityService = ActivityService();
+  final AudioPlayer _audioPlayer =
+      AudioPlayer(); // 🆕 Audio Player สำหรับ Playback
 
   bool recording = false;
+  bool _isPlaying = false; // 🆕 สถานะการเล่นไฟล์
+  bool _hasRecorded = false; // 🆕 ตรวจสอบว่ามีการบันทึกสำเร็จหรือไม่
+
   Duration elapsed = Duration.zero;
   Timer? _t;
   String _tempFilePath = ''; // Path ไฟล์เสียงที่บันทึก
   String _originalText = 'Loading...'; // ข้อความที่ต้องพูด
 
+  // Color Constants (สำหรับ UI)
+  static const cream = Color(0xFFFFF5CD);
+  static const red = Colors.red;
+  static const green = Color(0xFF77C58C);
+  static const greyCard = Color(0xFFEDEFF3);
+
   @override
   void initState() {
     super.initState();
     _prepareRecording();
+
+    // 🆕 Listener เมื่อไฟล์เสียงเล่นจบ
+    _audioPlayer.onPlayerComplete.listen((event) {
+      if (mounted) {
+        setState(() => _isPlaying = false);
+      }
+    });
   }
 
   Future<void> _prepareRecording() async {
@@ -60,18 +81,19 @@ class _RecordScreenState extends State<RecordScreen> {
     }
   }
 
-  // 1. 🟢 แก้ Error: กำหนด Future<void> สำหรับ async function ที่ไม่คืนค่า
+  // 1. 🟢 Logic บันทึกเสียง (Start/Stop)
   Future<void> _toggle() async {
     if (_originalText.startsWith('Error') ||
-        _originalText.startsWith('Microphone')) {
-      return;
-    }
+        _originalText.startsWith('Microphone')) return;
 
     if (recording) {
       // 🟢 STOP RECORDING
       _t?.cancel();
       await _audioRecorder.stop();
-      setState(() => recording = false);
+      setState(() {
+        recording = false;
+        _hasRecorded = true; // 🆕 บันทึกว่ามีการบันทึกสำเร็จ
+      });
     } else {
       // 🟢 START RECORDING
       if (_tempFilePath.isEmpty) return;
@@ -84,6 +106,7 @@ class _RecordScreenState extends State<RecordScreen> {
 
         setState(() {
           recording = true;
+          _hasRecorded = false; // รีเซ็ตสถานะการบันทึกเก่า
           elapsed = Duration.zero;
         });
         _t = Timer.periodic(const Duration(seconds: 1), (_) {
@@ -100,10 +123,31 @@ class _RecordScreenState extends State<RecordScreen> {
     }
   }
 
-  // 2. 🟢 เมธอด FINISH ที่เรียก AI
+  // 🆕 2. Logic เล่นไฟล์เสียง (Playback)
+  void _playRecording() async {
+    if (!_hasRecorded || _tempFilePath.isEmpty || recording) return;
+
+    if (_isPlaying) {
+      await _audioPlayer.pause();
+      setState(() => _isPlaying = false);
+      return;
+    }
+
+    try {
+      // 1. เล่นไฟล์เสียงจาก Local Path
+      await _audioPlayer.play(DeviceFileSource(_tempFilePath));
+      setState(() => _isPlaying = true);
+    } catch (e) {
+      debugPrint('Playback Error: $e');
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Failed to play audio.')));
+      setState(() => _isPlaying = false);
+    }
+  }
+
+  // 3. 🟢 เมธอด FINISH ที่เรียก AI
   Future<void> _finish() async {
     if (recording) {
-      // ถ้ายังอัดอยู่ให้หยุดก่อน
       await _toggle();
     }
 
@@ -138,7 +182,7 @@ class _RecordScreenState extends State<RecordScreen> {
       );
 
       // 4. ลบไฟล์ชั่วคราว
-      await audioFile.delete();
+      // await audioFile.delete();
 
       // 5. ปิด Loading Dialog
       if (mounted) Navigator.pop(context);
@@ -168,6 +212,7 @@ class _RecordScreenState extends State<RecordScreen> {
   void dispose() {
     _t?.cancel();
     _audioRecorder.dispose();
+    _audioPlayer.dispose(); // 🆕 ต้อง dispose audio player ด้วย
     super.dispose();
   }
 
@@ -182,10 +227,13 @@ class _RecordScreenState extends State<RecordScreen> {
     final displayOriginalText =
         args['originalText'] as String? ?? _originalText;
 
+    // 🆕 สถานะสำหรับ UI
+    final bool isReadyToPlay = _hasRecorded && !_isPlaying;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF5CD), // Palette.cream
+      backgroundColor: cream,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFFFF5CD),
+        backgroundColor: cream,
         leading: const BackButton(color: Colors.black87),
         elevation: 0,
         title: Text('RECORD',
@@ -200,7 +248,7 @@ class _RecordScreenState extends State<RecordScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFFEDEFF3), // Palette.greyCard
+                color: greyCard,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Text(displayOriginalText,
@@ -218,10 +266,10 @@ class _RecordScreenState extends State<RecordScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // ปุ่ม Record/Stop
+                // 1. ปุ่ม Record/Stop
                 IconButton(
                   iconSize: 56,
-                  color: recording ? Colors.red : Colors.black87,
+                  color: recording ? red : Colors.black87,
                   onPressed: (displayOriginalText.startsWith('Error') ||
                           displayOriginalText.startsWith('Microphone'))
                       ? null
@@ -231,11 +279,16 @@ class _RecordScreenState extends State<RecordScreen> {
                       : Icons.mic_rounded),
                 ),
                 const SizedBox(width: 24),
-                // ปุ่ม Play (Placeholder)
+                // 2. 🆕 ปุ่ม Playback
                 IconButton(
                   iconSize: 56,
-                  onPressed: () {},
-                  icon: const Icon(Icons.play_circle_outline),
+                  color:
+                      isReadyToPlay || _isPlaying ? Colors.blue : Colors.grey,
+                  onPressed:
+                      isReadyToPlay || _isPlaying ? _playRecording : null,
+                  icon: Icon(_isPlaying
+                      ? Icons.pause_circle_outline
+                      : Icons.play_circle_outline),
                 ),
               ],
             ),
@@ -243,11 +296,10 @@ class _RecordScreenState extends State<RecordScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF77C58C)), // Palette.green
-                onPressed: (recording || elapsed == Duration.zero)
+                style: ElevatedButton.styleFrom(backgroundColor: green),
+                onPressed: (recording || !_hasRecorded)
                     ? null
-                    : _finish, // ห้ามกด FINISH ขณะอัด หรือถ้ายังไม่ได้อัดเลย
+                    : _finish, // 🆕 เปิด FINISH เมื่อหยุดอัดแล้ว และมีการอัดแล้ว
                 child: Text('FINISH',
                     style: GoogleFonts.luckiestGuy(color: Colors.white)),
               ),
