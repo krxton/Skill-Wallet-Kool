@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client';
-// import cuid from 'cuid'; // ไม่ได้ใช้งานใน seed นี้ แต่เก็บไว้ได้
 
 const prisma = new PrismaClient();
 
@@ -25,7 +24,6 @@ const parentChildData = [
 ];
 
 const rewardData = [
-    // RW1 ต้องการ 120 คะแนน (ตามตารางตัวอย่าง)
     { id: 'RW1', name: 'YouTube : 30 นาที', cost: 120 }, 
     { id: 'RW2', name: 'ตุ๊กตาหมี : 1 ตัว', cost: 420 },
     { id: 'RW3', name: 'กันดรัม : 1 ตัว', cost: 680 },
@@ -37,32 +35,41 @@ const parentRewardData = [
     { parentId: 'PR3', rewardId: 'RW3' },
 ];
 
-// ข้อมูลกิจกรรมเริ่มต้น (อย่างน้อย 1 กิจกรรมสำหรับทดสอบ Quest)
-const activityData = [
-    { id: 'ACT1', name: 'ฝึกพูด Section 1', category: 'ด้านภาษา', content: 'พูดตามประโยค', difficulty: 'ง่าย', maxScore: 100, videoUrl: 'https://www.youtube.com/watch?v=0a1iwjrsO5Y' }, // <--- แก้ไขตรงนี้
-    { id: 'ACT2', name: 'โจทย์วิเคราะห์คณิต', category: 'ด้านคิดวิเคราะห์', content: 'ตอบโจทย์คณิตศาสตร์', difficulty: 'กลาง', maxScore: 50 }, // <--- แก้ไขตรงนี้
-    { id: 'ACT3', name: 'ท่าแพลงก์ 30 วิ', category: 'ด้านร่างกาย', content: 'ทำท่าแพลงก์', difficulty: 'ง่าย', maxScore: 20 }, // <--- แก้ไขตรงนี้
-];
-
+// 🗑️ ลบส่วนนี้ออก - ไม่สร้าง Activity ใน seed อีกต่อไป
+// const activityData = [...];
 
 async function main() {
-  console.log(`Start seeding ...`);
+  console.log(`🌱 Start seeding ...`);
 
   // *** 1. ลบข้อมูลเก่าตามลำดับ (ลำดับสำคัญมาก) ***
-  // ต้องลบตารางที่อ้างอิง (Junction/Relation) ก่อน ตารางหลัก (Entity)
+  console.log('🗑️  Deleting old data...');
   
   await prisma.activityRecord.deleteMany({});     // 1. ActivityRecord
+  console.log('   ✅ Deleted ActivityRecords');
+  
   await prisma.rewardRedemption.deleteMany({});   // 2. RewardRedemption
+  console.log('   ✅ Deleted RewardRedemptions');
+  
   await prisma.parentReward.deleteMany({});       // 3. ParentReward
+  console.log('   ✅ Deleted ParentRewards');
+  
   await prisma.parentChild.deleteMany({});        // 4. ParentChild
+  console.log('   ✅ Deleted ParentChildren');
 
   // ลบ Entity หลัก (หลังจากตารางที่อ้างอิงถูกลบแล้ว)
   await prisma.reward.deleteMany({});             // 5. Reward
+  console.log('   ✅ Deleted Rewards');
+  
   await prisma.activity.deleteMany({});           // 6. Activity
+  console.log('   ✅ Deleted Activities');
+  
   await prisma.child.deleteMany({});              // 7. Child
+  console.log('   ✅ Deleted Children');
+  
   await prisma.parent.deleteMany({});             // 8. Parent
+  console.log('   ✅ Deleted Parents');
 
-  console.log('Old data deleted.');
+  console.log('✨ Old data deleted.\n');
 
   // 2. สร้าง Parent (ผู้ปกครอง)
   for (const p of parentData) {
@@ -71,11 +78,10 @@ async function main() {
         id: p.id,
         fullName: p.fullName,
         email: p.email,
-        // status และ createdAt ใช้ค่า default
       },
     });
   }
-  console.log('Parents created.');
+  console.log('✅ Parents created.');
 
   // 3. สร้าง Child (เด็ก)
   for (const c of childData) {
@@ -85,11 +91,10 @@ async function main() {
         fullName: c.fullName,
         dob: c.dob,
         score: c.score,
-        // scoreUpdate ใช้ค่า default
       },
     });
   }
-  console.log('Children created.');
+  console.log('✅ Children created.');
   
   // 4. สร้าง ParentChild (ความสัมพันธ์)
   for (const pc of parentChildData) {
@@ -97,7 +102,7 @@ async function main() {
       data: pc,
     });
   }
-  console.log('ParentChild relations created.');
+  console.log('✅ ParentChild relations created.');
 
   // 5. สร้าง Reward (ของรางวัล)
   for (const r of rewardData) {
@@ -105,7 +110,7 @@ async function main() {
       data: r,
     });
   }
-  console.log('Rewards created.');
+  console.log('✅ Rewards created.');
   
   // 6. สร้าง ParentReward (ความสัมพันธ์ผู้ปกครองกับรางวัล)
   for (const pr of parentRewardData) {
@@ -113,23 +118,17 @@ async function main() {
           data: pr,
       });
   }
-  console.log('ParentReward relations created.');
+  console.log('✅ ParentReward relations created.');
 
-  // 7. สร้าง Activity (กิจกรรม)
-  for (const act of activityData) {
-      await prisma.activity.create({
-          data: act,
-      });
-  }
-  console.log('Activities created.');
+  // 🆕 7. ไม่สร้าง Activity - จะสร้างผ่าน CMS
+  console.log('📝 Activities: Ready to create via CMS\n');
 
-
-  console.log(`Seeding finished.`);
+  console.log('🎉 Seeding finished successfully!');
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error('❌ Seeding failed:', e);
     process.exit(1);
   })
   .finally(async () => {

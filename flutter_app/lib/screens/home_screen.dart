@@ -1,4 +1,4 @@
-// lib/screens/home_screen.dart (ฉบับแก้ไข Logic การนำทาง)
+// lib/screens/home_screen.dart (ฉบับแก้ไข Carousel สำหรับ Popular Activities)
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -24,10 +24,14 @@ class _HomeScreenState extends State<HomeScreen> {
   String _categoryValue = 'CATEGORY';
 
   final ActivityService _activityService = ActivityService();
-  late Future<Activity?> _physicalActivityClipFuture;
   late Future<List<Activity>> _popularActivitiesFuture;
+  late Future<List<Activity>> _newActivitiesFuture;
 
   String? _currentChildId;
+
+  // 🆕 สำหรับ Carousel
+  final PageController _carouselController = PageController();
+  int _currentCarouselPage = 0;
 
   // 2. LIFECYCLE & DATA LOADING
   @override
@@ -38,6 +42,12 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    _carouselController.dispose();
+    super.dispose();
+  }
+
   void _loadData() {
     if (!mounted) return;
 
@@ -46,10 +56,9 @@ class _HomeScreenState extends State<HomeScreen> {
     if (childId != null) {
       setState(() {
         _currentChildId = childId;
-        _physicalActivityClipFuture =
-            _activityService.fetchPhysicalActivityClip(childId);
         _popularActivitiesFuture =
             _activityService.fetchPopularActivities(childId);
+        _newActivitiesFuture = _activityService.fetchNewActivities(childId);
       });
     }
   }
@@ -71,85 +80,255 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // 3. WIDGET BUILDERS
 
-  // 3.1 Widget สำหรับ CLIP VDO (ด้านร่างกาย)
-  Widget _buildTikTokThumbnail({required Activity activity}) {
-    // ใช้ฟิลด์จาก Activity Object
-    final String thumbnailUrl = activity.thumbnailUrl!;
-    final String title = activity.name;
-
-    return GestureDetector(
-      onTap: () {
-        // 🚀 ACTION: ด้านร่างกาย -> Video Detail Screen
-        Navigator.pushNamed(
-          context,
-          AppRoutes.videoDetail,
-          arguments: activity,
-        );
-      },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: Image.network(
-                thumbnailUrl,
-                fit: BoxFit.cover,
-                width: double.infinity,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    color: Colors.grey,
-                    alignment: Alignment.center,
-                    child: const Icon(Icons.broken_image,
-                        size: 50, color: Colors.white),
-                  );
-                },
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 8),
-            child: Text(
-              'CLIP VDO: $title',
-              style: GoogleFonts.luckiestGuy(fontSize: 16, color: Colors.black),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // 3.2 Widget สำหรับ Popular Activity Card
-  Widget _activityCard(Activity activity) {
+  // 🆕 3.1 Widget สำหรับ Carousel Item (Popular Activities Top 3)
+  Widget _buildCarouselItem({
+    required Activity activity,
+    required int totalItems,
+  }) {
     final category = activity.category.toUpperCase();
 
-    // 🆕 1. ตรวจสอบว่ากิจกรรมนี้เป็นวิดีโอ (ด้านร่างกาย) ที่มีข้อมูล OEmbed ครบถ้วนหรือไม่ (ใช้แสดงผลรูป)
-    final bool hasOEmbedData = category == 'ด้านร่างกาย' &&
+    // ตรวจสอบประเภทกิจกรรม
+    final bool hasTikTokOEmbedData = category == 'ด้านร่างกาย' &&
         activity.videoUrl != null &&
         activity.tiktokHtmlContent != null &&
         activity.thumbnailUrl != null;
 
-    // 🆕 2. ตรวจสอบว่ากิจกรรมนี้ควรไป Video Detail หรือไม่ (ใช้ตัดสินใจการนำทาง)
-    // เงื่อนไข: ต้องเป็นด้านร่างกาย และมี videoUrl ใน DB
+    final bool hasYouTubeVideo =
+        (category == 'ด้านภาษา' || category == 'LANGUAGE') &&
+            activity.videoUrl != null &&
+            activity.videoUrl!.contains('youtube');
+
+    String? youtubeThumbnailUrl;
+    if (hasYouTubeVideo) {
+      final videoId = _extractYouTubeVideoId(activity.videoUrl!);
+      if (videoId != null) {
+        youtubeThumbnailUrl =
+            'https://img.youtube.com/vi/$videoId/hqdefault.jpg';
+      }
+    }
+
+    // Thumbnail URL
+    String? thumbnailUrl;
+    if (hasTikTokOEmbedData) {
+      thumbnailUrl = activity.thumbnailUrl;
+    } else if (hasYouTubeVideo && youtubeThumbnailUrl != null) {
+      thumbnailUrl = youtubeThumbnailUrl;
+    }
+
+    return GestureDetector(
+      // 🆕 เพิ่ม Horizontal Drag
+      onHorizontalDragEnd: (details) {
+        // ตรวจสอบทิศทางการลาก
+        if (details.primaryVelocity! > 0) {
+          // ลากไปทางขวา = ย้อนกลับ (Previous)
+          if (_currentCarouselPage == 0) {
+            _carouselController.animateToPage(
+              totalItems - 1,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          } else {
+            _carouselController.previousPage(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          }
+        } else if (details.primaryVelocity! < 0) {
+          // ลากไปทางซ้าย = ถัดไป (Next)
+          if (_currentCarouselPage == totalItems - 1) {
+            _carouselController.animateToPage(
+              0,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          } else {
+            _carouselController.nextPage(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          }
+        }
+      },
+      onTap: () {
+        // Navigation Logic (เหมือนเดิม)
+        if (category == 'ด้านภาษา' || category == 'LANGUAGE') {
+          Navigator.pushNamed(context, AppRoutes.languageDetail,
+              arguments: activity);
+        } else if (category == 'ด้านร่างกาย' && activity.videoUrl != null) {
+          Navigator.pushNamed(context, AppRoutes.videoDetail,
+              arguments: activity);
+        } else {
+          Navigator.pushNamed(context, AppRoutes.itemIntro,
+              arguments: activity);
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Background Image/Thumbnail
+              if (thumbnailUrl != null)
+                Image.network(
+                  thumbnailUrl,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return _buildPlaceholder(activity.category);
+                  },
+                )
+              else
+                _buildPlaceholder(activity.category),
+
+              // Gradient Overlay
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withOpacity(0.7),
+                    ],
+                  ),
+                ),
+              ),
+
+              // Text Content
+              Positioned(
+                bottom: 16,
+                left: 16,
+                right: 16,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      activity.name,
+                      style: GoogleFonts.luckiestGuy(
+                        fontSize: 20,
+                        color: Colors.white,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: sky,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            activity.category,
+                            style: GoogleFonts.openSans(
+                              fontSize: 12,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Score: ${activity.maxScore}',
+                          style: GoogleFonts.openSans(
+                            fontSize: 12,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // Popular Badge
+              Positioned(
+                top: 16,
+                right: 16,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.orange,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.local_fire_department,
+                          size: 16, color: Colors.white),
+                      const SizedBox(width: 4),
+                      Text(
+                        'POPULAR',
+                        style: GoogleFonts.luckiestGuy(
+                          fontSize: 12,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // 3.2 Widget สำหรับ Activity Card (สำหรับ Popular และ New Activities List)
+  Widget _activityCard(Activity activity) {
+    final category = activity.category.toUpperCase();
+
+    final bool hasTikTokOEmbedData = category == 'ด้านร่างกาย' &&
+        activity.videoUrl != null &&
+        activity.tiktokHtmlContent != null &&
+        activity.thumbnailUrl != null;
+
+    final bool hasYouTubeVideo =
+        (category == 'ด้านภาษา' || category == 'LANGUAGE') &&
+            activity.videoUrl != null &&
+            activity.videoUrl!.contains('youtube');
+
+    String? youtubeThumbnailUrl;
+    if (hasYouTubeVideo) {
+      final videoId = _extractYouTubeVideoId(activity.videoUrl!);
+      if (videoId != null) {
+        youtubeThumbnailUrl =
+            'https://img.youtube.com/vi/$videoId/hqdefault.jpg';
+      }
+    }
+
     final bool shouldGoToVideoDetail =
         category == 'ด้านร่างกาย' && activity.videoUrl != null;
 
     return GestureDetector(
       onTap: () {
-        // 🚀 1. ACTION: ด้านภาษา -> Language Hub
         if (category == 'ด้านภาษา' || category == 'LANGUAGE') {
           Navigator.pushNamed(context, AppRoutes.languageDetail,
               arguments: activity);
-        }
-        // 🚀 2. ACTION: ด้านร่างกาย (ไป Video Detail เสมอหากมี URL ใน DB)
-        else if (shouldGoToVideoDetail) {
+        } else if (shouldGoToVideoDetail) {
           Navigator.pushNamed(context, AppRoutes.videoDetail,
               arguments: activity);
-        }
-        // 🚀 3. ACTION: กิจกรรมอื่น ๆ -> Item Intro Screen
-        else {
+        } else {
           Navigator.pushNamed(context, AppRoutes.itemIntro,
               arguments: activity);
         }
@@ -170,41 +349,16 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 🆕 ส่วนแสดงรูปภาพ/Thumbnail: ใช้ hasOEmbedData ในการตัดสินใจแสดงรูปจริง
             ClipRRect(
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(16)),
-              child: hasOEmbedData
-                  ? Image.network(
-                      // ✅ แสดงรูป Thumbnail จริงเมื่อเงื่อนไขผ่าน
-                      activity.thumbnailUrl!,
-                      fit: BoxFit.cover,
-                      height: 100,
-                      width: double.infinity,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                            height: 100,
-                            color: deepSky,
-                            alignment: Alignment.center,
-                            child: const Icon(Icons.videocam_off,
-                                color: Colors.white, size: 30));
-                      },
-                    )
-                  : Container(
-                      // Placeholder สำหรับกิจกรรมอื่น ๆ / หรือวิดีโอที่ OEmbed ล้มเหลว
-                      height: 100,
-                      width: double.infinity,
-                      color: deepSky,
-                      alignment: Alignment.center,
-                      child: Text(activity.category.substring(0, 1),
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 40,
-                              fontWeight: FontWeight.bold)),
-                    ),
+              child: _buildActivityThumbnail(
+                activity: activity,
+                hasTikTokData: hasTikTokOEmbedData,
+                hasYouTubeData: hasYouTubeVideo,
+                youtubeThumbnailUrl: youtubeThumbnailUrl,
+              ),
             ),
-
-            // ส่วนรายละเอียด (ไม่เปลี่ยนแปลง)
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
@@ -225,6 +379,80 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildActivityThumbnail({
+    required Activity activity,
+    required bool hasTikTokData,
+    required bool hasYouTubeData,
+    String? youtubeThumbnailUrl,
+  }) {
+    if (hasTikTokData) {
+      return Image.network(
+        activity.thumbnailUrl!,
+        fit: BoxFit.cover,
+        height: 100,
+        width: double.infinity,
+        errorBuilder: (context, error, stackTrace) {
+          return _buildPlaceholder(activity.category);
+        },
+      );
+    }
+
+    if (hasYouTubeData && youtubeThumbnailUrl != null) {
+      return Image.network(
+        youtubeThumbnailUrl,
+        fit: BoxFit.cover,
+        height: 100,
+        width: double.infinity,
+        errorBuilder: (context, error, stackTrace) {
+          return _buildPlaceholder(activity.category);
+        },
+      );
+    }
+
+    return _buildPlaceholder(activity.category);
+  }
+
+  Widget _buildPlaceholder(String category) {
+    return Container(
+      height: 100,
+      width: double.infinity,
+      color: deepSky,
+      alignment: Alignment.center,
+      child: Text(
+        category.isNotEmpty ? category.substring(0, 1) : '?',
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 40,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  String? _extractYouTubeVideoId(String url) {
+    if (url.isEmpty) return null;
+
+    final patterns = [
+      RegExp(r'youtube\.com/watch\?v=([a-zA-Z0-9_-]{11})'),
+      RegExp(r'youtu\.be/([a-zA-Z0-9_-]{11})'),
+      RegExp(r'youtube\.com/embed/([a-zA-Z0-9_-]{11})'),
+      RegExp(r'youtube\.com/v/([a-zA-Z0-9_-]{11})'),
+    ];
+
+    for (var pattern in patterns) {
+      final match = pattern.firstMatch(url);
+      if (match != null && match.groupCount >= 1) {
+        return match.group(1);
+      }
+    }
+
+    if (url.length == 11 && RegExp(r'^[a-zA-Z0-9_-]{11}$').hasMatch(url)) {
+      return url;
+    }
+
+    return null;
   }
 
   // 4. MAIN BUILD METHOD
@@ -265,7 +493,6 @@ class _HomeScreenState extends State<HomeScreen> {
           // แถบค้นหาและ Dropdown
           Row(
             children: [
-              // Search Bar
               Expanded(
                 child: Container(
                   height: 48,
@@ -286,8 +513,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(width: 10),
-
-              // Dropdown Category
               Container(
                 height: 48,
                 padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -322,36 +547,31 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 24),
 
-          // หัวข้อ SWK
           Text('SWK', style: GoogleFonts.luckiestGuy(fontSize: 26, color: sky)),
           const SizedBox(height: 10),
 
-          // 1. CLIP VDO (FutureBuilder)
+          // 🆕 1. TOP POPULAR ACTIVITIES CAROUSEL (แทน CLIP VDO เดิม)
           Container(
-            height: 250,
+            height: 280,
             decoration: BoxDecoration(
-              color: Colors.grey.shade300,
+              color: Colors.grey.shade200,
               borderRadius: BorderRadius.circular(24),
               border: Border.all(color: sky, width: 3),
             ),
-            padding: const EdgeInsets.all(8),
-            child: FutureBuilder<Activity?>(
-              future: _physicalActivityClipFuture,
+            child: FutureBuilder<List<Activity>>(
+              future: _popularActivitiesFuture,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
                       child: CircularProgressIndicator(color: sky));
                 }
 
-                final activity = snapshot.data;
-
                 if (snapshot.hasError ||
-                    activity == null ||
-                    activity.thumbnailUrl == null ||
-                    activity.tiktokHtmlContent == null) {
+                    !snapshot.hasData ||
+                    snapshot.data!.isEmpty) {
                   return Center(
                     child: Text(
-                      'CLIP VDO\n(Error: Cannot load TikTok Clip or API Error: ${snapshot.error})',
+                      'Cannot load popular activities',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.luckiestGuy(
                           fontSize: 16, color: Colors.black87),
@@ -359,15 +579,117 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 }
 
-                // แสดง Thumbnail และเพิ่มฟังก์ชัน Tap (ไป Video Detail)
-                return _buildTikTokThumbnail(activity: activity);
+                // 🆕 เอาแค่ 3 อันดับแรก
+                final topActivities = snapshot.data!.take(3).toList();
+
+                return Stack(
+                  children: [
+                    // PageView Carousel
+                    PageView.builder(
+                      controller: _carouselController,
+                      itemCount: topActivities.length,
+                      onPageChanged: (index) {
+                        setState(() {
+                          _currentCarouselPage = index;
+                        });
+                      },
+                      itemBuilder: (context, index) {
+                        return _buildCarouselItem(
+                          activity: topActivities[index],
+                          totalItems: topActivities.length,
+                        );
+                      },
+                    ),
+
+                    // 🆕 Page Indicator (Dots)
+                    Positioned(
+                      bottom: 16,
+                      left: 0,
+                      right: 0,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: List.generate(
+                          topActivities.length,
+                          (index) => Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            width: _currentCarouselPage == index ? 24 : 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: _currentCarouselPage == index
+                                  ? sky
+                                  : Colors.white.withOpacity(0.5),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // 🆕 Navigation Arrows with Infinite Loop
+                    if (topActivities.length > 1) ...[
+                      Positioned(
+                        left: 8,
+                        top: 0,
+                        bottom: 0,
+                        child: Center(
+                          child: IconButton(
+                            icon: const Icon(Icons.chevron_left,
+                                color: Colors.white, size: 32),
+                            onPressed: () {
+                              // 🔄 วนกลับไปหน้าสุดท้ายถ้าอยู่หน้าแรก
+                              if (_currentCarouselPage == 0) {
+                                _carouselController.animateToPage(
+                                  topActivities.length - 1,
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
+                              } else {
+                                _carouselController.previousPage(
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
+                              }
+                            },
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        right: 8,
+                        top: 0,
+                        bottom: 0,
+                        child: Center(
+                          child: IconButton(
+                            icon: const Icon(Icons.chevron_right,
+                                color: Colors.white, size: 32),
+                            onPressed: () {
+                              // 🔄 วนกลับไปหน้าแรกถ้าอยู่หน้าสุดท้าย
+                              if (_currentCarouselPage ==
+                                  topActivities.length - 1) {
+                                _carouselController.animateToPage(
+                                  0,
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
+                              } else {
+                                _carouselController.nextPage(
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
+                              }
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                );
               },
             ),
           ),
 
           const SizedBox(height: 30),
 
-          // 2. POPULAR ACTIVITIES (FutureBuilder)
+          // 2. ALL POPULAR ACTIVITIES LIST
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -399,7 +721,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     snapshot.data!.isEmpty) {
                   return Center(
                     child: Text(
-                      'Cannot load popular activities: ${snapshot.error}',
+                      'Cannot load popular activities',
                       style: GoogleFonts.openSans(color: Colors.grey),
                     ),
                   );
@@ -410,7 +732,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   scrollDirection: Axis.horizontal,
                   itemCount: activities.length,
                   itemBuilder: (context, index) {
-                    // 🆕 ใช้ _activityCard ที่แก้ไข Logic แล้ว
                     return _activityCard(activities[index]);
                   },
                 );
@@ -420,20 +741,58 @@ class _HomeScreenState extends State<HomeScreen> {
 
           // 3. NEW ACTIVITIES
           const SizedBox(height: 30),
-          Text('NEW ACTIVITIES',
-              style:
-                  GoogleFonts.luckiestGuy(fontSize: 20, color: Colors.black)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('NEW ACTIVITIES',
+                  style: GoogleFonts.luckiestGuy(
+                      fontSize: 20, color: Colors.black)),
+              Text(
+                'View All',
+                style: GoogleFonts.openSans(
+                    fontSize: 14, color: sky, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
           const SizedBox(height: 12),
-          Container(
-              height: 180,
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: deepSky, width: 2)),
-              alignment: Alignment.center,
-              child: Text('COMING SOON!',
-                  style:
-                      GoogleFonts.luckiestGuy(fontSize: 24, color: deepSky))),
+
+          SizedBox(
+            height: 180,
+            child: FutureBuilder<List<Activity>>(
+              future: _newActivitiesFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                      child: CircularProgressIndicator(color: sky));
+                }
+                if (snapshot.hasError ||
+                    !snapshot.hasData ||
+                    snapshot.data!.isEmpty) {
+                  return Container(
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: deepSky, width: 2)),
+                    alignment: Alignment.center,
+                    child: Text(
+                      'No new activities available',
+                      style:
+                          GoogleFonts.luckiestGuy(fontSize: 18, color: deepSky),
+                    ),
+                  );
+                }
+
+                final activities = snapshot.data!;
+                return ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: activities.length,
+                  itemBuilder: (context, index) {
+                    return _activityCard(activities[index]);
+                  },
+                );
+              },
+            ),
+          ),
           const SizedBox(height: 30),
         ],
       ),

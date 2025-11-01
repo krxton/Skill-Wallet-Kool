@@ -8,7 +8,7 @@ import '../models/activity.dart';
 import 'api_service.dart';
 import 'package:collection/collection.dart';
 
-// 🆕 Interface สำหรับผลลัพธ์ของแต่ละ Segment (ต้องอยู่ที่นี่หรือไฟล์ที่ถูก import)
+// 🆕 Interface สำหรับผลลัพธ์ของแต่ละ Segment
 class SegmentResult {
   final String id;
   final String text;
@@ -16,12 +16,13 @@ class SegmentResult {
   String? recognizedText;
   String? audioUrl; // URL หรือ Path ของไฟล์เสียงที่บันทึก
 
-  SegmentResult(
-      {required this.id,
-      required this.text,
-      this.maxScore = 0,
-      this.recognizedText,
-      this.audioUrl});
+  SegmentResult({
+    required this.id,
+    required this.text,
+    this.maxScore = 0,
+    this.recognizedText,
+    this.audioUrl,
+  });
 
   // แปลงเป็น JSON สำหรับส่งไป Backend
   Map<String, dynamic> toJson() => {
@@ -35,7 +36,6 @@ class SegmentResult {
 
 class ActivityService {
   final ApiService _apiService = ApiService();
-  // 🛑 แก้ไข: การประกาศ Static Const
   static const String _oEmbedEndpoint = 'https://www.tiktok.com/oembed?url=';
 
   final String API_BASE_URL = 'http://192.168.1.58:3000/api';
@@ -47,7 +47,6 @@ class ActivityService {
   // 1.1 Helper Function: ดึง OEmbed Data จาก TikTok API
   Future<Map<String, dynamic>> _fetchTikTokOEmbedData(String videoUrl) async {
     final cleanUrl = videoUrl.split('?').first;
-    // 🛑 แก้ไข: เรียกใช้ ActivityService._oEmbedEndpoint
     final oEmbedUrl = Uri.parse(
         '${ActivityService._oEmbedEndpoint}$cleanUrl&maxwidth=600&maxheight=800');
 
@@ -86,17 +85,17 @@ class ActivityService {
     try {
       final allActivities = await _fetchAllActivities();
 
-      // 2.1 กรองข้อมูลใน Flutter: หา 'ด้านร่างกาย' ที่มี videoUrl
+      // กรองข้อมูลใน Flutter: หา 'ด้านร่างกาย' ที่มี videoUrl
       final physicalActivity = allActivities.firstWhereOrNull(
         (a) => a.category == 'ด้านร่างกาย' && a.videoUrl != null,
       );
 
       if (physicalActivity != null && physicalActivity.videoUrl != null) {
-        // 2.2 เรียก OEmbed API
+        // เรียก OEmbed API
         final oEmbedData =
             await _fetchTikTokOEmbedData(physicalActivity.videoUrl!);
 
-        // 2.3 ผสานข้อมูล
+        // ผสานข้อมูล
         final Map<String, dynamic> activityJson = physicalActivity.toJson();
         activityJson['thumbnailUrl'] = oEmbedData['thumbnail_url'];
         activityJson['tiktokHtmlContent'] = oEmbedData['html'];
@@ -105,70 +104,128 @@ class ActivityService {
       }
       return null;
     } catch (e) {
-      debugPrint('Error fetching physical clip (C-Side): $e');
+      debugPrint('Error fetching physical clip: $e');
       return null;
     }
   }
 
-  /// 2.2 ดึง Popular Activities (แก้ไขให้ประมวลผล OEmbed)
+  /// 2.2 ดึง Popular Activities (เรียงตาม roundNumber มากสุด)
   Future<List<Activity>> fetchPopularActivities(String childId) async {
     try {
+      // 1. ดึงข้อมูลกิจกรรมทั้งหมด
       final allActivities = await _fetchAllActivities();
 
-      // 1. ทำ Logic 'Popular' อย่างง่าย: คืนค่า 3 รายการแรก
-      final popularList = allActivities.take(3).toList();
+      // 2. ดึงข้อมูล Activity Records (รอบการเล่น) จาก Backend
+      final records = await _apiService.getArray(
+        path: '/activity-records',
+        queryParameters: {'childId': childId},
+      );
 
-      // 2. สร้าง List ของ Future สำหรับประมวลผล OEmbed
+      // 3. สร้าง Map เก็บจำนวนรอบการเล่นของแต่ละ Activity
+      final Map<String, int> activityPlayCount = {};
+
+      for (var record in records) {
+        final activityId = record['activityId'] as String?;
+        if (activityId != null) {
+          activityPlayCount[activityId] =
+              (activityPlayCount[activityId] ?? 0) + 1;
+        }
+      }
+
+      // 4. เรียงกิจกรรมตามจำนวนรอบการเล่น (มากสุดก่อน)
+      allActivities.sort((a, b) {
+        final countA = activityPlayCount[a.id] ?? 0;
+        final countB = activityPlayCount[b.id] ?? 0;
+        return countB.compareTo(countA); // เรียงจากมากไปน้อย
+      });
+
+      // 5. ประมวลผล OEmbed สำหรับกิจกรรมที่มี Video
       final List<Future<Activity>> processedActivitiesFutures =
-          popularList.map((activity) async {
-        // 🆕 ตรวจสอบว่ากิจกรรมนี้เป็น 'ด้านร่างกาย' และมี videoUrl
+          allActivities.map((activity) async {
+        // TikTok (ด้านร่างกาย)
         if (activity.videoUrl != null &&
-            (activity.category.toUpperCase() == 'ด้านร่างกาย')) {
+            activity.category.toUpperCase() == 'ด้านร่างกาย') {
           try {
-            // เรียก OEmbed API
             final oEmbedData = await _fetchTikTokOEmbedData(activity.videoUrl!);
-
-            // ผสานข้อมูล
             final Map<String, dynamic> activityJson = activity.toJson();
             activityJson['thumbnailUrl'] = oEmbedData['thumbnail_url'];
             activityJson['tiktokHtmlContent'] = oEmbedData['html'];
-
             return Activity.fromJson(activityJson);
           } catch (e) {
             debugPrint('OEmbed failed for ${activity.name}: $e');
           }
         }
-        return activity; // คืน Activity เดิม (ถ้าไม่ใช่ Video หรือ OEmbed ล้มเหลว)
+        return activity;
       }).toList();
 
-      // 3. รอจนกว่าการประมวลผล OEmbed ทั้งหมดจะเสร็จสิ้น
       final List<Activity> processedActivities =
           await Future.wait(processedActivitiesFutures);
 
-      return processedActivities;
+      return processedActivities; // คืนทั้งหมด (ไม่จำกัด 3 รายการ)
     } catch (e) {
-      debugPrint('Error fetching popular activities (C-Side): $e');
+      debugPrint('Error fetching popular activities: $e');
       return [];
     }
   }
 
+  /// 2.3 ดึง New Activities (เรียงตาม ID หรือ createdAt)
+  Future<List<Activity>> fetchNewActivities(String childId) async {
+    try {
+      final allActivities = await _fetchAllActivities();
+
+      // เรียงตาม createdAt หรือ ID (CUID)
+      allActivities.sort((a, b) {
+        // ลองใช้ createdAt ก่อน (ถ้ามี)
+        if (a.createdAt != null && b.createdAt != null) {
+          return b.createdAt!.compareTo(a.createdAt!); // ล่าสุดก่อน
+        }
+        // ถ้าไม่มี createdAt ให้เรียงตาม ID (CUID ใหม่กว่า = มากกว่า)
+        return b.id.compareTo(a.id);
+      });
+
+      // ประมวลผล OEmbed
+      final List<Future<Activity>> processedActivitiesFutures =
+          allActivities.map((activity) async {
+        if (activity.videoUrl != null &&
+            activity.category.toUpperCase() == 'ด้านร่างกาย') {
+          try {
+            final oEmbedData = await _fetchTikTokOEmbedData(activity.videoUrl!);
+            final Map<String, dynamic> activityJson = activity.toJson();
+            activityJson['thumbnailUrl'] = oEmbedData['thumbnail_url'];
+            activityJson['tiktokHtmlContent'] = oEmbedData['html'];
+            return Activity.fromJson(activityJson);
+          } catch (e) {
+            debugPrint('OEmbed failed for ${activity.name}: $e');
+          }
+        }
+        return activity;
+      }).toList();
+
+      final List<Activity> processedActivities =
+          await Future.wait(processedActivitiesFutures);
+
+      return processedActivities; // คืนทั้งหมด
+    } catch (e) {
+      debugPrint('Error fetching new activities: $e');
+      return [];
+    }
+  }
+
+  // ----------------------------------------------------
+  // 3. OTHER SERVICES
+  // ----------------------------------------------------
+
   Future<Map<String, dynamic>?> fetchDirectVideoUrl(String videoUrl) async {
     try {
-      // 1. สร้าง Path สำหรับเรียก Backend Endpoint
       final path = '/get-direct-url?url=${Uri.encodeComponent(videoUrl)}';
-
-      // 2. เรียกใช้เมธอด get() ที่คืนค่า dynamic
       final response = await _apiService.get(path);
 
-      // 3. 🆕 ตรวจสอบ Type และคีย์อย่างเข้มงวด
       if (response is Map<String, dynamic> &&
           response.containsKey('directUrl')) {
-        return response; // คืนค่า Map { directUrl: "...", duration: 123 }
+        return response;
       }
 
-      // หาก Backend คืนค่าเป็น String หรือ Map ที่ไม่มีคีย์ directUrl
       debugPrint('Direct URL Fetch Error: Unexpected response format.');
-
       return null;
     } catch (e) {
       debugPrint('Error fetching direct URL from Backend: $e');
@@ -177,10 +234,10 @@ class ActivityService {
   }
 
   // ----------------------------------------------------
-  // 3. AI EVALUATION AND QUEST COMPLETION
+  // 4. AI EVALUATION AND QUEST COMPLETION
   // ----------------------------------------------------
 
-  /// 3.1 ส่งไฟล์เสียงไปประเมิน AI (เทียบเท่า /api/evaluate)
+  /// 4.1 ส่งไฟล์เสียงไปประเมิน AI
   Future<Map<String, dynamic>> evaluateAudio({
     required File audioFile,
     required String originalText,
@@ -190,7 +247,7 @@ class ActivityService {
           http.MultipartRequest('POST', Uri.parse('$API_BASE_URL/evaluate'));
 
       request.files.add(await http.MultipartFile.fromPath(
-        'file', // Key ต้องตรงกับ Backend
+        'file',
         audioFile.path,
       ));
       request.fields['text'] = originalText;
@@ -211,7 +268,7 @@ class ActivityService {
     }
   }
 
-  /// 3.2 คำนวณคะแนนรวมและส่ง Payload ไปบันทึกใน CMS
+  /// 4.2 คำนวณคะแนนรวมและส่ง Payload ไปบันทึกใน CMS
   Future<Map<String, dynamic>> finalizeQuest({
     required String childId,
     required String activityId,
@@ -220,7 +277,7 @@ class ActivityService {
   }) async {
     final numSections = segmentResults.length;
 
-    // --- 1. คำนวณค่าเฉลี่ยความถูกต้อง (ตาม Logic Web App) ---
+    // 1. คำนวณค่าเฉลี่ยความถูกต้อง
     double totalAccuracy = 0.0;
     for (var res in segmentResults) {
       totalAccuracy += res.maxScore;
@@ -228,10 +285,10 @@ class ActivityService {
     final averageAccuracy =
         numSections > 0 ? (totalAccuracy / numSections) : 0.0;
 
-    // --- 2. คำนวณคะแนนที่ได้รับ ---
+    // 2. คำนวณคะแนนที่ได้รับ
     final scoreEarned = (activityMaxScore * (averageAccuracy / 100)).floor();
 
-    // --- 3. สร้าง Payload ---
+    // 3. สร้าง Payload
     final payload = {
       'activityId': activityId,
       'totalScoreEarned': scoreEarned,
@@ -242,7 +299,7 @@ class ActivityService {
       // 4. ส่ง POST Request
       final res = await _apiService.post('/complete-quest', payload);
 
-      // ส่งคะแนนที่คำนวณแล้วกลับไปให้ ItemIntroScreen
+      // ส่งคะแนนกลับไป
       res['scoreEarned'] = scoreEarned; // คะแนนดิบ (85)
       res['calculatedScore'] = averageAccuracy.round(); // % (85%)
 

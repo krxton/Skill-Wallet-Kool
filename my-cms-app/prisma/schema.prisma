@@ -60,6 +60,10 @@ model Activity {
   videoUrl      String?
   segments      Json?
 
+  // 🆕 เพิ่ม createdAt สำหรับเรียงกิจกรรมใหม่
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
+
   // ความสัมพันธ์
   activities     ActivityRecord[] @relation("ActivityRecords")
 }

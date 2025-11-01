@@ -19,6 +19,10 @@ class Activity {
   final String? thumbnailUrl;
   final String? tiktokHtmlContent;
 
+  // 🆕 เพิ่ม fields สำหรับเรียงกิจกรรม
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
   // ----------------------------------------------------
   // CONSTRUCTOR
   // ----------------------------------------------------
@@ -35,6 +39,8 @@ class Activity {
     this.segments,
     this.thumbnailUrl,
     this.tiktokHtmlContent,
+    this.createdAt, // 🆕
+    this.updatedAt, // 🆕
   });
 
   // ----------------------------------------------------
@@ -44,14 +50,11 @@ class Activity {
   factory Activity.fromJson(Map<String, dynamic> json) {
     dynamic segmentsData = json['segments'];
 
-    // 🟢 Logic จัดการ Double-Encoded JSON String (แก้ปัญหา 'type String is not a subtype of List')
-    // ตรวจสอบว่า segments ที่ได้มาเป็น String หรือไม่
+    // 🟢 Logic จัดการ Double-Encoded JSON String
     if (segmentsData is String) {
       try {
-        // ทำการ Decode JSON string เป็น List<dynamic>
         segmentsData = jsonDecode(segmentsData);
       } catch (e) {
-        // หาก Decode ล้มเหลว ให้ตั้งค่าเป็น null หรือ List ว่าง
         segmentsData = null;
         debugPrint('Warning: Failed to decode segments JSON string: $e');
       }
@@ -67,17 +70,22 @@ class Activity {
       maxScore: json['maxScore'] as int,
       description: json['description'] as String?,
       videoUrl: json['videoUrl'] as String?,
-
-      // ใช้อันที่ถูก Decode แล้ว (ตอนนี้ควรเป็น List<Map> หรือ null)
       segments: segmentsData,
-
       thumbnailUrl: json['thumbnailUrl'] as String?,
       tiktokHtmlContent: json['tiktokHtmlContent'] as String?,
+
+      // 🆕 Parse DateTime จาก JSON
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'] as String)
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.tryParse(json['updatedAt'] as String)
+          : null,
     );
   }
 
   // ----------------------------------------------------
-  // JSON MAPPING (Serialization - ใช้ในการส่งกลับใน ActivityService)
+  // JSON MAPPING (Serialization)
   // ----------------------------------------------------
 
   Map<String, dynamic> toJson() {
@@ -90,12 +98,13 @@ class Activity {
       'maxScore': maxScore,
       'description': description,
       'videoUrl': videoUrl,
-
-      // segments จะถูกส่งกลับเป็น List/Map ที่ถูก Parse แล้ว
       'segments': segments,
-
       'thumbnailUrl': thumbnailUrl,
       'tiktokHtmlContent': tiktokHtmlContent,
+
+      // 🆕 แปลง DateTime เป็น ISO8601 String
+      'createdAt': createdAt?.toIso8601String(),
+      'updatedAt': updatedAt?.toIso8601String(),
     };
   }
 }
