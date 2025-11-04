@@ -1,4 +1,4 @@
-// lib/screens/home_screen.dart (ฉบับแก้ไข Carousel สำหรับ Popular Activities)
+// lib/screens/home_screen.dart (ฉบับแก้ไข - รองรับ Drag Scrolling)
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -29,9 +29,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String? _currentChildId;
 
-  // 🆕 สำหรับ Carousel
+  // สำหรับ Carousel
   final PageController _carouselController = PageController();
   int _currentCarouselPage = 0;
+
+  // ScrollController สำหรับ Popular และ New Activities
+  final ScrollController _popularScrollController = ScrollController();
+  final ScrollController _newScrollController = ScrollController();
+
+  // ตัวแปรสำหรับ Drag Scrolling
+  double _popularDragStart = 0;
+  double _newDragStart = 0;
 
   // 2. LIFECYCLE & DATA LOADING
   @override
@@ -45,6 +53,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     _carouselController.dispose();
+    _popularScrollController.dispose();
+    _newScrollController.dispose();
     super.dispose();
   }
 
@@ -80,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // 3. WIDGET BUILDERS
 
-  // 🆕 3.1 Widget สำหรับ Carousel Item (Popular Activities Top 3)
+  // 3.1 Widget สำหรับ Carousel Item (Popular Activities Top 3)
   Widget _buildCarouselItem({
     required Activity activity,
     required int totalItems,
@@ -116,7 +126,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return GestureDetector(
-      // 🆕 เพิ่ม Horizontal Drag
+      // เพิ่ม Horizontal Drag
       onHorizontalDragEnd: (details) {
         // ตรวจสอบทิศทางการลาก
         if (details.primaryVelocity! > 0) {
@@ -150,7 +160,7 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       },
       onTap: () {
-        // Navigation Logic (เหมือนเดิม)
+        // Navigation Logic
         if (category == 'ด้านภาษา' || category == 'LANGUAGE') {
           Navigator.pushNamed(context, AppRoutes.languageDetail,
               arguments: activity);
@@ -455,6 +465,70 @@ class _HomeScreenState extends State<HomeScreen> {
     return null;
   }
 
+  // 3.3 Widget สำหรับ Horizontal Scrollable List พร้อม Drag Scrolling
+  Widget _buildScrollableActivityList({
+    required Future<List<Activity>> future,
+    required ScrollController controller,
+    required String emptyMessage,
+    required Function(double) onDragStart,
+    required Function(double) onDragUpdate,
+  }) {
+    return FutureBuilder<List<Activity>>(
+      future: future,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SizedBox(
+            height: 180,
+            child: Center(
+              child: CircularProgressIndicator(color: sky),
+            ),
+          );
+        }
+        if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+          return Container(
+            height: 180,
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: deepSky, width: 2)),
+            alignment: Alignment.center,
+            child: Text(
+              emptyMessage,
+              style: GoogleFonts.openSans(color: Colors.grey),
+            ),
+          );
+        }
+
+        final activities = snapshot.data!;
+
+        return GestureDetector(
+          onHorizontalDragStart: (details) {
+            onDragStart(details.globalPosition.dx);
+          },
+          onHorizontalDragUpdate: (details) {
+            onDragUpdate(details.globalPosition.dx);
+          },
+          child: SizedBox(
+            height: 180,
+            child: SingleChildScrollView(
+              controller: controller,
+              scrollDirection: Axis.horizontal,
+              physics:
+                  const NeverScrollableScrollPhysics(), // ปิด scroll ธรรมดา
+              child: Row(
+                children: [
+                  const SizedBox(width: 4), // padding ซ้าย
+                  ...activities.map((activity) => _activityCard(activity)),
+                  const SizedBox(width: 4), // padding ขวา
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   // 4. MAIN BUILD METHOD
   @override
   Widget build(BuildContext context) {
@@ -550,7 +624,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Text('SWK', style: GoogleFonts.luckiestGuy(fontSize: 26, color: sky)),
           const SizedBox(height: 10),
 
-          // 🆕 1. TOP POPULAR ACTIVITIES CAROUSEL (แทน CLIP VDO เดิม)
+          // 1. TOP POPULAR ACTIVITIES CAROUSEL
           Container(
             height: 280,
             decoration: BoxDecoration(
@@ -579,7 +653,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   );
                 }
 
-                // 🆕 เอาแค่ 3 อันดับแรก
+                // เอาแค่ 3 อันดับแรก
                 final topActivities = snapshot.data!.take(3).toList();
 
                 return Stack(
@@ -601,7 +675,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       },
                     ),
 
-                    // 🆕 Page Indicator (Dots)
+                    // Page Indicator (Dots)
                     Positioned(
                       bottom: 16,
                       left: 0,
@@ -625,7 +699,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
 
-                    // 🆕 Navigation Arrows with Infinite Loop
+                    // Navigation Arrows with Infinite Loop
                     if (topActivities.length > 1) ...[
                       Positioned(
                         left: 8,
@@ -636,7 +710,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             icon: const Icon(Icons.chevron_left,
                                 color: Colors.white, size: 32),
                             onPressed: () {
-                              // 🔄 วนกลับไปหน้าสุดท้ายถ้าอยู่หน้าแรก
                               if (_currentCarouselPage == 0) {
                                 _carouselController.animateToPage(
                                   topActivities.length - 1,
@@ -662,7 +735,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             icon: const Icon(Icons.chevron_right,
                                 color: Colors.white, size: 32),
                             onPressed: () {
-                              // 🔄 วนกลับไปหน้าแรกถ้าอยู่หน้าสุดท้าย
                               if (_currentCarouselPage ==
                                   topActivities.length - 1) {
                                 _carouselController.animateToPage(
@@ -707,36 +779,21 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 12),
 
-          SizedBox(
-            height: 180,
-            child: FutureBuilder<List<Activity>>(
-              future: _popularActivitiesFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                      child: CircularProgressIndicator(color: sky));
-                }
-                if (snapshot.hasError ||
-                    !snapshot.hasData ||
-                    snapshot.data!.isEmpty) {
-                  return Center(
-                    child: Text(
-                      'Cannot load popular activities',
-                      style: GoogleFonts.openSans(color: Colors.grey),
-                    ),
-                  );
-                }
-
-                final activities = snapshot.data!;
-                return ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: activities.length,
-                  itemBuilder: (context, index) {
-                    return _activityCard(activities[index]);
-                  },
-                );
-              },
-            ),
+          // ✅ ใช้ Widget ใหม่ที่มี Drag Scrolling
+          _buildScrollableActivityList(
+            future: _popularActivitiesFuture,
+            controller: _popularScrollController,
+            emptyMessage: 'Cannot load popular activities',
+            onDragStart: (dx) {
+              _popularDragStart = dx;
+            },
+            onDragUpdate: (dx) {
+              final delta = _popularDragStart - dx;
+              _popularDragStart = dx;
+              _popularScrollController.jumpTo(
+                _popularScrollController.offset + delta,
+              );
+            },
           ),
 
           // 3. NEW ACTIVITIES
@@ -756,43 +813,23 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 12),
 
-          SizedBox(
-            height: 180,
-            child: FutureBuilder<List<Activity>>(
-              future: _newActivitiesFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                      child: CircularProgressIndicator(color: sky));
-                }
-                if (snapshot.hasError ||
-                    !snapshot.hasData ||
-                    snapshot.data!.isEmpty) {
-                  return Container(
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: deepSky, width: 2)),
-                    alignment: Alignment.center,
-                    child: Text(
-                      'No new activities available',
-                      style:
-                          GoogleFonts.luckiestGuy(fontSize: 18, color: deepSky),
-                    ),
-                  );
-                }
-
-                final activities = snapshot.data!;
-                return ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: activities.length,
-                  itemBuilder: (context, index) {
-                    return _activityCard(activities[index]);
-                  },
-                );
-              },
-            ),
+          // ✅ ใช้ Widget ใหม่ที่มี Drag Scrolling
+          _buildScrollableActivityList(
+            future: _newActivitiesFuture,
+            controller: _newScrollController,
+            emptyMessage: 'No new activities available',
+            onDragStart: (dx) {
+              _newDragStart = dx;
+            },
+            onDragUpdate: (dx) {
+              final delta = _newDragStart - dx;
+              _newDragStart = dx;
+              _newScrollController.jumpTo(
+                _newScrollController.offset + delta,
+              );
+            },
           ),
+
           const SizedBox(height: 30),
         ],
       ),

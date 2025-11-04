@@ -274,6 +274,8 @@ class ActivityService {
     required String activityId,
     required List<SegmentResult> segmentResults,
     required int activityMaxScore,
+    Map<String, dynamic>? evidence,
+    int? parentScore, // 🆕 รับ parentScore แยกเป็น parameter
   }) async {
     final numSections = segmentResults.length;
 
@@ -288,20 +290,34 @@ class ActivityService {
     // 2. คำนวณคะแนนที่ได้รับ
     final scoreEarned = (activityMaxScore * (averageAccuracy / 100)).floor();
 
+    // 🆕 2.1 ใช้ parentScore ถ้ามี (ไม่ต้องดึงจาก evidence อีก)
+    final int finalScore = parentScore ?? scoreEarned;
+
+    // 🆕 Debug: ดูว่า payload มีอะไรบ้าง
+    print('📊 Service Debug:');
+    print('  - parentScore received: $parentScore');
+    print('  - finalScore: $finalScore');
+    print('  - evidence: $evidence');
+
     // 3. สร้าง Payload
     final payload = {
       'activityId': activityId,
-      'totalScoreEarned': scoreEarned,
+      'totalScoreEarned': finalScore, // 🆕 ใช้ finalScore แทน scoreEarned
       'segmentResults': segmentResults.map((r) => r.toJson()).toList(),
+      'evidence': evidence,
+      'parentScore': parentScore, // 🆕 เพิ่ม parentScore ไปด้วย (ถ้ามี)
     };
+
+    print('📦 Payload to Backend: $payload');
 
     try {
       // 4. ส่ง POST Request
       final res = await _apiService.post('/complete-quest', payload);
 
       // ส่งคะแนนกลับไป
-      res['scoreEarned'] = scoreEarned; // คะแนนดิบ (85)
-      res['calculatedScore'] = averageAccuracy.round(); // % (85%)
+      res['scoreEarned'] = finalScore; // 🆕 คะแนนที่ใช้จริง
+      res['calculatedScore'] =
+          parentScore ?? averageAccuracy.round(); // 🆕 % หรือคะแนนจากผู้ปกครอง
 
       return res;
     } catch (e) {

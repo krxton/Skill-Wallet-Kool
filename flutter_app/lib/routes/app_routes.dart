@@ -13,7 +13,8 @@ import '../screens/record_screen.dart';
 import '../screens/result_screen.dart';
 import '../screens/video_detail_screen.dart';
 import '../models/activity.dart';
-import '../screens/language_detail_screen.dart'; // 🆕 Import หน้าจอ Language Detail
+import '../screens/language_detail_screen.dart';
+import '../screens/physical_activity.dart';
 
 class AppRoutes {
   // core
@@ -31,7 +32,8 @@ class AppRoutes {
   static const String record = '/record';
   static const String result = '/result';
   static const String videoDetail = '/video-detail';
-  static const String languageDetail = '/language-detail'; // 🆕 ชื่อ Route ใหม่
+  static const String languageDetail = '/language-detail';
+  static const String physicalActivity = '/physical-activity';
 
   static Map<String, WidgetBuilder> get routes => <String, WidgetBuilder>{
         welcome: (_) => const WelcomeScreen(),
@@ -73,6 +75,15 @@ class AppRoutes {
           final activity =
               ModalRoute.of(context)!.settings.arguments as Activity;
           return LanguageDetailScreen(
+            activity: activity,
+          );
+        },
+
+        // 🆕 Route สำหรับ PhysicalActivityScreen
+        physicalActivity: (context) {
+          final activity =
+              ModalRoute.of(context)!.settings.arguments as Activity;
+          return PhysicalActivityScreen(
             activity: activity,
           );
         },

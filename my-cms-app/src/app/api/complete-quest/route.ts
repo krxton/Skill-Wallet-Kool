@@ -3,9 +3,8 @@ import prisma from '@/lib/prisma';
 import cuid from 'cuid'; 
 
 // =======================================================
-// 1. INTERFACES & TYPES (คงเดิม)
+// 1. INTERFACES & TYPES
 // =======================================================
-// ... (SegmentResult และ CompletionPayload interfaces คงเดิม) ...
 interface SegmentResult {
     id: string; 
     text: string;
@@ -18,19 +17,22 @@ interface CompletionPayload {
     activityId: string;
     totalScoreEarned: number;
     segmentResults: SegmentResult[]; 
+    parentScore?: number; // 🆕 เพิ่ม parentScore
     evidence?: { 
         videoUrl?: string | null;
         imageUrl?: string | null;
-        status?: string; 
+        videoPathLocal?: string | null; // 🆕 Local path
+        imagePathLocal?: string | null; // 🆕 Local path
+        status?: string;
+        description?: string; // 🆕 เพิ่ม description
     };
 }
 
 
 // =======================================================
-// 2. UTILITIES (แก้ไข: เปลี่ยนเป็น ID เดี่ยวสำหรับทดสอบ)
+// 2. UTILITIES
 // =======================================================
 const ALLOWED_ORIGIN = 'http://localhost:3001'; 
-// ✅ เปลี่ยนจาก Array เป็น ID เดี่ยวตามที่ต้องการ
 const TEST_PARENT_ID = "PR2"; 
 const TEST_CHILD_ID = "CH2";   
 
@@ -40,7 +42,7 @@ const getRandomTimeSpentSeconds = (): number => {
 
 
 // ----------------------------------------------------
-// 3. OPTIONS Handler (CORS) (เพิ่ม Max-Age)
+// 3. OPTIONS Handler (CORS)
 // ----------------------------------------------------
 export async function OPTIONS(request: NextRequest) {
     return NextResponse.json({}, {
@@ -49,7 +51,7 @@ export async function OPTIONS(request: NextRequest) {
             'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
             'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-            'Access-Control-Max-Age': '86400', // เพิ่ม Max-Age เพื่อช่วยเรื่อง CORS Preflight
+            'Access-Control-Max-Age': '86400',
         }
     });
 }
@@ -59,59 +61,61 @@ export async function OPTIONS(request: NextRequest) {
 // 4. POST Handler (บันทึก Quest Completion)
 // ----------------------------------------------------
 export async function POST(request: Request) {
-    // 🚨 ตั้งค่า CORS Header สำหรับ Error Response (เพื่อแก้ปัญหา CORS)
     const corsHeaders = {
         'Access-Control-Allow-Origin': ALLOWED_ORIGIN,
     };
 
     try {
         const body: CompletionPayload = await request.json(); 
-        const { activityId, totalScoreEarned, segmentResults, evidence } = body; 
+        const { activityId, totalScoreEarned, segmentResults, evidence, parentScore } = body; 
 
         if (!activityId || totalScoreEarned === undefined || !segmentResults) {
-            // ✅ เพิ่ม CORS Header
             return NextResponse.json({ error: 'Missing required quest completion fields.' }, { status: 400, headers: corsHeaders });
         }
         
-        const scoreToIncrement = Math.floor(totalScoreEarned || 0);
+        // 🆕 ใช้ parentScore ถ้ามี, ไม่งั้นใช้ totalScoreEarned
+        const finalScoreToSave = parentScore ?? totalScoreEarned;
+        const scoreToIncrement = Math.floor(finalScoreToSave);
+        
+        console.log('📊 Score Debug:', {
+            totalScoreEarned,
+            parentScore,
+            finalScoreToSave,
+            scoreToIncrement
+        });
         
         // 1. ตรวจสอบประเภทกิจกรรมและดึงข้อมูลเพิ่มเติม
         const activity = await prisma.activity.findUnique({ where: { id: activityId }, select: { category: true } });
         if (!activity) { 
-            // ✅ เพิ่ม CORS Header
             return NextResponse.json({ error: 'Activity not found in CMS.' }, { status: 404, headers: corsHeaders });
         }
         const questCategory = activity.category;
 
         // 2. กำหนด ID และตรวจสอบความสัมพันธ์
         const finalStatus = "Approved"; 
-        
-        // ✅ ใช้ ID ที่กำหนดตายตัว
         const parentId = TEST_PARENT_ID;
         const childId = TEST_CHILD_ID;
         
-        // 2.1 ตรวจสอบความสัมพันธ์ Parent-Child และดึงชื่อเด็กมาใช้ใน Response
+        // 2.1 ตรวจสอบความสัมพันธ์ Parent-Child
         const childData = await prisma.child.findUnique({ 
             where: { id: childId },
             select: { 
-                fullName: true, // ดึงชื่อมาใช้ใน Response
-                parents: { // ตรวจสอบว่า Parent นี้ผูกกับ Child นี้จริง
+                fullName: true,
+                parents: {
                     where: { parentId: parentId },
                     select: { parentId: true }
                 }
             } 
         });
 
-        // 2.2 ตรวจสอบ: ถ้าไม่พบเด็ก, หรือเด็กคนนี้ไม่ได้มีผู้ปกครองคนนี้
         if (!childData || childData.parents.length === 0) {
-            // ✅ เพิ่ม CORS Header
             return NextResponse.json(
                 { error: `Child ID ${childId} not found or not linked to Parent ID ${parentId}. Check test IDs and seed data.` }, 
                 { status: 404, headers: corsHeaders }
             );
         }
         
-        const childFullName = childData.fullName; // ชื่อเด็กที่ใช้ใน Response
+        const childFullName = childData.fullName;
         
         let timeSpentToSave: number | undefined = undefined; 
         
@@ -123,19 +127,30 @@ export async function POST(request: Request) {
         // 3. ทำ TRANSACTION: อัปเดตคะแนนและสร้าง Record
         // ----------------------------------------------------
         
+        // 🆕 แยก description และ parentScore ออกจาก evidence
+        const description = evidence?.description || null;
+        const evidenceClean = evidence ? { ...evidence } : null;
+        
+        // ลบ description และ parentScore ออกจาก evidence object
+        if (evidenceClean) {
+            delete evidenceClean.description;
+            delete (evidenceClean as any).parentScore; // ลบ parentScore ออก
+        }
+        
         const detailResultsObject: any = {
             questType: questCategory,
             results: segmentResults, 
-            evidence: evidence || null,
+            evidence: evidenceClean, // เก็บ evidence สะอาด (ไม่มี description และ parentScore)
+            description: description, // 🆕 เก็บ description แยกต่างหาก
         }; 
 
         const record = await prisma.$transaction(async (tx) => {
             
-            // a. นับรอบ (Count from ActivityRecord)
+            // a. นับรอบ
             const latestRoundRecord = await tx.activityRecord.aggregate({
                 _max: { roundNumber: true },
                 where: {
-                    childId: childId, // ✅ ใช้ ID ที่กำหนดตายตัว
+                    childId: childId,
                     activityId: activityId,
                     status: 'Approved', 
                 },
@@ -144,24 +159,24 @@ export async function POST(request: Request) {
             const maxRound = latestRoundRecord._max.roundNumber || 0;
             const newRoundNumber = maxRound + 1;
             
-            // b. อัปเดตคะแนนเด็ก
+            // b. อัปเดตคะแนนเด็ก (ใช้ finalScoreToSave)
             await tx.child.update({
-                where: { id: childId }, // ✅ ใช้ ID ที่กำหนดตายตัว
+                where: { id: childId },
                 data: {
                     score: { increment: scoreToIncrement }
                 }
             });
 
-            // c. สร้าง Record (บันทึกภารกิจ)
+            // c. สร้าง Record (บันทึก finalScoreToSave)
             return tx.activityRecord.create({
                 data: {
                     id: cuid(), 
                     activityId: activityId,
-                    parentId: parentId, // ✅ ใช้ ID ที่กำหนดตายตัว
-                    childId: childId,   // ✅ ใช้ ID ที่กำหนดตายตัว
+                    parentId: parentId,
+                    childId: childId,
                     dateCompleted: new Date(),
                     timeSpentSeconds: timeSpentToSave,
-                    scoreEarned: totalScoreEarned,
+                    scoreEarned: finalScoreToSave, // 🆕 บันทึกคะแนนจริงที่ใช้
                     status: finalStatus,
                     detailResults: detailResultsObject, 
                     roundNumber: newRoundNumber, 
@@ -169,18 +184,18 @@ export async function POST(request: Request) {
             });
         });
 
-        // 4. ส่งผลลัพธ์กลับพร้อม Header CORS และข้อความที่ชัดเจน
-        // ✅ ปรับข้อความ Response
+        // 4. ส่งผลลัพธ์กลับ
         const responseMessage = `${childFullName} ทำภารกิจเสร็จสมบูรณ์แล้ว! (รอบที่ ${record.roundNumber})`;
         
         return NextResponse.json({
             message: responseMessage, 
             recordId: record.id,
             roundNumber: record.roundNumber, 
-            totalScore: totalScoreEarned,
+            totalScore: finalScoreToSave, // 🆕 ส่งคะแนนที่ใช้จริงกลับไป
+            scoreType: parentScore !== undefined ? 'parent' : 'calculated', // 🆕 บอกประเภทคะแนน
         }, {
             status: 200,
-            headers: corsHeaders, // ✅ ใช้ CORS Header
+            headers: corsHeaders,
         });
 
     } catch (error) {
@@ -191,7 +206,6 @@ export async function POST(request: Request) {
             errorMessage = 'Foreign Key Error: Parent/Child ID does not exist. Check your seed data.';
         }
         
-        // ✅ เพิ่ม CORS Header ใน 500 Response
         return NextResponse.json({ error: errorMessage }, { status: 500, headers: corsHeaders });
     }
 }

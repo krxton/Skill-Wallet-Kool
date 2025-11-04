@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/activity.dart'; // 🆕 ต้อง Import Activity Model
+import '../routes/app_routes.dart';
 
 class VideoDetailScreen extends StatelessWidget {
   static const String routeName = '/video_detail';
@@ -118,6 +119,51 @@ class VideoDetailScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
+
+            Row(
+              children: [
+                // 1. ปุ่ม START
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      // 🚀 ACTION: นำทางไปยัง PhysicalActivityScreen
+                      Navigator.pushNamed(
+                        context,
+                        AppRoutes.physicalActivity,
+                        arguments: activity, // 🆕 ส่ง Activity Object ไป
+                      );
+                    },
+                    icon: const Icon(Icons.play_arrow),
+                    label: Text('START',
+                        style: GoogleFonts.luckiestGuy(fontSize: 20)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: sky,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                // 2. ปุ่ม ADD (ปล่อยว่างไว้ก่อน)
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      // TODO: Implement Add to Diary/Favorite Logic
+                    },
+                    icon: const Icon(Icons.add_circle_outline),
+                    label: Text('ADD',
+                        style: GoogleFonts.luckiestGuy(fontSize: 20)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey.shade400,
+                      foregroundColor: deepGrey,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 24),
           ],
         ),
       ),
