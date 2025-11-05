@@ -38,7 +38,8 @@ class ActivityService {
   final ApiService _apiService = ApiService();
   static const String _oEmbedEndpoint = 'https://www.tiktok.com/oembed?url=';
 
-  final String API_BASE_URL = 'http://192.168.1.58:3000/api';
+  final String API_BASE_URL = 'http://127.0.0.1:3000/api';
+  // final String API_BASE_URL = 'http://192.168.1.58:3000/api';
 
   // ----------------------------------------------------
   // 1. HELPER FUNCTIONS

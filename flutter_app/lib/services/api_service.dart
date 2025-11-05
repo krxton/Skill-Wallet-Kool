@@ -6,7 +6,8 @@ import 'package:flutter/foundation.dart';
 
 class ApiService {
   // 1. Base URL
-  static const String _baseUrl = 'http://192.168.1.58:3000/api';
+  // static const String _baseUrl = 'http://192.168.1.58:3000/api';
+  static const String _baseUrl = 'http://127.0.0.1:3000/api';
 
   // 2. Headers Getter
   Map<String, String> get _headers => {
