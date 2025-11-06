@@ -3,11 +3,13 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiService {
   // 1. Base URL
   // static const String _baseUrl = 'http://192.168.1.58:3000/api';
-  static const String _baseUrl = 'http://127.0.0.1:3000/api';
+  static String get _baseUrl =>
+      dotenv.env['API_BASE_URL'] ?? 'http://127.0.0.1:3000/api';
 
   // 2. Headers Getter
   Map<String, String> get _headers => {

@@ -7,6 +7,7 @@ import 'dart:io';
 import '../models/activity.dart';
 import 'api_service.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 // 🆕 Interface สำหรับผลลัพธ์ของแต่ละ Segment
 class SegmentResult {
@@ -38,7 +39,9 @@ class ActivityService {
   final ApiService _apiService = ApiService();
   static const String _oEmbedEndpoint = 'https://www.tiktok.com/oembed?url=';
 
-  final String API_BASE_URL = 'http://127.0.0.1:3000/api';
+  String get API_BASE_URL =>
+      dotenv.env['API_BASE_URL'] ?? 'http://127.0.0.1:3000/api';
+
   // final String API_BASE_URL = 'http://192.168.1.58:3000/api';
 
   // ----------------------------------------------------
