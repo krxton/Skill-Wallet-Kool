@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+// ignore: unused_import
 import '../theme/palette.dart';
 import '../routes/app_routes.dart';
 import '../models/activity.dart';
@@ -98,6 +99,7 @@ class _ResultScreenState extends State<ResultScreen>
               child: Container(
                 padding: const EdgeInsets.all(30),
                 decoration: BoxDecoration(
+                  // ignore: deprecated_member_use
                   color: scoreColor.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: scoreColor, width: 3),

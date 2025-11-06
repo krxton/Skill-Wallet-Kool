@@ -135,16 +135,18 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
     final bool isEvidenceAttached = _videoPath != null || _imagePath != null;
 
     if (!isEvidenceAttached) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text('Please attach video or image evidence.')));
+      }
       return;
     }
     if (_parentScore <= 0 || _parentScore > widget.activity.maxScore) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(
                 'Please set a valid score (1 to ${widget.activity.maxScore}).')));
+      }
       return;
     }
 
@@ -165,9 +167,10 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
 
     try {
       // 🆕 Debug: ดูว่าส่งอะไรไป
-      print('📊 Sending parentScore: $_parentScore');
-      print('📦 Evidence payload: $evidencePayload');
+      // print('📊 Sending parentScore: $_parentScore');
+      // print('📦 Evidence payload: $evidencePayload');
 
+      // ignore: unused_local_variable
       final response = await _activityService.finalizeQuest(
         childId: childId!,
         activityId: widget.activity.id,
@@ -177,7 +180,7 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
         parentScore: _parentScore, // ✅ ส่ง parentScore แยกต่างหาก
       );
 
-      print('✅ Submit Response: $response');
+      // print('✅ Submit Response: $response');
 
       if (mounted) {
         // 2. 🚀 แสดง Popup ว่าเสร็จแล้ว
@@ -202,14 +205,18 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
                 ));
       }
     } catch (e) {
-      if (mounted)
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Submission Error: ${e.toString()}')));
+      }
     } finally {
       setState(() => _isSubmitting = false);
       if (!mounted) {
         Navigator.pushNamedAndRemoveUntil(
-            context, AppRoutes.home, (route) => route.isFirst);
+            // ignore: use_build_context_synchronously
+            context,
+            AppRoutes.home,
+            (route) => route.isFirst);
       }
     }
   }
@@ -227,6 +234,7 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
       return Center(
           child: Icon(icon, size: 50, color: const Color(0xFF0D92F4)));
     }
+    // ignore: deprecated_member_use
     return Icon(Icons.add, size: 50, color: deepGrey.withOpacity(0.5));
   }
 
@@ -400,9 +408,10 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
                         ? null
                         : () => _handleMediaSelection(isVideo: false),
                     icon: const Icon(Icons.add_a_photo),
-                    label: Text('ADD PHOTO',
+                    label: Text('TAKE PHOTO',
                         style: GoogleFonts.luckiestGuy(fontSize: 16)),
                     style: ElevatedButton.styleFrom(
+                      // ignore: deprecated_member_use
                       backgroundColor: deepGrey.withOpacity(0.1),
                       foregroundColor: deepGrey,
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -416,7 +425,7 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
 
             // 2. PLAYER / GAME RESULTS HEADER
             Center(
-                child: Text('PING PONG GAME',
+                child: Text('',
                     style: GoogleFonts.luckiestGuy(
                         fontSize: 32, color: deepGrey))),
 
@@ -457,7 +466,7 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
                   ? null
                   : () => _handleMediaSelection(isVideo: false),
               child: Container(
-                height: 200,
+                height: 100,
                 decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(10)),
@@ -477,7 +486,7 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
                   ? null
                   : () => _handleMediaSelection(isVideo: true),
               child: Container(
-                height: 150,
+                height: 100,
                 decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(10)),

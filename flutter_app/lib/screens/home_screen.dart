@@ -1,4 +1,6 @@
-// lib/screens/home_screen.dart (ฉบับแก้ไข - รองรับ Drag Scrolling)
+// lib/screens/home_screen.dart (ฉบับแก้ไข - รองรับ Drag Scrolling และแสดง parentId)
+
+// ignore_for_file: deprecated_member_use, unused_element
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -28,6 +30,9 @@ class _HomeScreenState extends State<HomeScreen> {
   late Future<List<Activity>> _newActivitiesFuture;
 
   String? _currentChildId;
+  String? _currentParentId;
+  String? _currentParentName;
+  String? _currentChildName;
 
   // สำหรับ Carousel
   final PageController _carouselController = PageController();
@@ -61,11 +66,18 @@ class _HomeScreenState extends State<HomeScreen> {
   void _loadData() {
     if (!mounted) return;
 
-    final childId = context.read<UserProvider>().currentChildId;
+    final userProvider = context.read<UserProvider>();
+    final childId = userProvider.currentChildId;
+    final parentId = userProvider.currentParentId;
+    final parentName = userProvider.currentParentName;
+    final childName = userProvider.currentChildName;
 
     if (childId != null) {
       setState(() {
         _currentChildId = childId;
+        _currentParentId = parentId;
+        _currentParentName = parentName;
+        _currentChildName = childName;
         _popularActivitiesFuture =
             _activityService.fetchPopularActivities(childId);
         _newActivitiesFuture = _activityService.fetchNewActivities(childId);
@@ -539,6 +551,9 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     final String childId = _currentChildId!;
+    final String parentId = _currentParentId ?? 'Unknown Parent ID';
+    final String parentName = _currentParentName ?? 'Unknown Parent';
+    // final String childName = _currentChildName ?? 'Unknown Child';
 
     return Scaffold(
       backgroundColor: cream,
@@ -549,7 +564,7 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          'SWK - CHILD ID: $childId',
+          'PARENT: $parentId - CHILD: $childId',
           style: GoogleFonts.luckiestGuy(fontSize: 24, color: Colors.black),
         ),
         actions: [
@@ -621,7 +636,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 24),
 
-          Text('SWK', style: GoogleFonts.luckiestGuy(fontSize: 26, color: sky)),
+          Text(parentName,
+              style: GoogleFonts.luckiestGuy(fontSize: 26, color: sky)),
           const SizedBox(height: 10),
 
           // 1. TOP POPULAR ACTIVITIES CAROUSEL

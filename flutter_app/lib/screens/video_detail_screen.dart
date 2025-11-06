@@ -46,7 +46,7 @@ class VideoDetailScreen extends StatelessWidget {
           children: [
             // 1. ส่วนแสดงวิดีโอ TikTok
             SizedBox(
-              height: 450, // กำหนดความสูงเพื่อให้วิดีโอแสดงผลได้ดี
+              height: 800, // กำหนดความสูงเพื่อให้วิดีโอแสดงผลได้ดี
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: htmlContent.isNotEmpty
@@ -75,20 +75,51 @@ class VideoDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // 2. รายละเอียดกิจกรรม (Description)
+            // 2. ชื่อกิจกรรม (Title Block)
+            Text(
+              'ACTIVITY NAME:',
+              style: GoogleFonts.luckiestGuy(fontSize: 18, color: sky),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: sky, width: 1),
+              ),
+              child: Text(
+                name,
+                style: GoogleFonts.luckiestGuy(
+                  fontSize: 20,
+                  color: Colors.black,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // 3. รายละเอียดกิจกรรม (Description)
             Text(
               'DESCRIPTION:',
               style: GoogleFonts.luckiestGuy(fontSize: 18, color: sky),
             ),
             const SizedBox(height: 8),
-            Text(
-              description,
-              style: GoogleFonts.openSans(fontSize: 14, color: deepGrey),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: sky, width: 1),
+              ),
+              child: Text(
+                description,
+                style: GoogleFonts.openSans(fontSize: 15, color: Colors.black),
+              ),
             ),
-
             const SizedBox(height: 20),
 
-            // 3. วิธีเล่น (Content)
+            // 4. วิธีเล่น (Content)
             Text(
               'HOW TO PLAY / INSTRUCTIONS:',
               style: GoogleFonts.luckiestGuy(fontSize: 18, color: sky),
@@ -107,15 +138,18 @@ class VideoDetailScreen extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
 
-            // 4. ข้อมูลเพิ่มเติม (Category, Difficulty, Max Score)
+            // 5. ข้อมูลเพิ่มเติม (Category, Difficulty, Max Score)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _buildInfoPill('Category: ${activity.category}', sky),
+                const SizedBox(width: 12),
                 _buildInfoPill('Difficulty: ${activity.difficulty}', sky),
+                const SizedBox(width: 12),
                 _buildInfoPill('Max Score: ${activity.maxScore}', Colors.green),
+                const SizedBox(width: 12),
               ],
             ),
             const SizedBox(height: 20),

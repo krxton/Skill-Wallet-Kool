@@ -90,6 +90,7 @@ class AppRoutes {
 
         result: (context) {
           // 🆕 รับ Argument เป็น Map<String, dynamic>
+          // ignore: unused_local_variable
           final args = ModalRoute.of(context)!.settings.arguments
               as Map<String, dynamic>?;
 

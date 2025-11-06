@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
+// ignore: unused_import
 import 'dart:io';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
@@ -187,8 +188,9 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
       _segmentResults.where((r) => r.maxScore > 0).length;
 
   String _getCurrentSegmentText() {
-    if (_rawSegments.isEmpty || current > totalSegments)
+    if (_rawSegments.isEmpty || current > totalSegments) {
       return 'Activity Content Missing.';
+    }
     return (_rawSegments[current - 1] as Map<String, dynamic>)['text']
             as String? ??
         'Text not found.';
@@ -232,6 +234,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
       setState(() => _isPlaybackPlaying = true);
     } catch (e) {
       debugPrint('Self-Playback Error: $e');
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to play back recording.')));
       setState(() => _isPlaybackPlaying = false);
@@ -270,7 +273,9 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
           audioUrl: audioUrl,
         );
 
+        // ignore: unnecessary_this
         this.state = 'reviewed';
+        // ignore: unnecessary_this
         this.point = score;
       });
     }
@@ -290,6 +295,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
       );
 
       // 2. นำทางไป Result Screen
+      // ignore: use_build_context_synchronously
       Navigator.pushReplacementNamed(context, AppRoutes.result, arguments: {
         'activityName': widget.activity.name,
         'totalScore':
@@ -299,6 +305,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
         'activityObject': widget.activity, // 🆕 ส่ง Activity Object
       });
     } catch (e) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error completing quest: ${e.toString()}')));
     }
@@ -326,6 +333,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
       );
     }
 
+    // ignore: unused_local_variable
     final isCurrentSegmentCompleted = _currentSegmentResult.maxScore > 0;
     final currentText = _getCurrentSegmentText();
     final currentSegmentResult = _currentSegmentResult;
@@ -396,6 +404,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
+                    // ignore: deprecated_member_use
                     color: Colors.black.withOpacity(0.25),
                     borderRadius: BorderRadius.circular(6),
                   ),
@@ -454,6 +463,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                       onTap: current > 1
                           ? () => setState(() {
                                 current--;
+                                // ignore: unnecessary_this
                                 this.state = 'idle';
                               })
                           : null,
@@ -484,6 +494,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                         if (current < totalSegments) {
                           setState(() {
                             current++;
+                            // ignore: unnecessary_this
                             this.state = _currentSegmentResult.maxScore > 0
                                 ? 'reviewed'
                                 : 'idle';
@@ -509,6 +520,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
 
   Widget _pillButton(String text, Color bg,
       {bool textDark = false, VoidCallback? onTap}) {
+    // ignore: deprecated_member_use, unused_local_variable
     final Color actualBg = onTap == null ? bg.withOpacity(0.6) : bg;
 
     return Expanded(
@@ -587,7 +599,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
             ),
             child: isReviewed
                 ? FractionallySizedBox(
-                    widthFactor: score! / 100,
+                    widthFactor: score / 100,
                     alignment: Alignment.centerLeft,
                     child: Container(
                       decoration: BoxDecoration(
@@ -611,6 +623,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
       'processing' => 'STATUS: AI PROCESSING…',
       // 🆕 แก้ไข: แสดง recognizedText เต็ม
       'reviewed' =>
+        // ignore: unnecessary_brace_in_string_interps
         'STATUS AI: "${recognizedTextDisplay}" ✅ CORRECTNESS : ${result.maxScore}%',
       'finished' => 'STATUS: ALL SEGMENTS COMPLETED ✅',
       _ =>
@@ -675,7 +688,9 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                 : Center(
                     child: Text('Record to enable playback',
                         style: GoogleFonts.openSans(
-                            fontSize: 12, color: deepGrey.withOpacity(0.5))),
+                            // ignore: deprecated_member_use
+                            fontSize: 12,
+                            color: deepGrey.withOpacity(0.5))),
                   ),
           ),
         ],
@@ -689,6 +704,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
     required Color fg,
     VoidCallback? onTap,
   }) {
+    // ignore: deprecated_member_use
     final Color actualBg = onTap == null ? bg.withOpacity(0.6) : bg;
 
     return InkWell(

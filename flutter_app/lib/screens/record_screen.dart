@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart'; // สำหรับ Path �
 import 'package:record/record.dart'; // สำหรับบันทึกเสียง
 import 'package:google_fonts/google_fonts.dart';
 import 'package:audioplayers/audioplayers.dart'; // 🆕 สำหรับเล่นไฟล์เสียง
+// ignore: unused_import
 import '../routes/app_routes.dart'; // ⚠️ อาจไม่ได้ใช้ แต่ควรมี
 import '../services/activity_service.dart'; // สำหรับประเมิน AI
 
@@ -84,7 +85,9 @@ class _RecordScreenState extends State<RecordScreen> {
   // 1. 🟢 Logic บันทึกเสียง (Start/Stop)
   Future<void> _toggle() async {
     if (_originalText.startsWith('Error') ||
-        _originalText.startsWith('Microphone')) return;
+        _originalText.startsWith('Microphone')) {
+      return;
+    }
 
     if (recording) {
       // 🟢 STOP RECORDING
@@ -139,6 +142,7 @@ class _RecordScreenState extends State<RecordScreen> {
       setState(() => _isPlaying = true);
     } catch (e) {
       debugPrint('Playback Error: $e');
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('Failed to play audio.')));
       setState(() => _isPlaying = false);
@@ -153,6 +157,7 @@ class _RecordScreenState extends State<RecordScreen> {
 
     final audioFile = File(_tempFilePath);
     if (!await audioFile.exists() || await audioFile.length() < 1000) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Error: No valid audio recorded.')));
       return;

@@ -1,9 +1,10 @@
-// lib/screens/language_detail_screen.dart (ฉบับแก้ไข)
+// lib/screens/language_detail_screen.dart
+
+// ignore_for_file: unused_local_variable
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/activity.dart';
-// 🆕 เพิ่มการนำเข้า AppRoutes
 import '../routes/app_routes.dart';
 
 class LanguageDetailScreen extends StatelessWidget {
@@ -32,10 +33,10 @@ class LanguageDetailScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: cream,
       appBar: AppBar(
+        // 🆕 แสดงชื่อกิจกรรม (ย้าย Logic จาก title ภายใน Build ไปที่ AppBar)
         title: Text(
-          'LANGUAGE: $name',
-          style: GoogleFonts.luckiestGuy(color: Colors.black),
-        ),
+            'LANGUAGE: ${activity.name.toUpperCase()}', // 🆕 ใช้ activity.name.toUpperCase()
+            style: GoogleFonts.luckiestGuy(color: Colors.black)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
@@ -45,30 +46,41 @@ class LanguageDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // 1. หัวข้อหลัก
+            // 1. หัวข้อหลัก (Category)
             Text(
-              'ACTIVITY: ${activity.category}',
+              'CATEGORY: ${activity.category.toUpperCase()}',
               style: GoogleFonts.luckiestGuy(fontSize: 22, color: sky),
             ),
 
             const SizedBox(height: 16),
 
-            // 2. คำอธิบาย
-            _buildSectionTitle('DESCRIPTION'),
-            _buildContentCard(description),
+            // 2. 🆕 แสดง Name (ชื่อกิจกรรม) แทน Description ใน Card แรก
+            _buildSectionTitle('ACTIVITY TITLE'), // 🆕 หัวข้อใหม่
+            _buildContentCard(name), // 🆕 ใช้ name
 
             const SizedBox(height: 20),
 
-            // 3. เนื้อหา/คำแนะนำ
-            _buildSectionTitle('ACTIVITY INSTRUCTIONS / CONTENT'),
-            _buildContentCard(content),
+            // 3. 🆕 แสดง Description ใน Card ที่สอง
+            _buildSectionTitle('DESCRIPTION'), // 🆕 หัวข้อใหม่
+            _buildContentCard(description), // 🆕 ใช้ description
 
             const SizedBox(height: 30),
 
-            // 4. ปุ่มเริ่มกิจกรรม (Start)
+            // 4. ข้อมูลเสริม (Difficulty, Max Score)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                _buildInfoPill('Difficulty: ${activity.difficulty}', sky),
+                const SizedBox(width: 12),
+                _buildInfoPill('Max Score: ${activity.maxScore}', Colors.green),
+              ],
+            ),
+
+            const SizedBox(height: 30),
+
+            // 5. ปุ่มเริ่มกิจกรรม (Start)
             ElevatedButton(
               onPressed: () {
-                // 🚀 ACTION: นำทางไปยัง ItemIntroScreen เพื่อเริ่มกิจกรรมจริง
                 Navigator.pushNamed(
                   context,
                   AppRoutes.itemIntro,
@@ -83,7 +95,7 @@ class LanguageDetailScreen extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'START LEVEL (${activity.difficulty.toUpperCase()})',
+                'START',
                 style:
                     GoogleFonts.luckiestGuy(fontSize: 20, color: Colors.white),
               ),
@@ -94,7 +106,7 @@ class LanguageDetailScreen extends StatelessWidget {
     );
   }
 
-  // 🔹 Helper Methods
+  // 🔹 Helper Methods (เพิ่ม _buildInfoPill)
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
@@ -116,6 +128,22 @@ class LanguageDetailScreen extends StatelessWidget {
       child: Text(
         text,
         style: GoogleFonts.openSans(fontSize: 15, color: Colors.black),
+      ),
+    );
+  }
+
+  Widget _buildInfoPill(String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color, width: 1.5),
+      ),
+      child: Text(
+        text,
+        style: GoogleFonts.openSans(
+            fontSize: 14, color: color, fontWeight: FontWeight.bold),
       ),
     );
   }
