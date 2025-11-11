@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-        const ytDlpPath = 'C:\\Users\\higan\\AppData\\Roaming\\Python\\Python313\\Scripts\\yt-dlp.exe';
+        const ytDlpPath = 'yt-dlp';
         
         // 🔥 SOLUTION: ใช้ format ที่รวมเสียงแล้ว (pre-merged formats)
         // Format 22 = 720p HD + audio (ใช้ได้กับ YouTube ส่วนใหญ่)
