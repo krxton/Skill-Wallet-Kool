@@ -6,9 +6,9 @@ import { promisify } from 'util';
 const execAsync = promisify(exec);
 
 const corsHeaders = {
-    'Access-Control-Allow-Origin': 'http://192.168.1.58:3000',
+    'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Headers': 'Content-Type, x-requested-with',
 };
 
 export async function GET(request: NextRequest) {

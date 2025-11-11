@@ -8,9 +8,9 @@ import { spawnSync } from "child_process"; // 🆕 สำหรับรัน P
 
 // ⚠️ CORS Headers: ตรวจสอบ Origin ของ Flutter App
 const corsHeaders = {
-    'Access-Control-Allow-Origin': 'http://192.168.1.58:3000', 
+    'Access-Control-Allow-Origin': '*', 
     'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-requested-with',
     'Access-Control-Max-Age': '86400',
 };
 

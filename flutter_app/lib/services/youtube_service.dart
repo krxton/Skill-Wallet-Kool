@@ -3,8 +3,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class YouTubeService {
-  static const String _baseUrl =
-      'http://192.168.1.58:3000'; // 👈 เปลี่ยนเป็น IP Backend
+  // static const String _baseUrl =
+  //     'http://192.168.1.58:3000'; // 👈 เปลี่ยนเป็น IP Backend
+  static const String _baseUrl = 'http://127.0.0.1:3000';
 
   static Future<String?> getDirectVideoUrl(String videoId) async {
     try {

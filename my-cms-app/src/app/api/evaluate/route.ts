@@ -10,9 +10,9 @@ const CMS_EVAL_URL = `${CMS_API_BASE || 'http://localhost:8080/api'}${CMS_EVALUA
 
 const corsHeaders = {
     // ⚠️ ต้องแก้ไข Origin ให้เป็น URL ที่ Flutter App รันอยู่ (เช่น Origin ของ Next.js Frontend ถ้าใช้เป็น Proxy)
-    'Access-Control-Allow-Origin': 'http://192.168.1.58:3000', 
+    'Access-Control-Allow-Origin': '*', 
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-requested-with',
     'Access-Control-Max-Age': '86400',
 };
 
