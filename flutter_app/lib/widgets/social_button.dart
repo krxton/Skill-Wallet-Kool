@@ -14,14 +14,27 @@ class SocialButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textStyle = Theme.of(context).textTheme.labelLarge?.copyWith(
+          fontWeight: FontWeight.w700,
+        );
+
     return OutlinedButton.icon(
       style: OutlinedButton.styleFrom(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        side: BorderSide(
+          color: Colors.black.withOpacity(0.15),
+          width: 1.4,
+        ),
       ),
       onPressed: onPressed,
       icon: Icon(icon, size: 20),
-      label: Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
+      label: Text(
+        label,
+        style: textStyle,
+      ),
     );
   }
 }

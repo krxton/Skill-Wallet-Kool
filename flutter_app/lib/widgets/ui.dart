@@ -2,9 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/palette.dart';
 
-// เปลี่ยนให้รับ double
-TextStyle luckiestH(double size, {Color? color}) =>
-    GoogleFonts.luckiestGuy(fontSize: size, color: color ?? Palette.text);
+/// ตัวอักษรหัวข้อสไตล์ Luckiest Guy + fallback Itim สำหรับภาษาไทย
+TextStyle luckiestH(double size, {Color? color}) {
+  final base = GoogleFonts.luckiestGuy(
+    fontSize: size,
+    color: color ?? Palette.text,
+  );
+
+  return base.copyWith(
+    fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+  );
+}
 
 class PillButton extends StatelessWidget {
   final String label;
@@ -36,7 +44,10 @@ class PillButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(radius),
         child: Padding(
           padding: padding,
-          child: Text(label, style: luckiestH(fontSize, color: fg)),
+          child: Text(
+            label,
+            style: luckiestH(fontSize, color: fg),
+          ),
         ),
       ),
     );
@@ -46,7 +57,12 @@ class PillButton extends StatelessWidget {
 class OutlineCard extends StatelessWidget {
   final Widget child;
   final VoidCallback? onTap;
-  const OutlineCard({super.key, required this.child, this.onTap});
+
+  const OutlineCard({
+    super.key,
+    required this.child,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +70,10 @@ class OutlineCard extends StatelessWidget {
       color: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(14),
-        side: const BorderSide(color: Palette.blueChip, width: 2),
+        side: const BorderSide(
+          color: Palette.blueChip,
+          width: 2,
+        ),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(14),
@@ -69,19 +88,33 @@ class OutlineCard extends StatelessWidget {
 }
 
 class TinyProgress extends StatelessWidget {
-  final double value; // 0..1
-  const TinyProgress({super.key, required this.value});
+  /// value ควรอยู่ในช่วง 0..1
+  final double value;
+
+  const TinyProgress({
+    super.key,
+    required this.value,
+  });
 
   @override
   Widget build(BuildContext context) {
+    // clamp เป็น double ให้ชัด ๆ ป้องกัน warning เรื่อง type
+    final double clamped = value.clamp(0.0, 1.0);
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(8),
       child: Stack(
         children: [
-          Container(height: 14, color: Palette.progressBg),
+          Container(
+            height: 14,
+            color: Palette.progressBg,
+          ),
           FractionallySizedBox(
-            widthFactor: value.clamp(0, 1),
-            child: Container(height: 14, color: Palette.progressFill),
+            widthFactor: clamped,
+            child: Container(
+              height: 14,
+              color: Palette.progressFill,
+            ),
           ),
         ],
       ),

@@ -4,7 +4,7 @@ class SWKTextField extends StatelessWidget {
   final String hint;
   final TextEditingController controller;
   final TextInputType? keyboardType;
-  final ValueChanged<String>? onChanged; // <-- เพิ่ม
+  final ValueChanged<String>? onChanged;
   final bool obscureText;
   final Widget? suffix;
 
@@ -13,7 +13,7 @@ class SWKTextField extends StatelessWidget {
     required this.hint,
     required this.controller,
     this.keyboardType,
-    this.onChanged,       // <-- เพิ่ม
+    this.onChanged,
     this.obscureText = false,
     this.suffix,
   });
@@ -23,11 +23,23 @@ class SWKTextField extends StatelessWidget {
     return TextField(
       controller: controller,
       keyboardType: keyboardType,
-      onChanged: onChanged,            // <-- ส่งต่อ
+      onChanged: onChanged,
       obscureText: obscureText,
       decoration: InputDecoration(
+        filled: true,
+        fillColor: Colors.white, // ✅ ใช้สีพื้นขาวมาตรฐาน
         hintText: hint,
+        hintStyle: const TextStyle(
+          color: Colors.black54,
+          fontWeight: FontWeight.w600,
+        ),
         suffixIcon: suffix,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(18),
+          borderSide: BorderSide.none,
+        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
     );
   }
