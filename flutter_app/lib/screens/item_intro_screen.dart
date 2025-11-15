@@ -141,6 +141,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
 
       if (directUrl != null && mounted) {
         _player = Player();
+        await _player!.setVolume(100.0);
         _videoController = VideoController(_player!);
 
         await _player!.open(Media(directUrl));

@@ -1,5 +1,3 @@
-// lib/screens/video_detail_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -34,11 +32,16 @@ class VideoDetailScreen extends StatelessWidget {
       backgroundColor: cream,
       appBar: AppBar(
         // 🆕 แสดงชื่อกิจกรรม
-        title: Text(name, style: GoogleFonts.luckiestGuy(color: Colors.black)),
+        title: Text(
+          name,
+          style: GoogleFonts.luckiestGuy(color: Colors.black),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
       ),
+
+      //ส่วนที่ทำให้สามารถเลื่อนหน้าจอได้จะได้ไม่overflow
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -46,7 +49,7 @@ class VideoDetailScreen extends StatelessWidget {
           children: [
             // 1. ส่วนแสดงวิดีโอ TikTok
             SizedBox(
-              height: 800, // กำหนดความสูงเพื่อให้วิดีโอแสดงผลได้ดี
+              height: 300, // กำหนดความสูงเพื่อให้วิดีโอแสดงผลได้ดี
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: htmlContent.isNotEmpty
@@ -141,15 +144,14 @@ class VideoDetailScreen extends StatelessWidget {
             const SizedBox(height: 20),
 
             // 5. ข้อมูลเพิ่มเติม (Category, Difficulty, Max Score)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            // 🔧 แก้ OVERFLOW: ใช้ Wrap แทน Row
+            Wrap(
+              spacing: 12,
+              runSpacing: 8,
               children: [
                 _buildInfoPill('Category: ${activity.category}', sky),
-                const SizedBox(width: 12),
                 _buildInfoPill('Difficulty: ${activity.difficulty}', sky),
-                const SizedBox(width: 12),
                 _buildInfoPill('Max Score: ${activity.maxScore}', Colors.green),
-                const SizedBox(width: 12),
               ],
             ),
             const SizedBox(height: 20),
@@ -168,8 +170,10 @@ class VideoDetailScreen extends StatelessWidget {
                       );
                     },
                     icon: const Icon(Icons.play_arrow),
-                    label: Text('START',
-                        style: GoogleFonts.luckiestGuy(fontSize: 20)),
+                    label: Text(
+                      'START',
+                      style: GoogleFonts.luckiestGuy(fontSize: 20),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: sky,
                       foregroundColor: Colors.white,
@@ -185,8 +189,10 @@ class VideoDetailScreen extends StatelessWidget {
                       // TODO: Implement Add to Diary/Favorite Logic
                     },
                     icon: const Icon(Icons.add_circle_outline),
-                    label: Text('ADD',
-                        style: GoogleFonts.luckiestGuy(fontSize: 20)),
+                    label: Text(
+                      'ADD',
+                      style: GoogleFonts.luckiestGuy(fontSize: 20),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.grey.shade400,
                       foregroundColor: deepGrey,
@@ -215,7 +221,10 @@ class VideoDetailScreen extends StatelessWidget {
       child: Text(
         text,
         style: GoogleFonts.openSans(
-            fontSize: 12, color: color, fontWeight: FontWeight.bold),
+          fontSize: 12,
+          color: color,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }

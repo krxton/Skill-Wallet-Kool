@@ -570,8 +570,10 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
 
+      // ⭐⭐ จุดที่แก้: ให้แถบชมพูติดขอบล่างจริง ๆ
       bottomNavigationBar: SafeArea(
         top: false,
+        bottom: false, // <-- ปิด padding ด้านล่างของ SafeArea
         child: MainBottomNav(
           selectedIndex: _selectedTab,
           onTabSelected: (i) {

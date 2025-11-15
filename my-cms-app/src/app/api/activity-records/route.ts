@@ -5,6 +5,13 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+  'Access-Control-Max-Age': '86400',
+};
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -22,7 +29,9 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(records);
+    return NextResponse.json(records, {
+      headers: corsHeaders,
+    });
   } catch (error) {
     console.error('Error fetching activity records:', error);
     return NextResponse.json(
@@ -30,4 +39,8 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+export async function OPTIONS() {
+  return NextResponse.json({}, { status: 200, headers: corsHeaders });
 }
