@@ -11,7 +11,6 @@ import '../widgets/home_header.dart';
 import '../widgets/activity_card.dart';
 import '../widgets/scrollable_activity_list.dart';
 import '../widgets/main_bottom_nav.dart';
-
 import 'profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -166,14 +165,23 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       onTap: () {
         if (category == 'ด้านภาษา' || category == 'LANGUAGE') {
-          Navigator.pushNamed(context, AppRoutes.languageDetail,
-              arguments: activity);
+          Navigator.pushNamed(
+            context,
+            AppRoutes.languageDetail,
+            arguments: activity,
+          );
         } else if (category == 'ด้านร่างกาย' && activity.videoUrl != null) {
-          Navigator.pushNamed(context, AppRoutes.videoDetail,
-              arguments: activity);
+          Navigator.pushNamed(
+            context,
+            AppRoutes.videoDetail,
+            arguments: activity,
+          );
         } else {
-          Navigator.pushNamed(context, AppRoutes.itemIntro,
-              arguments: activity);
+          Navigator.pushNamed(
+            context,
+            AppRoutes.itemIntro,
+            arguments: activity,
+          );
         }
       },
       child: Container(
@@ -268,7 +276,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 right: 16,
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 6),
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.orange,
                     borderRadius: BorderRadius.circular(20),
@@ -276,8 +286,11 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.local_fire_department,
-                          size: 16, color: Colors.white),
+                      const Icon(
+                        Icons.local_fire_department,
+                        size: 16,
+                        color: Colors.white,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         'POPULAR',
@@ -332,14 +345,252 @@ class _HomeScreenState extends State<HomeScreen> {
     return null;
   }
 
-  @override
-  Widget build(BuildContext context) {
+  /// เนื้อหาของ "หน้า Home" (ไม่มี bottom bar)
+  Widget _buildHomeBody() {
     if (_currentChildId == null) {
-      return const Scaffold(
-        backgroundColor: cream,
-        body: Center(child: CircularProgressIndicator(color: sky)),
+      return const Center(
+        child: CircularProgressIndicator(color: sky),
       );
     }
+
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        HomeHeader(
+          parentName: _currentParentName,
+          categoryValue: _categoryValue,
+          onCategoryChanged: _onCategoryChanged,
+        ),
+
+        // Top Carousel
+        Container(
+          height: 280,
+          decoration: BoxDecoration(
+            color: Colors.grey.shade200,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: sky, width: 3),
+          ),
+          child: FutureBuilder<List<Activity>>(
+            future: _popularActivitiesFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(color: sky),
+                );
+              }
+              if (snapshot.hasError ||
+                  !snapshot.hasData ||
+                  snapshot.data!.isEmpty) {
+                return Center(
+                  child: Text(
+                    'Cannot load popular activities',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.luckiestGuy(
+                      fontSize: 16,
+                      color: Colors.black87,
+                    ).copyWith(fontFamilyFallback: _thaiFallback),
+                  ),
+                );
+              }
+
+              final topActivities = snapshot.data!.take(3).toList();
+
+              return Stack(
+                children: [
+                  PageView.builder(
+                    controller: _carouselController,
+                    itemCount: topActivities.length,
+                    onPageChanged: (i) => setState(() {
+                      _currentCarouselPage = i;
+                    }),
+                    itemBuilder: (_, i) => _buildCarouselItem(
+                      activity: topActivities[i],
+                      totalItems: topActivities.length,
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 16,
+                    left: 0,
+                    right: 0,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(
+                        topActivities.length,
+                        (i) => Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                          width: _currentCarouselPage == i ? 24 : 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: _currentCarouselPage == i
+                                ? sky
+                                : Colors.white.withOpacity(0.5),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (topActivities.length > 1) ...[
+                    Positioned(
+                      left: 8,
+                      top: 0,
+                      bottom: 0,
+                      child: Center(
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.chevron_left,
+                            color: Colors.white,
+                            size: 32,
+                          ),
+                          onPressed: () {
+                            if (_currentCarouselPage == 0) {
+                              _carouselController.animateToPage(
+                                topActivities.length - 1,
+                                duration:
+                                    const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                            } else {
+                              _carouselController.previousPage(
+                                duration:
+                                    const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      right: 8,
+                      top: 0,
+                      bottom: 0,
+                      child: Center(
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.chevron_right,
+                            color: Colors.white,
+                            size: 32,
+                          ),
+                          onPressed: () {
+                            if (_currentCarouselPage ==
+                                topActivities.length - 1) {
+                              _carouselController.animateToPage(
+                                0,
+                                duration:
+                                    const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                            } else {
+                              _carouselController.nextPage(
+                                duration:
+                                    const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              );
+            },
+          ),
+        ),
+        const SizedBox(height: 30),
+
+        // Popular list
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'POPULAR ACTIVITIES',
+              style: GoogleFonts.luckiestGuy(
+                fontSize: 20,
+                color: Colors.black,
+              ).copyWith(fontFamilyFallback: _thaiFallback),
+            ),
+            const Text(
+              'View All',
+              style: TextStyle(
+                fontSize: 14,
+                color: sky,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        ScrollableActivityList(
+          future: _popularActivitiesFuture,
+          controller: _popularScrollController,
+          emptyMessage: 'Cannot load popular activities',
+          onDragStart: (dx) => _popularDragStart = dx,
+          onDragUpdate: (dx) {
+            final delta = _popularDragStart - dx;
+            _popularDragStart = dx;
+            _popularScrollController.jumpTo(
+              _popularScrollController.offset + delta,
+            );
+          },
+          itemBuilder: (a) => ActivityCard(activity: a),
+        ),
+
+        const SizedBox(height: 30),
+
+        // New list
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'NEW ACTIVITIES',
+              style: GoogleFonts.luckiestGuy(
+                fontSize: 20,
+                color: Colors.black,
+              ).copyWith(fontFamilyFallback: _thaiFallback),
+            ),
+            const Text(
+              'View All',
+              style: TextStyle(
+                fontSize: 14,
+                color: sky,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        ScrollableActivityList(
+          future: _newActivitiesFuture,
+          controller: _newScrollController,
+          emptyMessage: 'No new activities available',
+          onDragStart: (dx) => _newDragStart = dx,
+          onDragUpdate: (dx) {
+            final delta = _newDragStart - dx;
+            _newDragStart = dx;
+            _newScrollController.jumpTo(
+              _newScrollController.offset + delta,
+            );
+          },
+          itemBuilder: (a) => ActivityCard(activity: a),
+        ),
+
+        const SizedBox(height: 30),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // 0 = Home, 2 = Profile  (1 = + ใช้เปิดหน้าใหม่ด้วย Navigator)
+    final pages = <Widget>[
+      _buildHomeBody(),
+      const ProfileScreen(),
+    ];
+
+    // ถ้าเลือก tab 2 ให้โชว์ index 1 (Profile) ไม่งั้นใช้ Home
+    final int visibleIndex = _selectedTab == 2 ? 1 : 0;
 
     return Scaffold(
       backgroundColor: cream,
@@ -348,244 +599,22 @@ class _HomeScreenState extends State<HomeScreen> {
         elevation: 0,
         toolbarHeight: 0,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          HomeHeader(
-            parentName: _currentParentName,
-            categoryValue: _categoryValue,
-            onCategoryChanged: _onCategoryChanged,
-          ),
-
-          // Top Carousel
-          Container(
-            height: 280,
-            decoration: BoxDecoration(
-              color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: sky, width: 3),
-            ),
-            child: FutureBuilder<List<Activity>>(
-              future: _popularActivitiesFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: CircularProgressIndicator(color: sky),
-                  );
-                }
-                if (snapshot.hasError ||
-                    !snapshot.hasData ||
-                    snapshot.data!.isEmpty) {
-                  return Center(
-                    child: Text(
-                      'Cannot load popular activities',
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.luckiestGuy(
-                        fontSize: 16,
-                        color: Colors.black87,
-                      ).copyWith(fontFamilyFallback: _thaiFallback),
-                    ),
-                  );
-                }
-
-                final topActivities = snapshot.data!.take(3).toList();
-
-                return Stack(
-                  children: [
-                    PageView.builder(
-                      controller: _carouselController,
-                      itemCount: topActivities.length,
-                      onPageChanged: (i) => setState(() {
-                        _currentCarouselPage = i;
-                      }),
-                      itemBuilder: (_, i) => _buildCarouselItem(
-                        activity: topActivities[i],
-                        totalItems: topActivities.length,
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 16,
-                      left: 0,
-                      right: 0,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(
-                          topActivities.length,
-                          (i) => Container(
-                            margin:
-                                const EdgeInsets.symmetric(horizontal: 4),
-                            width: _currentCarouselPage == i ? 24 : 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              color: _currentCarouselPage == i
-                                  ? sky
-                                  : Colors.white.withOpacity(0.5),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    if (topActivities.length > 1) ...[
-                      Positioned(
-                        left: 8,
-                        top: 0,
-                        bottom: 0,
-                        child: Center(
-                          child: IconButton(
-                            icon: const Icon(Icons.chevron_left,
-                                color: Colors.white, size: 32),
-                            onPressed: () {
-                              if (_currentCarouselPage == 0) {
-                                _carouselController.animateToPage(
-                                  topActivities.length - 1,
-                                  duration:
-                                      const Duration(milliseconds: 300),
-                                  curve: Curves.easeInOut,
-                                );
-                              } else {
-                                _carouselController.previousPage(
-                                  duration:
-                                      const Duration(milliseconds: 300),
-                                  curve: Curves.easeInOut,
-                                );
-                              }
-                            },
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        right: 8,
-                        top: 0,
-                        bottom: 0,
-                        child: Center(
-                          child: IconButton(
-                            icon: const Icon(Icons.chevron_right,
-                                color: Colors.white, size: 32),
-                            onPressed: () {
-                              if (_currentCarouselPage ==
-                                  topActivities.length - 1) {
-                                _carouselController.animateToPage(
-                                  0,
-                                  duration:
-                                      const Duration(milliseconds: 300),
-                                  curve: Curves.easeInOut,
-                                );
-                              } else {
-                                _carouselController.nextPage(
-                                  duration:
-                                      const Duration(milliseconds: 300),
-                                  curve: Curves.easeInOut,
-                                );
-                              }
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 30),
-
-          // Popular list
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'POPULAR ACTIVITIES',
-                style: GoogleFonts.luckiestGuy(
-                  fontSize: 20,
-                  color: Colors.black,
-                ).copyWith(fontFamilyFallback: _thaiFallback),
-              ),
-              const Text(
-                'View All',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: sky,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          ScrollableActivityList(
-            future: _popularActivitiesFuture,
-            controller: _popularScrollController,
-            emptyMessage: 'Cannot load popular activities',
-            onDragStart: (dx) => _popularDragStart = dx,
-            onDragUpdate: (dx) {
-              final delta = _popularDragStart - dx;
-              _popularDragStart = dx;
-              _popularScrollController.jumpTo(
-                _popularScrollController.offset + delta,
-              );
-            },
-            itemBuilder: (a) => ActivityCard(activity: a),
-          ),
-
-          const SizedBox(height: 30),
-
-          // New list
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'NEW ACTIVITIES',
-                style: GoogleFonts.luckiestGuy(
-                  fontSize: 20,
-                  color: Colors.black,
-                ).copyWith(fontFamilyFallback: _thaiFallback),
-              ),
-              const Text(
-                'View All',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: sky,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          ScrollableActivityList(
-            future: _newActivitiesFuture,
-            controller: _newScrollController,
-            emptyMessage: 'No new activities available',
-            onDragStart: (dx) => _newDragStart = dx,
-            onDragUpdate: (dx) {
-              final delta = _newDragStart - dx;
-              _newDragStart = dx;
-              _newScrollController.jumpTo(
-                _newScrollController.offset + delta,
-              );
-            },
-            itemBuilder: (a) => ActivityCard(activity: a),
-          ),
-
-          const SizedBox(height: 30),
-        ],
+      body: IndexedStack(
+        index: visibleIndex,
+        children: pages,
       ),
-
-      // ⭐⭐ จุดที่แก้: ให้แถบชมพูติดขอบล่างจริง ๆ
       bottomNavigationBar: SafeArea(
         top: false,
-        bottom: false, // <-- ปิด padding ด้านล่างของ SafeArea
+        bottom: false,
         child: MainBottomNav(
           selectedIndex: _selectedTab,
           onTabSelected: (i) {
-            setState(() => _selectedTab = i);
-            if (i == 2) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const ProfileScreen(),
-                ),
-              );
+            if (i == 1) {
+              
+              // Navigator.pushNamed(context, AppRoutes.addActivity);
+              return;
             }
+            setState(() => _selectedTab = i);
           },
         ),
       ),

@@ -1,18 +1,20 @@
 // lib/services/youtube_service.dart
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 class YouTubeService {
   // static const String _baseUrl =
   //     'http://192.168.1.58:3000'; // 👈 เปลี่ยนเป็น IP Backend
-  static const String _baseUrl = 'http://127.0.0.1:3000';
+  static final String _baseUrl = 
+      dotenv.env['API_BASE_URL'] ?? 'http://127.0.0.1:3000/api';
 
   static Future<String?> getDirectVideoUrl(String videoId) async {
     try {
       final youtubeUrl = 'https://youtu.be/$videoId';
       final response = await http.get(
         Uri.parse(
-            '$_baseUrl/api/get-direct-url?url=${Uri.encodeComponent(youtubeUrl)}'),
+            '$_baseUrl/get-direct-url?url=${Uri.encodeComponent(youtubeUrl)}'),
       );
 
       if (response.statusCode == 200) {
