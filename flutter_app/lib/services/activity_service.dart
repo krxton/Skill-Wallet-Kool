@@ -1,15 +1,14 @@
-// lib/services/activity_service.dart
-
 import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:flutter/foundation.dart';
 import 'dart:io';
+
+import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
+
 import '../models/activity.dart';
 import 'api_service.dart';
-import 'package:collection/collection.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-// 🆕 Interface สำหรับผลลัพธ์ของแต่ละ Segment
 class SegmentResult {
   final String id;
   final String text;
@@ -111,7 +110,7 @@ class ActivityService {
     }
   }
 
-  /// 2.2 ดึง Popular Activities (เรียงตาม roundNumber มากสุด)
+  /// 2.2 ดึง Popular Activities (เรียงตามจำนวนรอบการเล่น)
   Future<List<Activity>> fetchPopularActivities(String childId) async {
     try {
       // 1. ดึงข้อมูลกิจกรรมทั้งหมด
@@ -163,25 +162,23 @@ class ActivityService {
       final List<Activity> processedActivities =
           await Future.wait(processedActivitiesFutures);
 
-      return processedActivities; // คืนทั้งหมด (ไม่จำกัด 3 รายการ)
+      return processedActivities;
     } catch (e) {
       debugPrint('Error fetching popular activities: $e');
       return [];
     }
   }
 
-  /// 2.3 ดึง New Activities (เรียงตาม ID หรือ createdAt)
+  /// 2.3 ดึง New Activities (เรียงตาม createdAt หรือ id)
   Future<List<Activity>> fetchNewActivities(String childId) async {
     try {
       final allActivities = await _fetchAllActivities();
 
       // เรียงตาม createdAt หรือ ID (CUID)
       allActivities.sort((a, b) {
-        // ลองใช้ createdAt ก่อน (ถ้ามี)
         if (a.createdAt != null && b.createdAt != null) {
           return b.createdAt!.compareTo(a.createdAt!); // ล่าสุดก่อน
         }
-        // ถ้าไม่มี createdAt ให้เรียงตาม ID (CUID ใหม่กว่า = มากกว่า)
         return b.id.compareTo(a.id);
       });
 
@@ -206,7 +203,7 @@ class ActivityService {
       final List<Activity> processedActivities =
           await Future.wait(processedActivitiesFutures);
 
-      return processedActivities; // คืนทั้งหมด
+      return processedActivities;
     } catch (e) {
       debugPrint('Error fetching new activities: $e');
       return [];
@@ -217,20 +214,21 @@ class ActivityService {
   // 3. OTHER SERVICES
   // ----------------------------------------------------
 
-  Future<Map<String, dynamic>?> fetchDirectVideoUrl(String videoUrl) async {
+  /// 3.1 ดึง HTML iframe สำหรับเล่นวิดีโอจาก Backend
+  Future<String?> fetchVideoIframeHtml(String videoUrl) async {
     try {
       final path = '/get-direct-url?url=${Uri.encodeComponent(videoUrl)}';
       final response = await _apiService.get(path);
 
       if (response is Map<String, dynamic> &&
-          response.containsKey('directUrl')) {
-        return response;
+          response.containsKey('iframeHtml')) {
+        return response['iframeHtml'] as String?;
       }
 
-      debugPrint('Direct URL Fetch Error: Unexpected response format.');
+      debugPrint('Iframe HTML Fetch Error: Unexpected response format.');
       return null;
     } catch (e) {
-      debugPrint('Error fetching direct URL from Backend: $e');
+      debugPrint('Error fetching iframe HTML from Backend: $e');
       return null;
     }
   }
@@ -245,24 +243,34 @@ class ActivityService {
     required String originalText,
   }) async {
     try {
-      var request =
-          http.MultipartRequest('POST', Uri.parse('$API_BASE_URL/evaluate'));
+      final uri = Uri.parse('$API_BASE_URL/evaluate');
 
-      request.files.add(await http.MultipartFile.fromPath(
-        'file',
-        audioFile.path,
-      ));
+      final request = http.MultipartRequest('POST', uri);
+
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'file',
+          audioFile.path,
+        ),
+      );
       request.fields['text'] = originalText;
 
-      var streamedResponse = await request.send();
-      var response = await http.Response.fromStream(streamedResponse);
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
 
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       } else {
-        final errorBody = jsonDecode(response.body);
+        Map<String, dynamic>? errorBody;
+        try {
+          errorBody = jsonDecode(response.body) as Map<String, dynamic>;
+        } catch (_) {
+          // ignore decode error
+        }
         throw Exception(
-            'AI Evaluation Failed (${response.statusCode}): ${errorBody['error'] ?? response.reasonPhrase}');
+          'AI Evaluation Failed (${response.statusCode}): '
+          '${errorBody?['error'] ?? response.reasonPhrase}',
+        );
       }
     } catch (e) {
       debugPrint('AI Evaluation Error: $e');
@@ -292,10 +300,10 @@ class ActivityService {
     // 2. คำนวณคะแนนที่ได้รับ
     final scoreEarned = (activityMaxScore * (averageAccuracy / 100)).floor();
 
-    // 🆕 2.1 ใช้ parentScore ถ้ามี (ไม่ต้องดึงจาก evidence อีก)
+    // ใช้ parentScore ถ้ามี
     final int finalScore = parentScore ?? scoreEarned;
 
-    // 🆕 Debug: ดูว่า payload มีอะไรบ้าง
+    // Debug
     print('📊 Service Debug:');
     print('  - parentScore received: $parentScore');
     print('  - finalScore: $finalScore');
@@ -304,22 +312,20 @@ class ActivityService {
     // 3. สร้าง Payload
     final payload = {
       'activityId': activityId,
-      'totalScoreEarned': finalScore, // 🆕 ใช้ finalScore แทน scoreEarned
+      'totalScoreEarned': finalScore,
       'segmentResults': segmentResults.map((r) => r.toJson()).toList(),
       'evidence': evidence,
-      'parentScore': parentScore, // 🆕 เพิ่ม parentScore ไปด้วย (ถ้ามี)
+      'parentScore': parentScore,
     };
 
     print('📦 Payload to Backend: $payload');
 
     try {
-      // 4. ส่ง POST Request
       final res = await _apiService.post('/complete-quest', payload);
 
-      // ส่งคะแนนกลับไป
-      res['scoreEarned'] = finalScore; // 🆕 คะแนนที่ใช้จริง
+      res['scoreEarned'] = finalScore;
       res['calculatedScore'] =
-          parentScore ?? averageAccuracy.round(); // 🆕 % หรือคะแนนจากผู้ปกครอง
+          parentScore ?? averageAccuracy.round(); // % accuracy
 
       return res;
     } catch (e) {

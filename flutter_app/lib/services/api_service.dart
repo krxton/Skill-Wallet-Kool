@@ -1,5 +1,3 @@
-// lib/services/api_service.dart (ฉบับปรับปรุง)
-
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
@@ -15,7 +13,6 @@ class ApiService {
         'Content-Type': 'application/json',
       };
 
-  // 1. ฟังก์ชัน GET หลัก: คืนค่าเป็น Future<dynamic>
   // (สามารถเป็น Map หรือ List ก็ได้)
   Future<dynamic> get(String path,
       {Map<String, dynamic>? queryParameters}) async {
@@ -47,7 +44,6 @@ class ApiService {
     }
   }
 
-  // 2. เมธอด getArray: สำหรับดึงข้อมูลที่เป็น List โดยเฉพาะ
   Future<List<dynamic>> getArray({
     required String path,
     Map<String, dynamic>? queryParameters,
@@ -72,7 +68,6 @@ class ApiService {
     return [];
   }
 
-  // 3. เมธอด getActivitiesResponse: สำหรับดึงข้อมูลที่เป็น Map โดยเฉพาะ
   Future<Map<String, dynamic>> getActivitiesResponse({
     required String path,
     Map<String, dynamic>? queryParameters,
@@ -89,7 +84,6 @@ class ApiService {
         'API Error: Expected Map response, but received List/null.');
   }
 
-  // 4. ฟังก์ชัน POST (ไม่มีการเปลี่ยนแปลง)
   Future<Map<String, dynamic>> post(String path, dynamic body) async {
     final response = await http.post(
       Uri.parse('$_baseUrl$path'),

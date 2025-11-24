@@ -1,3 +1,5 @@
+// lib/screens/language_list_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/palette.dart';
@@ -32,19 +34,36 @@ class LanguageListScreen extends StatelessWidget {
         itemCount: items.length,
         separatorBuilder: (_, __) => const SizedBox(height: 10),
         itemBuilder: (_, i) => OutlineCard(
-          onTap: () => Navigator.pushNamed(
-            context,
-            AppRoutes.itemIntro,
-            arguments: LangItemArgs(i + 1, items[i]),
-          ),
+          // ✅ แก้ onTap: ยังไม่ส่ง LangItemArgs ไป itemIntro (เพราะต้องใช้ Activity)
+          onTap: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('This flow is not connected to activities yet.'),
+              ),
+            );
+
+            // ถ้าต่อกับ backend แล้ว ค่อยเปลี่ยนเป็น:
+            // final activity = ... ดึง Activity จาก API หรือ mapping
+            // Navigator.pushNamed(
+            //   context,
+            //   AppRoutes.itemIntro,
+            //   arguments: activity,
+            // );
+          },
           child: Row(
             children: [
               Expanded(
-                child: Text(items[i],
-                    style: GoogleFonts.luckiestGuy(fontSize: 16),
-                    maxLines: 2),
+                child: Text(
+                  items[i],
+                  style: GoogleFonts.luckiestGuy(fontSize: 16),
+                  maxLines: 2,
+                ),
               ),
-              const Icon(Icons.chevron_right_rounded, size: 24, color: Palette.sky),
+              const Icon(
+                Icons.chevron_right_rounded,
+                size: 24,
+                color: Palette.sky,
+              ),
             ],
           ),
         ),

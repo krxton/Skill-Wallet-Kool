@@ -20,18 +20,19 @@ export const extractVideoId = (url: string) => {
     let type: 'youtube' | 'tiktok' | null = null;
 
     // 1. YouTube ID extraction
-    const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
+    const youtubeRegex =
+        /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i;
     const youtubeMatch = url.match(youtubeRegex);
-    
+
     if (youtubeMatch) {
         id = youtubeMatch[1];
         type = 'youtube';
         return { id, type };
-    } 
-    
-    // 2. TikTok extraction (แก้ไข Regex ให้ครอบคลุม URL แชร์)
-    // Regex นี้มองหาตัวเลข 19 หลักที่อยู่ท้าย 'video/' หรือหลัง 'v/' หรือ 't/'
-    const tiktokRegex = /(?:tiktok\.com\/(?:@[\w.]+\/video\/|v\/|t\/)|vt\.tiktok\.com\/.*\/)(\d+)/i;
+    }
+
+    // 2. TikTok extraction
+    const tiktokRegex =
+        /(?:tiktok\.com\/(?:@[\w.]+\/video\/|v\/|t\/)|vt\.tiktok\.com\/.*\/)(\d+)/i;
     const tiktokMatch = url.match(tiktokRegex);
 
     if (tiktokMatch) {
@@ -46,21 +47,33 @@ export const extractVideoId = (url: string) => {
 export default function CreateActivityPage() {
     const [selectedType, setSelectedType] = useState<string | null>(null);
 
-    // ฟังก์ชันสำหรับ Render ฟอร์มตามประเภทที่เลือก
-const renderForm = () => {
+    const renderForm = () => {
         if (!selectedType) return null;
 
         switch (selectedType) {
             case 'ด้านภาษา':
-                return <LanguageActivityForm initialCategory={selectedType} extractVideoId={extractVideoId} />;
+                return (
+                    <LanguageActivityForm
+                        initialCategory={selectedType}
+                        extractVideoId={extractVideoId}
+                    />
+                );
             case 'ด้านร่างกาย':
-                return <PhysicalActivityForm initialCategory={selectedType} extractVideoId={extractVideoId} />;
+                return (
+                    <PhysicalActivityForm
+                        initialCategory={selectedType}
+                        extractVideoId={extractVideoId}
+                    />
+                );
             case 'ด้านคิดวิเคราะห์':
-                return <AnalyticalActivityForm initialCategory={selectedType} />;
+                return (
+                    <AnalyticalActivityForm initialCategory={selectedType} />
+                );
             default:
                 return null;
         }
     };
+
     return (
         <div className="p-8 max-w-5xl mx-auto">
             <h1 className="heading-h2 mb-8 text-gray-800">Create New Activity</h1>
@@ -68,20 +81,27 @@ const renderForm = () => {
             {/* Step 1: เลือกประเภทกิจกรรม */}
             {!selectedType && (
                 <div className="space-y-6">
-                    <h2 className="heading-h4 text-gray-700">Step 1: Select Activity Type</h2>
+                    <h2 className="heading-h4 text-gray-700">
+                        Step 1: Select Activity Type
+                    </h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {ACTIVITY_TYPES.map(type => (
+                        {ACTIVITY_TYPES.map((type) => (
                             <button
                                 key={type.value}
                                 onClick={() => setSelectedType(type.value)}
                                 className="p-8 border border-gray-300 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 
                                            text-left bg-white hover:bg-purple-50 focus:outline-none focus:ring-4 focus:ring-purple-300"
                             >
-                                <p className="heading-h5 text-purple-600">{type.label}</p>
+                                <p className="heading-h5 text-purple-600">
+                                    {type.label}
+                                </p>
                                 <p className="body-medium-regular text-gray-500 mt-2">
-                                    {type.value === 'ด้านภาษา' && 'วิดีโอ YouTube, Subtitle, การฝึกอ่านออกเสียง'}
-                                    {type.value === 'ด้านร่างกาย' && 'ภาพถ่าย, วิดีโอสั้น, การฝึกทักษะการเคลื่อนไหว'}
-                                    {type.value === 'ด้านคิดวิเคราะห์' && 'ปริศนา, โจทย์คณิตศาสตร์, เกมตรรกะ'}
+                                    {type.value === 'ด้านภาษา' &&
+                                        'วิดีโอ YouTube, Subtitle, การฝึกอ่านออกเสียง'}
+                                    {type.value === 'ด้านร่างกาย' &&
+                                        'ภาพถ่าย, วิดีโอสั้น, การฝึกทักษะการเคลื่อนไหว'}
+                                    {type.value === 'ด้านคิดวิเคราะห์' &&
+                                        'ปริศนา, โจทย์คณิตศาสตร์, เกมตรรกะ'}
                                 </p>
                             </button>
                         ))}
@@ -92,8 +112,8 @@ const renderForm = () => {
             {/* Step 2: แสดงฟอร์มที่เกี่ยวข้อง */}
             {selectedType && (
                 <div className="space-y-6">
-                    <button 
-                        onClick={() => setSelectedType(null)} 
+                    <button
+                        onClick={() => setSelectedType(null)}
                         className="btn-white px-4 py-2 text-sm rounded-md mb-4"
                     >
                         &larr; Change Type

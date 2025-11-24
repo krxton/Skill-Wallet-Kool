@@ -1,32 +1,63 @@
 // lib/services/youtube_service.dart
-import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
 
 class YouTubeService {
-  // static const String _baseUrl =
-  //     'http://192.168.1.58:3000'; // 👈 เปลี่ยนเป็น IP Backend
-  static final String _baseUrl = 
-      dotenv.env['API_BASE_URL'] ?? 'http://127.0.0.1:3000/api';
-
-  static Future<String?> getDirectVideoUrl(String videoId) async {
-    try {
-      final youtubeUrl = 'https://youtu.be/$videoId';
-      final response = await http.get(
-        Uri.parse(
-            '$_baseUrl/get-direct-url?url=${Uri.encodeComponent(youtubeUrl)}'),
-      );
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        return data['directUrl'] as String?;
-      } else {
-        print('Error: ${response.statusCode} - ${response.body}');
-        return null;
+  /// สร้าง HTML สำหรับฝัง YouTube Iframe + IFrame API
+  /// และมีฟังก์ชัน JS ชื่อ `playSegment(start, end)`
+  static String buildPlayerHtml(String videoId) {
+    return '''
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        background-color: #000000;
+        height: 100%;
+        overflow: hidden;
       }
-    } catch (e) {
-      print('Error getting video URL: $e');
-      return null;
-    }
+      #player {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+      }
+    </style>
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+      var player;
+      function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+          videoId: '$videoId',
+          playerVars: {
+            'playsinline': 1,
+            'rel': 0,
+            'modestbranding': 1
+          }
+        });
+      }
+
+      function playSegment(start, end) {
+        if (!player) return;
+        player.seekTo(start, true);
+        player.playVideo();
+        var duration = (end - start) * 1000;
+        setTimeout(function () {
+          if (!player) return;
+          var current = player.getCurrentTime();
+          if (current >= end - 0.1) {
+            player.pauseVideo();
+          }
+        }, duration);
+      }
+    </script>
+  </head>
+  <body>
+    <div id="player"></div>
+  </body>
+</html>
+''';
   }
 }

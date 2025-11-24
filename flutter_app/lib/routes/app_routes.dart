@@ -1,4 +1,4 @@
-// lib/routes/app_routes.dart (ฉบับสมบูรณ์ที่แก้ไขโครงสร้าง)
+// lib/routes/app_routes.dart
 
 import 'package:flutter/material.dart';
 
@@ -47,21 +47,29 @@ class AppRoutes {
         languageHub: (_) => const LanguageHubScreen(),
         languageList: (_) => const LanguageListScreen(),
 
-        // 🆕 แก้ไข: itemIntro ต้องรับ Activity Model
+        // ✅ itemIntro: กัน null / type ผิด ไม่ให้แครช
         itemIntro: (context) {
-          // 🛑 แก้ Error: รับ Argument เป็น Activity Model
-          final activity =
-              ModalRoute.of(context)!.settings.arguments as Activity;
+          final args = ModalRoute.of(context)?.settings.arguments;
+
+          if (args == null || args is! Activity) {
+            // ถ้าไม่มี Activity ส่งมา หรือส่งชนิดอื่น → ไม่แครช แต่แจ้งเตือน
+            return const Scaffold(
+              body: Center(
+                child: Text('No Activity data passed to ItemIntroScreen'),
+              ),
+            );
+          }
+
+          final activity = args as Activity;
 
           return ItemIntroScreen(
-            activity: activity, // 👈 ส่ง Argument ที่ required
+            activity: activity,
           );
         },
 
         record: (_) => const RecordScreen(),
-        // result: (_) => const ResultScreen(),
 
-        // 1. Route สำหรับ VideoDetailScreen (ไม่เปลี่ยนแปลง)
+        // VideoDetailScreen
         videoDetail: (context) {
           final activity =
               ModalRoute.of(context)!.settings.arguments as Activity;
@@ -70,7 +78,7 @@ class AppRoutes {
           );
         },
 
-        // 2. Route สำหรับ LanguageDetailScreen (ไม่เปลี่ยนแปลง)
+        // LanguageDetailScreen
         languageDetail: (context) {
           final activity =
               ModalRoute.of(context)!.settings.arguments as Activity;
@@ -79,7 +87,7 @@ class AppRoutes {
           );
         },
 
-        // 🆕 Route สำหรับ PhysicalActivityScreen
+        // PhysicalActivityScreen
         physicalActivity: (context) {
           final activity =
               ModalRoute.of(context)!.settings.arguments as Activity;
@@ -88,15 +96,13 @@ class AppRoutes {
           );
         },
 
+        // ResultScreen – รับ args เป็น Map<String, dynamic>
         result: (context) {
-          // 🆕 รับ Argument เป็น Map<String, dynamic>
-          // ignore: unused_local_variable
           final args = ModalRoute.of(context)!.settings.arguments
               as Map<String, dynamic>?;
 
-          // ResultScreen เป็น StatefulWidget, เราสามารถส่ง Map ไปโดยตรงได้
           return ResultScreen(
-              // ไม่จำเป็นต้องส่ง args ผ่าน Constructor เพราะเราเข้าถึงผ่าน ModalRoute แล้ว
+              // ResultScreen ดึง args ผ่าน ModalRoute เองแล้ว
               );
         },
       };
