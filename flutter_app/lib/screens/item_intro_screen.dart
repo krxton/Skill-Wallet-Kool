@@ -121,6 +121,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
         params: const yp.YoutubePlayerParams(
           showControls: true,
           showFullscreenButton: true,
+          origin: 'https://www.youtube-nocookie.com',
         ),
       )..listen((event) {
           // ✅ PlayerState.ready ไม่มีแล้ว ใช้ PlayerState.cued แทน
