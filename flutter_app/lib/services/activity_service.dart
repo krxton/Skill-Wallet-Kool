@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 
 import '../models/activity.dart';
 import 'api_service.dart';
@@ -275,6 +277,48 @@ class ActivityService {
     } catch (e) {
       debugPrint('AI Evaluation Error: $e');
       throw Exception('Failed to send audio for evaluation: $e');
+    }
+  }
+
+  /// 4.1b ส่งเสียงจากหน่วยความจำ (Web) ไปประเมิน AI
+  Future<Map<String, dynamic>> evaluateAudioBytes({
+    required Uint8List audioBytes,
+    required String originalText,
+    String filename = 'recording.m4a',
+  }) async {
+    try {
+      final uri = Uri.parse('$API_BASE_URL/evaluate');
+
+      final request = http.MultipartRequest('POST', uri);
+
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'file',
+          audioBytes,
+          filename: filename,
+          contentType: MediaType('audio', 'mpeg'),
+        ),
+      );
+      request.fields['text'] = originalText;
+
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body) as Map<String, dynamic>;
+      } else {
+        Map<String, dynamic>? errorBody;
+        try {
+          errorBody = jsonDecode(response.body) as Map<String, dynamic>;
+        } catch (_) {}
+        throw Exception(
+          'AI Evaluation Failed (${response.statusCode}): '
+          '${errorBody?['error'] ?? response.reasonPhrase}',
+        );
+      }
+    } catch (e) {
+      debugPrint('AI Evaluation (bytes) Error: $e');
+      throw Exception('Failed to send audio bytes for evaluation: $e');
     }
   }
 
