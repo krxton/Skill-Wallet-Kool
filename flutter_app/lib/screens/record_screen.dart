@@ -2,6 +2,7 @@
 
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart'; // 👈 ใช้ kIsWeb
@@ -23,6 +24,10 @@ class _RecordScreenState extends State<RecordScreen> {
   final AudioRecorder _audioRecorder = AudioRecorder();
   final ActivityService _activityService = ActivityService();
   final AudioPlayer _audioPlayer = AudioPlayer();
+  // Web-only recording buffer
+  BytesBuilder? _webBytesBuilder;
+  StreamSubscription<List<int>>? _webAudioSub;
+  Uint8List? _webAudioBytes; // stores WAV bytes after conversion
 
   bool recording = false;
   bool _isPlaying = false;
@@ -52,13 +57,16 @@ class _RecordScreenState extends State<RecordScreen> {
   }
 
   Future<void> _prepareRecording() async {
-    // ❗ บน Web: ยังไม่รองรับการอัดเสียง (กัน path_provider พัง)
+    // Web no path provider usage. We will stream bytes in-memory.
     if (kIsWeb) {
-      setState(() {
-        _originalText =
-            'Error: Recording is not supported on Web.\nPlease use the mobile app to record audio.';
+      // Initialize original text from arguments post-frame
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final args =
+            ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ?? {};
+        setState(() {
+          _originalText = args['originalText'] as String? ?? 'Error: Text Missing';
+        });
       });
-      return;
     }
 
     final hasPermission = await _audioRecorder.hasPermission();
@@ -100,21 +108,56 @@ class _RecordScreenState extends State<RecordScreen> {
       // 🟥 STOP
       _t?.cancel();
       await _audioRecorder.stop();
+      if (kIsWeb) {
+        // Finalize bytes buffer
+        await _webAudioSub?.cancel();
+        _webAudioSub = null;
+        final pcm = _webBytesBuilder?.toBytes();
+        // Convert raw PCM16 to WAV container (mono, 44.1kHz)
+        if (pcm != null && pcm.isNotEmpty) {
+          _webAudioBytes = _pcm16ToWav(pcm, sampleRate: 44100, channels: 1);
+        } else {
+          _webAudioBytes = null;
+        }
+        _webBytesBuilder = null;
+      }
       setState(() {
         recording = false;
         _hasRecorded = true;
       });
     } else {
       // 🟢 START
-      if (kIsWeb) return; // ป้องกัน web เผลอหลุดมาได้
-
-      if (_tempFilePath.isEmpty) return;
-
       try {
-        await _audioRecorder.start(
-          const RecordConfig(encoder: AudioEncoder.aacLc),
-          path: _tempFilePath, // ✅ mobile/desktop เท่านั้น
-        );
+        if (kIsWeb) {
+          try {
+            // Start streaming PCM/AAC bytes depending on browser support
+            _webBytesBuilder = BytesBuilder(copy: false);
+            final stream = await _audioRecorder.startStream(
+              const RecordConfig(encoder: AudioEncoder.pcm16bits),
+            );
+            _webAudioSub = stream.listen((chunk) {
+              _webBytesBuilder?.add(chunk);
+            });
+          } catch (e) {
+            debugPrint('Web startStream not supported: $e');
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Recording stream not supported in this browser.')),
+              );
+            }
+            setState(() {
+              recording = false;
+              _hasRecorded = false;
+            });
+            return;
+          }
+        } else {
+          if (_tempFilePath.isEmpty) return;
+          await _audioRecorder.start(
+            const RecordConfig(encoder: AudioEncoder.aacLc),
+            path: _tempFilePath, // ✅ mobile/desktop เท่านั้น
+          );
+        }
 
         setState(() {
           recording = true;
@@ -139,7 +182,8 @@ class _RecordScreenState extends State<RecordScreen> {
 
   // ▶️ Playback
   void _playRecording() async {
-    if (!_hasRecorded || _tempFilePath.isEmpty || recording) return;
+    if (!_hasRecorded || recording) return;
+    if (!kIsWeb && _tempFilePath.isEmpty) return;
 
     if (_isPlaying) {
       await _audioPlayer.pause();
@@ -148,7 +192,12 @@ class _RecordScreenState extends State<RecordScreen> {
     }
 
     try {
-      await _audioPlayer.play(DeviceFileSource(_tempFilePath));
+      if (kIsWeb) {
+        if (_webAudioBytes == null || _webAudioBytes!.isEmpty) return;
+        await _audioPlayer.play(BytesSource(_webAudioBytes!));
+      } else {
+        await _audioPlayer.play(DeviceFileSource(_tempFilePath));
+      }
       setState(() => _isPlaying = true);
     } catch (e) {
       debugPrint('Playback Error: $e');
@@ -163,30 +212,32 @@ class _RecordScreenState extends State<RecordScreen> {
 
   // ✅ FINISH → ส่งไฟล์ให้ AI (เฉพาะ mobile/desktop)
   Future<void> _finish() async {
-    if (kIsWeb) {
-      // กัน user กดอะไรแปลก ๆ บน web
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content:
-                  Text('Recording is not supported on Web. Please use mobile.')),
-        );
-      }
-      return;
-    }
+    // Stop recording if active
 
     if (recording) {
       await _toggle();
     }
 
-    final audioFile = File(_tempFilePath);
-    if (!await audioFile.exists() || await audioFile.length() < 1000) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error: No valid audio recorded.')),
-        );
+    if (kIsWeb) {
+      // Validate web bytes
+      if (_webAudioBytes == null || _webAudioBytes!.lengthInBytes < 1000) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Error: No valid audio recorded.')),
+          );
+        }
+        return;
       }
-      return;
+    } else {
+      final audioFile = File(_tempFilePath);
+      if (!await audioFile.exists() || await audioFile.length() < 1000) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Error: No valid audio recorded.')),
+          );
+        }
+        return;
+      }
     }
 
     if (mounted) {
@@ -207,19 +258,38 @@ class _RecordScreenState extends State<RecordScreen> {
     }
 
     try {
-      final result = await _activityService.evaluateAudio(
-        audioFile: audioFile,
-        originalText: _originalText,
-      );
+      if (kIsWeb) {
+        // Evaluate using bytes on web
+        final result = await _activityService.evaluateAudioBytes(
+          audioBytes: _webAudioBytes!,
+          originalText: _originalText,
+          filename: 'recording.wav',
+        );
 
-      if (mounted) Navigator.pop(context); // ปิด dialog
+        if (mounted) Navigator.pop(context);
+        if (mounted) {
+          Navigator.pop(context, {
+            'score': result['score'] as int? ?? 0,
+            'recognizedText': result['text'] as String? ?? 'Evaluation Error',
+            'audioUrl': '',
+          });
+        }
+      } else {
+        final audioFile = File(_tempFilePath);
+        final result = await _activityService.evaluateAudio(
+          audioFile: audioFile,
+          originalText: _originalText,
+        );
 
-      if (mounted) {
-        Navigator.pop(context, {
-          'score': result['score'] as int? ?? 0,
-          'recognizedText': result['text'] as String? ?? 'Evaluation Error',
-          'audioUrl': _tempFilePath,
-        });
+        if (mounted) Navigator.pop(context); // ปิด dialog
+
+        if (mounted) {
+          Navigator.pop(context, {
+            'score': result['score'] as int? ?? 0,
+            'recognizedText': result['text'] as String? ?? 'Evaluation Error',
+            'audioUrl': _tempFilePath,
+          });
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -236,9 +306,48 @@ class _RecordScreenState extends State<RecordScreen> {
     }
   }
 
+  // Build simple WAV (RIFF) header for PCM16 LE
+  Uint8List _pcm16ToWav(Uint8List pcmData, {required int sampleRate, required int channels}) {
+    final int byteRate = sampleRate * channels * 2; // 16-bit
+    final int blockAlign = channels * 2;
+    final int subchunk2Size = pcmData.lengthInBytes;
+    final int chunkSize = 36 + subchunk2Size;
+
+    final bytes = BytesBuilder();
+    // RIFF header
+    bytes.add(_ascii('RIFF'));
+    bytes.add(_le32(chunkSize));
+    bytes.add(_ascii('WAVE'));
+    // fmt chunk
+    bytes.add(_ascii('fmt '));
+    bytes.add(_le32(16)); // PCM
+    bytes.add(_le16(1)); // audio format PCM
+    bytes.add(_le16(channels));
+    bytes.add(_le32(sampleRate));
+    bytes.add(_le32(byteRate));
+    bytes.add(_le16(blockAlign));
+    bytes.add(_le16(16)); // bits per sample
+    // data chunk
+    bytes.add(_ascii('data'));
+    bytes.add(_le32(subchunk2Size));
+    bytes.add(pcmData);
+
+    return bytes.toBytes();
+  }
+
+  Uint8List _ascii(String s) => Uint8List.fromList(s.codeUnits);
+  Uint8List _le16(int value) => Uint8List.fromList([value & 0xFF, (value >> 8) & 0xFF]);
+  Uint8List _le32(int value) => Uint8List.fromList([
+        value & 0xFF,
+        (value >> 8) & 0xFF,
+        (value >> 16) & 0xFF,
+        (value >> 24) & 0xFF,
+      ]);
+
   @override
   void dispose() {
     _t?.cancel();
+    _webAudioSub?.cancel();
     _audioRecorder.dispose();
     _audioPlayer.dispose();
     super.dispose();
@@ -254,10 +363,8 @@ class _RecordScreenState extends State<RecordScreen> {
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ??
             {};
 
-    // 🆕 บน web: บังคับให้ข้อความเป็น error ชัด ๆ เพื่อปิดปุ่ม Record
-    final displayOriginalText = kIsWeb
-        ? 'Error: Recording is not supported on Web.\nPlease use the mobile app to record audio.'
-        : (args['originalText'] as String? ?? _originalText);
+    // On web, show provided original text (recording supported via stream)
+    final displayOriginalText = args['originalText'] as String? ?? _originalText;
 
     final bool isReadyToPlay = _hasRecorded && !_isPlaying;
 
@@ -309,8 +416,8 @@ class _RecordScreenState extends State<RecordScreen> {
                 IconButton(
                   iconSize: 56,
                   color: recording ? red : Colors.black87,
-                  onPressed: (displayOriginalText.startsWith('Error') ||
-                          displayOriginalText.startsWith('Microphone'))
+                    onPressed: (displayOriginalText.startsWith('Error') ||
+                        displayOriginalText.startsWith('Microphone'))
                       ? null
                       : _toggle,
                   icon: Icon(
