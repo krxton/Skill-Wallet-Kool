@@ -1,10 +1,8 @@
 // src/app/api/activities/route.ts
 
 import { NextResponse } from 'next/server'
-// *** แก้ไข: ใช้ prisma Singleton ที่เราสร้างไว้ใน lib/prisma ***
 import prisma from '@/lib/prisma'
 
-// Interface สำหรับข้อมูลที่ส่งมาจาก Frontend
 interface ActivityData {
   name: string;
   category: string;
@@ -12,8 +10,8 @@ interface ActivityData {
   difficulty: string;
   maxScore: number;
   description: string;
-  videoUrl?: string; // เพิ่ม: Video URL
-  segments?: any;  // เพิ่ม: Segments (JSON)
+  videoUrl?: string;
+  segments?: any;
 }
 
 const corsHeaders = {
@@ -23,7 +21,49 @@ const corsHeaders = {
   'Access-Control-Max-Age': '86400',
 };
 
-// POST /api/activities - สำหรับสร้างกิจกรรมใหม่
+/**
+ * @swagger
+ * /api/activities:
+ *   post:
+ *     tags:
+ *       - Activities
+ *     summary: สร้างกิจกรรมใหม่
+ *     description: สร้างกิจกรรมใหม่พร้อมข้อมูลรายละเอียด
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ActivityInput'
+ *           examples:
+ *             example1:
+ *               summary: ตัวอย่างกิจกรรมด้านคิดวิเคราะห์
+ *               value:
+ *                 name: "กิจกรรมเรียนรู้ตัวเลข"
+ *                 category: "ด้านคิดวิเคราะห์"
+ *                 content: "กิจกรรมสำหรับเด็กอายุ 3-5 ปี"
+ *                 difficulty: "ง่าย"
+ *                 maxScore: 100
+ *                 description: "เรียนรู้การนับเลข 1-10"
+ *                 videoUrl: null
+ *                 segments: 
+ *                   - id: "cmiu3xomg0000356vj5aw19zo"
+ *                     question: "1+1"
+ *                     answer: "2"
+ *                     solution: ""
+ *                     score: 100
+ *     responses:
+ *       201:
+ *         description: สร้างกิจกรรมสำเร็จ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Activity'
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
+ */
 export async function POST(request: Request) {
   try {
     const body: ActivityData = await request.json()
@@ -42,13 +82,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400, headers: corsHeaders })
     }
 
-    // *** 1. การแก้ไข Type Conflict: ใช้ JSON.stringify() และกำหนดให้เป็น string (บังคับ) ***
-    // ถ้า segments มีค่า ให้แปลงเป็น JSON string
     const segmentsString: string | undefined = segments
       ? JSON.stringify(segments)
-      : undefined; // *** ใช้ undefined แทน null เพื่อบอก Prisma ว่าไม่ต้องส่งค่านี้ถ้าไม่มี ***
+      : undefined;
 
-    // 2. ใช้ Prisma เพื่อสร้างกิจกรรมใหม่ในฐานข้อมูล
     const newActivity = await prisma.activity.create({
       data: {
         name,
@@ -57,8 +94,8 @@ export async function POST(request: Request) {
         difficulty,
         maxScore: parseInt(maxScore as any),
         description,
-        videoUrl: videoUrl || null, // videoUrl เป็น string | null ซึ่งถูกต้องสำหรับ String? field
-        segments: segmentsString, // ส่งค่า segmentsString ที่เป็น string | undefined
+        videoUrl: videoUrl || null,
+        segments: segmentsString,
       },
     })
 
@@ -69,27 +106,49 @@ export async function POST(request: Request) {
   }
 }
 
-// GET /api/activities - สำหรับดึงรายการกิจกรรมทั้งหมด (Activity List)
+/**
+ * @swagger
+ * /api/activities:
+ *   get:
+ *     tags:
+ *       - Activities
+ *     summary: ดึงรายการกิจกรรมทั้งหมด
+ *     description: ดึงรายการกิจกรรมทั้งหมดเรียงตาม ID จากน้อยไปมาก
+ *     responses:
+ *       200:
+ *         description: ดึงข้อมูลสำเร็จ
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Activity'
+ *             examples:
+ *               example1:
+ *                 summary: ตัวอย่างรายการกิจกรรม
+ *                 value:
+ *                   - id: "clxxx12345"
+ *                     name: "กิจกรรมเรียนรู้ตัวเลข"
+ *                     category: "คณิตศาสตร์"
+ *                     content: "เรียนรู้การนับเลข 1-10"
+ *                     difficulty: "Easy"
+ *                     maxScore: 100
+ *                     description: "กิจกรรมสำหรับเด็กอายุ 3-5 ปี"
+ *                     videoUrl: "https://www.youtube.com/watch?v=xxx"
+ *                     segments: null
+ *                     createdAt: "2024-01-01T00:00:00.000Z"
+ *                     updatedAt: "2024-01-01T00:00:00.000Z"
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
+ */
 export async function GET() {
   try {
-    // 1. ใช้ Prisma เพื่อดึงกิจกรรมทั้งหมดจากฐานข้อมูล
     const activities = await prisma.activity.findMany({
       orderBy: {
         id: 'asc',
       },
     })
 
-    // 2. ส่งรายการกิจกรรมกลับไป โดยใช้การจัดรูปแบบ JSON
-    // Note: NextResponse.json() บางครั้งไม่รองรับตัวเลือกนี้โดยตรง
-    // ทางเลือก: เราจะส่ง Response แบบดิบด้วย JSON.stringify
-
-    // --- ทางเลือกที่ 1: ใช้ NextResponse.json (ถ้า Next.js รองรับ) ---
-    // return NextResponse.json(activities, { 
-    //     status: 200, 
-    //     //headers: { 'Content-Type': 'application/json' }
-    // }); 
-
-    // --- ทางเลือกที่ 2: ใช้ Response ธรรมดาพร้อมจัดรูปแบบ JSON ---
     const formattedJson = JSON.stringify(activities, null, 2);
 
     return new Response(formattedJson, {
@@ -106,6 +165,18 @@ export async function GET() {
   }
 }
 
+/**
+ * @swagger
+ * /api/activities:
+ *   options:
+ *     tags:
+ *       - Activities
+ *     summary: CORS Preflight Request
+ *     description: จัดการ CORS preflight request
+ *     responses:
+ *       200:
+ *         description: CORS headers returned successfully
+ */
 export async function OPTIONS() {
   return NextResponse.json({}, { status: 200, headers: corsHeaders });
 }

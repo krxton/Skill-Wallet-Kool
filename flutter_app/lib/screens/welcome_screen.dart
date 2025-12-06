@@ -6,8 +6,8 @@ class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
   static const cream = Color(0xFFFFF5CD);
-  static const blue  = Color(0xFF77BEF0);
-  static const red   = Color(0xFFEA5B6F);
+  static const blue = Color(0xFF77BEF0);
+  static const red = Color(0xFFEA5B6F);
 
   @override
   Widget build(BuildContext context) {
@@ -30,14 +30,15 @@ class WelcomeScreen extends StatelessWidget {
                       onTap: () => Navigator.pushNamed(context, AppRoutes.home),
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                          vertical: 16, horizontal: 48),
+                            vertical: 16, horizontal: 48),
                         decoration: BoxDecoration(
-                          color: blue, borderRadius: BorderRadius.circular(18),
+                          color: blue,
+                          borderRadius: BorderRadius.circular(18),
                         ),
                         child: Text(
                           'PLAY',
                           style: GoogleFonts.luckiestGuy(
-                            fontSize: 28, color: Colors.white),
+                              fontSize: 28, color: Colors.white),
                         ),
                       ),
                     ),
@@ -47,30 +48,30 @@ class WelcomeScreen extends StatelessWidget {
             ),
 
             // ปุ่ม SIGN-UP ล่างซ้าย
-            Positioned(
-              left: 24,
-              bottom: 20,
-              child: GestureDetector(
-                onTap: () => Navigator.pushNamed(context, AppRoutes.register),
-                child: Text(
-                  'SIGN-UP',
-                  style: GoogleFonts.luckiestGuy(fontSize: 18, color: red),
-                ),
-              ),
-            ),
+            // Positioned(
+            //   left: 24,
+            //   bottom: 20,
+            //   child: GestureDetector(
+            //     onTap: () => Navigator.pushNamed(context, AppRoutes.register),
+            //     child: Text(
+            //       'SIGN-UP',
+            //       style: GoogleFonts.luckiestGuy(fontSize: 18, color: red),
+            //     ),
+            //   ),
+            // ),
 
             // ปุ่ม LOG IN ล่างขวา
-            Positioned(
-              right: 24,
-              bottom: 20,
-              child: GestureDetector(
-                onTap: () => Navigator.pushNamed(context, AppRoutes.login),
-                child: Text(
-                  'LOG IN',
-                  style: GoogleFonts.luckiestGuy(fontSize: 18, color: red),
-                ),
-              ),
-            ),
+            // Positioned(
+            //   right: 24,
+            //   bottom: 20,
+            //   child: GestureDetector(
+            //     onTap: () => Navigator.pushNamed(context, AppRoutes.login),
+            //     child: Text(
+            //       'LOG IN',
+            //       style: GoogleFonts.luckiestGuy(fontSize: 18, color: red),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),
