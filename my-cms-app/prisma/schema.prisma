@@ -17,17 +17,15 @@ datasource db {
 
 // 1. ผู้ปกครอง (Parent)
 model Parent {
-  id           String @id @default(cuid())
+  id           String @id  // ← Clerk User ID (เช่น "user_2xxx...")
   fullName     String
   email        String @unique
-  createdAt    DateTime @default(now())
-  status       String @default("Active") // "Active", "Inactive"
+  photoUrl     String?     // จาก Clerk profile
   
-  // --- [NEW FIELD] เพิ่ม Field นี้เพื่อให้ตรงกับ Wireframe ---
-  verification String @default("Unverified") // "Verified", "Unverified"
-  // --------------------------------------------------------
-
-  // ความสัมพันธ์
+  createdAt    DateTime @default(now())
+  status       String @default("Active")
+  verification String @default("Verified") // Clerk verify ให้แล้ว
+  
   children        ParentChild[]
   activities      ActivityRecord[] @relation("ParentRecords")
   rewards         ParentReward[]
