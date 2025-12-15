@@ -1,20 +1,17 @@
-// lib/routes/app_routes.dart
-
 import 'package:flutter/material.dart';
-
-import '../screens/welcome_screen.dart';
-import '../screens/login_screen.dart';
-import '../screens/register_screen.dart';
-import '../screens/home_screen.dart';
-import '../screens/language_hub_screen.dart';
-import '../screens/language_list_screen.dart';
-import '../screens/item_intro_screen.dart';
-import '../screens/record_screen.dart';
-import '../screens/result_screen.dart';
-import '../screens/video_detail_screen.dart';
+import '../screens/auth/welcome_screen.dart';
+import '../screens/auth/login_screen.dart';
+import '../screens/auth/register_screen.dart';
+import '../screens/home/home_screen.dart';
+import '../screens/activities/hub/language_hub_screen.dart';
+import '../screens/activities/listing/language_list_screen.dart';
+import '../screens/activities/gameplay/item_intro_screen.dart';
+import '../screens/activities/gameplay/record_screen.dart';
+import '../screens/activities/gameplay/result_screen.dart';
+import '../screens/activities/detail/video_detail_screen.dart';
 import '../models/activity.dart';
-import '../screens/language_detail_screen.dart';
-import '../screens/physical_activity.dart';
+import '../screens/activities/detail/language_detail_screen.dart';
+import '../screens/activities/detail/physical_activity.dart';
 
 class AppRoutes {
   // core
@@ -60,10 +57,9 @@ class AppRoutes {
             );
           }
 
-          final activity = args as Activity;
-
+          // args ถูกตรวจสอบแล้วว่าเป็น Activity แน่นอน
           return ItemIntroScreen(
-            activity: activity,
+            activity: args,
           );
         },
 
@@ -96,14 +92,10 @@ class AppRoutes {
           );
         },
 
-        // ResultScreen – รับ args เป็น Map<String, dynamic>
+        // ResultScreen
         result: (context) {
-          final args = ModalRoute.of(context)!.settings.arguments
-              as Map<String, dynamic>?;
-
-          return ResultScreen(
-              // ResultScreen ดึง args ผ่าน ModalRoute เองแล้ว
-              );
+          // ไม่ต้องดึง args ที่นี่ เพราะ ResultScreen จัดการเอง
+          return const ResultScreen();
         },
       };
 }

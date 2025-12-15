@@ -136,19 +136,6 @@ class _ParentProfileScreenState extends State<ParentProfileScreen> {
 
           const SizedBox(height: 16),
 
-          // ข้อความยังไม่มีกิจกรรม
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Text(
-              'ยังไม่โพสต์กิจกรรม',
-              style: textTheme.bodyMedium?.copyWith(
-                color: Colors.grey.shade700,
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 16),
-
           // ดันให้เต็มหน้าจอ เหลือพื้นที่ว่างด้านล่าง
           const Expanded(child: SizedBox.shrink()),
         ],

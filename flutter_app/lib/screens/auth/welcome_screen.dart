@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../routes/app_routes.dart';
+import '../../routes/app_routes.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -48,30 +48,30 @@ class WelcomeScreen extends StatelessWidget {
             ),
 
             // ปุ่ม SIGN-UP ล่างซ้าย
-            // Positioned(
-            //   left: 24,
-            //   bottom: 20,
-            //   child: GestureDetector(
-            //     onTap: () => Navigator.pushNamed(context, AppRoutes.register),
-            //     child: Text(
-            //       'SIGN-UP',
-            //       style: GoogleFonts.luckiestGuy(fontSize: 18, color: red),
-            //     ),
-            //   ),
-            // ),
+            Positioned(
+              left: 24,
+              bottom: 20,
+              child: GestureDetector(
+                onTap: () => Navigator.pushNamed(context, AppRoutes.register),
+                child: Text(
+                  'SIGN-UP',
+                  style: GoogleFonts.luckiestGuy(fontSize: 18, color: red),
+                ),
+              ),
+            ),
 
             // ปุ่ม LOG IN ล่างขวา
-            // Positioned(
-            //   right: 24,
-            //   bottom: 20,
-            //   child: GestureDetector(
-            //     onTap: () => Navigator.pushNamed(context, AppRoutes.login),
-            //     child: Text(
-            //       'LOG IN',
-            //       style: GoogleFonts.luckiestGuy(fontSize: 18, color: red),
-            //     ),
-            //   ),
-            // ),
+            Positioned(
+              right: 24,
+              bottom: 20,
+              child: GestureDetector(
+                onTap: () => Navigator.pushNamed(context, AppRoutes.login),
+                child: Text(
+                  'LOG IN',
+                  style: GoogleFonts.luckiestGuy(fontSize: 18, color: red),
+                ),
+              ),
+            ),
           ],
         ),
       ),

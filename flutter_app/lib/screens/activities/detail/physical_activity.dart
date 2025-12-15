@@ -7,10 +7,10 @@ import 'dart:io';
 import 'dart:async';
 import 'package:image_picker/image_picker.dart';
 
-import '../models/activity.dart';
-import '../providers/user_provider.dart';
-import '../services/activity_service.dart';
-import '../routes/app_routes.dart';
+import '../../../models/activity.dart';
+import '../../../providers/user_provider.dart';
+import '../../../services/activity_service.dart';
+import '../../../routes/app_routes.dart';
 
 class Palette {
   static const cream = Color(0xFFFFF5CD);

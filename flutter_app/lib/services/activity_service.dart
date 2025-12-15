@@ -10,14 +10,12 @@ import 'package:http_parser/http_parser.dart';
 
 import '../models/activity.dart';
 import 'api_service.dart';
-
 class SegmentResult {
   final String id;
   final String text;
   int maxScore; // Accuracy Score (0-100)
   String? recognizedText;
   String? audioUrl; // URL หรือ Path ของไฟล์เสียงที่บันทึก
-
   SegmentResult({
     required this.id,
     required this.text,
@@ -25,7 +23,6 @@ class SegmentResult {
     this.recognizedText,
     this.audioUrl,
   });
-
   // แปลงเป็น JSON สำหรับส่งไป Backend
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -35,26 +32,20 @@ class SegmentResult {
         'audioUrl': audioUrl,
       };
 }
-
 class ActivityService {
   final ApiService _apiService = ApiService();
   static const String _oEmbedEndpoint = 'https://www.tiktok.com/oembed?url=';
-
   String get API_BASE_URL =>
       dotenv.env['API_BASE_URL'] ?? 'http://127.0.0.1:3000/api';
-
   // ----------------------------------------------------
   // 1. HELPER FUNCTIONS
   // ----------------------------------------------------
-
   // 1.1 Helper Function: ดึง OEmbed Data จาก TikTok API
   Future<Map<String, dynamic>> _fetchTikTokOEmbedData(String videoUrl) async {
     final cleanUrl = videoUrl.split('?').first;
     final oEmbedUrl = Uri.parse(
         '${ActivityService._oEmbedEndpoint}$cleanUrl&maxwidth=600&maxheight=800');
-
     final response = await http.get(oEmbedUrl);
-
     if (response.statusCode == 200) {
       return jsonDecode(response.body) as Map<String, dynamic>;
     } else {
@@ -62,7 +53,6 @@ class ActivityService {
       throw Exception('Failed to load TikTok OEmbed data.');
     }
   }
-
   // 1.2 Helper Function: ดึง Activity ทั้งหมดจาก Backend
   Future<List<Activity>> _fetchAllActivities() async {
     try {
@@ -70,7 +60,6 @@ class ActivityService {
         path: '/activities',
         queryParameters: {},
       );
-
       return responseList
           .map((json) => Activity.fromJson(json as Map<String, dynamic>))
           .toList();
@@ -78,31 +67,25 @@ class ActivityService {
       throw Exception('Failed to load ALL activities from backend: $e');
     }
   }
-
   // ----------------------------------------------------
   // 2. DATA FETCHING (Home Screen)
   // ----------------------------------------------------
-
   /// 2.1 ดึง Physical Activity Clip (สำหรับส่วน CLIP VDO หลัก)
   Future<Activity?> fetchPhysicalActivityClip(String childId) async {
     try {
       final allActivities = await _fetchAllActivities();
-
       // กรองข้อมูลใน Flutter: หา 'ด้านร่างกาย' ที่มี videoUrl
       final physicalActivity = allActivities.firstWhereOrNull(
         (a) => a.category == 'ด้านร่างกาย' && a.videoUrl != null,
       );
-
       if (physicalActivity != null && physicalActivity.videoUrl != null) {
         // เรียก OEmbed API
         final oEmbedData =
             await _fetchTikTokOEmbedData(physicalActivity.videoUrl!);
-
         // ผสานข้อมูล
         final Map<String, dynamic> activityJson = physicalActivity.toJson();
         activityJson['thumbnailUrl'] = oEmbedData['thumbnail_url'];
         activityJson['tiktokHtmlContent'] = oEmbedData['html'];
-
         return Activity.fromJson(activityJson);
       }
       return null;
@@ -111,22 +94,18 @@ class ActivityService {
       return null;
     }
   }
-
   /// 2.2 ดึง Popular Activities (เรียงตามจำนวนรอบการเล่น)
   Future<List<Activity>> fetchPopularActivities(String childId) async {
     try {
       // 1. ดึงข้อมูลกิจกรรมทั้งหมด
       final allActivities = await _fetchAllActivities();
-
       // 2. ดึงข้อมูล Activity Records (รอบการเล่น) จาก Backend
       final records = await _apiService.getArray(
         path: '/activity-records',
         queryParameters: {'childId': childId},
       );
-
       // 3. สร้าง Map เก็บจำนวนรอบการเล่นของแต่ละ Activity
       final Map<String, int> activityPlayCount = {};
-
       for (var record in records) {
         final activityId = record['activityId'] as String?;
         if (activityId != null) {
@@ -134,14 +113,12 @@ class ActivityService {
               (activityPlayCount[activityId] ?? 0) + 1;
         }
       }
-
       // 4. เรียงกิจกรรมตามจำนวนรอบการเล่น (มากสุดก่อน)
       allActivities.sort((a, b) {
         final countA = activityPlayCount[a.id] ?? 0;
         final countB = activityPlayCount[b.id] ?? 0;
         return countB.compareTo(countA); // เรียงจากมากไปน้อย
       });
-
       // 5. ประมวลผล OEmbed สำหรับกิจกรรมที่มี Video
       final List<Future<Activity>> processedActivitiesFutures =
           allActivities.map((activity) async {
@@ -160,22 +137,18 @@ class ActivityService {
         }
         return activity;
       }).toList();
-
       final List<Activity> processedActivities =
           await Future.wait(processedActivitiesFutures);
-
       return processedActivities;
     } catch (e) {
       debugPrint('Error fetching popular activities: $e');
       return [];
     }
   }
-
   /// 2.3 ดึง New Activities (เรียงตาม createdAt หรือ id)
   Future<List<Activity>> fetchNewActivities(String childId) async {
     try {
       final allActivities = await _fetchAllActivities();
-
       // เรียงตาม createdAt หรือ ID (CUID)
       allActivities.sort((a, b) {
         if (a.createdAt != null && b.createdAt != null) {
@@ -183,7 +156,6 @@ class ActivityService {
         }
         return b.id.compareTo(a.id);
       });
-
       // ประมวลผล OEmbed
       final List<Future<Activity>> processedActivitiesFutures =
           allActivities.map((activity) async {
@@ -201,32 +173,26 @@ class ActivityService {
         }
         return activity;
       }).toList();
-
       final List<Activity> processedActivities =
           await Future.wait(processedActivitiesFutures);
-
       return processedActivities;
     } catch (e) {
       debugPrint('Error fetching new activities: $e');
       return [];
     }
   }
-
   // ----------------------------------------------------
   // 3. OTHER SERVICES
   // ----------------------------------------------------
-
   /// 3.1 ดึง HTML iframe สำหรับเล่นวิดีโอจาก Backend
   Future<String?> fetchVideoIframeHtml(String videoUrl) async {
     try {
       final path = '/get-direct-url?url=${Uri.encodeComponent(videoUrl)}';
       final response = await _apiService.get(path);
-
       if (response is Map<String, dynamic> &&
           response.containsKey('iframeHtml')) {
         return response['iframeHtml'] as String?;
       }
-
       debugPrint('Iframe HTML Fetch Error: Unexpected response format.');
       return null;
     } catch (e) {
@@ -234,11 +200,9 @@ class ActivityService {
       return null;
     }
   }
-
   // ----------------------------------------------------
   // 4. AI EVALUATION AND QUEST COMPLETION
   // ----------------------------------------------------
-
   /// 4.1 ส่งไฟล์เสียงไปประเมิน AI
   Future<Map<String, dynamic>> evaluateAudio({
     required File audioFile,
@@ -246,9 +210,7 @@ class ActivityService {
   }) async {
     try {
       final uri = Uri.parse('$API_BASE_URL/evaluate');
-
       final request = http.MultipartRequest('POST', uri);
-
       request.files.add(
         await http.MultipartFile.fromPath(
           'file',
@@ -256,10 +218,8 @@ class ActivityService {
         ),
       );
       request.fields['text'] = originalText;
-
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
-
       if (response.statusCode == 200) {
         return jsonDecode(response.body) as Map<String, dynamic>;
       } else {
@@ -332,7 +292,6 @@ class ActivityService {
     int? parentScore, // 🆕 รับ parentScore แยกเป็น parameter
   }) async {
     final numSections = segmentResults.length;
-
     // 1. คำนวณค่าเฉลี่ยความถูกต้อง
     double totalAccuracy = 0.0;
     for (var res in segmentResults) {
@@ -340,19 +299,15 @@ class ActivityService {
     }
     final averageAccuracy =
         numSections > 0 ? (totalAccuracy / numSections) : 0.0;
-
     // 2. คำนวณคะแนนที่ได้รับ
     final scoreEarned = (activityMaxScore * (averageAccuracy / 100)).floor();
-
     // ใช้ parentScore ถ้ามี
     final int finalScore = parentScore ?? scoreEarned;
-
     // Debug
     print('📊 Service Debug:');
     print('  - parentScore received: $parentScore');
     print('  - finalScore: $finalScore');
     print('  - evidence: $evidence');
-
     // 3. สร้าง Payload
     final payload = {
       'activityId': activityId,
@@ -361,16 +316,12 @@ class ActivityService {
       'evidence': evidence,
       'parentScore': parentScore,
     };
-
     print('📦 Payload to Backend: $payload');
-
     try {
       final res = await _apiService.post('/complete-quest', payload);
-
       res['scoreEarned'] = finalScore;
       res['calculatedScore'] =
           parentScore ?? averageAccuracy.round(); // % accuracy
-
       return res;
     } catch (e) {
       debugPrint('Finalize Quest Error: $e');

@@ -3,9 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 // ignore: unused_import
-import '../theme/palette.dart';
-import '../routes/app_routes.dart';
-import '../models/activity.dart';
+import '../../../theme/palette.dart';
+import '../../../routes/app_routes.dart';
+import '../../../models/activity.dart';
 
 class ResultScreen extends StatefulWidget {
   const ResultScreen({super.key});

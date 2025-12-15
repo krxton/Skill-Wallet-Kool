@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-import '../routes/app_routes.dart';
-import '../providers/user_provider.dart';
-import '../services/activity_service.dart';
-import '../models/activity.dart';
+import '../../routes/app_routes.dart';
+import '../../providers/user_provider.dart';
+import '../../services/activity_service.dart';
+import '../../models/activity.dart';
 
-import '../widgets/home_header.dart';
-import '../widgets/activity_card.dart';
-import '../widgets/scrollable_activity_list.dart';
-import '../widgets/main_bottom_nav.dart';
-import 'profile_screen.dart';
+import '../../widgets/home_header.dart';
+import '../../widgets/activity_card.dart';
+import '../../widgets/scrollable_activity_list.dart';
+import '../../widgets/main_bottom_nav.dart';
+import '../profile/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

@@ -8,10 +8,10 @@ import 'package:provider/provider.dart';
 import 'package:audioplayers/audioplayers.dart' as ap;
 import 'package:youtube_player_iframe/youtube_player_iframe.dart' as yp;
 
-import '../providers/user_provider.dart';
-import '../services/activity_service.dart';
-import '../models/activity.dart';
-import '../routes/app_routes.dart';
+import '../../../providers/user_provider.dart';
+import '../../../services/activity_service.dart';
+import '../../../models/activity.dart';
+import '../../../routes/app_routes.dart';
 
 /// Helper แยกเฉพาะไว้แปลง URL -> YouTube ID
 /// (ตั้งชื่อว่า YoutubeUrlHelper เพื่อไม่ให้ชนกับ widget YoutubePlayer ของ package)

@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../models/activity.dart';
-import '../routes/app_routes.dart';
+import '../../../models/activity.dart';
+import '../../../routes/app_routes.dart';
 
 class VideoDetailScreen extends StatelessWidget {
   static const String routeName = '/video_detail';

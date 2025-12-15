@@ -2,10 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../theme/palette.dart';
-import '../widgets/ui.dart';
-import '../routes/app_routes.dart';
-import '../models/language_flow.dart';
+import '../../../theme/palette.dart';
+import '../../../widgets/ui.dart';
+import '../../../routes/app_routes.dart';
+import '../../../models/language_flow.dart';
 
 class LanguageListScreen extends StatelessWidget {
   const LanguageListScreen({super.key});

@@ -1,11 +1,9 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-
-import '../providers/user_provider.dart';
+import '../../providers/user_provider.dart';
+import 'settings/setting_screen.dart'; 
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -18,8 +16,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   static const cream = Color(0xFFFFF5CD);
   static const deepGrey = Color(0xFF000000);
 
-  Uint8List? _avatarBytes;
-
   Future<void> _pickImage() async {
     final picker = ImagePicker();
     final XFile? picked = await picker.pickImage(
@@ -29,17 +25,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     if (picked != null) {
       final bytes = await picked.readAsBytes();
-      setState(() {
-        _avatarBytes = bytes;
-      });
+      
+      if (!mounted) return;
+      // ส่งรูปไปเก็บใน Provider เพื่อให้หน้า Setting เอาไปใช้ได้
+      context.read<UserProvider>().setProfileImage(bytes);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final parentName =
-        context.watch<UserProvider>().currentParentName ?? 'PARENT2';
-    final textTheme = Theme.of(context).textTheme;
+    // ดึงข้อมูลจาก Provider มาเฝ้าดู (Watch)
+    final userProvider = context.watch<UserProvider>();
+    final parentName = userProvider.currentParentName ?? 'PARENT2';
+    final profileImageBytes = userProvider.profileImageBytes; // ดึงรูปภาพ
+
+    // final textTheme = Theme.of(context).textTheme; // ไม่ได้ใช้แล้ว
 
     return Container(
       color: cream,
@@ -63,7 +63,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: CircleAvatar(
                             radius: 80,
                             backgroundColor: Colors.white,
-                            child: _avatarBytes == null
+                            // ตรวจสอบว่ามีรูปไหม ถ้ามีแสดงรูป ถ้าไม่มีแสดงไอคอน
+                            child: profileImageBytes == null
                                 ? const Icon(
                                     Icons.person,
                                     size: 80,
@@ -71,7 +72,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   )
                                 : ClipOval(
                                     child: Image.memory(
-                                      _avatarBytes!,
+                                      profileImageBytes,
                                       width: 160,
                                       height: 160,
                                       fit: BoxFit.cover,
@@ -99,7 +100,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         size: 28,
                       ),
                       onPressed: () {
-                        // TODO: ไว้ค่อยเชื่อมไปหน้า Setting ภายหลัง
+                        // กดปุ่มนี้เพื่อไปหน้า Setting
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SettingScreen(),
+                          ),
+                        );
                       },
                     ),
                   ),
@@ -133,16 +140,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: Text(
-                'ยังไม่โพสต์กิจกรรม',
-                style: textTheme.bodyMedium?.copyWith(
-                  color: Colors.grey.shade700,
-                ),
-              ),
-            ),
+            // ลบส่วนแสดงข้อความ "ยังไม่โพสต์กิจกรรม" ออกไปแล้ว
             const SizedBox(height: 16),
           ],
         ),

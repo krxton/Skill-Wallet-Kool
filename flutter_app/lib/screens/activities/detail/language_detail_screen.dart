@@ -4,8 +4,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../models/activity.dart';
-import '../routes/app_routes.dart';
+import '../../../models/activity.dart';
+import '../../../routes/app_routes.dart';
 
 class LanguageDetailScreen extends StatelessWidget {
   static const String routeName = '/language_detail';
