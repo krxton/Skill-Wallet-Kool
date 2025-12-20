@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skill_wallet_kool/services/auth_servive.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key, this.initialStep = 0});
@@ -10,6 +11,8 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  final AuthService authService = AuthService();
+
   late int step;
 
   // palette
@@ -51,8 +54,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _oauthButton(
           label: 'CONTINUE WITH GOOGLE',
           leading: _googleGlyph(),
-          onTap: () => _toast('Google sign-in (mock)'),
-        ),
+          onTap: () => authService.signUpWithGoogle()
+          ),
+        
         const SizedBox(height: 40),
         SizedBox(
           width: double.infinity,
