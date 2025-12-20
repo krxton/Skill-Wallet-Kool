@@ -6,6 +6,7 @@ generator client {
 }
 
 // Datasource: ตรวจสอบให้แน่ใจว่า provider และ url ถูกต้อง
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -16,62 +17,63 @@ datasource db {
 // =======================================================
 
 // 1. ผู้ปกครอง (Parent)
+
 model Parent {
-  id           String @id  // ← Clerk User ID (เช่น "user_2xxx...")
-  fullName     String
-  email        String @unique
-  photoUrl     String?     // จาก Clerk profile
-  
-  createdAt    DateTime @default(now())
-  status       String @default("Active")
-  verification String @default("Verified") // Clerk verify ให้แล้ว
-  
+  id              String             @id // ← Clerk User ID (เช่น "user_2xxx...")
+  fullName        String
+  email           String             @unique
+  photoUrl        String? // จาก Clerk profile
+  createdAt       DateTime           @default(now())
+  status          String             @default("Active")
+  verification    String             @default("Verified") // Clerk verify ให้แล้ว
   children        ParentChild[]
-  activities      ActivityRecord[] @relation("ParentRecords")
+  activities      ActivityRecord[]   @relation("ParentRecords")
   rewards         ParentReward[]
   redeemedRewards RewardRedemption[]
 }
 
 // 2. เด็ก (Child)
+
 model Child {
-  id              String @id @default(cuid())
-  fullName        String
-  dob             DateTime?
-  score           Int @default(0)
-  scoreUpdate     Int @default(0)
+  id          String    @id @default(cuid())
+  fullName    String
+  dob         DateTime?
+  score       Int       @default(0)
+  scoreUpdate Int       @default(0)
 
   // ความสัมพันธ์
   parents         ParentChild[]
-  activities      ActivityRecord[] @relation("ChildRecords")
+  activities      ActivityRecord[]   @relation("ChildRecords")
   redeemedRewards RewardRedemption[]
 }
 
 // 3. กิจกรรม (Activity)
+
 model Activity {
-  id            String @id @default(cuid())
-  name          String
-  category      String
-  content       String
-  difficulty    String
-  maxScore      Int
-  description   String?
-  videoUrl      String?
-  segments      Json?
+  id          String  @id @default(cuid())
+  name        String
+  category    String
+  content     String
+  difficulty  String
+  maxScore    Int
+  description String?
+  videoUrl    String?
+  segments    Json?
 
   // 🆕 เพิ่ม createdAt สำหรับเรียงกิจกรรมใหม่
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @default(now()) @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   // ความสัมพันธ์
-  activities     ActivityRecord[] @relation("ActivityRecords")
+  activities ActivityRecord[] @relation("ActivityRecords")
 }
 
 // 4. รางวัล (Reward)
+
 model Reward {
-  id              String @id @default(cuid())
+  id              String             @id @default(cuid())
   name            String
   cost            Int
-  
   parents         ParentReward[]
   redeemedRewards RewardRedemption[]
 }
@@ -81,61 +83,126 @@ model Reward {
 // =======================================================
 
 // 5. ผู้ปกครองและเด็ก (ParentChild)
+
 model ParentChild {
   parentId     String
   childId      String
   relationship String
 
   // ความสัมพันธ์
-  parent       Parent @relation(fields: [parentId], references: [id])
-  child        Child  @relation(fields: [childId], references: [id])
+  parent Parent @relation(fields: [parentId], references: [id])
+  child  Child  @relation(fields: [childId], references: [id])
 
   @@id([parentId, childId])
 }
 
 // 6. ผู้ปกครองและรางวัล (ParentReward)
+
 model ParentReward {
   parentId String
   rewardId String
 
-  parent   Parent @relation(fields: [parentId], references: [id])
-  reward   Reward @relation(fields: [rewardId], references: [id])
+  parent Parent @relation(fields: [parentId], references: [id])
+  reward Reward @relation(fields: [rewardId], references: [id])
 
   @@id([parentId, rewardId])
 }
 
 // 7. บันทึกกิจกรรม (ActivityRecord / Submissions)
+
 model ActivityRecord {
-  id                 String   @id @default(cuid())
-  activityId         String
-  parentId           String
-  childId            String
-  
-  dateCompleted      DateTime @default(now())
-  timeSpentSeconds   Int?     // เวลาที่ใช้ (วินาที) - OPTIONAL
-  status             String   @default("Pending") // Pending, Approved, Failed
-  detailResults      Json?    // ผลลัพธ์โดยละเอียดของ Quest (JSON Object)
-  scoreEarned        Int      // คะแนนรวมที่ได้รับ
-  roundNumber        Int      // รอบที่ทำภารกิจ
+  id               String   @id @default(cuid())
+  activityId       String
+  parentId         String
+  childId          String
+  dateCompleted    DateTime @default(now())
+  timeSpentSeconds Int? // เวลาที่ใช้ (วินาที) - OPTIONAL
+  status           String   @default("Pending") // Pending, Approved, Failed
+  detailResults    Json? // ผลลัพธ์โดยละเอียดของ Quest (JSON Object)
+  scoreEarned      Int // คะแนนรวมที่ได้รับ
+  roundNumber      Int // รอบที่ทำภารกิจ
 
   // ความสัมพันธ์
-  activity           Activity @relation("ActivityRecords", fields: [activityId], references: [id])
-  parent             Parent   @relation("ParentRecords", fields: [parentId], references: [id])
-  child              Child    @relation("ChildRecords", fields: [childId], references: [id])
+  activity Activity @relation("ActivityRecords", fields: [activityId], references: [id])
+  parent   Parent   @relation("ParentRecords", fields: [parentId], references: [id])
+  child    Child    @relation("ChildRecords", fields: [childId], references: [id])
 }
 
 // 8. การแลกรางวัล (RewardRedemption)
+
 model RewardRedemption {
-  id           String @id @default(cuid())
+  id           String   @id @default(cuid())
   childId      String
   parentId     String
   rewardId     String
-  
   dateRedeemed DateTime
   scoreUsed    Int
 
   // ความสัมพันธ์ 
-  child        Child @relation(fields: [childId], references: [id])
-  parent       Parent @relation(fields: [parentId], references: [id])
-  reward       Reward @relation(fields: [rewardId], references: [id])
+  child  Child  @relation(fields: [childId], references: [id])
+  parent Parent @relation(fields: [parentId], references: [id])
+  reward Reward @relation(fields: [rewardId], references: [id])
+}
+
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
 }

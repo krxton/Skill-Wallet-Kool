@@ -1,127 +1,123 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'daily_activity_screen.dart'; // 🔗 เชื่อมไปหน้าระดับที่ 2
 
-class ActivityHistoryScreen extends StatefulWidget {
+class ActivityHistoryScreen extends StatelessWidget {
   final String gameName;
 
   const ActivityHistoryScreen({super.key, required this.gameName});
 
-  @override
-  State<ActivityHistoryScreen> createState() => _ActivityHistoryScreenState();
-}
-
-class _ActivityHistoryScreenState extends State<ActivityHistoryScreen> {
-  // Theme Colors
   static const cream = Color(0xFFFFF5CD);
-  static const blueTitle = Color(0xFF4DA9FF);
-  static const greySubtitle = Color(0xFF9E9E9E);
-  static const itemBlue = Color(0xFF90CAF9); // สีฟ้าพื้นหลังวันที่
-  static const numberPink = Color(0xFFFF8A80); // สีชมพูวงกลมเลข
-
-  // Mock Data (ข้อมูลสมมติ)
-  final List<Map<String, dynamic>> _history = [
-    {'id': 1, 'date': '24 JULY 2025', 'time': '01:04 PM', 'score': 100},
-    {'id': 2, 'date': '28 JULY 2025', 'time': '10:30 AM', 'score': 80},
-    {'id': 3, 'date': '10 AUGUST 2025', 'time': '04:15 PM', 'score': 120},
-    {'id': 4, 'date': '14 AUGUST 2025', 'time': '09:00 AM', 'score': 90},
-  ];
+  static const skyBlue = Color(0xFF5AB2FF);
+  static const cardBlue = Color(0xFF90CAF9);
+  static const pinkNum = Color(0xFFFF8A80);
 
   @override
   Widget build(BuildContext context) {
+    // Mock Data: รายชื่อวันที่ที่มีการเล่น
+    final dates = [
+      {'date': '24 JULY 2025', 'count': 4}, // เล่นไป 4 ครั้ง
+      {'date': '25 JULY 2025', 'count': 2},
+      {'date': '28 JULY 2025', 'count': 1},
+    ];
+
     return Scaffold(
       backgroundColor: cream,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // --- Header ---
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        child: Column(
+          children: [
+            // Header
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+              child: Row(
                 children: [
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: const Icon(Icons.arrow_back, size: 30, color: Colors.black87),
+                    child: const Icon(Icons.arrow_back, size: 35, color: Colors.black87),
                   ),
-                  Text(
-                    widget.gameName, // "PING PONG GAME"
-                    style: GoogleFonts.luckiestGuy(fontSize: 24, color: blueTitle),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: Text(
+                      gameName,
+                      style: GoogleFonts.luckiestGuy(fontSize: 26, color: skyBlue),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                  const Icon(Icons.share, size: 28, color: Colors.black87),
                 ],
               ),
-              
-              const SizedBox(height: 20),
-              
-              Text(
-                'PLAYING RESULTS',
-                style: GoogleFonts.luckiestGuy(fontSize: 20, color: greySubtitle),
-              ),
+            ),
 
-              const SizedBox(height: 20),
+            Text(
+              'SELECT DATE',
+              style: GoogleFonts.luckiestGuy(fontSize: 20, color: Colors.grey),
+            ),
+            const SizedBox(height: 20),
 
-              // --- List of Results ---
-              Expanded(
-                child: ListView.separated(
-                  itemCount: _history.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 16),
-                  itemBuilder: (context, index) {
-                    final item = _history[index];
-                    return _buildHistoryItem(
-                      number: item['id'],
-                      date: item['date'],
-                    );
-                  },
-                ),
+            // Date List
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                itemCount: dates.length,
+                itemBuilder: (context, index) {
+                  final item = dates[index];
+                  return GestureDetector(
+                    onTap: () {
+                      // 👉 กดวันที่แล้วไปหน้า DailyActivityScreen (ระดับ 2)
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DailyActivityScreen(
+                            date: item['date'] as String,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 15),
+                      height: 70,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5, offset: const Offset(0, 3)),
+                        ],
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.calendar_today, color: pinkNum),
+                              const SizedBox(width: 15),
+                              Text(
+                                '${item['date']}',
+                                style: GoogleFonts.luckiestGuy(fontSize: 22, color: Colors.black87),
+                              ),
+                            ],
+                          ),
+                          // Badge บอกจำนวนครั้งที่เล่น
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: cardBlue,
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Text(
+                              '${item['count']} TIMES',
+                              style: GoogleFonts.luckiestGuy(fontSize: 14, color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-    );
-  }
-
-  Widget _buildHistoryItem({required int number, required String date}) {
-    return Row(
-      children: [
-        // Number Circle
-        Container(
-          width: 50, height: 50,
-          decoration: const BoxDecoration(
-            color: numberPink,
-            shape: BoxShape.circle,
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            '$number',
-            style: GoogleFonts.luckiestGuy(fontSize: 24, color: Colors.white),
-          ),
-        ),
-        const SizedBox(width: 12),
-        
-        // Date Box
-        Expanded(
-          child: Container(
-            height: 60,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: itemBlue,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  date,
-                  style: GoogleFonts.luckiestGuy(fontSize: 20, color: Colors.white),
-                ),
-                const Icon(Icons.keyboard_arrow_down, color: Colors.white, size: 30),
-              ],
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

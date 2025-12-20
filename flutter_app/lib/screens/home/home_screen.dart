@@ -97,6 +97,15 @@ class _HomeScreenState extends State<HomeScreen> {
           if (mounted) setState(() => _categoryValue = 'CATEGORY');
         });
       });
+    } 
+    // 🆕 เพิ่มเงื่อนไขสำหรับ Calculation ตรงนี้ครับ
+    else if (value.toUpperCase() == 'CALCULATION') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.pushNamed(context, AppRoutes.calculateHub).then((_) {
+          // เมื่อกด Back กลับมา ให้รีเซ็ตค่า Dropdown เป็น CATEGORY เหมือนเดิม
+          if (mounted) setState(() => _categoryValue = 'CATEGORY');
+        });
+      });
     }
   }
 

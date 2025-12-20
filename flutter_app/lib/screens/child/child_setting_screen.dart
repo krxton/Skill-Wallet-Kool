@@ -1,228 +1,221 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-// ตรวจสอบ path ของไฟล์เหล่านี้ให้ถูกต้อง
-import 'manage_child_screen.dart'; 
-import 'child_profile_screen.dart'; 
 
-class ChildSettingScreen extends StatelessWidget {
+import 'add_child_screen.dart';
+import 'manage_child_screen.dart';
+import 'child_profile_screen.dart';
+
+class ChildSettingScreen extends StatefulWidget {
   const ChildSettingScreen({super.key});
 
-  // สี Theme
+  @override
+  State<ChildSettingScreen> createState() => _ChildSettingScreenState();
+}
+
+class _ChildSettingScreenState extends State<ChildSettingScreen> {
+  // 🎨 สีตาม Theme
   static const cream = Color(0xFFFFF5CD);
-  static const blueTitle = Color(0xFF4DA9FF);
-  static const greenPlus = Color(0xFF86C178);
-  static const goldStar = Color(0xFFFFC107);
-  static const deepGrey = Color(0xFF000000);
+  static const sky = Color(0xFF5AB2FF);
+  static const greenIcon = Color(0xFF88C273);
+
+  // ข้อมูล Mock Data
+  List<Map<String, dynamic>> children = [
+    {'name': 'KRATON', 'score': 250, 'img': 'https://i.pravatar.cc/150?img=1'},
+    {'name': 'GOLF', 'score': 300, 'img': 'https://i.pravatar.cc/150?img=8'},
+  ];
+
+  // ฟังก์ชันเพิ่มเด็ก
+  void _addNewChild() async {
+    final newChildData = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const AddChildScreen()),
+    );
+
+    if (newChildData != null) {
+      setState(() {
+        children.add(newChildData);
+      });
+    }
+  }
+
+  // ✅ ฟังก์ชันจัดการเด็ก (ลบ)
+  void _manageChild(int index) async {
+    final child = children[index];
+    
+    // รอรับค่าผลลัพธ์จากหน้า ManageChildScreen
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ManageChildScreen(
+          name: child['name'],
+          imageUrl: child['img'],
+        ),
+      ),
+    );
+
+    // ถ้าค่าที่ส่งกลับมาเป็น true แปลว่าให้ "ลบ"
+    if (result == true) {
+      setState(() {
+        children.removeAt(index);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // ข้อมูลจำลอง (Mock Data)
-    final children = [
-      {'name': 'KRATON', 'img': 'https://i.pravatar.cc/150?img=1', 'points': 250},
-      {'name': 'GOLF', 'img': 'https://i.pravatar.cc/150?img=8', 'points': 300},
-    ];
-
     return Scaffold(
       backgroundColor: cream,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-          child: Column(
-            children: [
-              // --- 1. Header ---
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: const Icon(Icons.arrow_back, size: 30, color: Colors.black87),
-                  ),
-                  Text(
-                    'CHILD',
-                    style: GoogleFonts.luckiestGuy(
-                      fontSize: 36, // ปรับขนาดให้ใหญ่ขึ้นตามแบบ
-                      color: blueTitle,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      // TODO: Logic เพิ่มเด็กใหม่
-                    },
-                    child: const Icon(Icons.add, color: greenPlus, size: 40), // ปรับไอคอน + ให้เป็นตัวใหญ่
-                  ),
-                ],
-              ),
-              
-              const SizedBox(height: 30),
-
-              // --- 2. Children List ---
-              Expanded(
-                child: ListView.separated(
-                  itemCount: children.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 20),
-                  itemBuilder: (context, index) {
-                    final child = children[index];
-                    return _buildChildCard(
-                      context,
-                      name: child['name'] as String,
-                      imageUrl: child['img'] as String,
-                      points: child['points'] as int,
-                    );
-                  },
-                ),
-              ),
-            ],
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black, size: 30),
+          onPressed: () => Navigator.pop(context),
+        ),
+        centerTitle: true,
+        title: Text(
+          'CHILD',
+          style: GoogleFonts.luckiestGuy(
+            fontSize: 32,
+            color: sky,
+            letterSpacing: 2,
           ),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: IconButton(
+              icon: const Icon(Icons.add_circle, color: greenIcon, size: 40),
+              onPressed: _addNewChild,
+            ),
+          ),
+        ],
+      ),
+      body: ListView.builder(
+        padding: const EdgeInsets.all(24),
+        itemCount: children.length,
+        itemBuilder: (context, index) {
+          final child = children[index];
+          return _buildChildCard(context, child, index);
+        },
       ),
     );
   }
 
-  // Widget การ์ดแสดงข้อมูลเด็ก (ปรับดีไซน์ใหม่)
-  Widget _buildChildCard(BuildContext context, {
-    required String name,
-    required String imageUrl,
-    required int points,
-  }) {
+  Widget _buildChildCard(BuildContext context, Map<String, dynamic> child, int index) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24), // ความมนของขอบการ์ด
-        border: Border.all(color: Colors.black12, width: 1), // เส้นขอบจางๆ (ถ้าต้องการ)
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
-            offset: const Offset(0, 4),
-            blurRadius: 8,
+            blurRadius: 10,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
       child: Column(
         children: [
-          // --- ส่วนบน: รูปโปรไฟล์ + ชื่อ + คะแนน ---
           Row(
             children: [
-              // รูปโปรไฟล์
-              Container(
-                width: 70,
-                height: 70,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.grey.shade200,
-                  image: imageUrl.isNotEmpty
-                      ? DecorationImage(image: NetworkImage(imageUrl), fit: BoxFit.cover)
-                      : null,
-                ),
-                child: imageUrl.isEmpty
-                    ? const Icon(Icons.person, color: Colors.grey, size: 40)
-                    : null,
+              CircleAvatar(
+                radius: 30,
+                backgroundColor: Colors.grey.shade300,
+                backgroundImage: NetworkImage(child['img']),
               ),
               const SizedBox(width: 16),
-              
-              // ชื่อ
               Expanded(
-                child: Text(
-                  name,
-                  style: GoogleFonts.luckiestGuy(
-                    fontSize: 24,
-                    color: deepGrey,
-                  ),
-                ),
-              ),
-
-              // คะแนน + เหรียญ
-              Row(
-                children: [
-                  // ใช้รูป medal.png ที่คุณอัปโหลดมา หรือใช้ Icon แทนถ้าไม่มีรูป
-                  Image.asset(
-                    'assets/icons/medal.png', 
-                    width: 32,
-                    height: 32,
-                    errorBuilder: (context, error, stackTrace) => 
-                      const Icon(Icons.emoji_events, color: goldStar, size: 32),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '$points',
-                    style: GoogleFonts.luckiestGuy(
-                      fontSize: 24,
-                      color: goldStar,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      child['name'],
+                      style: GoogleFonts.luckiestGuy(
+                        fontSize: 24,
+                        color: Colors.black,
+                      ),
                     ),
-                  ),
-                ],
+                    Row(
+                      children: [
+                        const Icon(Icons.emoji_events, color: Colors.orange, size: 28),
+                        const SizedBox(width: 5),
+                        Text(
+                          '${child['score']}',
+                          style: GoogleFonts.luckiestGuy(
+                            fontSize: 24,
+                            color: Colors.orange,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
-
-          const SizedBox(height: 20),
-
-          // --- ส่วนล่าง: ปุ่มกด 2 ปุ่ม ---
+          const SizedBox(height: 16),
           Row(
             children: [
-              // ปุ่ม VIEW PROFILE
+              // View Profile Button
               Expanded(
-                child: _buildActionButton(
-                  title: 'VIEW PROFILE',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ChildProfileScreen(
-                          name: name,
-                          imageUrl: imageUrl,
-                          points: points,
+                child: SizedBox(
+                  height: 45,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChildProfileScreen(
+                            name: child['name'],
+                            imageUrl: child['img'],
+                            points: child['score'],
+                          ),
                         ),
+                      );
+                    },
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.black, width: 2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
                       ),
-                    );
-                  },
+                    ),
+                    child: Text(
+                      'VIEW PROFILE',
+                      style: GoogleFonts.luckiestGuy(fontSize: 14, color: Colors.black),
+                    ),
+                  ),
                 ),
               ),
-              const SizedBox(width: 12), // ระยะห่างระหว่างปุ่ม
-              // ปุ่ม MANAGE
+              const SizedBox(width: 10),
+              
+              // Manage Button
               Expanded(
-                child: _buildActionButton(
-                  title: 'MANAGE',
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ManageChildScreen(
-                          name: name,
-                          imageUrl: imageUrl,
-                        ),
+                child: SizedBox(
+                  height: 45,
+                  child: OutlinedButton(
+                    onPressed: () {
+                      // ✅ เรียกใช้ฟังก์ชัน _manageChild เพื่อรอรับผลลัพธ์การลบ
+                      _manageChild(index);
+                    },
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Colors.black, width: 2),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
                       ),
-                    );
-                  },
+                    ),
+                    child: Text(
+                      'MANAGE',
+                      style: GoogleFonts.luckiestGuy(fontSize: 14, color: Colors.black),
+                    ),
+                  ),
                 ),
               ),
             ],
-          ),
+          )
         ],
-      ),
-    );
-  }
-
-  // Widget สร้างปุ่ม (ปรับให้ใหญ่และมีขอบชัดเจน)
-  Widget _buildActionButton({required String title, required VoidCallback onTap}) {
-    return SizedBox(
-      height: 48, // ความสูงปุ่ม
-      child: OutlinedButton(
-        onPressed: onTap,
-        style: OutlinedButton.styleFrom(
-          side: const BorderSide(color: Colors.black87, width: 2), // ขอบหนา 2
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          foregroundColor: Colors.black87, // สีเวลาแตะ
-        ),
-        child: Text(
-          title,
-          style: GoogleFonts.luckiestGuy(
-            fontSize: 14, // ปรับขนาดตัวหนังสือ
-            color: Colors.black87,
-          ),
-        ),
       ),
     );
   }
