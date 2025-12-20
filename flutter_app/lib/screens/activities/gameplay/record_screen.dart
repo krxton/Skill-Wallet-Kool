@@ -10,8 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
-
-import '../services/activity_service.dart';
+import 'package:skill_wallet_kool/services/activity_service.dart';
 
 class RecordScreen extends StatefulWidget {
   const RecordScreen({super.key});
@@ -61,10 +60,12 @@ class _RecordScreenState extends State<RecordScreen> {
     if (kIsWeb) {
       // Initialize original text from arguments post-frame
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        final args =
-            ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ?? {};
+        final args = ModalRoute.of(context)?.settings.arguments
+                as Map<String, dynamic>? ??
+            {};
         setState(() {
-          _originalText = args['originalText'] as String? ?? 'Error: Text Missing';
+          _originalText =
+              args['originalText'] as String? ?? 'Error: Text Missing';
         });
       });
     }
@@ -142,7 +143,9 @@ class _RecordScreenState extends State<RecordScreen> {
             debugPrint('Web startStream not supported: $e');
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Recording stream not supported in this browser.')),
+                const SnackBar(
+                    content: Text(
+                        'Recording stream not supported in this browser.')),
               );
             }
             setState(() {
@@ -307,7 +310,8 @@ class _RecordScreenState extends State<RecordScreen> {
   }
 
   // Build simple WAV (RIFF) header for PCM16 LE
-  Uint8List _pcm16ToWav(Uint8List pcmData, {required int sampleRate, required int channels}) {
+  Uint8List _pcm16ToWav(Uint8List pcmData,
+      {required int sampleRate, required int channels}) {
     final int byteRate = sampleRate * channels * 2; // 16-bit
     final int blockAlign = channels * 2;
     final int subchunk2Size = pcmData.lengthInBytes;
@@ -336,7 +340,8 @@ class _RecordScreenState extends State<RecordScreen> {
   }
 
   Uint8List _ascii(String s) => Uint8List.fromList(s.codeUnits);
-  Uint8List _le16(int value) => Uint8List.fromList([value & 0xFF, (value >> 8) & 0xFF]);
+  Uint8List _le16(int value) =>
+      Uint8List.fromList([value & 0xFF, (value >> 8) & 0xFF]);
   Uint8List _le32(int value) => Uint8List.fromList([
         value & 0xFF,
         (value >> 8) & 0xFF,
@@ -364,7 +369,8 @@ class _RecordScreenState extends State<RecordScreen> {
             {};
 
     // On web, show provided original text (recording supported via stream)
-    final displayOriginalText = args['originalText'] as String? ?? _originalText;
+    final displayOriginalText =
+        args['originalText'] as String? ?? _originalText;
 
     final bool isReadyToPlay = _hasRecorded && !_isPlaying;
 
@@ -404,8 +410,7 @@ class _RecordScreenState extends State<RecordScreen> {
             const SizedBox(height: 24),
             Text(
               '$mm:$ss',
-              style:
-                  const TextStyle(fontSize: 28, fontWeight: FontWeight.w900),
+              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w900),
             ),
             const SizedBox(height: 12),
 
@@ -416,14 +421,12 @@ class _RecordScreenState extends State<RecordScreen> {
                 IconButton(
                   iconSize: 56,
                   color: recording ? red : Colors.black87,
-                    onPressed: (displayOriginalText.startsWith('Error') ||
-                        displayOriginalText.startsWith('Microphone'))
+                  onPressed: (displayOriginalText.startsWith('Error') ||
+                          displayOriginalText.startsWith('Microphone'))
                       ? null
                       : _toggle,
                   icon: Icon(
-                    recording
-                        ? Icons.stop_circle_outlined
-                        : Icons.mic_rounded,
+                    recording ? Icons.stop_circle_outlined : Icons.mic_rounded,
                   ),
                 ),
                 const SizedBox(width: 24),
@@ -450,12 +453,10 @@ class _RecordScreenState extends State<RecordScreen> {
               width: double.infinity,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: green),
-                onPressed:
-                    (recording || !_hasRecorded) ? null : _finish,
+                onPressed: (recording || !_hasRecorded) ? null : _finish,
                 child: Text(
                   'FINISH',
-                  style:
-                      GoogleFonts.luckiestGuy(color: Colors.white),
+                  style: GoogleFonts.luckiestGuy(color: Colors.white),
                 ),
               ),
             ),
