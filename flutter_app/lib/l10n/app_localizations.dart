@@ -245,7 +245,7 @@ abstract class AppLocalizations {
   /// No description provided for @register_namesurnamechildBtn.
   ///
   /// In en, this message translates to:
-  /// **'NAME & SURNAME (CHILDREN) #{index}'**
+  /// **'NAME & SURNAME (CHILDREN) {index}'**
   String register_namesurnamechildBtn(Object index);
 
   /// No description provided for @register_birthdayBtn.

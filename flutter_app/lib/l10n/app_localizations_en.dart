@@ -82,7 +82,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String register_namesurnamechildBtn(Object index) {
-    return 'NAME & SURNAME (CHILDREN) #$index';
+    return 'NAME & SURNAME (CHILDREN) $index';
   }
 
   @override

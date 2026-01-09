@@ -40,8 +40,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final parentName = userProvider.currentParentName ?? 'PARENT2';
     final profileImageBytes = userProvider.profileImageBytes; // ดึงรูปภาพ
 
-    // final textTheme = Theme.of(context).textTheme; // ไม่ได้ใช้แล้ว
-
     return Container(
       color: cream,
       child: SafeArea(
@@ -82,9 +80,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
+                        // --- แก้ไขตรงนี้: ปรับ Style ให้รองรับภาษาไทย ---
                         Text(
                           parentName,
-                          style: GoogleFonts.luckiestGuy(
+                          style: TextStyle(
+                            fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                            fontFamilyFallback: [
+                              GoogleFonts.itim().fontFamily!
+                            ],
                             fontSize: 24,
                             color: deepGrey,
                           ),
@@ -128,13 +131,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                      AppLocalizations.of(context)!.parentprofile_postBtn,
-                      style: TextStyle(
-                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                      fontSize: 18,
-                      color: Colors.black),
-                ),
+                        AppLocalizations.of(context)!.parentprofile_postBtn,
+                        style: TextStyle(
+                            fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                            fontFamilyFallback: [
+                              GoogleFonts.itim().fontFamily!
+                            ],
+                            fontSize: 18,
+                            color: Colors.black),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -142,7 +147,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
-            // ลบส่วนแสดงข้อความ "ยังไม่โพสต์กิจกรรม" ออกไปแล้ว
             const SizedBox(height: 16),
           ],
         ),

@@ -45,7 +45,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get home_viewallBtn => 'ดูทั้งหมด';
 
   @override
-  String get home_searchBtn => 'ค้นหา';
+  String get home_searchBtn => 'ค้นหา...';
 
   @override
   String get home_bannerLanguage => 'ฝึกภาษา';
@@ -82,7 +82,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String register_namesurnamechildBtn(Object index) {
-    return 'ชื่อและนามสกุลคนที่ #$index';
+    return 'ชื่อและนามสกุลคนที่ $index';
   }
 
   @override

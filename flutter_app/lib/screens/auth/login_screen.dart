@@ -8,7 +8,7 @@ class LoginScreen extends StatelessWidget {
 
   static const cream = Color(0xFFFFF5CD);
   static const fbBlue = Color(0xFF1877F2);
-  static const backPink = Color(0xFFEA5B6F); // ใช้สีนี้แทน pinkRed
+  static const backPink = Color(0xFFEA5B6F);
 
   @override
   Widget build(BuildContext context) {
@@ -25,25 +25,21 @@ class LoginScreen extends StatelessWidget {
                   children: [
                     Image.asset('assets/images/SWK_home.png', height: 240),
                     const SizedBox(height: 32),
+                    
+                    // ปุ่ม FACEBOOK
                     _loginButton(
                       icon: Icons.facebook,
-                      text: AppLocalizations.of(context)!.login_facebookBtn, 
-                      style: TextStyle(
-                        fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                        fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                      ),
+                      text: AppLocalizations.of(context)!.login_facebookBtn,
                       color: fbBlue,
                       onTap: () {
                         Navigator.pushReplacementNamed(context, AppRoutes.home);
                       },
                     ),
                     const SizedBox(height: 16),
+                    
+                    // ปุ่ม GOOGLE
                     _googleButton(
-                      text: AppLocalizations.of(context)!.login_googleBtn, 
-                      style: TextStyle(
-                        fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                        fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                      ),
+                      text: AppLocalizations.of(context)!.login_googleBtn,
                       onTap: () {
                         Navigator.pushReplacementNamed(context, AppRoutes.home);
                       },
@@ -53,7 +49,7 @@ class LoginScreen extends StatelessWidget {
               ),
             ),
 
-            // BACK มุมซ้ายล่างตาม Figma
+            // BACK มุมซ้ายล่าง
             Positioned(
               left: 16,
               bottom: 16,
@@ -63,14 +59,13 @@ class LoginScreen extends StatelessWidget {
                   children: [
                     const Icon(Icons.arrow_back, color: backPink, size: 26),
                     const SizedBox(width: 6),
-                    // ✅ แก้ไขตรงนี้: ใส่ Text() ครอบ และเปลี่ยนสีเป็น backPink
                     Text(
-                      AppLocalizations.of(context)!.login_backBtn, 
+                      AppLocalizations.of(context)!.login_backBtn,
                       style: TextStyle(
                         fontFamily: GoogleFonts.luckiestGuy().fontFamily,
                         fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
                         fontSize: 24,
-                        color: backPink, // แก้จาก pinkRed เป็น backPink
+                        color: backPink,
                       ),
                     ),
                   ],
@@ -87,7 +82,7 @@ class LoginScreen extends StatelessWidget {
     required IconData icon,
     required String text,
     required Color color,
-    required VoidCallback onTap, required TextStyle style,
+    required VoidCallback onTap,
   }) {
     return Material(
       color: Colors.white,
@@ -108,9 +103,15 @@ class LoginScreen extends StatelessWidget {
               ),
               const SizedBox(width: 14),
               Expanded(
-                child: Text(text,
-                    style: GoogleFonts.luckiestGuy(
-                        fontSize: 16, color: Colors.black87)),
+                child: Text(
+                  text,
+                  style: TextStyle(
+                    fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                    fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
+                ),
               ),
             ],
           ),
@@ -119,7 +120,10 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  Widget _googleButton({required String text, required VoidCallback onTap, required TextStyle style}) {
+  Widget _googleButton({
+    required String text,
+    required VoidCallback onTap,
+  }) {
     return Material(
       color: Colors.white,
       borderRadius: BorderRadius.circular(18),
@@ -136,13 +140,27 @@ class LoginScreen extends StatelessWidget {
                 decoration: const BoxDecoration(
                     color: Colors.white, shape: BoxShape.circle),
                 alignment: Alignment.center,
-                child: Text('G', style: GoogleFonts.luckiestGuy(fontSize: 22)),
+                child: Text(
+                  'G',
+                  style: TextStyle(
+                    fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                    fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                    fontSize: 22,
+                    color: Colors.black87,
+                  ),
+                ),
               ),
               const SizedBox(width: 14),
               Expanded(
-                child: Text(text,
-                    style: GoogleFonts.luckiestGuy(
-                        fontSize: 16, color: Colors.black87)),
+                child: Text(
+                  text,
+                  style: TextStyle(
+                    fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                    fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
+                ),
               ),
             ],
           ),

@@ -26,7 +26,7 @@
   "register_nextBtn": "NEXT",
   "register_registerBtn": "REGISTER",
   "register_additionalBtn": "ADDITIONAL INFORMATION",
-  "register_namesurnamechildBtn": "NAME & SURNAME (CHILDREN) #{index}",
+  "register_namesurnamechildBtn": "NAME & SURNAME (CHILDREN) {index}",
   "register_birthdayBtn": "BIRTHDAY : DD/MM/YYYY",
   "register_okBtn": "OK",
   "register_pls":"Please fill in all the information in the list. ",

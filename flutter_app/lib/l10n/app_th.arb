@@ -26,7 +26,7 @@
   "register_nextBtn": "ต่อไป",
   "register_registerBtn": "ลงทะเบียน",
   "register_additionalBtn": "ข้อมูลเพิ่มเติม",
-  "register_namesurnamechildBtn": "ชื่อและนามสกุลคนที่ #{index}",
+  "register_namesurnamechildBtn": "ชื่อและนามสกุลคนที่ {index}",
   "register_birthdayBtn": "วันเกิด : วว/ดด/ปปปป",
   "register_okBtn": "เสร็จสิ้น",
   "register_pls":"กรอกข้อมูลให้ครบในรายการที่ ",
