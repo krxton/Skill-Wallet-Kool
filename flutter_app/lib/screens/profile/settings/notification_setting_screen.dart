@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 
 class NotificationSettingScreen extends StatefulWidget {
   const NotificationSettingScreen({super.key});
 
   @override
-  State<NotificationSettingScreen> createState() => _NotificationSettingScreenState();
+  State<NotificationSettingScreen> createState() =>
+      _NotificationSettingScreenState();
 }
 
 class _NotificationSettingScreenState extends State<NotificationSettingScreen> {
@@ -41,12 +43,16 @@ class _NotificationSettingScreenState extends State<NotificationSettingScreen> {
                     alignment: Alignment.centerLeft,
                     child: GestureDetector(
                       onTap: () => Navigator.pop(context),
-                      child: const Icon(Icons.arrow_back, size: 30, color: Colors.black87),
+                      child: const Icon(Icons.arrow_back,
+                          size: 30, color: Colors.black87),
                     ),
                   ),
                   Text(
-                    'NOTIFICATIONS',
-                    style: GoogleFonts.luckiestGuy(
+                    AppLocalizations.of(context)!
+                        .notificationsetting_notificationBtn,
+                    style: TextStyle(
+                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
                       fontSize: 24,
                       color: blueTitle,
                     ),
@@ -57,7 +63,8 @@ class _NotificationSettingScreenState extends State<NotificationSettingScreen> {
 
               // --- 2. ALL NOTIFICATIONS Toggle ---
               _buildToggleRow(
-                title: 'ALL NOTIFICATIONS',
+                title: AppLocalizations.of(context)!
+                    .notificationsetting_allnotificationBtn,
                 value: _allNotifications,
                 onChanged: (val) {
                   setState(() {
@@ -74,8 +81,10 @@ class _NotificationSettingScreenState extends State<NotificationSettingScreen> {
 
               // --- 3. POST Category ---
               Text(
-                'POST',
-                style: GoogleFonts.luckiestGuy(
+                AppLocalizations.of(context)!.notificationsetting_postBtn,
+                style: TextStyle(
+                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
                   fontSize: 20,
                   color: textGrey,
                 ),
@@ -84,7 +93,8 @@ class _NotificationSettingScreenState extends State<NotificationSettingScreen> {
 
               // --- 4. Sub Toggles ---
               _buildToggleRow(
-                title: 'LIKE',
+                title:
+                    AppLocalizations.of(context)!.notificationsetting_likeBtn,
                 value: _likeNotification,
                 onChanged: isSubOptionsEnabled
                     ? (val) {
@@ -99,7 +109,8 @@ class _NotificationSettingScreenState extends State<NotificationSettingScreen> {
               const SizedBox(height: 12),
 
               _buildToggleRow(
-                title: 'COMMENT',
+                title: AppLocalizations.of(context)!
+                    .notificationsetting_commentBtn,
                 value: _commentNotification,
                 onChanged: isSubOptionsEnabled
                     ? (val) {
@@ -127,25 +138,26 @@ class _NotificationSettingScreenState extends State<NotificationSettingScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          title,
-          style: GoogleFonts.luckiestGuy(
-            fontSize: 20,
-            color: isEnabled ? Colors.black87 : Colors.grey.shade400,
+        Expanded(
+          child: Text(
+            title,
+            style: TextStyle(
+              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+              fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+              fontSize: 20,
+              color: isEnabled ? Colors.black87 : Colors.grey.shade400,
+            ),
           ),
         ),
-        
         Transform.scale(
           scale: 0.9,
           child: Switch(
             value: value,
             onChanged: onChanged,
-            // ✅ แก้ไข: ใช้ activeThumbColor แทน activeColor
-            activeThumbColor: Colors.white, 
+            activeThumbColor: Colors.white,
             activeTrackColor: pinkSwitch,
             inactiveThumbColor: Colors.white,
             inactiveTrackColor: greySwitch,
-            // ✅ แก้ไข: ใช้ WidgetStateProperty แทน MaterialStateProperty
             trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
           ),
         ),

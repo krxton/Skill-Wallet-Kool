@@ -1,4 +1,4 @@
-import 'dart:typed_data'; 
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -26,14 +26,14 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
   static const creamBg = Color(0xFFFFF5CD);
   static const deepGrey = Color(0xFF000000);
   static const goldText = Color(0xFFFFC107);
-  static const orangeBtn = Color(0xFFFFCC80); 
-  static const yellowBtn = Color(0xFFFFEE58); 
-  static const pinkBtn = Color(0xFFFFAB91);   
+  static const orangeBtn = Color(0xFFFFCC80);
+  static const yellowBtn = Color(0xFFFFEE58);
+  static const pinkBtn = Color(0xFFFFAB91);
 
-  int _selectedTab = 0; 
+  int _selectedTab = 0;
 
   // 2. เปลี่ยนจาก File? เป็น Uint8List? (เหมือนฝั่งผู้ปกครอง)
-  Uint8List? _selectedImageBytes; 
+  Uint8List? _selectedImageBytes;
 
   // 3. ปรับฟังก์ชันเลือกรูปให้แปลงเป็น Bytes
   Future<void> _pickImage() async {
@@ -44,11 +44,11 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
         imageQuality: 80, // ลดขนาดไฟล์รูปนิดหน่อยให้ลื่นขึ้น
         maxWidth: 800,
       );
-      
+
       if (pickedFile != null) {
         // อ่านไฟล์เป็น Bytes
         final bytes = await pickedFile.readAsBytes();
-        
+
         setState(() {
           _selectedImageBytes = bytes;
         });
@@ -68,18 +68,16 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: creamBg,
-      
       bottomNavigationBar: SafeArea(
         child: MainBottomNav(
-          selectedIndex: 2, 
+          selectedIndex: 2,
           onTabSelected: (index) {
-             if (index == 0) {
-               Navigator.popUntil(context, (route) => route.isFirst);
-             }
+            if (index == 0) {
+              Navigator.popUntil(context, (route) => route.isFirst);
+            }
           },
         ),
       ),
-      
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -112,7 +110,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
                           child: _buildProfileImage(),
                         ),
                       ),
-                      
+
                       // ไอคอนกล้อง
                       Positioned(
                         bottom: 5,
@@ -120,20 +118,20 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: const BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(color: Colors.black12, blurRadius: 4)
-                            ]
-                          ),
-                          child: const Icon(Icons.camera_alt, color: Colors.grey, size: 22),
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(color: Colors.black12, blurRadius: 4)
+                              ]),
+                          child: const Icon(Icons.camera_alt,
+                              color: Colors.grey, size: 22),
                         ),
                       ),
                     ],
                   ),
                 ),
               ),
-              
+
               const SizedBox(height: 10),
 
               // --- 2. Name ---
@@ -151,13 +149,15 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
-                    'assets/icons/medal.png', 
-                    width: 50, height: 50,
-                    errorBuilder: (_,__,___) => const Icon(Icons.star, color: Colors.amber, size: 40),
+                    'assets/icons/medal.png',
+                    width: 50,
+                    height: 50,
+                    errorBuilder: (_, __, ___) =>
+                        const Icon(Icons.star, color: Colors.amber, size: 40),
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    '${widget.points}', 
+                    '${widget.points}',
                     style: GoogleFonts.luckiestGuy(
                       fontSize: 40,
                       color: goldText,
@@ -172,9 +172,11 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildTabIcon(index: 0, assetPath: 'assets/icons/gallery.png'),
-                  const SizedBox(width: 60), 
-                  _buildTabIcon(index: 1, assetPath: 'assets/icons/finish-line.png'),
+                  _buildTabIcon(
+                      index: 0, assetPath: 'assets/icons/gallery.png'),
+                  const SizedBox(width: 60),
+                  _buildTabIcon(
+                      index: 1, assetPath: 'assets/icons/finish-line.png'),
                 ],
               ),
 
@@ -190,9 +192,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
               const SizedBox(height: 20),
 
               // --- 5. Content Area ---
-              _selectedTab == 0 
-                  ? _buildGalleryView()    
-                  : _buildGameListView(),
+              _selectedTab == 0 ? _buildGalleryView() : _buildGameListView(),
 
               const SizedBox(height: 40),
             ],
@@ -222,11 +222,11 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
         width: 160,
         height: 160,
         errorBuilder: (context, error, stackTrace) {
-          return _buildDefaultProfileIcon(); 
+          return _buildDefaultProfileIcon();
         },
         loadingBuilder: (context, child, loadingProgress) {
-           if (loadingProgress == null) return child;
-           return Container(color: Colors.grey.shade300);
+          if (loadingProgress == null) return child;
+          return Container(color: Colors.grey.shade300);
         },
       );
     }
@@ -252,10 +252,12 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
     return GestureDetector(
       onTap: () => setState(() => _selectedTab = index),
       child: Container(
-        width: 70, height: 70,
+        width: 70,
+        height: 70,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
-          color: isSelected ? Colors.white.withOpacity(0.5) : Colors.transparent,
+          color:
+              isSelected ? Colors.white.withOpacity(0.5) : Colors.transparent,
           border: isSelected ? Border.all(color: Colors.white, width: 2) : null,
         ),
         padding: const EdgeInsets.all(10),
@@ -264,7 +266,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
           fit: BoxFit.contain,
           color: isSelected ? null : Colors.white.withOpacity(0.6),
           colorBlendMode: isSelected ? null : BlendMode.modulate,
-          errorBuilder: (_,__,___) => const Icon(Icons.image, size: 40),
+          errorBuilder: (_, __, ___) => const Icon(Icons.image, size: 40),
         ),
       ),
     );
@@ -272,7 +274,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
 
   Widget _buildGalleryView() {
     return Container(
-      height: 300, 
+      height: 300,
       alignment: Alignment.center,
     );
   }
@@ -282,11 +284,17 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 24.0),
       child: Column(
         children: [
-          _buildGameButton("PING PONG GAME", Icons.sports_tennis, orangeBtn, () {
-             Navigator.push(context, MaterialPageRoute(builder: (context) => const ActivityHistoryScreen(gameName: 'PING PONG GAME')));
+          _buildGameButton("PING PONG GAME", Icons.sports_tennis, orangeBtn,
+              () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const ActivityHistoryScreen(
+                        gameName: 'PING PONG GAME')));
           }),
           const SizedBox(height: 16),
-          _buildGameButton("MATH GAME", Icons.calculate_outlined, yellowBtn, () {}),
+          _buildGameButton(
+              "MATH GAME", Icons.calculate_outlined, yellowBtn, () {}),
           const SizedBox(height: 16),
           _buildGameButton("WORK OUT GAME", Icons.favorite, pinkBtn, () {}),
         ],
@@ -294,7 +302,8 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
     );
   }
 
-  Widget _buildGameButton(String title, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildGameButton(
+      String title, IconData icon, Color color, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -303,17 +312,27 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(25),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.08), offset: const Offset(0, 4), blurRadius: 6)],
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                offset: const Offset(0, 4),
+                blurRadius: 6)
+          ],
         ),
         child: Row(
           children: [
             Container(
-              width: 50, height: 50,
-              decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle),
+              width: 50,
+              height: 50,
+              decoration: const BoxDecoration(
+                  color: Colors.white, shape: BoxShape.circle),
               child: Icon(icon, color: Colors.black87, size: 30),
             ),
             const SizedBox(width: 16),
-            Expanded(child: Text(title, style: GoogleFonts.luckiestGuy(fontSize: 24, color: Colors.black87))),
+            Expanded(
+                child: Text(title,
+                    style: GoogleFonts.luckiestGuy(
+                        fontSize: 24, color: Colors.black87))),
             const Icon(Icons.chevron_right, size: 36, color: Colors.black54),
           ],
         ),

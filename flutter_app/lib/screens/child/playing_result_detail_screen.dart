@@ -32,7 +32,8 @@ class PlayingResultDetailScreen extends StatelessWidget {
                 children: [
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: const Icon(Icons.arrow_back, size: 35, color: Colors.black87),
+                    child: const Icon(Icons.arrow_back,
+                        size: 35, color: Colors.black87),
                   ),
                   const SizedBox(width: 15),
                   Expanded(
@@ -41,11 +42,13 @@ class PlayingResultDetailScreen extends StatelessWidget {
                       children: [
                         Text(
                           'PLAYING RESULT',
-                          style: GoogleFonts.luckiestGuy(fontSize: 24, color: skyBlue),
+                          style: GoogleFonts.luckiestGuy(
+                              fontSize: 24, color: skyBlue),
                         ),
                         Text(
                           '$date | TIME $sessionNumber',
-                          style: GoogleFonts.luckiestGuy(fontSize: 16, color: Colors.grey),
+                          style: GoogleFonts.luckiestGuy(
+                              fontSize: 16, color: Colors.grey),
                         ),
                       ],
                     ),
@@ -57,15 +60,18 @@ class PlayingResultDetailScreen extends StatelessWidget {
               // 1. Medals Section
               Row(
                 children: [
-                  const Icon(Icons.emoji_events, color: Colors.orange, size: 35),
+                  const Icon(Icons.emoji_events,
+                      color: Colors.orange, size: 35),
                   const SizedBox(width: 10),
                   Text(
                     'MEDALS',
-                    style: GoogleFonts.luckiestGuy(fontSize: 24, color: Colors.orange),
+                    style: GoogleFonts.luckiestGuy(
+                        fontSize: 24, color: Colors.orange),
                   ),
                   const Spacer(),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 10),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
@@ -73,7 +79,8 @@ class PlayingResultDetailScreen extends StatelessWidget {
                     ),
                     child: Text(
                       '$medals',
-                      style: GoogleFonts.luckiestGuy(fontSize: 24, color: Colors.black87),
+                      style: GoogleFonts.luckiestGuy(
+                          fontSize: 24, color: Colors.black87),
                     ),
                   )
                 ],
@@ -95,7 +102,8 @@ class PlayingResultDetailScreen extends StatelessWidget {
                 ),
                 child: Text(
                   "Today I learned about addition! It was fun but a little bit hard at the end.",
-                  style: GoogleFonts.nunito(fontSize: 16, color: Colors.black87),
+                  style:
+                      GoogleFonts.nunito(fontSize: 16, color: Colors.black87),
                 ),
               ),
               const SizedBox(height: 25),
@@ -113,7 +121,8 @@ class PlayingResultDetailScreen extends StatelessWidget {
                   color: Colors.grey.shade300,
                   borderRadius: BorderRadius.circular(20),
                   image: const DecorationImage(
-                    image: NetworkImage('https://picsum.photos/400/300'), // รูปตัวอย่าง
+                    image: NetworkImage(
+                        'https://picsum.photos/400/300'), // รูปตัวอย่าง
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -126,18 +135,21 @@ class PlayingResultDetailScreen extends StatelessWidget {
                   children: [
                     Text(
                       'TIME USED',
-                      style: GoogleFonts.luckiestGuy(fontSize: 20, color: redText),
+                      style:
+                          GoogleFonts.luckiestGuy(fontSize: 20, color: redText),
                     ),
                     const SizedBox(height: 5),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 30, vertical: 10),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(30),
                       ),
                       child: Text(
                         '00:15:30', // เวลาที่ใช้
-                        style: GoogleFonts.luckiestGuy(fontSize: 24, color: skyBlue),
+                        style: GoogleFonts.luckiestGuy(
+                            fontSize: 24, color: skyBlue),
                       ),
                     ),
                   ],

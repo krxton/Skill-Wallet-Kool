@@ -16,7 +16,8 @@ class ProblemsSolvePage extends StatelessWidget {
     final List<Map<String, String>> problems = [
       {
         "title": "1. CATS IN THE FIELD",
-        "question": "THERE ARE 6 CATS IN THE FIELD.\nANOTHER 2 CATS WALK INTO THE FIELD.\nHOW MANY CATS ARE THERE IN TOTAL ?",
+        "question":
+            "THERE ARE 6 CATS IN THE FIELD.\nANOTHER 2 CATS WALK INTO THE FIELD.\nHOW MANY CATS ARE THERE IN TOTAL ?",
         "answer": "THERE ARE 8 CATS IN TOTAL."
       },
       {
@@ -64,19 +65,17 @@ class ProblemsSolvePage extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () {
                 // 🆕 กดแล้วไปหน้า Detail พร้อมส่งข้อมูล
-                Navigator.pushNamed(
-                  context, 
-                  AppRoutes.problemDetail,
-                  arguments: {
-                    "question": item['question'],
-                    "answer": item['answer'],
-                  }
-                );
+                Navigator.pushNamed(context, AppRoutes.problemDetail,
+                    arguments: {
+                      "question": item['question'],
+                      "answer": item['answer'],
+                    });
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: orangeBtn,
                 foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(25),
                 ),
@@ -92,7 +91,8 @@ class ProblemsSolvePage extends StatelessWidget {
                       color: Colors.white,
                     ),
                   ),
-                  const Icon(Icons.chevron_right, size: 30, color: Colors.black87),
+                  const Icon(Icons.chevron_right,
+                      size: 30, color: Colors.black87),
                 ],
               ),
             ),

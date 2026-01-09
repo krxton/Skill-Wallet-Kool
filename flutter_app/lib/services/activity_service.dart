@@ -10,6 +10,7 @@ import 'package:http_parser/http_parser.dart';
 
 import '../models/activity.dart';
 import 'api_service.dart';
+
 class SegmentResult {
   final String id;
   final String text;
@@ -32,6 +33,7 @@ class SegmentResult {
         'audioUrl': audioUrl,
       };
 }
+
 class ActivityService {
   final ApiService _apiService = ApiService();
   static const String _oEmbedEndpoint = 'https://www.tiktok.com/oembed?url=';
@@ -53,6 +55,7 @@ class ActivityService {
       throw Exception('Failed to load TikTok OEmbed data.');
     }
   }
+
   // 1.2 Helper Function: ดึง Activity ทั้งหมดจาก Backend
   Future<List<Activity>> _fetchAllActivities() async {
     try {
@@ -67,6 +70,7 @@ class ActivityService {
       throw Exception('Failed to load ALL activities from backend: $e');
     }
   }
+
   // ----------------------------------------------------
   // 2. DATA FETCHING (Home Screen)
   // ----------------------------------------------------
@@ -94,6 +98,7 @@ class ActivityService {
       return null;
     }
   }
+
   /// 2.2 ดึง Popular Activities (เรียงตามจำนวนรอบการเล่น)
   Future<List<Activity>> fetchPopularActivities(String childId) async {
     try {
@@ -145,6 +150,7 @@ class ActivityService {
       return [];
     }
   }
+
   /// 2.3 ดึง New Activities (เรียงตาม createdAt หรือ id)
   Future<List<Activity>> fetchNewActivities(String childId) async {
     try {
@@ -181,6 +187,7 @@ class ActivityService {
       return [];
     }
   }
+
   // ----------------------------------------------------
   // 3. OTHER SERVICES
   // ----------------------------------------------------
@@ -200,6 +207,7 @@ class ActivityService {
       return null;
     }
   }
+
   // ----------------------------------------------------
   // 4. AI EVALUATION AND QUEST COMPLETION
   // ----------------------------------------------------

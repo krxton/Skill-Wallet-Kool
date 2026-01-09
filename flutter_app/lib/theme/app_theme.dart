@@ -30,27 +30,26 @@ class AppTheme {
     );
 
     // helper: เติม fallback ไทย (Itim) ให้ทุกสไตล์ โดยไม่ยุ่ง fontFamily เดิม
-    TextStyle withThaiFallback(TextStyle? s) =>
-        (s ?? const TextStyle()).merge(
+    TextStyle withThaiFallback(TextStyle? s) => (s ?? const TextStyle()).merge(
           TextStyle(fontFamilyFallback: [thaiFallback]),
         );
 
     tt = tt.copyWith(
-      displayLarge:   withThaiFallback(tt.displayLarge),
-      displayMedium:  withThaiFallback(tt.displayMedium),
-      displaySmall:   withThaiFallback(tt.displaySmall),
-      headlineLarge:  withThaiFallback(tt.headlineLarge),
+      displayLarge: withThaiFallback(tt.displayLarge),
+      displayMedium: withThaiFallback(tt.displayMedium),
+      displaySmall: withThaiFallback(tt.displaySmall),
+      headlineLarge: withThaiFallback(tt.headlineLarge),
       headlineMedium: withThaiFallback(tt.headlineMedium),
-      headlineSmall:  withThaiFallback(tt.headlineSmall),
-      titleLarge:     withThaiFallback(tt.titleLarge),
-      titleMedium:    withThaiFallback(tt.titleMedium),
-      titleSmall:     withThaiFallback(tt.titleSmall),
-      bodyLarge:      withThaiFallback(tt.bodyLarge),
-      bodyMedium:     withThaiFallback(tt.bodyMedium),
-      bodySmall:      withThaiFallback(tt.bodySmall),
-      labelLarge:     withThaiFallback(tt.labelLarge),
-      labelMedium:    withThaiFallback(tt.labelMedium),
-      labelSmall:     withThaiFallback(tt.labelSmall),
+      headlineSmall: withThaiFallback(tt.headlineSmall),
+      titleLarge: withThaiFallback(tt.titleLarge),
+      titleMedium: withThaiFallback(tt.titleMedium),
+      titleSmall: withThaiFallback(tt.titleSmall),
+      bodyLarge: withThaiFallback(tt.bodyLarge),
+      bodyMedium: withThaiFallback(tt.bodyMedium),
+      bodySmall: withThaiFallback(tt.bodySmall),
+      labelLarge: withThaiFallback(tt.labelLarge),
+      labelMedium: withThaiFallback(tt.labelMedium),
+      labelSmall: withThaiFallback(tt.labelSmall),
     );
 
     return base.copyWith(
@@ -59,10 +58,8 @@ class AppTheme {
         seedColor: yellow,
         surface: cream,
       ),
-
       textTheme: tt,
       primaryTextTheme: tt,
-
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: sky,
@@ -76,7 +73,6 @@ class AppTheme {
           ),
         ),
       ),
-
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: pink,
@@ -85,7 +81,6 @@ class AppTheme {
           ),
         ),
       ),
-
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
@@ -100,7 +95,6 @@ class AppTheme {
           ),
         ),
       ),
-
       appBarTheme: AppBarTheme(
         backgroundColor: cream,
         elevation: 0,

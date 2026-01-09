@@ -9,16 +9,17 @@ class ProblemAnswerPage extends StatelessWidget {
   static const sky = Color(0xFF0D92F4);
   static const textBlue = Color(0xFF5AB2FF);
   static const limeGreen = Color(0xFFDCE775); // สีพื้นหลังเฉลย (เขียวอ่อน)
-  static const darkText = Color(0xFF555555);  // สีตัวหนังสือเฉลย
+  static const darkText = Color(0xFF555555); // สีตัวหนังสือเฉลย
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, dynamic> args = 
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ?? {};
+    final Map<String, dynamic> args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ??
+            {};
 
-    final String question = args['question'] ?? 
+    final String question = args['question'] ??
         "THERE ARE 6 CATS IN THE FIELD.\nANOTHER 2 CATS WALK INTO THE FIELD.\nHOW MANY CATS ARE THERE IN TOTAL ?";
-    
+
     final String answer = args['answer'] ?? "THERE ARE 8 CATS IN TOTAL.";
 
     return Scaffold(

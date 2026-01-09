@@ -81,7 +81,8 @@ class AnswerPlusPage extends StatelessWidget {
                 final item = answers[index];
                 return Container(
                   margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
                   decoration: BoxDecoration(
                     color: orangeItem,
                     borderRadius: BorderRadius.circular(25),
@@ -112,7 +113,7 @@ class AnswerPlusPage extends StatelessWidget {
               },
             ),
           ),
-          
+
           const SizedBox(height: 20), // เว้นระยะด้านล่างเล็กน้อย
         ],
       ),

@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 
 import '../../../providers/user_provider.dart';
-import '../../../routes/app_routes.dart'; 
+import '../../../routes/app_routes.dart';
 import 'name_setting_screen.dart';
 
 class ProfileSettingScreen extends StatefulWidget {
@@ -41,15 +42,26 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
       builder: (BuildContext ctx) {
         return AlertDialog(
           backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: Text(
-            'DELETE ACCOUNT?',
-            style: GoogleFonts.luckiestGuy(fontSize: 24, color: pinkRed),
+            AppLocalizations.of(context)!.profileSet_deleteDialogTitle,
+            style: TextStyle(
+              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+              fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+              fontSize: 24,
+              color: pinkRed,
+            ),
             textAlign: TextAlign.center,
           ),
           content: Text(
-            'Are you sure you want to delete your account? This action cannot be undone.',
-            style: GoogleFonts.openSans(fontSize: 16, color: Colors.black87),
+            AppLocalizations.of(context)!.profilesetting_areusureBtn,
+            style: TextStyle(
+              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+              fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+              fontSize: 16,
+              color: Colors.black87,
+            ),
             textAlign: TextAlign.center,
           ),
           actionsAlignment: MainAxisAlignment.center,
@@ -58,8 +70,13 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
             TextButton(
               onPressed: () => Navigator.pop(ctx),
               child: Text(
-                'CANCEL',
-                style: GoogleFonts.luckiestGuy(fontSize: 18, color: Colors.grey),
+                AppLocalizations.of(context)!.profilesetting_cancelBtn,
+                style: TextStyle(
+                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                  fontSize: 18,
+                  color: Colors.grey,
+                ),
               ),
             ),
             const SizedBox(width: 10),
@@ -70,8 +87,13 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
                 _performDeleteAccount(); // เรียกฟังก์ชันลบ
               },
               child: Text(
-                'DELETE',
-                style: GoogleFonts.luckiestGuy(fontSize: 18, color: pinkRed),
+                AppLocalizations.of(context)!.profilesetting_deleteBtn,
+                style: TextStyle(
+                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                  fontSize: 18,
+                  color: pinkRed,
+                ),
               ),
             ),
           ],
@@ -87,8 +109,8 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
 
     // 2. ดีดกลับไปหน้า Welcome (หรือ Login) และลบประวัติการเปิดหน้าทั้งหมดทิ้ง
     Navigator.pushNamedAndRemoveUntil(
-      context, 
-      AppRoutes.welcome, 
+      context,
+      AppRoutes.welcome,
       (route) => false,
     );
   }
@@ -139,7 +161,8 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
                               : null,
                         ),
                         child: profileImageBytes == null
-                            ? const Icon(Icons.person, size: 80, color: Colors.grey)
+                            ? const Icon(Icons.person,
+                                size: 80, color: Colors.grey)
                             : null,
                       ),
                       Positioned(
@@ -168,11 +191,12 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
 
               // --- Name Label ---
               Text(
-                'NAME',
-                style: GoogleFonts.luckiestGuy(
-                  fontSize: 20,
-                  color: textGrey,
-                ),
+                AppLocalizations.of(context)!.profilesetting_nameBtn,
+                style: TextStyle(
+                    fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                    fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                    fontSize: 20,
+                    color: textGrey),
               ),
 
               const SizedBox(height: 12),
@@ -194,7 +218,9 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
                     children: [
                       Text(
                         parentName,
-                        style: GoogleFonts.luckiestGuy(
+                        style: TextStyle(
+                          fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                          fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
                           fontSize: 24,
                           color: Colors.black87,
                         ),
@@ -214,14 +240,15 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
               // --- Delete Account Button ---
               GestureDetector(
                 onTap: () {
-                   _showDeleteConfirmation(context);
+                  _showDeleteConfirmation(context);
                 },
                 child: Text(
-                  'DELETE ACCOUNT',
-                  style: GoogleFonts.luckiestGuy(
-                    fontSize: 20,
-                    color: pinkRed,
-                  ),
+                  AppLocalizations.of(context)!.profilesetting_deleteaccoutBtn,
+                  style: TextStyle(
+                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                      fontSize: 20,
+                      color: pinkRed),
                 ),
               ),
             ],

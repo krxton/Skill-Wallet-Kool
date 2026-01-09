@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 
 import 'add_child_screen.dart';
 import 'manage_child_screen.dart';
@@ -20,7 +21,11 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
 
   // ข้อมูล Mock Data (รายชื่อเด็ก)
   List<Map<String, dynamic>> children = [
-    {'name': 'KRATON', 'score': 1000000, 'img': 'https://i.pravatar.cc/150?img=1'},
+    {
+      'name': 'KRATON',
+      'score': 1000000,
+      'img': 'https://i.pravatar.cc/150?img=1'
+    },
     {'name': 'GOLF', 'score': 300, 'img': 'https://i.pravatar.cc/150?img=8'},
   ];
 
@@ -38,7 +43,7 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
     }
   }
 
-  // ✅ ฟังก์ชันจัดการเด็ก (แก้ไขแล้ว: ส่ง score ไปด้วย)
+  // ✅ ฟังก์ชันจัดการเด็ก
   void _manageChild(int index) async {
     final child = children[index];
 
@@ -48,7 +53,7 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
         builder: (context) => ManageChildScreen(
           name: child['name'],
           imageUrl: child['img'],
-          score: child['score'], // ✅ ส่งคะแนนไปด้วย เพื่อแก้ Error
+          score: child['score'],
         ),
       ),
     );
@@ -82,8 +87,10 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
         ),
         centerTitle: true,
         title: Text(
-          'CHILD SETTING',
-          style: GoogleFonts.luckiestGuy(
+          AppLocalizations.of(context)!.childsetting_childsettingBtn,
+          style: TextStyle(
+            fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+            fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
             fontSize: 24,
             color: sky,
             letterSpacing: 1.5,
@@ -133,14 +140,22 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                       children: [
                         Text(
                           child['name'],
-                          style: GoogleFonts.luckiestGuy(
+                          style: TextStyle(
+                            fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                            fontFamilyFallback: [
+                              GoogleFonts.itim().fontFamily!
+                            ],
                             fontSize: 24,
                             color: Colors.black87,
                           ),
                         ),
                         Text(
-                          'SCORE : ${child['score']}',
-                          style: GoogleFonts.luckiestGuy(
+                          '${AppLocalizations.of(context)!.childsetting_scoreBtn} : ${child['score']}',
+                          style: TextStyle(
+                            fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                            fontFamilyFallback: [
+                              GoogleFonts.itim().fontFamily!
+                            ],
                             fontSize: 14,
                             color: Colors.grey,
                           ),
@@ -150,7 +165,7 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Buttons Row
                 Row(
                   children: [
@@ -173,20 +188,29 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                             );
                           },
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: Colors.black, width: 2),
+                            side:
+                                const BorderSide(color: Colors.black, width: 2),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15),
                             ),
                           ),
                           child: Text(
-                            'VIEW PROFILE',
-                            style: GoogleFonts.luckiestGuy(fontSize: 14, color: Colors.black),
+                            AppLocalizations.of(context)!
+                                .childsetting_viewprofileBtn,
+                            style: TextStyle(
+                              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                              fontFamilyFallback: [
+                                GoogleFonts.itim().fontFamily!
+                              ],
+                              fontSize: 14,
+                              color: Colors.black,
+                            ),
                           ),
                         ),
                       ),
                     ),
                     const SizedBox(width: 10),
-                    
+
                     // Manage Button
                     Expanded(
                       child: SizedBox(
@@ -197,14 +221,23 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                             _manageChild(index);
                           },
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: Colors.black, width: 2),
+                            side:
+                                const BorderSide(color: Colors.black, width: 2),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15),
                             ),
                           ),
                           child: Text(
-                            'MANAGE',
-                            style: GoogleFonts.luckiestGuy(fontSize: 14, color: Colors.black),
+                            AppLocalizations.of(context)!
+                                .childsetting_manageBtn,
+                            style: TextStyle(
+                              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                              fontFamilyFallback: [
+                                GoogleFonts.itim().fontFamily!
+                              ],
+                              fontSize: 14,
+                              color: Colors.black,
+                            ),
                           ),
                         ),
                       ),

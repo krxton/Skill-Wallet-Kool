@@ -17,16 +17,18 @@ class ChildPostScreen extends StatelessWidget {
           children: [
             // --- 2. Custom Header (ส่วนหัวทำเอง) ---
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   // ปุ่มย้อนกลับ (ลูกศร)
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: const Icon(Icons.arrow_back, size: 30, color: Colors.black87),
+                    child: const Icon(Icons.arrow_back,
+                        size: 30, color: Colors.black87),
                   ),
-                  
+
                   // ชื่อหัวข้อ (MY GALLERY)
                   Text(
                     'MY GALLERY',
@@ -51,23 +53,20 @@ class ChildPostScreen extends StatelessWidget {
                   children: [
                     // รูปไอคอน Gallery (ทำให้จางลงนิดหน่อย เพื่อสื่อว่ายังไม่มีรูป)
                     Opacity(
-                      opacity: 0.5, 
+                      opacity: 0.5,
                       child: Image.asset(
                         'assets/icons/gallery.png', // ใช้รูปเดียวกับหน้า Profile
                         width: 120,
                         height: 120,
                         fit: BoxFit.contain,
                         // ถ้าหารูปไม่เจอ ให้โชว์ไอคอนแทน
-                        errorBuilder: (_,__,___) => const Icon(
-                          Icons.image, 
-                          size: 100, 
-                          color: Colors.grey
-                        ),
+                        errorBuilder: (_, __, ___) => const Icon(Icons.image,
+                            size: 100, color: Colors.grey),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 20),
-                    
+
                     // ข้อความแจ้งเตือน
                     Text(
                       "NO POSTS YET",

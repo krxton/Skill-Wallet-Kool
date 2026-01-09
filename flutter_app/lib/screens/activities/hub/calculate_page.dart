@@ -36,7 +36,7 @@ class CalculatePage extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 20),
-            
+
             // PLUS + (ไปหน้า PlusPage)
             _buildMenuButton(context, 'PLUS +', () {
               Navigator.pushNamed(context, AppRoutes.plusPage);
@@ -65,7 +65,8 @@ class CalculatePage extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuButton(BuildContext context, String title, VoidCallback onTap) {
+  Widget _buildMenuButton(
+      BuildContext context, String title, VoidCallback onTap) {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       child: ElevatedButton(

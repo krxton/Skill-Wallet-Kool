@@ -33,13 +33,15 @@ class ActivityHistoryScreen extends StatelessWidget {
                 children: [
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: const Icon(Icons.arrow_back, size: 35, color: Colors.black87),
+                    child: const Icon(Icons.arrow_back,
+                        size: 35, color: Colors.black87),
                   ),
                   const SizedBox(width: 15),
                   Expanded(
                     child: Text(
                       gameName,
-                      style: GoogleFonts.luckiestGuy(fontSize: 26, color: skyBlue),
+                      style:
+                          GoogleFonts.luckiestGuy(fontSize: 26, color: skyBlue),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -80,7 +82,10 @@ class ActivityHistoryScreen extends StatelessWidget {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
-                          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5, offset: const Offset(0, 3)),
+                          BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 5,
+                              offset: const Offset(0, 3)),
                         ],
                       ),
                       child: Row(
@@ -92,20 +97,23 @@ class ActivityHistoryScreen extends StatelessWidget {
                               const SizedBox(width: 15),
                               Text(
                                 '${item['date']}',
-                                style: GoogleFonts.luckiestGuy(fontSize: 22, color: Colors.black87),
+                                style: GoogleFonts.luckiestGuy(
+                                    fontSize: 22, color: Colors.black87),
                               ),
                             ],
                           ),
                           // Badge บอกจำนวนครั้งที่เล่น
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
                               color: cardBlue,
                               borderRadius: BorderRadius.circular(15),
                             ),
                             child: Text(
                               '${item['count']} TIMES',
-                              style: GoogleFonts.luckiestGuy(fontSize: 14, color: Colors.white),
+                              style: GoogleFonts.luckiestGuy(
+                                  fontSize: 14, color: Colors.white),
                             ),
                           ),
                         ],

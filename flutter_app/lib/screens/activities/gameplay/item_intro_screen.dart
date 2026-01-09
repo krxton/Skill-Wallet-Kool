@@ -117,7 +117,8 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
     if (_youtubeVideoId.isNotEmpty) {
       _ytController = yp.YoutubePlayerController.fromVideoId(
         videoId: _youtubeVideoId,
-        autoPlay: false, // ✅ autoPlay อยู่ตรงนี้ (constructor) ไม่ใช่ใน params แล้ว
+        autoPlay:
+            false, // ✅ autoPlay อยู่ตรงนี้ (constructor) ไม่ใช่ใน params แล้ว
         params: const yp.YoutubePlayerParams(
           showControls: true,
           showFullscreenButton: true,
@@ -634,8 +635,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
   }
 
   Widget _statusCard(SegmentResult result) {
-    final String recognizedTextDisplay =
-        result.recognizedText?.trim() ?? "N/A";
+    final String recognizedTextDisplay = result.recognizedText?.trim() ?? "N/A";
 
     final statusText = switch (state) {
       'processing' => 'STATUS: AI PROCESSING…',

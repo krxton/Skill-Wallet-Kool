@@ -26,6 +26,9 @@ dependencies:
   url_launcher: ^6.3.2
   flutter_dotenv: ^6.0.0
   image_picker: ^1.2.1
+  flutter_localizations:
+    sdk: flutter
+  intl: any
 
 dev_dependencies:
   flutter_test:
@@ -34,6 +37,7 @@ dev_dependencies:
   test: any
 
 flutter:
+  generate: true
   uses-material-design: true
   assets:
     - assets/images/SWK_home.png

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({
@@ -20,6 +21,12 @@ class HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final thaiFallback = [GoogleFonts.itim().fontFamily!];
+    Map<String, String> categoryTitle = {
+      'CATEGORY': AppLocalizations.of(context)!.home_categoryBtn,
+      'PHYSICAL': AppLocalizations.of(context)!.home_physicalBtn,
+      'LANGUAGE': AppLocalizations.of(context)!.home_languageBtn,
+      'CALCULATION': AppLocalizations.of(context)!.home_calculationBtn,
+    };
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,8 +99,8 @@ class HomeHeader extends StatelessWidget {
               value: categoryValue,
               borderRadius: BorderRadius.circular(16),
               dropdownColor: deepSky,
-              icon: const Icon(Icons.keyboard_arrow_down,
-                  color: Colors.black87),
+              icon:
+                  const Icon(Icons.keyboard_arrow_down, color: Colors.black87),
               style: GoogleFonts.luckiestGuy(
                 fontSize: 20,
                 color: Colors.white,
@@ -105,8 +112,8 @@ class HomeHeader extends StatelessWidget {
                 'CALCULATION',
               ]
                   .map(
-                    (v) =>
-                        DropdownMenuItem<String>(value: v, child: Text(v)),
+                    (v) => DropdownMenuItem<String>(
+                        value: v, child: Text(categoryTitle[v]!)),
                   )
                   .toList(),
               onChanged: onCategoryChanged,

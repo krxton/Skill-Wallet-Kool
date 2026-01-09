@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import '../../providers/user_provider.dart';
-import 'settings/setting_screen.dart'; 
+import 'settings/setting_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -25,7 +26,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     if (picked != null) {
       final bytes = await picked.readAsBytes();
-      
+
       if (!mounted) return;
       // ส่งรูปไปเก็บใน Provider เพื่อให้หน้า Setting เอาไปใช้ได้
       context.read<UserProvider>().setProfileImage(bytes);
@@ -127,12 +128,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'POST',
-                        style: GoogleFonts.luckiestGuy(
-                          fontSize: 18,
-                          color: deepGrey,
-                        ),
-                      ),
+                      AppLocalizations.of(context)!.parentprofile_postBtn,
+                      style: TextStyle(
+                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                      fontSize: 18,
+                      color: Colors.black),
+                ),
                     ],
                   ),
                   const SizedBox(height: 8),

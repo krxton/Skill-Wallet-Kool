@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 
 import '../../routes/app_routes.dart';
 import '../../providers/user_provider.dart';
@@ -97,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
           if (mounted) setState(() => _categoryValue = 'CATEGORY');
         });
       });
-    } 
+    }
     // 🆕 เพิ่มเงื่อนไขสำหรับ Calculation ตรงนี้ครับ
     else if (value.toUpperCase() == 'CALCULATION') {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -355,7 +356,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   /// เนื้อหาของ "หน้า Home" (ไม่มี bottom bar)
-  Widget _buildHomeBody() {
+  Widget _buildHomeBody(BuildContext context) {
     if (_currentChildId == null) {
       return const Center(
         child: CircularProgressIndicator(color: sky),
@@ -392,12 +393,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   snapshot.data!.isEmpty) {
                 return Center(
                   child: Text(
-                    'Cannot load popular activities',
+                    AppLocalizations.of(context)!.home_cannotBtn,
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.luckiestGuy(
-                      fontSize: 16,
-                      color: Colors.black87,
-                    ).copyWith(fontFamilyFallback: _thaiFallback),
+                    style: TextStyle(
+                        fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                        fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                        fontSize: 16,
+                        color: Colors.black),
                   ),
                 );
               }
@@ -455,14 +457,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             if (_currentCarouselPage == 0) {
                               _carouselController.animateToPage(
                                 topActivities.length - 1,
-                                duration:
-                                    const Duration(milliseconds: 300),
+                                duration: const Duration(milliseconds: 300),
                                 curve: Curves.easeInOut,
                               );
                             } else {
                               _carouselController.previousPage(
-                                duration:
-                                    const Duration(milliseconds: 300),
+                                duration: const Duration(milliseconds: 300),
                                 curve: Curves.easeInOut,
                               );
                             }
@@ -486,14 +486,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                 topActivities.length - 1) {
                               _carouselController.animateToPage(
                                 0,
-                                duration:
-                                    const Duration(milliseconds: 300),
+                                duration: const Duration(milliseconds: 300),
                                 curve: Curves.easeInOut,
                               );
                             } else {
                               _carouselController.nextPage(
-                                duration:
-                                    const Duration(milliseconds: 300),
+                                duration: const Duration(milliseconds: 300),
                                 curve: Curves.easeInOut,
                               );
                             }
@@ -514,27 +512,28 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'POPULAR ACTIVITIES',
-              style: GoogleFonts.luckiestGuy(
-                fontSize: 20,
-                color: Colors.black,
-              ).copyWith(fontFamilyFallback: _thaiFallback),
-            ),
-            const Text(
-              'View All',
+              AppLocalizations.of(context)!.home_popularactivityBtn,
               style: TextStyle(
-                fontSize: 14,
-                color: sky,
-                fontWeight: FontWeight.bold,
-              ),
+                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                  fontSize: 20,
+                  color: Colors.black),
             ),
+            Text(
+              AppLocalizations.of(context)!.home_viewallBtn,
+              style: TextStyle(
+                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                      fontSize: 16,
+                      color: sky),
+                ),
           ],
         ),
         const SizedBox(height: 12),
         ScrollableActivityList(
           future: _popularActivitiesFuture,
           controller: _popularScrollController,
-          emptyMessage: 'Cannot load popular activities',
+          emptyMessage: AppLocalizations.of(context)!.home_cannotBtn,
           onDragStart: (dx) => _popularDragStart = dx,
           onDragUpdate: (dx) {
             final delta = _popularDragStart - dx;
@@ -553,27 +552,28 @@ class _HomeScreenState extends State<HomeScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'NEW ACTIVITIES',
-              style: GoogleFonts.luckiestGuy(
-                fontSize: 20,
-                color: Colors.black,
-              ).copyWith(fontFamilyFallback: _thaiFallback),
-            ),
-            const Text(
-              'View All',
+              AppLocalizations.of(context)!.home_newactivityBtn,
               style: TextStyle(
-                fontSize: 14,
-                color: sky,
-                fontWeight: FontWeight.bold,
-              ),
+                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                  fontSize: 20,
+                  color: Colors.black),
             ),
+            Text(
+              AppLocalizations.of(context)!.home_viewallBtn,
+              style: TextStyle(
+                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                      fontSize: 16,
+                      color: sky),
+                ),
           ],
         ),
         const SizedBox(height: 12),
         ScrollableActivityList(
           future: _newActivitiesFuture,
           controller: _newScrollController,
-          emptyMessage: 'No new activities available',
+          emptyMessage: AppLocalizations.of(context)!.home_nonewBtn,
           onDragStart: (dx) => _newDragStart = dx,
           onDragUpdate: (dx) {
             final delta = _newDragStart - dx;
@@ -594,7 +594,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     // 0 = Home, 2 = Profile  (1 = + ใช้เปิดหน้าใหม่ด้วย Navigator)
     final pages = <Widget>[
-      _buildHomeBody(),
+      _buildHomeBody(context),
       const ProfileScreen(),
     ];
 
@@ -619,7 +619,6 @@ class _HomeScreenState extends State<HomeScreen> {
           selectedIndex: _selectedTab,
           onTabSelected: (i) {
             if (i == 1) {
-              
               // Navigator.pushNamed(context, AppRoutes.addActivity);
               return;
             }
