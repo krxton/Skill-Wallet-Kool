@@ -20,18 +20,21 @@ class HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final thaiFallback = [GoogleFonts.itim().fontFamily!];
+    // 1. ดึง Localizations มาเตรียมไว้
+    final loc = AppLocalizations.of(context)!;
+
+    // 2. สร้าง Map สำหรับแปลง Key เป็น Text ภาษาปัจจุบัน
     Map<String, String> categoryTitle = {
-      'CATEGORY': AppLocalizations.of(context)!.home_categoryBtn,
-      'PHYSICAL': AppLocalizations.of(context)!.home_physicalBtn,
-      'LANGUAGE': AppLocalizations.of(context)!.home_languageBtn,
-      'CALCULATION': AppLocalizations.of(context)!.home_calculationBtn,
+      'CATEGORY': loc.home_categoryBtn,
+      'PHYSICAL': loc.home_physicalBtn,
+      'LANGUAGE': loc.home_languageBtn,
+      'CALCULATION': loc.home_calculationBtn,
     };
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Search pill
+        // --- Search pill ---
         Container(
           height: 56,
           padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -52,12 +55,21 @@ class HomeHeader extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: TextField(
-                  style: const TextStyle(fontSize: 16, color: Colors.black),
-                  decoration: const InputDecoration(
-                    hintText: 'SEARCH...',
+                  style: TextStyle(
+                    fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                    fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                    fontSize: 16,
+                    color: Colors.black,
+                  ),
+                  decoration: InputDecoration(
+                    // ใช้ Text จาก AppLocalizations
+                    hintText: loc.home_searchBtn, 
+                    // ปรับ Style Hint ให้รองรับภาษาไทย
                     hintStyle: TextStyle(
+                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
                       color: Colors.black54,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 16,
                       letterSpacing: .5,
                     ),
                     border: InputBorder.none,
@@ -66,7 +78,7 @@ class HomeHeader extends StatelessWidget {
                     filled: true,
                     fillColor: Colors.transparent,
                     isDense: true,
-                    contentPadding: EdgeInsets.symmetric(vertical: 12),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
                   ),
                 ),
               ),
@@ -77,17 +89,21 @@ class HomeHeader extends StatelessWidget {
         ),
         const SizedBox(height: 20),
 
+        // --- Parent Name ---
         if (parentName != null && parentName!.isNotEmpty)
           Text(
             parentName!,
-            style: GoogleFonts.luckiestGuy(
+            style: TextStyle(
+              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+              fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
               fontSize: 28,
               height: 1.0,
               color: sky,
-            ).copyWith(fontFamilyFallback: thaiFallback),
+            ),
           ),
         const SizedBox(height: 12),
 
+        // --- Dropdown Category ---
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
           decoration: BoxDecoration(
@@ -101,10 +117,13 @@ class HomeHeader extends StatelessWidget {
               dropdownColor: deepSky,
               icon:
                   const Icon(Icons.keyboard_arrow_down, color: Colors.black87),
-              style: GoogleFonts.luckiestGuy(
+              // Style ของตัวที่เลือกโชว์อยู่
+              style: TextStyle(
+                fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
                 fontSize: 20,
                 color: Colors.white,
-              ).copyWith(fontFamilyFallback: thaiFallback),
+              ),
               items: const [
                 'CATEGORY',
                 'PHYSICAL',
@@ -113,7 +132,18 @@ class HomeHeader extends StatelessWidget {
               ]
                   .map(
                     (v) => DropdownMenuItem<String>(
-                        value: v, child: Text(categoryTitle[v]!)),
+                      value: v,
+                      child: Text(
+                        categoryTitle[v]!,
+                        // Style ของตัวเลือกใน Dropdown (เผื่อต้องการปรับแยก)
+                        style: TextStyle(
+                          fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                          fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                          fontSize: 20,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
                   )
                   .toList(),
               onChanged: onCategoryChanged,

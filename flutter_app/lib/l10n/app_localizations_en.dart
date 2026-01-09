@@ -81,7 +81,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get register_additionalBtn => 'ADDITIONAL INFORMATION';
 
   @override
-  String get register_namesurnamechildBtn => 'NAME & SURNAME (CHILDREN) ';
+  String register_namesurnamechildBtn(Object index) {
+    return 'NAME & SURNAME (CHILDREN) #$index';
+  }
 
   @override
   String get register_birthdayBtn => 'BIRTHDAY : DD/MM/YYYY';

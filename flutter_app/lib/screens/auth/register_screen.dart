@@ -134,7 +134,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        'NAME & SURNAME (CHILDREN) #${i + 1}',
+                        AppLocalizations.of(context)!
+                            .register_namesurnamechildBtn(i + 1),
                         style: GoogleFonts.luckiestGuy(
                             fontSize: 16, color: redLabel),
                         overflow: TextOverflow.ellipsis,
