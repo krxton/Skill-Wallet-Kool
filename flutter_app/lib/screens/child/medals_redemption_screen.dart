@@ -216,7 +216,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('OK', style: _getTextStyle(18, Palette.sky)),
+            child: Text(AppLocalizations.of(context)!.addchild_okBtn, style: _getTextStyle(18, Palette.sky)),
           )
         ],
       ),
@@ -554,6 +554,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
   Widget _buildActivityRow(String title) {
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
+      // แก้ไข 1: เปลี่ยน OutlineCard เป็น _OutlineCard
       child: _OutlineCard(
         onTap: () {},
         child: Row(
@@ -562,6 +563,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
             Expanded(
               child: Text(
                 title,
+                // แก้ไข 2: เปลี่ยน luckiestH เป็น _getTextStyle
                 style: _getTextStyle(18, Colors.black),
               ),
             ),
@@ -573,6 +575,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
               ),
               child: Text(
                 AppLocalizations.of(context)!.redemption_playBtn,
+                // แก้ไข 3: เปลี่ยน luckiestH เป็น _getTextStyle
                 style: _getTextStyle(16, Palette.sky),
               ),
             ),

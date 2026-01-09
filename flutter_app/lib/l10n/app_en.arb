@@ -136,6 +136,7 @@
   "medalredemption_activitiesBtn": "ACTIVITIES",
   "medalredemption_currentscoreBtn":"CURRENT SCORE",
   "medalredemption_rewardshopBtn":"REWARDS SHOP",
+  "medalredemption_successfullyBtn":"Successfully Redeemed",
 
   "physical_snackNoEvidence": "Please attach video or image evidence.",
   "physical_snackInvalidScore": "Please set a valid score (1 to {maxScore}).",
