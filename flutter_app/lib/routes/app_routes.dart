@@ -30,8 +30,8 @@ import '../screens/activities/hub/problem_playing_page.dart';
 
 // --- Child Management Screens ---
 // ✅ แก้ไข Path ให้ตรงกับที่คุณเก็บไฟล์ (lib/screens/child/)
-import '../screens/child/child_setting_screen.dart'; 
-import '../screens/child/add_child_screen.dart'; 
+import '../screens/child/child_setting_screen.dart';
+import '../screens/child/add_child_screen.dart';
 
 class AppRoutes {
   // --- Core Routes ---
@@ -54,11 +54,11 @@ class AppRoutes {
 
   // --- Calculation Hub Routes ---
   static const String calculateHub = '/calculate-hub';
-  
+
   // Plus (Math) Routes
   static const String plusPage = '/plus-page';
   static const String answerPlus = '/answer-plus';
-  
+
   // Problems Solve Routes
   static const String problemsSolve = '/problems-solve';
   static const String problemDetail = '/problem-detail';
@@ -66,8 +66,8 @@ class AppRoutes {
   static const String problemPlaying = '/problem-playing';
 
   // --- Child Management Routes ---
-  static const String childSetting = '/child-setting'; 
-  static const String addChild = '/add-child';         
+  static const String childSetting = '/child-setting';
+  static const String addChild = '/add-child';
 
   static Map<String, WidgetBuilder> get routes => <String, WidgetBuilder>{
         // Core

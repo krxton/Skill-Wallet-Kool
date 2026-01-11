@@ -27,17 +27,17 @@ class LanguageHubScreen extends StatelessWidget {
         children: [
           _SearchBar(),
           const SizedBox(height: 14),
-
           Row(
             children: [
               const Icon(Icons.school_outlined, size: 18),
               const SizedBox(width: 8),
-              Text('LANGUAGE TRAINING', style: GoogleFonts.luckiestGuy(fontSize: 16)),
+              Text('LANGUAGE TRAINING',
+                  style: GoogleFonts.luckiestGuy(fontSize: 16)),
             ],
           ),
           const SizedBox(height: 18),
-
-          Text('LISTENING AND SPEAKING', style: luckiestH(18, color: Palette.sky)),
+          Text('LISTENING AND SPEAKING',
+              style: luckiestH(18, color: Palette.sky)),
           const SizedBox(height: 12),
           Wrap(
             spacing: 12,
@@ -47,23 +47,25 @@ class LanguageHubScreen extends StatelessWidget {
                 label: 'EASY',
                 bg: Palette.green,
                 fg: Colors.white,
-                onTap: () => _openList(context, 'LISTENING AND SPEAKING', 'EASY'),
+                onTap: () =>
+                    _openList(context, 'LISTENING AND SPEAKING', 'EASY'),
               ),
               PillButton(
                 label: 'MEDIUM',
                 bg: Palette.yellow,
                 fg: Colors.black,
-                onTap: () => _openList(context, 'LISTENING AND SPEAKING', 'MEDIUM'),
+                onTap: () =>
+                    _openList(context, 'LISTENING AND SPEAKING', 'MEDIUM'),
               ),
               PillButton(
                 label: 'DIFFICULT',
                 bg: Palette.red,
                 fg: Colors.white,
-                onTap: () => _openList(context, 'LISTENING AND SPEAKING', 'DIFFICULT'),
+                onTap: () =>
+                    _openList(context, 'LISTENING AND SPEAKING', 'DIFFICULT'),
               ),
             ],
           ),
-
           const SizedBox(height: 24),
           Text('FILL IN THE BLANKS', style: luckiestH(18, color: Palette.sky)),
           const SizedBox(height: 12),
@@ -71,9 +73,21 @@ class LanguageHubScreen extends StatelessWidget {
             spacing: 12,
             runSpacing: 10,
             children: [
-              PillButton(label: 'EASY', bg: Palette.green, fg: Colors.white, onTap: () {}),
-              PillButton(label: 'MEDIUM', bg: Palette.yellow, fg: Colors.black, onTap: () {}),
-              PillButton(label: 'DIFFICULT', bg: Palette.red, fg: Colors.white, onTap: () {}),
+              PillButton(
+                  label: 'EASY',
+                  bg: Palette.green,
+                  fg: Colors.white,
+                  onTap: () {}),
+              PillButton(
+                  label: 'MEDIUM',
+                  bg: Palette.yellow,
+                  fg: Colors.black,
+                  onTap: () {}),
+              PillButton(
+                  label: 'DIFFICULT',
+                  bg: Palette.red,
+                  fg: Colors.white,
+                  onTap: () {}),
             ],
           ),
         ],
@@ -104,7 +118,9 @@ class _SearchBar extends StatelessWidget {
         children: [
           Icon(Icons.menu_rounded, size: 18),
           SizedBox(width: 10),
-          Expanded(child: Text('search...', style: TextStyle(color: Colors.black54))),
+          Expanded(
+              child:
+                  Text('search...', style: TextStyle(color: Colors.black54))),
           Icon(Icons.search, size: 20),
         ],
       ),

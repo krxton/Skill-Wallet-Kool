@@ -109,8 +109,7 @@ class VideoDetailScreen extends StatelessWidget {
               ),
               child: Text(
                 description,
-                style:
-                    GoogleFonts.openSans(fontSize: 15, color: Colors.black),
+                style: GoogleFonts.openSans(fontSize: 15, color: Colors.black),
               ),
             ),
             const SizedBox(height: 20),
@@ -128,8 +127,7 @@ class VideoDetailScreen extends StatelessWidget {
               ),
               child: Text(
                 content,
-                style:
-                    GoogleFonts.openSans(fontSize: 15, color: Colors.black),
+                style: GoogleFonts.openSans(fontSize: 15, color: Colors.black),
               ),
             ),
             const SizedBox(height: 20),
@@ -139,8 +137,7 @@ class VideoDetailScreen extends StatelessWidget {
               children: [
                 _buildInfoPill('Category: ${activity.category}', sky),
                 _buildInfoPill('Difficulty: ${activity.difficulty}', sky),
-                _buildInfoPill(
-                    'Max Score: ${activity.maxScore}', Colors.green),
+                _buildInfoPill('Max Score: ${activity.maxScore}', Colors.green),
               ],
             ),
             const SizedBox(height: 20),
@@ -163,8 +160,7 @@ class VideoDetailScreen extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: sky,
                       foregroundColor: Colors.white,
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                   ),
                 ),
@@ -182,8 +178,7 @@ class VideoDetailScreen extends StatelessWidget {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.grey.shade400,
                       foregroundColor: deepGrey,
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                   ),
                 ),
@@ -198,8 +193,7 @@ class VideoDetailScreen extends StatelessWidget {
 
   Widget _buildInfoPill(String text, Color color) {
     return Container(
-      padding:
-          const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(20),

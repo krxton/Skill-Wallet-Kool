@@ -1,0 +1,246 @@
+{
+  "welcome_playBtn": "PLAY",
+  "welcome_signUpBtn": "SIGN-UP",
+  "welcome_signInBtn": "LOG IN",
+
+  "home_categoryBtn": "CATEGORY",
+  "home_physicalBtn": "PHYSICAL",
+  "home_languageBtn": "LANGUAGE",
+  "home_calculationBtn": "CALCULATION",
+  "home_cannotBtn": "Cannot load popular activities",
+  "home_nonewBtn": "No new activities available",
+  "home_popularactivityBtn": "POPULAR ACTIVITIES",
+  "home_newactivityBtn": "NEW ACTIVITIES",
+  "home_viewallBtn": "View All",
+  "home_searchBtn": "SEARCH",
+  "home_bannerLanguage": "LANGUAGE TRAINING",
+  "home_bannerCalculate": "CALCULATE",
+  "home_bannerProblems": "PROBLEMS SOLVE",
+
+  "parentprofile_postBtn": "POST",
+
+  "register_backBtn": "BACK",
+  "register_signuptoBtn": "SIGN-UP TO",
+  "register_facebookBtn": "CONTINUE WITH FACEBOOK",
+  "register_googleBtn": "CONTINUE WITH GOOGLE",
+  "register_nextBtn": "NEXT",
+  "register_registerBtn": "REGISTER",
+  "register_additionalBtn": "ADDITIONAL INFORMATION",
+  "register_namesurnamechildBtn": "NAME & SURNAME (CHILDREN) {index}",
+  "register_birthdayBtn": "BIRTHDAY : DD/MM/YYYY",
+  "register_okBtn": "OK",
+  "register_pls":"Please fill in all the information in the list. ",
+  "register_finish":"Successfully registered!",
+
+  "login_backBtn": "BACK",
+  "login_facebookBtn": "CONTINUE WITH FACEBOOK",
+  "login_googleBtn": "CONTINUE WITH GOOGLE",
+
+  "setting_backBtn": "BACK",
+  "setting_settingBtn": "SETTING",
+  "setting_personalBtn":"PERSONAL INFORMATION",
+  "setting_generalBtn":"GENERAL",
+  "setting_profileBtn": "PROFILE",
+  "setting_childBtn": "CHILD",
+  "setting_notificationBtn": "NOTIFICATIONS",
+  "setting_thaiBtn": "THAI",
+  "setting_englishBtn": "ENGLISH",
+  "setting_logoutBtn": "LOG OUT",
+
+  "namesetting_changenameBtn": "CHANGE NAME",
+  "namesetting_enternewnameBtn": "ENTER NEW NAME",
+  "namesetting_hint": "Type your name...",
+  "namesetting_saveBtn": "SAVE",
+
+  "profilesetting_nameBtn": "NAME",
+  "profilesetting_deleteaccoutBtn": "DELETE ACCOUNT",
+  "profileSet_deleteDialogTitle": "DELETE ACCOUNT?",
+  "profilesetting_areusureBtn": "Are you sure you want to delete your account? This action cannot be undone.",
+  "profilesetting_cancelBtn": "CANCEL",
+  "profilesetting_deleteBtn": "DELETE",
+
+  "childprofile_mathGame": "MATH GAME",
+  "childprofile_workoutGame": "WORK OUT GAME",
+
+  "childsetting_childsettingBtn": "CHILD SETTING",
+  "childsetting_scoreBtn": "SCORE",
+  "childsetting_viewprofileBtn": "VIEW PROFILE",
+  "childsetting_manageBtn": "MANAGE",
+
+  "childgallery_title": "MY GALLERY",
+  "childgallery_empty": "NO POSTS YET",
+
+  "history_timesSuffix": "TIMES",
+  "result_title": "PLAYING RESULT",
+  "result_timeUsedTitle": "TIME USED",
+
+  "redemption_playBtn": "PLAY",
+  "redemption_rewardIceCream": "ICE CREAM",
+  "redemption_rewardPlaytime": "1 HR PLAYTIME",
+  "redemption_rewardToy": "NEW TOY",
+  "redemption_rewardStickers": "STICKERS",
+  "redemption_historyPlayedDefault": "Played Ping Pong",
+  "redemption_historyRedeemedDefault": "Redeemed Ice Cream",
+
+  "dialog_deleteTitle": "Delete Profile?",
+  "dialog_deleteContent": "Are you sure you want to delete this profile? This action cannot be undone.",
+  "dialog_confirmDelete": "DELETE",
+  "dialog_cancel": "CANCEL",
+  "dialog_saveSuccess": "Saved successfully!",
+
+  "notificationsetting_notificationBtn": "NOTIFICATIONS",
+  "notificationsetting_allnotificationBtn": "ALL NOTIFICATIONS",
+  "notificationsetting_postBtn": "POST",
+  "notificationsetting_likeBtn": "LIKE",
+  "notificationsetting_commentBtn": "COMMENT",
+
+  "videodetail_activitynameBtn": "ACTIVITY NAME",
+  "videodetail_nameBtn": "name",
+  "videodetail_DescriptionBtn": "DESCRIPTION",
+  "videodetail_descriptionBtn": "description",
+  "videodetail_howtoplayBtn": "HOW TO PLAY / INSTRUCTIONS:",
+  "videodetail_contentBtn": "content",
+  "videodetail_startBtn": "START",
+  "videodetail_addBtn": "ADD",
+  "videodetail_videoNotAvailable": "Video Not Available (HTML Content Missing)",
+  "videodetail_activityNameLabel": "ACTIVITY NAME:",
+  "videodetail_descriptionLabel": "DESCRIPTION:",
+  "videodetail_howToPlayLabel": "HOW TO PLAY / INSTRUCTIONS:",
+  "videodetail_categoryPrefix": "Category: ",
+  "videodetail_difficultyPrefix": "Difficulty: ",
+  "videodetail_maxScorePrefix": "Max Score: ",
+
+  "addchild_namesurnameBtn": "NAME & SURNAME (CHILDREN)",
+  "addchild_errorName": "Please enter a name",
+  "addchild_birthdayBtn": "BIRTHDAY : DD/MM/YYYY",
+  "addchild_okBtn": "OK",
+
+  "childnamesetting_editnameBtn": "EDIT NAME",
+  "childnamesetting_saveBtn": "SAVE",
+
+  "managechild_manageprofileBtn": "MANAGE PROFILE",
+  "managechild_nameBtn": "NAME",
+  "managechild_medalsandredemptionBtn": "MEDALS & REDEMPTION",
+  "managechild_deleteprofileBtn": "DELETE PROFILE",
+
+  "dairyactivity_playhistoryBtn": "PLAYING HISTORY",
+  "dairyactivity_timeBtn": "time",
+  "dairyactivity_medalsBtn": "medals",
+
+  "medalredemption_addrewardBtn": "ADD REWARD",
+  "medalredemption_rewardnameBtn": "Reward Name",
+  "medalredemption_costBtn": "Cost (Points)",
+  "medalredemption_cancelBtn": "CANCEL",
+  "medalredemption_addBtn": "ADD",
+  "medalredemption_redemptionBtn":"REDEMPTION",
+  "medalredemption_activitiesBtn": "ACTIVITIES",
+  "medalredemption_currentscoreBtn":"CURRENT SCORE",
+  "medalredemption_rewardshopBtn":"REWARDS SHOP",
+  "medalredemption_successfullyBtn":"Successfully Redeemed",
+
+  "physical_snackNoEvidence": "Please attach video or image evidence.",
+  "physical_snackInvalidScore": "Please set a valid score (1 to {maxScore}).",
+  "@physical_snackInvalidScore": {
+    "placeholders": {
+      "maxScore": { "type": "int" }
+    }
+  },
+  "physical_dialogSubmitTitle": "Submission Complete!",
+  "physical_dialogSubmitContent": "Your evidence has been submitted for approval.",
+  "physical_dialogOkBtn": "OK",
+  "physical_snackSubmitError": "Submission Error: {error}",
+  "@physical_snackSubmitError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "physical_dialogEnterScoreTitle": "Enter Score",
+  "physical_dialogEnterScoreHint": "Enter score (1-{maxScore})",
+  "@physical_dialogEnterScoreHint": {
+    "placeholders": {
+      "maxScore": { "type": "int" }
+    }
+  },
+  "physical_dialogCancelBtn": "Cancel",
+  "physical_snackInvalidInput": "Please enter a valid score (0-{maxScore})",
+  "@physical_snackInvalidInput": {
+    "placeholders": {
+      "maxScore": { "type": "int" }
+    }
+  },
+  "physical_stopBtn": "STOP",
+  "physical_startBtn": "START",
+  "physical_takePhotoBtn": "TAKE PHOTO",
+  "physical_medalsScoreLabel": "MEDALS / SCORE",
+  "physical_diaryLabel": "DIARY",
+  "physical_diaryHint": "Enter notes here...",
+  "physical_imageEvidenceLabel": "IMAGE EVIDENCE",
+  "physical_videoEvidenceLabel": "VIDEO EVIDENCE",
+  "physical_timeLabel": "TIME",
+  "physical_submittingBtn": "Submitting...",
+  "physical_finishBtn": "FINISH",
+
+  "languagedetail_titlePrefix": "LANGUAGE: ",
+  "languagedetail_categoryPrefix": "CATEGORY: ",
+  "languagedetail_activityTitleLabel": "ACTIVITY TITLE",
+  "languagedetail_descriptionLabel": "DESCRIPTION",
+  "languagedetail_difficultyPrefix": "Difficulty: ",
+  "languagedetail_maxScorePrefix": "Max Score: ",
+  "languagedetail_startBtn": "START",
+
+  "itemintro_recordToEnable": "Record to enable playback",
+  "itemintro_listenExampleBtn": "LISTEN TO EXAMPLE",
+  "itemintro_practiceNowBtn": "PRACTICE NOW",
+  "itemintro_submitBtn": "SUBMIT",
+
+  "record_loading": "Loading...",
+  "record_finishBtn": "FINISH",
+  "record_errorMic": "Microphone error or permission denied",
+  "record_statusRecording": "Recording...",
+  "record_statusIdle": "Press mic to record",
+
+  "result_activityCompletedDefault": "ACTIVITY COMPLETED",
+  "result_greatJobTitle": "GREAT JOB!",
+  "result_totalScoreLabel": "Total Score",
+  "result_timeSpentLabel": "Time Spent",
+  "result_retryBtn": "RETRY",
+  "result_backToActivitiesBtn": "BACK TO ACTIVITIES",
+  "result_returnHomeBtn": "RETURN HOME",
+  "result_timeFormat": "{minutes} min {seconds} sec",
+  "@result_timeFormat": {
+    "placeholders": {
+      "minutes": { "type": "int" },
+      "seconds": { "type": "int" }
+    }
+  },
+
+  "calculate_title": "CALCULATE",
+  "calculate_plusBtn": "PLUS +",
+  "calculate_minusBtn": "MINUS -",
+  "calculate_multiplyBtn": "MULTIPLY *",
+  "calculate_divideBtn": "DEVIDE /",
+  "calculate_mixBtn": "MIX + - * /",
+  "calculate_problemsSolveBtn": "PROBLEMS SOLVE",
+
+  "languagehub_searchHint": "search...",
+  "languagehub_trainingTitle": "LANGUAGE TRAINING",
+  "languagehub_listeningSpeakingTitle": "LISTENING AND SPEAKING",
+  "languagehub_easyBtn": "EASY",
+  "languagehub_mediumBtn": "MEDIUM",
+  "languagehub_difficultBtn": "DIFFICULT",
+
+  "plus_castToTvBtn": "CAST TO TV",
+  "plus_answerBtn": "ANSWER",
+
+  "problemdetail_title": "PROBLEMS SOLVE",
+  "problemdetail_castToTvBtn": "CAST TO TV",
+  "problemdetail_answerBtn": "ANSWER",
+  
+  "problemanswer_title": "ANSWER",
+  "problemanswer_defaultQuestion": "THERE ARE 6 CATS IN THE FIELD.\nANOTHER 2 CATS WALK INTO THE FIELD.\nHOW MANY CATS ARE THERE IN TOTAL ?",
+  "problemanswer_defaultAnswer": "THERE ARE 8 CATS IN TOTAL.",
+
+  "problemplaying_finishBtn": "FINISH",
+
+  "languagelist_snackNotConnected": "This flow is not connected to activities yet."
+}

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 
 class AddChildScreen extends StatefulWidget {
   const AddChildScreen({super.key});
@@ -32,8 +33,10 @@ class _AddChildScreenState extends State<AddChildScreen> {
         ),
         centerTitle: true,
         title: Text(
-          'REGISTER',
-          style: GoogleFonts.luckiestGuy(
+          AppLocalizations.of(context)!.register_registerBtn,
+          style: TextStyle(
+            fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+            fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
             fontSize: 28,
             color: sky,
             letterSpacing: 1.5,
@@ -47,8 +50,10 @@ class _AddChildScreenState extends State<AddChildScreen> {
           children: [
             Center(
               child: Text(
-                'ADDITIONAL INFORMATION',
-                style: GoogleFonts.luckiestGuy(
+                AppLocalizations.of(context)!.register_additionalBtn,
+                style: TextStyle(
+                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
                   fontSize: 20,
                   color: sky,
                 ),
@@ -58,8 +63,10 @@ class _AddChildScreenState extends State<AddChildScreen> {
 
             // --- Name Input ---
             Text(
-              'NAME & SURNAME (CHILDREN)',
-              style: GoogleFonts.luckiestGuy(
+              AppLocalizations.of(context)!.addchild_namesurnameBtn,
+              style: TextStyle(
+                fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
                 fontSize: 16,
                 color: const Color(0xFFFF8A80),
               ),
@@ -84,8 +91,10 @@ class _AddChildScreenState extends State<AddChildScreen> {
 
             // --- Birthday Input ---
             Text(
-              'BIRTHDAY : DD/MM/YYYY',
-              style: GoogleFonts.luckiestGuy(
+              AppLocalizations.of(context)!.addchild_birthdayBtn,
+              style: TextStyle(
+                fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
                 fontSize: 16,
                 color: const Color(0xFFFF8A80),
               ),
@@ -121,15 +130,26 @@ class _AddChildScreenState extends State<AddChildScreen> {
                     Map<String, dynamic> newChild = {
                       'name': name,
                       'score': 0, // คะแนนเริ่มต้น 0
-                      'img': 'https://i.pravatar.cc/150?img=12', // รูป Default สุ่มๆ
+                      'img':
+                          'https://i.pravatar.cc/150?img=12', // รูป Default สุ่มๆ
                     };
-                    
+
                     // ส่งข้อมูลกลับไปหน้าก่อนหน้า (Pop with Result)
                     Navigator.pop(context, newChild);
                   } else {
-                    // (Optional) แจ้งเตือนถ้าไม่ได้กรอกชื่อ
+                    // แจ้งเตือนถ้าไม่ได้กรอกชื่อ
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Please enter a name')),
+                      SnackBar(
+                        content: Text(
+                          AppLocalizations.of(context)!.addchild_errorName,
+                          style: TextStyle(
+                            fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                            fontFamilyFallback: [
+                              GoogleFonts.itim().fontFamily!
+                            ],
+                          ),
+                        ),
+                      ),
                     );
                   }
                 },
@@ -141,8 +161,10 @@ class _AddChildScreenState extends State<AddChildScreen> {
                   elevation: 0,
                 ),
                 child: Text(
-                  'OK',
-                  style: GoogleFonts.luckiestGuy(
+                  AppLocalizations.of(context)!.addchild_okBtn,
+                  style: TextStyle(
+                    fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                    fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
                     fontSize: 24,
                     color: Colors.white,
                   ),

@@ -1,4 +1,4 @@
-import 'dart:async'; 
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../routes/app_routes.dart';
@@ -86,7 +86,8 @@ class _ProblemPlayingPageState extends State<ProblemPlayingPage> {
               children: [
                 // Profile Badge
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: yellowBadge,
                     borderRadius: BorderRadius.circular(30),
@@ -95,7 +96,8 @@ class _ProblemPlayingPageState extends State<ProblemPlayingPage> {
                     children: [
                       const CircleAvatar(
                         radius: 16,
-                        backgroundImage: NetworkImage('https://i.pravatar.cc/150?img=12'), // รูปสมมุติ
+                        backgroundImage: NetworkImage(
+                            'https://i.pravatar.cc/150?img=12'), // รูปสมมุติ
                       ),
                       const SizedBox(width: 8),
                       Text(
@@ -108,15 +110,15 @@ class _ProblemPlayingPageState extends State<ProblemPlayingPage> {
                     ],
                   ),
                 ),
-                
+
                 // ปุ่ม ANSWER
                 ElevatedButton(
                   onPressed: () {
                     // กดแล้วไปหน้าเฉลย
-                     Navigator.pushNamed(
-                      context, 
+                    Navigator.pushNamed(
+                      context,
                       AppRoutes.problemAnswer,
-                      arguments: args, 
+                      arguments: args,
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -135,9 +137,9 @@ class _ProblemPlayingPageState extends State<ProblemPlayingPage> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 20),
-            
+
             Text(
               'PLAYING RESULTS',
               style: GoogleFonts.luckiestGuy(
@@ -145,7 +147,7 @@ class _ProblemPlayingPageState extends State<ProblemPlayingPage> {
                 color: Colors.black54,
               ),
             ),
-            
+
             const SizedBox(height: 10),
 
             // Medals Section
@@ -170,7 +172,9 @@ class _ProblemPlayingPageState extends State<ProblemPlayingPage> {
                   child: Row(
                     children: [
                       IconButton(
-                        onPressed: () => setState(() { if(medals > 0) medals--; }),
+                        onPressed: () => setState(() {
+                          if (medals > 0) medals--;
+                        }),
                         icon: const Icon(Icons.remove),
                       ),
                       Text(
@@ -178,7 +182,9 @@ class _ProblemPlayingPageState extends State<ProblemPlayingPage> {
                         style: GoogleFonts.luckiestGuy(fontSize: 20),
                       ),
                       IconButton(
-                        onPressed: () => setState(() { medals++; }),
+                        onPressed: () => setState(() {
+                          medals++;
+                        }),
                         icon: const Icon(Icons.add),
                       ),
                     ],
@@ -242,11 +248,13 @@ class _ProblemPlayingPageState extends State<ProblemPlayingPage> {
                 children: [
                   Text(
                     'TIME',
-                    style: GoogleFonts.luckiestGuy(fontSize: 20, color: redText),
+                    style:
+                        GoogleFonts.luckiestGuy(fontSize: 20, color: redText),
                   ),
                   Container(
                     margin: const EdgeInsets.only(top: 5),
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 10),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(30),

@@ -11,7 +11,7 @@ class MainBottomNav extends StatelessWidget {
   final ValueChanged<int> onTabSelected;
 
   static const salmon = Color(0xFFD86B77); // แถบชมพู
-  static const yolk = Color(0xFFF2C46F);   // สีเหลืองปุ่มเลือก
+  static const yolk = Color(0xFFF2C46F); // สีเหลืองปุ่มเลือก
 
   @override
   Widget build(BuildContext context) {

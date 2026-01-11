@@ -1,10 +1,9 @@
-// lib/screens/parent_profile_screen.dart
-
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 
 class ParentProfileScreen extends StatefulWidget {
   const ParentProfileScreen({
@@ -36,8 +35,7 @@ class _ParentProfileScreenState extends State<ParentProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
+    // กำหนด Theme สี
     const cream = Color(0xFFFFF5CD);
 
     return Container(
@@ -90,20 +88,33 @@ class _ParentProfileScreenState extends State<ParentProfileScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          // ชื่อผู้ปกครอง
+          
+          // --- ชื่อผู้ปกครอง (แก้ไขตรงนี้) ---
           Center(
             child: Text(
-              (widget.parentName.isNotEmpty
-                      ? widget.parentName
-                      : 'PARENT2')
+              (widget.parentName.isNotEmpty ? widget.parentName : 'PARENT2')
                   .toUpperCase(),
+              // ✅ เติม Style ตรงนี้เพื่อให้รองรับภาษาไทย (Itim)
+              style: TextStyle(
+                fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                fontSize: 28, // ปรับขนาดตามต้องการ
+                color: Colors.black87,
+              ),
             ),
           ),
+          
           const SizedBox(height: 4),
           Center(
             child: Text(
               '',
-              style: textTheme.bodySmall,
+              // ตรงนี้ถ้ามีข้อความอื่นก็ควรใส่ Style แบบเดียวกัน
+              style: TextStyle(
+                fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                fontSize: 14,
+                color: Colors.black54,
+              ),
             ),
           ),
 
@@ -120,11 +131,12 @@ class _ParentProfileScreenState extends State<ParentProfileScreen> {
                     const Icon(Icons.grid_view_rounded, size: 24),
                     const SizedBox(width: 8),
                     Text(
-                      'POST',
-                      style: GoogleFonts.luckiestGuy(
-                        fontSize: 18,
-                        color: Colors.black,
-                      ),
+                      AppLocalizations.of(context)!.parentprofile_postBtn,
+                      style: TextStyle(
+                          fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                          fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                          fontSize: 18,
+                          color: Colors.black),
                     ),
                   ],
                 ),

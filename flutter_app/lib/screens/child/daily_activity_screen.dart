@@ -34,13 +34,15 @@ class DailyActivityScreen extends StatelessWidget {
                 children: [
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: const Icon(Icons.arrow_back, size: 35, color: Colors.black87),
+                    child: const Icon(Icons.arrow_back,
+                        size: 35, color: Colors.black87),
                   ),
                   const SizedBox(width: 15),
                   Expanded(
                     child: Text(
                       date, // แสดงวันที่ที่เลือกมา
-                      style: GoogleFonts.luckiestGuy(fontSize: 26, color: skyBlue),
+                      style:
+                          GoogleFonts.luckiestGuy(fontSize: 26, color: skyBlue),
                     ),
                   ),
                 ],
@@ -80,7 +82,8 @@ class DailyActivityScreen extends StatelessWidget {
                         children: [
                           // วงกลมตัวเลข (1, 2, 3, 4)
                           Container(
-                            width: 50, height: 50,
+                            width: 50,
+                            height: 50,
                             decoration: const BoxDecoration(
                               color: numberPink,
                               shape: BoxShape.circle,
@@ -88,34 +91,40 @@ class DailyActivityScreen extends StatelessWidget {
                             alignment: Alignment.center,
                             child: Text(
                               '${session['id']}',
-                              style: GoogleFonts.luckiestGuy(fontSize: 24, color: Colors.white),
+                              style: GoogleFonts.luckiestGuy(
+                                  fontSize: 24, color: Colors.white),
                             ),
                           ),
                           const SizedBox(width: 15),
-                          
+
                           // กล่องรายละเอียดเวลา
                           Expanded(
                             child: Container(
                               height: 60,
-                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20),
                               decoration: BoxDecoration(
                                 color: itemBlue,
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     '${session['time']}',
-                                    style: GoogleFonts.luckiestGuy(fontSize: 18, color: Colors.white),
+                                    style: GoogleFonts.luckiestGuy(
+                                        fontSize: 18, color: Colors.white),
                                   ),
                                   Row(
                                     children: [
-                                      const Icon(Icons.emoji_events, color: Colors.yellow, size: 24),
+                                      const Icon(Icons.emoji_events,
+                                          color: Colors.yellow, size: 24),
                                       const SizedBox(width: 5),
                                       Text(
                                         '${session['medals']}',
-                                        style: GoogleFonts.luckiestGuy(fontSize: 18, color: Colors.white),
+                                        style: GoogleFonts.luckiestGuy(
+                                            fontSize: 18, color: Colors.white),
                                       ),
                                     ],
                                   )

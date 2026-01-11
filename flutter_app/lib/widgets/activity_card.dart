@@ -159,9 +159,7 @@ class ActivityCard extends StatelessWidget {
       color: deepSky,
       alignment: Alignment.center,
       child: Text(
-        activity.category.isNotEmpty
-            ? activity.category.substring(0, 1)
-            : '?',
+        activity.category.isNotEmpty ? activity.category.substring(0, 1) : '?',
         style: const TextStyle(
           color: Colors.white,
           fontSize: 40,

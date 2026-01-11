@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:skill_wallet_kool/l10n/app_localizations.dart'; // อย่าลืม Import นี้
 import '../../../providers/user_provider.dart';
 
 class NameSettingScreen extends StatefulWidget {
@@ -18,7 +19,7 @@ class _NameSettingScreenState extends State<NameSettingScreen> {
   static const cream = Color(0xFFFFF5CD);
   static const pinkRed = Color(0xFFEA5B6F);
   static const blueTitle = Color(0xFF4DA9FF);
-  static const okGreen  = Color(0xFF66BB6A);
+  static const okGreen = Color(0xFF66BB6A);
 
   @override
   void initState() {
@@ -39,7 +40,7 @@ class _NameSettingScreenState extends State<NameSettingScreen> {
     if (newName.isNotEmpty) {
       // 1. บันทึกชื่อใหม่ลงใน Provider
       context.read<UserProvider>().setParentName(newName);
-      
+
       // 2. ปิดหน้านี้กลับไปหน้าเดิม
       Navigator.pop(context);
     }
@@ -60,12 +61,15 @@ class _NameSettingScreenState extends State<NameSettingScreen> {
                 children: [
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: const Icon(Icons.arrow_back, size: 30, color: Colors.black87),
+                    child: const Icon(Icons.arrow_back,
+                        size: 30, color: Colors.black87),
                   ),
                   const SizedBox(width: 16),
                   Text(
-                    'CHANGE NAME',
-                    style: GoogleFonts.luckiestGuy(
+                    AppLocalizations.of(context)!.namesetting_changenameBtn,
+                    style: TextStyle(
+                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
                       fontSize: 24,
                       color: blueTitle,
                     ),
@@ -74,27 +78,45 @@ class _NameSettingScreenState extends State<NameSettingScreen> {
               ),
               const SizedBox(height: 40),
 
-              // --- Input Field ---
+              // --- Input Field Label ---
               Text(
-                'ENTER NEW NAME',
-                style: GoogleFonts.luckiestGuy(
+                AppLocalizations.of(context)!.namesetting_enternewnameBtn,
+                style: TextStyle(
+                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
                   fontSize: 16,
                   color: Colors.grey,
                 ),
               ),
               const SizedBox(height: 8),
+              
+              // --- Input TextField ---
               TextField(
                 controller: _nameController,
-                style: GoogleFonts.luckiestGuy(fontSize: 20, color: Colors.black87),
+                // Style สำหรับข้อความที่พิมพ์เข้าไป
+                style: TextStyle(
+                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                  fontSize: 20,
+                  color: Colors.black87,
+                ),
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.white,
-                  hintText: 'Type your name...',
+                  hintText: AppLocalizations.of(context)!.namesetting_hint,
+                  // Style สำหรับ Hint Text (ข้อความจางๆ)
+                  hintStyle: TextStyle(
+                    fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                    fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                    fontSize: 20,
+                    color: Colors.black38,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 ),
               ),
 
@@ -112,9 +134,11 @@ class _NameSettingScreenState extends State<NameSettingScreen> {
                     ),
                   ),
                   child: Text(
-                    'SAVE',
-                    style: GoogleFonts.luckiestGuy(
-                      fontSize: 24,
+                    AppLocalizations.of(context)!.namesetting_saveBtn,
+                    style: TextStyle(
+                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                      fontSize: 22,
                       color: Colors.white,
                     ),
                   ),

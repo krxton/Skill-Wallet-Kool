@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../../routes/app_routes.dart'; 
+import '../../../../routes/app_routes.dart';
 
 class PlusPage extends StatelessWidget {
   const PlusPage({super.key});
@@ -9,9 +9,9 @@ class PlusPage extends StatelessWidget {
   static const cream = Color(0xFFFFF5CD);
   static const sky = Color(0xFF0D92F4);
   static const orangeItem = Color(0xFFEF9C66); // สีพื้นหลังโจทย์
-  static const greenBtn = Color(0xFF88C273);   // สีปุ่ม Start
-  static const purpleBtn = Color(0xFFCD9EFF);  // สีปุ่ม Cast
-  static const blueBtn = Color(0xFFA2D2FF);    // สีปุ่ม Answer
+  static const greenBtn = Color(0xFF88C273); // สีปุ่ม Start
+  static const purpleBtn = Color(0xFFCD9EFF); // สีปุ่ม Cast
+  static const blueBtn = Color(0xFFA2D2FF); // สีปุ่ม Answer
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +71,8 @@ class PlusPage extends StatelessWidget {
               itemBuilder: (context, index) {
                 return Container(
                   margin: const EdgeInsets.only(bottom: 12),
-                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
                   decoration: BoxDecoration(
                     color: orangeItem,
                     borderRadius: BorderRadius.circular(25),
@@ -146,10 +147,10 @@ class PlusPage extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 16),
-                
+
                 // ปุ่ม ANSWER (เชื่อม Route ไปหน้าเฉลยแล้ว)
                 SizedBox(
-                  width: double.infinity, 
+                  width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.pushNamed(context, AppRoutes.answerPlus);

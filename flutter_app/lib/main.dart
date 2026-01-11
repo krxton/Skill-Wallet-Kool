@@ -1,5 +1,5 @@
-// lib/main.dart (ฉบับแก้ไข)
-
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart'; // ✅ เพิ่มบรรทัดนี้
@@ -29,13 +29,33 @@ Future<void> main() async {
   );
 }
 
-class SWKApp extends StatelessWidget {
+class SWKApp extends StatefulWidget {
   const SWKApp({super.key});
+
+  @override
+  State<SWKApp> createState() => _SWKAppState();
+
+  static _SWKAppState? of(BuildContext context) =>
+      context.findAncestorStateOfType<_SWKAppState>();
+}
+
+class _SWKAppState extends State<SWKApp> {
+  Locale _locale = const Locale('en');
+
+  // 2. Public method to change the locale
+  void setLocale(Locale value) {
+    setState(() {
+      _locale = value;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Skill Wallet Kool',
+      locale: _locale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       initialRoute: AppRoutes.welcome,

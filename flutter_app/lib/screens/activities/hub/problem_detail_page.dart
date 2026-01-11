@@ -16,10 +16,11 @@ class ProblemDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // รับข้อมูล arguments ที่ส่งมาจากหน้า List
-    final Map<String, dynamic> args = 
-        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ?? {};
+    final Map<String, dynamic> args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>? ??
+            {};
 
-    final String question = args['question'] ?? 
+    final String question = args['question'] ??
         "THERE ARE 6 CATS IN THE FIELD.\nANOTHER 2 CATS WALK INTO THE FIELD.\nHOW MANY CATS ARE THERE IN TOTAL ?";
 
     return Scaffold(
@@ -70,7 +71,7 @@ class ProblemDetailPage extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             const Spacer(), // ดันปุ่มลงไปด้านล่าง
 
             // ปุ่ม START และ CAST TO TV
@@ -82,7 +83,7 @@ class ProblemDetailPage extends StatelessWidget {
                     onPressed: () {
                       // 🆕 แก้ไข: ลิงก์ไปหน้า Playing Page
                       Navigator.pushNamed(
-                        context, 
+                        context,
                         AppRoutes.problemPlaying,
                         arguments: args, // ส่งข้อมูลโจทย์/เฉลย ต่อไปด้วย
                       );
@@ -104,7 +105,7 @@ class ProblemDetailPage extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 16),
-                
+
                 // ปุ่ม CAST TO TV
                 Expanded(
                   child: ElevatedButton(
@@ -137,9 +138,9 @@ class ProblemDetailPage extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {
                   Navigator.pushNamed(
-                    context, 
+                    context,
                     AppRoutes.problemAnswer,
-                    arguments: args, 
+                    arguments: args,
                   );
                 },
                 style: ElevatedButton.styleFrom(

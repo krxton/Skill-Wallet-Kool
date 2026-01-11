@@ -9,7 +9,7 @@ class AuthService {
       "${dotenv.env['API_BASE_URL'] ?? 'http://127.0.0.1:3000/api'}/auth";
 
   Future<String> signUpWithGoogle() async {
-    final url = Uri.parse("$apiBaseUrl/sign-in/social");
+    final url = Uri.parse("$apiBaseUrl/sign-up/social");
 
     final response = await http.post(url,
         headers: {"Content-Type": "application/json"},

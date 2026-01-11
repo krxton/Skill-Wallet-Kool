@@ -1,188 +1,232 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:skill_wallet_kool/l10n/app_localizations.dart';
+import 'package:skill_wallet_kool/main.dart';
 
 // Import Provider
 import '../../../providers/user_provider.dart';
 
 // Import หน้าย่อยต่างๆ
-import 'profile_setting_screen.dart';       // หน้าแก้ไขโปรไฟล์
-import 'notification_setting_screen.dart';  // หน้าตั้งค่าการแจ้งเตือน
-import '../../child/child_setting_screen.dart';         // หน้าจัดการเด็ก (เพิ่มใหม่)
+import 'profile_setting_screen.dart'; // หน้าแก้ไขโปรไฟล์
+import 'notification_setting_screen.dart'; // หน้าตั้งค่าการแจ้งเตือน
+import '../../child/child_setting_screen.dart'; // หน้าจัดการเด็ก
 
-class SettingScreen extends StatelessWidget {
+class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
 
+  @override
+  State<SettingScreen> createState() => _SettingScreenState();
+}
+
+class _SettingScreenState extends State<SettingScreen> {
   // สี Theme ตามดีไซน์
   static const cream = Color(0xFFFFF5CD);
   static const pinkRed = Color(0xFFFF8E8E);
   static const blueTitle = Color(0xFF4DA9FF);
   static const textGrey = Color(0xFF8E8E8E);
+  static const buttonYellow = Color(0xFFF6CE78); // สีเหลืองของปุ่มภาษา
+
+  // ตัวแปรเก็บค่าภาษาที่เลือก (Default เป็น 'TH')
+  String _selectedLanguage = 'TH';
 
   @override
   Widget build(BuildContext context) {
-    // ดึงรูปโปรไฟล์จาก Provider มาแสดง (เพื่อให้ตรงกับหน้า Profile หลัก)
+    // ดึงรูปโปรไฟล์จาก Provider มาแสดง
     final profileImageBytes = context.watch<UserProvider>().profileImageBytes;
 
     return Scaffold(
       backgroundColor: cream,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // --- 1. Header (Back & Title) ---
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.arrow_back, size: 28, color: Colors.black87),
-                        const SizedBox(width: 4),
-                        Text(
-                          'BACK',
-                          style: GoogleFonts.luckiestGuy(
-                            fontSize: 24,
-                            color: pinkRed,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    'SETTING',
-                    style: GoogleFonts.luckiestGuy(
-                      fontSize: 24,
-                      color: blueTitle,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 30),
-
-              // --- 2. Menu: PROFILE ---
-              // (ลิงก์ไปหน้า ProfileSettingScreen)
-              _buildMenuItem(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ProfileSettingScreen(),
-                    ),
-                  );
-                },
-                title: 'PROFILE',
-                // ส่วนแสดงรูป Thumbnail วงกลม
-                leading: Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white,
-                    image: profileImageBytes != null
-                        ? DecorationImage(
-                            image: MemoryImage(profileImageBytes),
-                            fit: BoxFit.cover,
-                          )
-                        : null,
-                  ),
-                  child: profileImageBytes == null
-                      ? const Icon(Icons.person, size: 30, color: Colors.black87)
-                      : null,
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              // --- Section: Personal Information ---
-              Text(
-                'PERSONAL INFORMATION',
-                style: GoogleFonts.luckiestGuy(
-                  fontSize: 20,
-                  color: textGrey,
-                ),
-              ),
-              const SizedBox(height: 10),
-              
-              const SizedBox(height: 10),
-              
-              // Menu: CHILD (ลิงก์ไปหน้า ChildSettingScreen)
-              _buildMenuItem(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ChildSettingScreen(),
-                    ),
-                  );
-                },
-                title: 'CHILD',
-                leading: const Icon(Icons.sentiment_satisfied_alt, size: 32, color: Colors.black87),
-              ),
-
-              const SizedBox(height: 20),
-
-              // --- Section: General ---
-              Text(
-                'GENERAL',
-                style: GoogleFonts.luckiestGuy(
-                  fontSize: 20,
-                  color: textGrey,
-                ),
-              ),
-              const SizedBox(height: 10),
-              
-              // Menu: NOTIFICATIONS (ลิงก์ไปหน้า NotificationSettingScreen)
-              _buildMenuItem(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const NotificationSettingScreen(),
-                    ),
-                  );
-                },
-                title: 'NOTIFICATIONS',
-                leading: const Icon(Icons.notifications_outlined, size: 32, color: Colors.black87),
-              ),
-
-              const Spacer(), // ดันปุ่ม Logout ไปล่างสุด
-
-              // --- 3. Log Out Button ---
-              GestureDetector(
-                onTap: () {
-                  // เรียกฟังก์ชัน clearUserData ใน Provider
-                  context.read<UserProvider>().clearUserData();
-                  // ออกจากหน้า Setting
-                  Navigator.pop(context);
-                },
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+        child: SingleChildScrollView(
+          // ใส่ ScrollView เผื่อหน้าจอยาวเกิน
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // --- 1. Header (Back & Title) ---
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'LOG OUT',
-                      style: GoogleFonts.luckiestGuy(
-                        fontSize: 24,
-                        color: pinkRed,
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.arrow_back,
+                              size: 28, color: Colors.black87),
+                          const SizedBox(width: 4),
+                          Text(
+                            AppLocalizations.of(context)!.setting_backBtn,
+                            style: TextStyle(
+                                fontFamily:
+                                    GoogleFonts.luckiestGuy().fontFamily,
+                                fontFamilyFallback: [
+                                  GoogleFonts.itim().fontFamily!
+                                ],
+                                fontSize: 24,
+                                color: pinkRed),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    const Icon(Icons.logout, color: Colors.black87, size: 28),
+                    Text(
+                      AppLocalizations.of(context)!.setting_settingBtn,
+                      style: TextStyle(
+                          fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                          fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                          fontSize: 24,
+                          color: blueTitle),
+                    ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 20),
-            ],
+                const SizedBox(height: 30),
+
+                // --- 2. Menu: PROFILE ---
+                _buildMenuItem(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ProfileSettingScreen(),
+                      ),
+                    );
+                  },
+                  title: AppLocalizations.of(context)!.setting_profileBtn,
+                  leading: Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                      image: profileImageBytes != null
+                          ? DecorationImage(
+                              image: MemoryImage(profileImageBytes),
+                              fit: BoxFit.cover,
+                            )
+                          : null,
+                    ),
+                    child: profileImageBytes == null
+                        ? const Icon(Icons.person,
+                            size: 30, color: Colors.black87)
+                        : null,
+                  ),
+                ),
+
+                const SizedBox(height: 20),
+
+                // --- Section: Personal Information ---
+                // หมายเหตุ: ใน JSON ไม่มีคีย์ "PERSONAL INFORMATION" จึงคงข้อความเดิมไว้
+                // แต่ปรับแก้ Style ให้ถูกต้อง
+                Text(
+                  AppLocalizations.of(context)!.setting_personalBtn,
+                  style: TextStyle(
+                    fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                    fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                    fontSize: 20,
+                    color: textGrey,
+                  ),
+                ),
+                const SizedBox(height: 10),
+
+                // Menu: CHILD
+                _buildMenuItem(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ChildSettingScreen(),
+                      ),
+                    );
+                  },
+                  title: AppLocalizations.of(context)!.setting_childBtn,
+                  leading: const Icon(Icons.sentiment_satisfied_alt,
+                      size: 32, color: Colors.black87),
+                ),
+
+                const SizedBox(height: 20),
+
+                // --- Section: General ---
+                // หมายเหตุ: ใน JSON ไม่มีคีย์ "GENERAL" จึงคงข้อความเดิมไว้
+                // แต่ปรับแก้ Style ให้ถูกต้อง
+                Text(
+                  AppLocalizations.of(context)!.setting_generalBtn,
+                  style: TextStyle(
+                    fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                    fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                    fontSize: 20,
+                    color: textGrey,
+                  ),
+                ),
+                const SizedBox(height: 10),
+
+                // Menu: NOTIFICATIONS
+                _buildMenuItem(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const NotificationSettingScreen(),
+                      ),
+                    );
+                  },
+                  title: AppLocalizations.of(context)!.setting_notificationBtn,
+                  leading: const Icon(Icons.notifications_outlined,
+                      size: 32, color: Colors.black87),
+                ),
+
+                const SizedBox(height: 20),
+
+                // --- Language Buttons ---
+                _buildLanguageButton(
+                  code: 'th',
+                  label: AppLocalizations.of(context)!.setting_thaiBtn,
+                  flagEmoji: '🇹🇭',
+                ),
+                const SizedBox(height: 12),
+                _buildLanguageButton(
+                  code: 'en',
+                  label: AppLocalizations.of(context)!.setting_englishBtn,
+                  flagEmoji: '🇺🇸',
+                ),
+
+                const SizedBox(height: 40),
+
+                // --- 3. Log Out Button ---
+                GestureDetector(
+                  onTap: () {
+                    context.read<UserProvider>().clearUserData();
+                    Navigator.pop(context);
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.setting_logoutBtn,
+                        style: TextStyle(
+                            fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                            fontFamilyFallback: [
+                              GoogleFonts.itim().fontFamily!
+                            ],
+                            fontSize: 24,
+                            color: pinkRed),
+                      ),
+                      const SizedBox(width: 8),
+                      const Icon(Icons.logout, color: Colors.black87, size: 28),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  // Helper Widget สำหรับสร้างแถวเมนู
+  // Helper Widget: สร้างแถวเมนู (Profile, Child, Noti)
   Widget _buildMenuItem({
     required String title,
     required Widget leading,
@@ -191,22 +235,81 @@ class SettingScreen extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        color: Colors.transparent, // เพื่อให้พื้นที่ว่างกดได้
+        color: Colors.transparent,
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: Row(
           children: [
-            leading,
+            // จัดให้ leading (icon/image) อยู่ตรงกลางของความกว้าง 50 เพื่อความเป็นระเบียบ
+            SizedBox(
+              width: 50,
+              child: Center(child: leading),
+            ),
             const SizedBox(width: 16),
             Expanded(
               child: Text(
                 title,
-                style: GoogleFonts.luckiestGuy(
+                style: TextStyle(
+                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
                   fontSize: 20,
                   color: Colors.black87,
                 ),
               ),
             ),
             const Icon(Icons.chevron_right, size: 32, color: Colors.black87),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Helper Widget: สร้างปุ่มเปลี่ยนภาษา
+  Widget _buildLanguageButton({
+    required String code,
+    required String label,
+    required String flagEmoji,
+  }) {
+    // ตรวจสอบว่าปุ่มนี้ถูกเลือกอยู่หรือไม่
+    bool isActive = _selectedLanguage == code;
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedLanguage = code;
+        });
+
+        if (code == 'th') {
+          SWKApp.of(context)?.setLocale(const Locale('th'));
+        } else if (code == 'en') {
+          SWKApp.of(context)?.setLocale(const Locale('en'));
+        }
+      },
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200), // เอฟเฟกต์เปลี่ยนสีนุ่มๆ
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+        decoration: BoxDecoration(
+          // Logic ความสว่าง:
+          // ถ้าเลือก (Active) -> สีชัด (Opacity 1.0)
+          // ถ้าไม่เลือก -> สีจาง (Opacity 0.4)
+          color: isActive ? buttonYellow : buttonYellow.withOpacity(0.4),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(flagEmoji, style: const TextStyle(fontSize: 32)),
+            const SizedBox(width: 16),
+            Text(
+              label,
+              style: TextStyle(
+                fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                fontSize: 22,
+                // ถ้าไม่ Active ให้ตัวหนังสือจางลงด้วยนิดหน่อย เพื่อความสวยงาม
+                color: isActive ? Colors.black87 : Colors.black54,
+              ),
+            ),
           ],
         ),
       ),

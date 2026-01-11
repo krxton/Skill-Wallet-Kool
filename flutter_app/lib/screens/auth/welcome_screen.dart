@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../routes/app_routes.dart';
+import '../../l10n/app_localizations.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -36,9 +37,14 @@ class WelcomeScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(18),
                         ),
                         child: Text(
-                          'PLAY',
-                          style: GoogleFonts.luckiestGuy(
-                              fontSize: 28, color: Colors.white),
+                          AppLocalizations.of(context)!.welcome_playBtn,
+                          style: TextStyle(
+                              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                              fontFamilyFallback: [
+                                GoogleFonts.itim().fontFamily!
+                              ],
+                              fontSize: 28,
+                              color: Colors.white),
                         ),
                       ),
                     ),
@@ -54,8 +60,12 @@ class WelcomeScreen extends StatelessWidget {
               child: GestureDetector(
                 onTap: () => Navigator.pushNamed(context, AppRoutes.register),
                 child: Text(
-                  'SIGN-UP',
-                  style: GoogleFonts.luckiestGuy(fontSize: 18, color: red),
+                  AppLocalizations.of(context)!.welcome_signUpBtn,
+                  style: TextStyle(
+                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                      fontSize: 18,
+                      color: red),
                 ),
               ),
             ),
@@ -67,8 +77,12 @@ class WelcomeScreen extends StatelessWidget {
               child: GestureDetector(
                 onTap: () => Navigator.pushNamed(context, AppRoutes.login),
                 child: Text(
-                  'LOG IN',
-                  style: GoogleFonts.luckiestGuy(fontSize: 18, color: red),
+                  AppLocalizations.of(context)!.welcome_signInBtn,
+                  style: TextStyle(
+                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                      fontSize: 18,
+                      color: red),
                 ),
               ),
             ),
