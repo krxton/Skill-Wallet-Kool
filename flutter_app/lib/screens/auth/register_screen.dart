@@ -28,7 +28,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   final List<_ChildFields> _children = [_ChildFields()];
 
-  get style => null;
+  Null get style => null;
 
   @override
   void initState() {

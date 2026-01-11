@@ -365,6 +365,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get medalredemption_rewardshopBtn => 'REWARDS SHOP';
 
   @override
+  String get medalredemption_successfullyBtn => 'Successfully Redeemed';
+
+  @override
   String get physical_snackNoEvidence =>
       'Please attach video or image evidence.';
 

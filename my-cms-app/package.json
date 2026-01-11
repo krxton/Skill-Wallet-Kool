@@ -13,7 +13,7 @@
   "dependencies": {
     "@clerk/nextjs": "^6.36.2",
     "@prisma/client": "^6.19.0",
-    "better-auth": "^1.4.7",
+    "better-auth": "^1.4.10",
     "cuid": "^3.0.0",
     "lucide-react": "^0.548.0",
     "next": "^16.0.0",

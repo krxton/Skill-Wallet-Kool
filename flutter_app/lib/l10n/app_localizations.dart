@@ -800,6 +800,12 @@ abstract class AppLocalizations {
   /// **'REWARDS SHOP'**
   String get medalredemption_rewardshopBtn;
 
+  /// No description provided for @medalredemption_successfullyBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Successfully Redeemed'**
+  String get medalredemption_successfullyBtn;
+
   /// No description provided for @physical_snackNoEvidence.
   ///
   /// In en, this message translates to:
