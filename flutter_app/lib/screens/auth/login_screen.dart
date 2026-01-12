@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart'; // ✅ เพิ่ม
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
-import '../../routes/app_routes.dart';
+import '../../providers/auth_provider.dart'; // ✅ เพิ่ม
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -12,6 +13,9 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ✅ เพิ่ม: ดึง AuthProvider
+    final authProvider = Provider.of<AuthProvider>(context);
+
     return Scaffold(
       backgroundColor: cream,
       body: SafeArea(
@@ -25,31 +29,63 @@ class LoginScreen extends StatelessWidget {
                   children: [
                     Image.asset('assets/images/SWK_home.png', height: 240),
                     const SizedBox(height: 32),
-                    
+
                     // ปุ่ม FACEBOOK
                     _loginButton(
                       icon: Icons.facebook,
                       text: AppLocalizations.of(context)!.login_facebookBtn,
                       color: fbBlue,
-                      onTap: () {
-                        Navigator.pushReplacementNamed(context, AppRoutes.home);
-                      },
+                      onTap:
+                          authProvider.isLoading // ✅ เพิ่ม: disable ถ้า loading
+                              ? () {}
+                              : () async {
+                                  // ✅ เพิ่ม: เรียก Facebook login
+                                  final success =
+                                      await authProvider.signInWithFacebook();
+                                  if (success && context.mounted) {
+                                    // รอ callback จาก deep link
+                                    // จะถูกจัดการใน main.dart
+                                  }
+                                },
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // ปุ่ม GOOGLE
                     _googleButton(
                       text: AppLocalizations.of(context)!.login_googleBtn,
-                      onTap: () {
-                        Navigator.pushReplacementNamed(context, AppRoutes.home);
-                      },
+                      onTap:
+                          authProvider.isLoading // ✅ เพิ่ม: disable ถ้า loading
+                              ? () {}
+                              : () async {
+                                  // ✅ เพิ่ม: เรียก Google login
+                                  final success =
+                                      await authProvider.signInWithGoogle();
+                                  if (success && context.mounted) {
+                                    // รอ callback จาก deep link
+                                    // จะถูกจัดการใน main.dart
+                                  }
+                                },
                     ),
+
+                    // ✅ เพิ่ม: แสดง loading indicator
+                    if (authProvider.isLoading) ...[
+                      const SizedBox(height: 24),
+                      const CircularProgressIndicator(),
+                      const SizedBox(height: 8),
+                      Text(
+                        'กำลังเข้าสู่ระบบ...',
+                        style: GoogleFonts.itim(
+                          fontSize: 16,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
             ),
 
-            // BACK มุมซ้ายล่าง
+            // BACK มุมซ้ายล่าง (UI เดิม)
             Positioned(
               left: 16,
               bottom: 16,
@@ -78,6 +114,7 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
+  // UI เดิม - ไม่เปลี่ยน
   Widget _loginButton({
     required IconData icon,
     required String text,
@@ -120,6 +157,7 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
+  // UI เดิม - ไม่เปลี่ยน
   Widget _googleButton({
     required String text,
     required VoidCallback onTap,

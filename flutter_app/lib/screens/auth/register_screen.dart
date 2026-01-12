@@ -1,9 +1,11 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart'; // ✅ เพิ่ม
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
-import 'package:skill_wallet_kool/services/auth_servive.dart';
+import 'package:skill_wallet_kool/services/auth_service.dart';
+import '../../providers/auth_provider.dart'; // ✅ เพิ่ม
+import '../../services/child_service.dart'; // ✅ เพิ่ม
+import '../../routes/app_routes.dart'; // ✅ เพิ่ม
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key, this.initialStep = 0});
@@ -15,10 +17,11 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final AuthService authService = AuthService();
+  final ChildService childService = ChildService(); // ✅ เพิ่ม
 
   late int step;
 
-  // palette
+  // palette (UI เดิม - ไม่เปลี่ยน)
   static const cream = Color(0xFFFFF5CD);
   static const sky = Color(0xFF0D92F4);
   static const redLabel = Color(0xFFE54D4D);
@@ -44,8 +47,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  // ---------- STEP 0 : SOCIAL ----------
+  // ---------- STEP 0 : SOCIAL (UI เดิม + เพิ่ม logic) ----------
   Widget _firstPage() {
+    // ✅ เพิ่ม: ดึง AuthProvider
+    final authProvider = Provider.of<AuthProvider>(context);
+
     return ListView(
       padding: const EdgeInsets.fromLTRB(24, 10, 24, 24),
       children: [
@@ -64,13 +70,46 @@ class _RegisterScreenState extends State<RegisterScreen> {
           label: AppLocalizations.of(context)!.register_facebookBtn,
           leading:
               _circleIcon(icon: Icons.facebook, bg: const Color(0xFF1877F2)),
-          onTap: () => _toast('Facebook sign-up (mock)'),
+          onTap: authProvider.isLoading // ✅ เพิ่ม: disable ถ้า loading
+              ? () {}
+              : () async {
+                  // ✅ เพิ่ม: เรียก Facebook sign up
+                  final success = await authProvider.signInWithFacebook();
+                  if (success && mounted) {
+                    // รอ callback จาก deep link
+                  }
+                },
         ),
         const SizedBox(height: 16),
         _oauthButton(
             label: AppLocalizations.of(context)!.register_googleBtn,
             leading: _googleGlyph(),
-            onTap: () => authService.signUpWithGoogle()),
+            onTap: authProvider.isLoading // ✅ เพิ่ม: disable ถ้า loading
+                ? () {}
+                : () async {
+                    // ✅ เพิ่ม: เรียก Google sign up
+                    final success = await authProvider.signInWithGoogle();
+                    if (success && mounted) {
+                      // รอ callback จาก deep link
+                    }
+                  }),
+
+        // ✅ เพิ่ม: แสดง loading indicator
+        if (authProvider.isLoading) ...[
+          const SizedBox(height: 24),
+          const Center(child: CircularProgressIndicator()),
+          const SizedBox(height: 8),
+          Center(
+            child: Text(
+              'กำลังลงทะเบียน...',
+              style: GoogleFonts.itim(
+                fontSize: 16,
+                color: Colors.black54,
+              ),
+            ),
+          ),
+        ],
+
         const SizedBox(height: 40),
         SizedBox(
           width: double.infinity,
@@ -97,7 +136,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  // ---------- STEP 1 : ADDITIONAL INFO ----------
+  // ---------- STEP 1 : ADDITIONAL INFO (UI เดิม + แก้ logic) ----------
   Widget _secondPage() {
     return ListView(
       padding: const EdgeInsets.fromLTRB(24, 10, 24, 24),
@@ -128,7 +167,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // title + X
+                // title + X (UI เดิม)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -198,7 +237,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: _submit,
+            onPressed: _submit, // ✅ แก้ logic ใน function นี้
             style: ElevatedButton.styleFrom(
               backgroundColor: okGreen,
               shape: RoundedRectangleBorder(
@@ -220,7 +259,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  // ---------- helpers ----------
+  // ---------- helpers (UI เดิม) ----------
   void _toast(String m) =>
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(m)));
 
@@ -245,7 +284,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  void _submit() {
+  // ✅ แก้ใหม่: เพิ่มลูกเข้า database
+  void _submit() async {
+    // Validate
     for (var i = 0; i < _children.length; i++) {
       if (_children[i].nameCtrl.text.trim().isEmpty ||
           _children[i].birthCtrl.text.trim().isEmpty) {
@@ -253,8 +294,49 @@ class _RegisterScreenState extends State<RegisterScreen> {
         return;
       }
     }
-    _toast('ลงทะเบียนสำเร็จ!');
-    Navigator.pop(context);
+
+    // ✅ Show loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      // ✅ เตรียมข้อมูลลูก
+      List<Map<String, dynamic>> childrenData = _children.map((c) {
+        return {
+          'fullName': c.nameCtrl.text.trim(),
+          'dob': c.birthday,
+        };
+      }).toList();
+
+      // ✅ บันทึกลูกเข้า database
+      final addedChildren = await childService.addChildren(childrenData);
+
+      // ✅ ปิด loading
+      if (mounted) Navigator.pop(context);
+
+      if (addedChildren.isNotEmpty) {
+        _toast('ลงทะเบียนสำเร็จ! เพิ่มลูก ${addedChildren.length} คน');
+
+        // ✅ ไปหน้า Home
+        if (mounted) {
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            AppRoutes.home,
+            (route) => false,
+          );
+        }
+      } else {
+        _toast('เกิดข้อผิดพลาด กรุณาลองอีกครั้ง');
+      }
+    } catch (e) {
+      // ✅ ปิด loading
+      if (mounted) Navigator.pop(context);
+      _toast('เกิดข้อผิดพลาด: $e');
+      print('Submit error: $e');
+    }
   }
 
   InputDecoration _dec() => InputDecoration(
@@ -268,6 +350,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       );
 
+  // UI เดิม - ไม่เปลี่ยน
   Widget _oauthButton({
     required String label,
     required Widget leading,
@@ -337,7 +420,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 _secondPage(),
               ],
             ),
-            // BACK มุมซ้ายล่าง
+            // BACK มุมซ้ายล่าง (UI เดิม)
             Positioned(
               left: 12,
               bottom: 12,
@@ -354,14 +437,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   children: [
                     const Icon(Icons.arrow_back, color: backPink, size: 26),
                     const SizedBox(width: 6),
-                    // แก้ไขตรงนี้: ใส่ Text widget ครอบและแก้ชื่อตัวแปรสี
                     Text(
                       AppLocalizations.of(context)!.register_backBtn,
                       style: TextStyle(
                         fontFamily: GoogleFonts.luckiestGuy().fontFamily,
                         fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
                         fontSize: 24,
-                        color: backPink, // เปลี่ยนจาก pinkRed เป็น backPink
+                        color: backPink,
                       ),
                     ),
                   ],

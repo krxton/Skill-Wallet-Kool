@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "D:/SWK/Skill-Wallet-Kool/flutter_app/linux"
+    "cmake.sourceDirectory": "D:/SWK/Skill-Wallet-Kool/flutter_app/linux",
+    "java.configuration.updateBuildConfiguration": "interactive"
 }

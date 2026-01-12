@@ -1,5 +1,7 @@
-// ต้อง import Child model ที่เราสร้างไว้ในไฟล์ child.dart
-import 'child.dart';
+// lib/models/child_link.dart
+
+// ✅ แก้ไข: import จาก child_model.dart แทน child.dart
+import 'child_model.dart';
 
 class ChildLink {
   final String relationship;
@@ -18,5 +20,13 @@ class ChildLink {
       // ใช้ Child.fromJson เพื่อแปลง Child Data ที่อยู่ข้างใน
       child: Child.fromJson(json['child']),
     );
+  }
+
+  // ✅ เพิ่ม toJson() method
+  Map<String, dynamic> toJson() {
+    return {
+      'relationship': relationship,
+      'child': child.toJson(),
+    };
   }
 }
