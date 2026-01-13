@@ -272,6 +272,12 @@ abstract class AppLocalizations {
   /// **'Successfully registered!'**
   String get register_finish;
 
+  /// No description provided for @register_relation.
+  ///
+  /// In en, this message translates to:
+  /// **'RELATION'**
+  String get register_relation;
+
   /// No description provided for @login_backBtn.
   ///
   /// In en, this message translates to:

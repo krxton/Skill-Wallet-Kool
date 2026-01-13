@@ -98,6 +98,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get register_finish => 'ลงทะเบียนสำเร็จ!';
 
   @override
+  String get register_relation => 'ความสัมพันธ์';
+
+  @override
   String get login_backBtn => 'ย้อนกลับ';
 
   @override

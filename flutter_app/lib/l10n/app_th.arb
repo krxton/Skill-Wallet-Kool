@@ -31,6 +31,13 @@
   "register_okBtn": "เสร็จสิ้น",
   "register_pls":"กรอกข้อมูลให้ครบในรายการที่ ",
   "register_finish":"ลงทะเบียนสำเร็จ!",
+  "register_relation": "ความสัมพันธ์",
+  "register_pickbirthday": "เลือกวันเกิด",
+  "register_Anerroroccurredplstry" :"เกิดข้อผิดพลาด กรุณาลองอีกครั้ง",
+  "register_Anerroroccurred" : "เกิดข้อผิดพลาด: {index}",
+  "register_sus":"ลงทะเบียนสำเร็จ! เพิ่มลูก {index} คน",
+  "register_submitterror":"ส่งผิดพลาด: {index}",
+  "register_requiredinformation" : "กรอกข้อมูลให้ครบ (ชื่อ, วันเกิด, ความสัมพันธ์) ในรายการที่ {index+1}",
 
   "login_backBtn": "ย้อนกลับ",
   "login_facebookBtn": "ดำเนินการต่อด้วย FACEBOOK",

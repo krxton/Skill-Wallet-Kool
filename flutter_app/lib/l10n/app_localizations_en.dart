@@ -98,6 +98,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get register_finish => 'Successfully registered!';
 
   @override
+  String get register_relation => 'RELATION';
+
+  @override
   String get login_backBtn => 'BACK';
 
   @override
