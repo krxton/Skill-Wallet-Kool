@@ -110,27 +110,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ],
 
         const SizedBox(height: 40),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () => setState(() => step = 1),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: okGreen,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30)),
-              padding: const EdgeInsets.symmetric(vertical: 14),
-              elevation: 2,
-            ),
-            child: Text(
-              AppLocalizations.of(context)!.register_nextBtn,
-              style: TextStyle(
-                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                  fontSize: 20,
-                  color: Colors.white),
-            ),
-          ),
-        ),
+        // SizedBox(
+        //   width: double.infinity,
+        //   child: ElevatedButton(
+        //     onPressed: () => setState(() => step = 1),
+        //     style: ElevatedButton.styleFrom(
+        //       backgroundColor: okGreen,
+        //       shape: RoundedRectangleBorder(
+        //           borderRadius: BorderRadius.circular(30)),
+        //       padding: const EdgeInsets.symmetric(vertical: 14),
+        //       elevation: 2,
+        //     ),
+        //     child: Text(
+        //       AppLocalizations.of(context)!.register_nextBtn,
+        //       style: TextStyle(
+        //           fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+        //           fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+        //           fontSize: 20,
+        //           color: Colors.white),
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }
@@ -177,7 +177,11 @@ Future<void> _nativeGoogleSignIn() async {
     provider: OAuthProvider.google,
     idToken: idToken,
     accessToken: authorization.accessToken,
+
   );
+  setState(() {
+    step = 1;
+  });
 }
 
 
