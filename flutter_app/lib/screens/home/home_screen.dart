@@ -35,7 +35,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   String? _currentChildId;
   String? _currentParentId;
-  String? _currentParentName;
 
   // Carousel
   final PageController _carouselController = PageController();
@@ -74,13 +73,11 @@ class _HomeScreenState extends State<HomeScreen> {
     final userProvider = context.read<UserProvider>();
     final childId = userProvider.currentChildId;
     final parentId = userProvider.currentParentId;
-    final parentName = userProvider.currentParentName;
 
     if (childId != null) {
       setState(() {
         _currentChildId = childId;
         _currentParentId = parentId;
-        _currentParentName = parentName;
         _popularActivitiesFuture =
             _activityService.fetchPopularActivities(childId);
         _newActivitiesFuture = _activityService.fetchNewActivities(childId);
@@ -363,11 +360,14 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
+    // Listen to UserProvider so parent name updates reactively
+    final parentName = context.watch<UserProvider>().currentParentName;
+
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         HomeHeader(
-          parentName: _currentParentName,
+          parentName: parentName,
           categoryValue: _categoryValue,
           onCategoryChanged: _onCategoryChanged,
         ),
