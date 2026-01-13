@@ -112,40 +112,22 @@ class _SWKAppState extends State<SWKApp> {
 
     try {
       final supabase = Supabase.instance.client;
-      final authUser = supabase.auth.currentUser;
       String? parentName;
 
-      // 1) ลองดึงจาก userMetadata (เช่น name หรือ full_name)
-      final meta = authUser?.userMetadata;
-      if (meta != null) {
-        parentName = (meta['name'] as String?) ?? (meta['full_name'] as String?);
-      }
+      try {
+        final row = await supabase
+            .from('parent')
+            .select('name_surname')
+            .maybeSingle();
 
-      // 2) ถ้ายังไม่พบ ลอง query จากตาราง users (ปรับได้ตาม schema จริง)
-      if (parentName == null && authUser != null) {
-        try {
-          final row = await supabase
-              .from('users')
-              .select('name')
-              .eq('id', authUser.id)
-              .maybeSingle();
-
-          if (row != null && row['name'] is String) {
-            parentName = row['name'] as String;
-          }
-        } catch (e) {
-          // ถ้าตาราง users ไม่มีหรือ schema ต่างไป ให้ข้าม
-          print('ℹ️ users table lookup skipped: $e');
+        if (row != null && row['name_surname'] is String) {
+          parentName = row['name_surname'] as String;
         }
+      } catch (e) {
+        // ถ้าตาราง users ไม่มีหรือ schema ต่างไป ให้ข้าม
+        print('ℹ️ users table lookup skipped: $e');
       }
 
-      // 3) ถ้ายังไม่พบ ใช้ชื่อจาก AuthProvider (Backend session)
-      if (parentName == null) {
-        final authProvider = Provider.of<AuthProvider>(context, listen: false);
-        parentName = authProvider.user?.name;
-      }
-
-      // 4) ตั้งค่าลง UserProvider
       if (parentName != null && parentName.isNotEmpty) {
         Provider.of<UserProvider>(context, listen: false)
             .setParentName(parentName);
