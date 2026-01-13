@@ -1,11 +1,9 @@
 // This is your Prisma schema file,
-// learn more about it in the docs: https://pris.lyd/d/prisma-schema
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
   provider = "prisma-client-js"
 }
-
-// Datasource: ตรวจสอบให้แน่ใจว่า provider และ url ถูกต้อง
 
 datasource db {
   provider = "postgresql"
@@ -13,196 +11,149 @@ datasource db {
 }
 
 // =======================================================
-// ENTITIES / MODELS
+// Entity Table
 // =======================================================
 
-// 1. ผู้ปกครอง (Parent)
-
+// 1. Parent (ผู้ปกครอง)
 model Parent {
-  id              String             @id // ← Clerk User ID (เช่น "user_2xxx...")
-  fullName        String
-  email           String             @unique
-  photoUrl        String? // จาก Clerk profile
-  createdAt       DateTime           @default(now())
-  status          String             @default("Active")
-  verification    String             @default("Verified") // Clerk verify ให้แล้ว
-  children        ParentChild[]
-  activities      ActivityRecord[]   @relation("ParentRecords")
-  rewards         ParentReward[]
-  redeemedRewards RewardRedemption[]
+  parentId    String   @id @default(dbgenerated("gen_random_uuid()")) @map("parent_id") @db.Uuid
+  createdDate DateTime @default(now()) @map("created_date") @db.Timestamptz(6)
+  nameSurname String?  @map("name_surname")
+  email       String   @unique @map("email")
+  userId      String?  @map("user_id") @db.Uuid
+
+  // Relations
+  activities       Activity[]
+  activityRecords  ActivityRecord[]
+  parentAndChild   ParentAndChild[]
+  parentAndMedals  ParentAndMedals[]
+  redemptions      Redemption[]
+
+  @@map("parent")
 }
 
-// 2. เด็ก (Child)
-
+// 2. Child (เด็ก)
 model Child {
-  id          String    @id @default(cuid())
-  fullName    String
-  dob         DateTime?
-  score       Int       @default(0)
-  scoreUpdate Int       @default(0)
+  childId       String    @id @default(dbgenerated("gen_random_uuid()")) @map("child_id") @db.Uuid
+  createdDate   DateTime  @default(now()) @map("created_date") @db.Timestamptz(6)
+  nameSurname   String?   @map("name_surname")
+  birthday      DateTime? @map("birthday") @db.Timestamptz(6)
+  updateWallet  Decimal?  @map("update_wallet") @db.Decimal
+  wallet        Decimal?  @map("wallet") @db.Decimal
 
-  // ความสัมพันธ์
-  parents         ParentChild[]
-  activities      ActivityRecord[]   @relation("ChildRecords")
-  redeemedRewards RewardRedemption[]
+  // Relations
+  activityRecords ActivityRecord[]
+  parentAndChild  ParentAndChild[]
+  redemptions     Redemption[]
+
+  @@map("child")
 }
 
-// 3. กิจกรรม (Activity)
-
+// 3. Activity (กิจกรรม)
 model Activity {
-  id          String  @id @default(cuid())
-  name        String
-  category    String
-  content     String
-  difficulty  String
-  maxScore    Int
-  description String?
-  videoUrl    String?
-  segments    Json?
+  activityId          String   @id @default(dbgenerated("gen_random_uuid()")) @map("activity_id") @db.Uuid
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  nameActivity        String   @map("name_activity")
+  descriptionActivity String   @map("description_activity")
+  levelActivity       String   @map("level_activity")
+  parentId            String   @map("parent_id") @db.Uuid
+  category            String   @map("category")
+  content             String   @map("content")
+  maxscore            Decimal  @map("maxscore") @db.Decimal
+  videourl            String?  @map("videourl")
+  segments            Json?    @map("segments") @db.JsonB
+  thumbnailurl        String?  @map("thumbnailurl")
+  tiktokhtmlcontent   String?  @map("tiktokhtmlcontent")
+  updateAt            DateTime @map("update_at") @db.Timestamptz(6)
+  playCount           Decimal? @map("play_count") @db.Decimal
 
-  // 🆕 เพิ่ม createdAt สำหรับเรียงกิจกรรมใหม่
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  // Relations
+  parent Parent @relation(fields: [parentId], references: [parentId])
 
-  // ความสัมพันธ์
-  activities ActivityRecord[] @relation("ActivityRecords")
+  @@map("activity")
 }
 
-// 4. รางวัล (Reward)
+// 4. Medals (รางวัล)
+model Medals {
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @map("id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  nameMedals  String?  @map("name_medals")
+  pointMedals Decimal? @map("point_medals") @db.Decimal
 
-model Reward {
-  id              String             @id @default(cuid())
-  name            String
-  cost            Int
-  parents         ParentReward[]
-  redeemedRewards RewardRedemption[]
+  // Relations
+  activityRecords ActivityRecord[]
+  parentAndMedals ParentAndMedals[]
+  redemptions     Redemption[]
+
+  @@map("medals")
 }
 
 // =======================================================
-// JUNCTION TABLES (ตารางเชื่อมโยง)
+// Junction Table
 // =======================================================
 
-// 5. ผู้ปกครองและเด็ก (ParentChild)
+// 5. ParentAndChild (ผู้ปกครอง-เด็ก)
+model ParentAndChild {
+  parentChildId String   @id @default(dbgenerated("gen_random_uuid()")) @map("parent_child_id") @db.Uuid
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  parentId      String?  @map("parent_id") @db.Uuid
+  childId       String?  @map("child_id") @db.Uuid
+  relationship  String?  @map("relationship")
 
-model ParentChild {
-  parentId     String
-  childId      String
-  relationship String
+  // Relations
+  parent Parent? @relation(fields: [parentId], references: [parentId], onUpdate: Cascade, onDelete: Cascade)
+  child  Child?  @relation(fields: [childId], references: [childId], onUpdate: Cascade, onDelete: Cascade)
 
-  // ความสัมพันธ์
-  parent Parent @relation(fields: [parentId], references: [id])
-  child  Child  @relation(fields: [childId], references: [id])
-
-  @@id([parentId, childId])
+  @@map("parent_and_child")
 }
 
-// 6. ผู้ปกครองและรางวัล (ParentReward)
+// 6. ParentAndMedals (ผู้ปกครอง-รางวัล)
+model ParentAndMedals {
+  parentMedalsId String   @id @default(dbgenerated("gen_random_uuid()")) @map("parent_medals_id") @db.Uuid
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  parentId       String?  @map("parent_id") @db.Uuid
+  medalsId       String?  @map("medals_id") @db.Uuid
 
-model ParentReward {
-  parentId String
-  rewardId String
+  // Relations
+  parent Parent? @relation(fields: [parentId], references: [parentId], onUpdate: Cascade, onDelete: Cascade)
+  medals Medals? @relation(fields: [medalsId], references: [id])
 
-  parent Parent @relation(fields: [parentId], references: [id])
-  reward Reward @relation(fields: [rewardId], references: [id])
-
-  @@id([parentId, rewardId])
+  @@map("parent_and_medals")
 }
 
-// 7. บันทึกกิจกรรม (ActivityRecord / Submissions)
-
+// 7. ActivityRecord (บันทึกการทำกิจกรรม)
 model ActivityRecord {
-  id               String   @id @default(cuid())
-  activityId       String
-  parentId         String
-  childId          String
-  dateCompleted    DateTime @default(now())
-  timeSpentSeconds Int? // เวลาที่ใช้ (วินาที) - OPTIONAL
-  status           String   @default("Pending") // Pending, Approved, Failed
-  detailResults    Json? // ผลลัพธ์โดยละเอียดของ Quest (JSON Object)
-  scoreEarned      Int // คะแนนรวมที่ได้รับ
-  roundNumber      Int // รอบที่ทำภารกิจ
+  activityRecordId String    @id @default(dbgenerated("gen_random_uuid()")) @map("ActivityRecord_id") @db.Uuid
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  parentId         String?   @map("parent_id") @db.Uuid
+  childId          String?   @map("child_id") @db.Uuid
+  medalsId         String?   @map("medals_id") @db.Uuid
+  point            Decimal?  @map("point") @db.Decimal
+  timeSpent        Decimal?  @map("time_spent") @db.Decimal
+  date             DateTime? @map("date") @db.Timestamptz(6)
 
-  // ความสัมพันธ์
-  activity Activity @relation("ActivityRecords", fields: [activityId], references: [id])
-  parent   Parent   @relation("ParentRecords", fields: [parentId], references: [id])
-  child    Child    @relation("ChildRecords", fields: [childId], references: [id])
+  // Relations
+  parent Parent? @relation(fields: [parentId], references: [parentId], onUpdate: Cascade, onDelete: Cascade)
+  child  Child?  @relation(fields: [childId], references: [childId])
+  medals Medals? @relation(fields: [medalsId], references: [id])
+
+  @@map("activity_record")
 }
 
-// 8. การแลกรางวัล (RewardRedemption)
+// 8. Redemption (แลกรางวัล)
+model Redemption {
+  redemptionId     String    @id @default(dbgenerated("gen_random_uuid()")) @map("redemption_id") @db.Uuid
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  dateRedemption   DateTime? @map("date_redemption") @db.Timestamptz(6)
+  pointForReward   Decimal?  @map("point_for_reward") @db.Decimal
+  childId          String?   @map("child_id") @db.Uuid
+  medalsId         String?   @map("medals_id") @db.Uuid
+  parentId         String?   @map("parent_id") @db.Uuid
 
-model RewardRedemption {
-  id           String   @id @default(cuid())
-  childId      String
-  parentId     String
-  rewardId     String
-  dateRedeemed DateTime
-  scoreUsed    Int
+  // Relations
+  child  Child?  @relation(fields: [childId], references: [childId])
+  medals Medals? @relation(fields: [medalsId], references: [id])
+  parent Parent? @relation(fields: [parentId], references: [parentId], onUpdate: Cascade, onDelete: Cascade)
 
-  // ความสัมพันธ์ 
-  child  Child  @relation(fields: [childId], references: [id])
-  parent Parent @relation(fields: [parentId], references: [id])
-  reward Reward @relation(fields: [rewardId], references: [id])
-}
-
-model User {
-  id            String    @id
-  name          String
-  email         String
-  emailVerified Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  sessions      Session[]
-  accounts      Account[]
-
-  @@unique([email])
-  @@map("user")
-}
-
-model Session {
-  id        String   @id
-  expiresAt DateTime
-  token     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  ipAddress String?
-  userAgent String?
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([token])
-  @@index([userId])
-  @@map("session")
-}
-
-model Account {
-  id                    String    @id
-  accountId             String
-  providerId            String
-  userId                String
-  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accessToken           String?
-  refreshToken          String?
-  idToken               String?
-  accessTokenExpiresAt  DateTime?
-  refreshTokenExpiresAt DateTime?
-  scope                 String?
-  password              String?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
-
-  @@index([userId])
-  @@map("account")
-}
-
-model Verification {
-  id         String   @id
-  identifier String
-  value      String
-  expiresAt  DateTime
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@index([identifier])
-  @@map("verification")
+  @@map("redemption")
 }
