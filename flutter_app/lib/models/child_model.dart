@@ -18,11 +18,11 @@ class Child {
   // ✅ Create Child from JSON (จาก Backend)
   factory Child.fromJson(Map<String, dynamic> json) {
     return Child(
-      id: json['id'] as String?,
-      fullName: json['fullName'] as String,
-      dob: json['dob'] != null ? DateTime.parse(json['dob'] as String) : null,
-      score: json['score'] as int? ?? 0,
-      scoreUpdate: json['scoreUpdate'] as int? ?? 0, // ✅ เพิ่ม scoreUpdate
+      id: json['child_id'] as String?,
+      fullName: json['name_surname'] as String,
+      dob: json['birthday'] != null ? DateTime.parse(json['birthday'] as String) : null,
+      score: json['wallet'] as int? ?? 0,
+      scoreUpdate: json['update_wallet'] as int? ?? 0, // ✅ เพิ่ม scoreUpdate
     );
   }
 
