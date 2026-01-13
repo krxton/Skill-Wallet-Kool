@@ -161,34 +161,40 @@ class ActivityService {
   /// 2.3 ดึง New Activities (เรียงตาม createdAt หรือ id)
   Future<List<Activity>> fetchNewActivities(String childId) async {
     try {
-      final allActivities = await _fetchAllActivities();
-      // เรียงตาม createdAt หรือ ID (CUID)
-      allActivities.sort((a, b) {
-        if (a.createdAt != null && b.createdAt != null) {
-          return b.createdAt!.compareTo(a.createdAt!); // ล่าสุดก่อน
-        }
-        return b.id.compareTo(a.id);
-      });
-      // ประมวลผล OEmbed
-      final List<Future<Activity>> processedActivitiesFutures =
-          allActivities.map((activity) async {
-        if (activity.videoUrl != null &&
-            activity.category.toUpperCase() == 'ด้านร่างกาย') {
-          try {
-            final oEmbedData = await _fetchTikTokOEmbedData(activity.videoUrl!);
-            final Map<String, dynamic> activityJson = activity.toJson();
-            activityJson['thumbnailUrl'] = oEmbedData['thumbnail_url'];
-            activityJson['tiktokHtmlContent'] = oEmbedData['html'];
-            return Activity.fromJson(activityJson);
-          } catch (e) {
-            debugPrint('OEmbed failed for ${activity.name}: $e');
-          }
-        }
-        return activity;
-      }).toList();
-      final List<Activity> processedActivities =
-          await Future.wait(processedActivitiesFutures);
-      return processedActivities;
+      final supabase = Supabase.instance.client;
+      final activity = await supabase
+          .from('activity')
+          .select()
+          .order('created_at', ascending: false);
+      return activity.map<Activity>((json) => Activity.fromJson(json)).toList();
+      // final allActivities = await _fetchAllActivities();
+      // // เรียงตาม createdAt หรือ ID (CUID)
+      // allActivities.sort((a, b) {
+      //   if (a.createdAt != null && b.createdAt != null) {
+      //     return b.createdAt!.compareTo(a.createdAt!); // ล่าสุดก่อน
+      //   }
+      //   return b.id.compareTo(a.id);
+      // });
+      // // ประมวลผล OEmbed
+      // final List<Future<Activity>> processedActivitiesFutures =
+      //     allActivities.map((activity) async {
+      //   if (activity.videoUrl != null &&
+      //       activity.category.toUpperCase() == 'ด้านร่างกาย') {
+      //     try {
+      //       final oEmbedData = await _fetchTikTokOEmbedData(activity.videoUrl!);
+      //       final Map<String, dynamic> activityJson = activity.toJson();
+      //       activityJson['thumbnailUrl'] = oEmbedData['thumbnail_url'];
+      //       activityJson['tiktokHtmlContent'] = oEmbedData['html'];
+      //       return Activity.fromJson(activityJson);
+      //     } catch (e) {
+      //       debugPrint('OEmbed failed for ${activity.name}: $e');
+      //     }
+      //   }
+      //   return activity;
+      // }).toList();
+      // final List<Activity> processedActivities =
+      //     await Future.wait(processedActivitiesFutures);
+      // return processedActivities;
     } catch (e) {
       debugPrint('Error fetching new activities: $e');
       return [];
