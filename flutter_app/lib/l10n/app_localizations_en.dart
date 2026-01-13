@@ -101,6 +101,33 @@ class AppLocalizationsEn extends AppLocalizations {
   String get register_relation => 'RELATION';
 
   @override
+  String get register_pickbirthday => 'Choose birthday';
+
+  @override
+  String get register_Anerroroccurredplstry =>
+      'An error occurred. Please try again.';
+
+  @override
+  String register_Anerroroccurred(Object index) {
+    return 'An error occurred: $index';
+  }
+
+  @override
+  String register_sus(Object index) {
+    return 'Registration successful! Added $index child.';
+  }
+
+  @override
+  String register_submitterror(Object index) {
+    return 'Submit error: $index';
+  }
+
+  @override
+  String register_requiredinformation(Object index) {
+    return 'Please fill in all the required information (name, date of birth, relationship) in the list. $index';
+  }
+
+  @override
   String get login_backBtn => 'BACK';
 
   @override

@@ -278,6 +278,42 @@ abstract class AppLocalizations {
   /// **'RELATION'**
   String get register_relation;
 
+  /// No description provided for @register_pickbirthday.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose birthday'**
+  String get register_pickbirthday;
+
+  /// No description provided for @register_Anerroroccurredplstry.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred. Please try again.'**
+  String get register_Anerroroccurredplstry;
+
+  /// No description provided for @register_Anerroroccurred.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred: {index}'**
+  String register_Anerroroccurred(Object index);
+
+  /// No description provided for @register_sus.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration successful! Added {index} child.'**
+  String register_sus(Object index);
+
+  /// No description provided for @register_submitterror.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit error: {index}'**
+  String register_submitterror(Object index);
+
+  /// No description provided for @register_requiredinformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Please fill in all the required information (name, date of birth, relationship) in the list. {index}'**
+  String register_requiredinformation(Object index);
+
   /// No description provided for @login_backBtn.
   ///
   /// In en, this message translates to:

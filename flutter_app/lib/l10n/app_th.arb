@@ -37,7 +37,7 @@
   "register_Anerroroccurred" : "เกิดข้อผิดพลาด: {index}",
   "register_sus":"ลงทะเบียนสำเร็จ! เพิ่มลูก {index} คน",
   "register_submitterror":"ส่งผิดพลาด: {index}",
-  "register_requiredinformation" : "กรอกข้อมูลให้ครบ (ชื่อ, วันเกิด, ความสัมพันธ์) ในรายการที่ {index+1}",
+  "register_requiredinformation" : "กรอกข้อมูลให้ครบ (ชื่อ, วันเกิด, ความสัมพันธ์) ในรายการที่ {index}",
 
   "login_backBtn": "ย้อนกลับ",
   "login_facebookBtn": "ดำเนินการต่อด้วย FACEBOOK",

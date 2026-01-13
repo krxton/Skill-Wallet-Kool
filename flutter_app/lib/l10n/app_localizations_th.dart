@@ -101,6 +101,33 @@ class AppLocalizationsTh extends AppLocalizations {
   String get register_relation => 'ความสัมพันธ์';
 
   @override
+  String get register_pickbirthday => 'เลือกวันเกิด';
+
+  @override
+  String get register_Anerroroccurredplstry =>
+      'เกิดข้อผิดพลาด กรุณาลองอีกครั้ง';
+
+  @override
+  String register_Anerroroccurred(Object index) {
+    return 'เกิดข้อผิดพลาด: $index';
+  }
+
+  @override
+  String register_sus(Object index) {
+    return 'ลงทะเบียนสำเร็จ! เพิ่มลูก $index คน';
+  }
+
+  @override
+  String register_submitterror(Object index) {
+    return 'ส่งผิดพลาด: $index';
+  }
+
+  @override
+  String register_requiredinformation(Object index) {
+    return 'กรอกข้อมูลให้ครบ (ชื่อ, วันเกิด, ความสัมพันธ์) ในรายการที่ $index';
+  }
+
+  @override
   String get login_backBtn => 'ย้อนกลับ';
 
   @override
