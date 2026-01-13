@@ -175,12 +175,15 @@ class AuthWrapper extends StatelessWidget {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
         // ถ้ากำลัง initialize อยู่ แสดง loading
-        if (authProvider.isLoading) {
-          return const AuthLoadingScreen();
-        }
+        // if (authProvider.isLoading) {
+        //   return const AuthLoadingScreen();
+        // }
+
+        final supabase = Supabase.instance.client;
+        final Session? session = supabase.auth.currentSession;
 
         // ถ้า login แล้ว ไปหน้า Home
-        if (authProvider.isAuthenticated && authProvider.user != null) {
+        if (session != null) {
           // TODO: ในอนาคต เช็คว่ามีลูกหรือยัง
           // final childService = ChildService();
           // final children = await childService.getChildren();
