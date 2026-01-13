@@ -327,7 +327,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (_children[i].nameCtrl.text.trim().isEmpty ||
           _children[i].birthCtrl.text.trim().isEmpty ||
           _children[i].relationCtrl.text.trim().isEmpty) {
-        _toast(AppLocalizations.of(context)!.register_requiredinformation);
+        _toast(AppLocalizations.of(context)!.register_requiredinformation(
+          i + 1
+        ));
         return;
       }
     }
@@ -354,7 +356,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       if (mounted) Navigator.pop(context);
 
       if (addedChildren.isNotEmpty) {
-        _toast(AppLocalizations.of(context)!.register_sus);
+        _toast(AppLocalizations.of(context)!.register_sus(addedChildren.length));
         if (mounted) {
           Navigator.pushNamedAndRemoveUntil(
             context,
@@ -367,7 +369,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
     } catch (e) {
       if (mounted) Navigator.pop(context);
-      _toast(AppLocalizations.of(context)!.register_Anerroroccurred);
+      _toast(AppLocalizations.of(context)!.register_Anerroroccurred(e));
       print(AppLocalizations.of(context)!.register_submitterror);
     }
   }
