@@ -35,14 +35,24 @@ class _NameSettingScreenState extends State<NameSettingScreen> {
     super.dispose();
   }
 
-  void _saveName() {
+  Future<void> _saveName() async {
     final newName = _nameController.text.trim();
-    if (newName.isNotEmpty) {
-      // 1. บันทึกชื่อใหม่ลงใน Provider
-      context.read<UserProvider>().setParentName(newName);
+    if (newName.isEmpty) return;
 
-      // 2. ปิดหน้านี้กลับไปหน้าเดิม
+    final userProvider = context.read<UserProvider>();
+    final success = await userProvider.updateParentName(newName);
+
+    if (!mounted) return;
+
+    if (success) {
       Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('ไม่สามารถบันทึกชื่อได้ ลองใหม่อีกครั้ง'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -89,7 +99,7 @@ class _NameSettingScreenState extends State<NameSettingScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              
+
               // --- Input TextField ---
               TextField(
                 controller: _nameController,

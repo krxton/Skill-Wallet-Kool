@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UserProvider extends ChangeNotifier {
   // ==========================================
@@ -34,7 +35,39 @@ class UserProvider extends ChangeNotifier {
   }
 
   // ==========================================
-  // 3. ส่วนรูปโปรไฟล์ (Profile Image)
+  // 3.1 อัปเดตชื่อใน Supabase (parent.name_surname)
+  // ==========================================
+  Future<bool> updateParentName(String name) async {
+    try {
+      final supabase = Supabase.instance.client;
+
+      // ค้นหา row ของผู้ปกครองปัจจุบัน (อาศัย RLS จำกัดให้เห็นเฉพาะของตัวเอง)
+      final parentRow =
+          await supabase.from('parent').select('id').maybeSingle();
+
+      if (parentRow == null || parentRow['id'] == null) {
+        return false;
+      }
+
+      final parentId = parentRow['id'];
+
+      // อัปเดตชื่อในตาราง parent
+      await supabase
+          .from('parent')
+          .update({'name_surname': name}).eq('id', parentId);
+
+      // อัปเดตค่าใน Provider ด้วย
+      _currentParentName = name;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      debugPrint('updateParentName error: $e');
+      return false;
+    }
+  }
+
+  // ==========================================
+  // 4. ส่วนรูปโปรไฟล์ (Profile Image)
   // ==========================================
   Uint8List? _profileImageBytes;
 
@@ -46,7 +79,7 @@ class UserProvider extends ChangeNotifier {
   }
 
   // ==========================================
-  // 4. ฟังก์ชันล้างค่า (แก้ Error: clearUserData)
+  // 5. ฟังก์ชันล้างค่า (แก้ Error: clearUserData)
   // ==========================================
   void clearUserData() {
     _currentParentName = 'PARENT2';
