@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/activity.dart';
 import 'api_service.dart';
@@ -101,49 +102,56 @@ class ActivityService {
   /// 2.2 ดึง Popular Activities (เรียงตามจำนวนรอบการเล่น)
   Future<List<Activity>> fetchPopularActivities(String childId) async {
     try {
-      // 1. ดึงข้อมูลกิจกรรมทั้งหมด
-      final allActivities = await _fetchAllActivities();
-      // 2. ดึงข้อมูล Activity Records (รอบการเล่น) จาก Backend
-      final records = await _apiService.getArray(
-        path: '/activity-records',
-        queryParameters: {'childId': childId},
-      );
-      // 3. สร้าง Map เก็บจำนวนรอบการเล่นของแต่ละ Activity
-      final Map<String, int> activityPlayCount = {};
-      for (var record in records) {
-        final activityId = record['activityId'] as String?;
-        if (activityId != null) {
-          activityPlayCount[activityId] =
-              (activityPlayCount[activityId] ?? 0) + 1;
-        }
-      }
-      // 4. เรียงกิจกรรมตามจำนวนรอบการเล่น (มากสุดก่อน)
-      allActivities.sort((a, b) {
-        final countA = activityPlayCount[a.id] ?? 0;
-        final countB = activityPlayCount[b.id] ?? 0;
-        return countB.compareTo(countA); // เรียงจากมากไปน้อย
-      });
-      // 5. ประมวลผล OEmbed สำหรับกิจกรรมที่มี Video
-      final List<Future<Activity>> processedActivitiesFutures =
-          allActivities.map((activity) async {
-        // TikTok (ด้านร่างกาย)
-        if (activity.videoUrl != null &&
-            activity.category.toUpperCase() == 'ด้านร่างกาย') {
-          try {
-            final oEmbedData = await _fetchTikTokOEmbedData(activity.videoUrl!);
-            final Map<String, dynamic> activityJson = activity.toJson();
-            activityJson['thumbnailUrl'] = oEmbedData['thumbnail_url'];
-            activityJson['tiktokHtmlContent'] = oEmbedData['html'];
-            return Activity.fromJson(activityJson);
-          } catch (e) {
-            debugPrint('OEmbed failed for ${activity.name}: $e');
-          }
-        }
-        return activity;
-      }).toList();
-      final List<Activity> processedActivities =
-          await Future.wait(processedActivitiesFutures);
-      return processedActivities;
+      final supabase = Supabase.instance.client;
+      final activity = await supabase
+          .from('activities')
+          .select()
+          .order('playCount', ascending: false);
+      return activity.map<Activity>((json) => Activity.fromJson(json)).toList();
+
+      // // 1. ดึงข้อมูลกิจกรรมทั้งหมด
+      // final allActivities = await _fetchAllActivities();
+      // // 2. ดึงข้อมูล Activity Records (รอบการเล่น) จาก Backend
+      // final records = await _apiService.getArray(
+      //   path: '/activity-records',
+      //   queryParameters: {'childId': childId},
+      // );
+      // // 3. สร้าง Map เก็บจำนวนรอบการเล่นของแต่ละ Activity
+      // final Map<String, int> activityPlayCount = {};
+      // for (var record in records) {
+      //   final activityId = record['activityId'] as String?;
+      //   if (activityId != null) {
+      //     activityPlayCount[activityId] =
+      //         (activityPlayCount[activityId] ?? 0) + 1;
+      //   }
+      // }
+      // // 4. เรียงกิจกรรมตามจำนวนรอบการเล่น (มากสุดก่อน)
+      // allActivities.sort((a, b) {
+      //   final countA = activityPlayCount[a.id] ?? 0;
+      //   final countB = activityPlayCount[b.id] ?? 0;
+      //   return countB.compareTo(countA); // เรียงจากมากไปน้อย
+      // });
+      // // 5. ประมวลผล OEmbed สำหรับกิจกรรมที่มี Video
+      // final List<Future<Activity>> processedActivitiesFutures =
+      //     allActivities.map((activity) async {
+      //   // TikTok (ด้านร่างกาย)
+      //   if (activity.videoUrl != null &&
+      //       activity.category.toUpperCase() == 'ด้านร่างกาย') {
+      //     try {
+      //       final oEmbedData = await _fetchTikTokOEmbedData(activity.videoUrl!);
+      //       final Map<String, dynamic> activityJson = activity.toJson();
+      //       activityJson['thumbnailUrl'] = oEmbedData['thumbnail_url'];
+      //       activityJson['tiktokHtmlContent'] = oEmbedData['html'];
+      //       return Activity.fromJson(activityJson);
+      //     } catch (e) {
+      //       debugPrint('OEmbed failed for ${activity.name}: $e');
+      //     }
+      //   }
+      //   return activity;
+      // }).toList();
+      // final List<Activity> processedActivities =
+      //     await Future.wait(processedActivitiesFutures);
+      // return processedActivities;
     } catch (e) {
       debugPrint('Error fetching popular activities: $e');
       return [];

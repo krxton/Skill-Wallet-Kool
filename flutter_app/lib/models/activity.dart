@@ -62,24 +62,24 @@ class Activity {
 
     // 4. สร้าง Activity Object
     return Activity(
-      id: json['id'] as String,
-      name: json['name'] as String,
+      id: json['activity_id'] as String,
+      name: json['name_activity'] as String,
       category: json['category'] as String,
       content: json['content'] as String,
-      difficulty: json['difficulty'] as String,
-      maxScore: json['maxScore'] as int,
-      description: json['description'] as String?,
-      videoUrl: json['videoUrl'] as String?,
+      difficulty: json['level_activity'] as String,
+      maxScore: json['maxscore'] as int,
+      description: json['description_activity'] as String?,
+      videoUrl: json['videourl'] as String?,
       segments: segmentsData,
-      thumbnailUrl: json['thumbnailUrl'] as String?,
-      tiktokHtmlContent: json['tiktokHtmlContent'] as String?,
+      thumbnailUrl: json['thumbnailurl'] as String?,
+      tiktokHtmlContent: json['tiktokhtmlcontent'] as String?,
 
       // 🆕 Parse DateTime จาก JSON
-      createdAt: json['createdAt'] != null
-          ? DateTime.tryParse(json['createdAt'] as String)
+      createdAt: json['created_at'] != null
+          ? DateTime.tryParse(json['created_at'] as String)
           : null,
-      updatedAt: json['updatedAt'] != null
-          ? DateTime.tryParse(json['updatedAt'] as String)
+      updatedAt: json['update_at'] != null
+          ? DateTime.tryParse(json['update_at'] as String)
           : null,
     );
   }
