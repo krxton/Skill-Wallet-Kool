@@ -1,3 +1,5 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -26,6 +28,10 @@ Future<void> main() async {
 
   print('🔧 API_BASE_URL: ${dotenv.env['API_BASE_URL']}');
 
+  await Supabase.initialize(
+    url: 'https://wgrfsbmbakfprfjmiidl.supabase.co',
+    anonKey: 'sb_publishable_pIHQQYxRzUP9z5Uxpr5Kag_ljYp0fmW',
+  );
   runApp(
     MultiProvider(
       providers: [
@@ -69,6 +75,9 @@ class _SWKAppState extends State<SWKApp> {
     // 1. เช็คว่ามี session เดิมอยู่หรือไม่
     await authProvider.initialize();
 
+    // 1.1 หลัง initialize สำเร็จ: ดึงชื่อผู้ปกครองจาก Supabase แล้วตั้งใน UserProvider
+    await _populateParentNameFromSupabase();
+
     // 2. Deep Links (เฉพาะ Mobile/Desktop ที่รองรับ)
     // ✅ Skip สำหรับ Windows/Web (uni_links ไม่รองรับ)
     if (!kIsWeb &&
@@ -97,6 +106,38 @@ class _SWKAppState extends State<SWKApp> {
     }
   }
 
+  // ✅ ดึงชื่อผู้ปกครองจาก Supabase แล้วตั้งใน UserProvider
+  Future<void> _populateParentNameFromSupabase() async {
+    if (!mounted) return;
+
+    try {
+      final supabase = Supabase.instance.client;
+      String? parentName;
+
+      try {
+        final row = await supabase
+            .from('parent')
+            .select('name_surname')
+            .maybeSingle();
+
+        if (row != null && row['name_surname'] is String) {
+          parentName = row['name_surname'] as String;
+        }
+      } catch (e) {
+        // ถ้าตาราง users ไม่มีหรือ schema ต่างไป ให้ข้าม
+        print('ℹ️ users table lookup skipped: $e');
+      }
+
+      if (parentName != null && parentName.isNotEmpty) {
+        Provider.of<UserProvider>(context, listen: false)
+            .setParentName(parentName);
+        print('👤 Parent name set: $parentName');
+      }
+    } catch (e) {
+      print('⚠️ Fetch parent name failed: $e');
+    }
+  }
+
   // ✅ Handle Deep Link Callback from OAuth
   void _handleDeepLink(Uri uri) {
     print('📱 Handling deep link: $uri');
@@ -111,6 +152,8 @@ class _SWKAppState extends State<SWKApp> {
       authProvider.handleOAuthCallback(uri).then((success) {
         if (success && mounted) {
           print('✅ OAuth login successful');
+          // หลัง login สำเร็จ: ตั้งชื่อผู้ปกครองจาก Supabase
+          _populateParentNameFromSupabase();
           // Navigate จะถูกจัดการโดย AuthWrapper
         } else {
           print('❌ OAuth login failed');
@@ -169,12 +212,15 @@ class AuthWrapper extends StatelessWidget {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
         // ถ้ากำลัง initialize อยู่ แสดง loading
-        if (authProvider.isLoading) {
-          return const AuthLoadingScreen();
-        }
+        // if (authProvider.isLoading) {
+        //   return const AuthLoadingScreen();
+        // }
+
+        final supabase = Supabase.instance.client;
+        final Session? session = supabase.auth.currentSession;
 
         // ถ้า login แล้ว ไปหน้า Home
-        if (authProvider.isAuthenticated && authProvider.user != null) {
+        if (session != null) {
           // TODO: ในอนาคต เช็คว่ามีลูกหรือยัง
           // final childService = ChildService();
           // final children = await childService.getChildren();

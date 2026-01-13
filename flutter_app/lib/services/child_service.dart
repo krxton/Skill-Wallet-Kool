@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/child_model.dart';
 import 'storage_service.dart';
 
@@ -51,34 +52,45 @@ class ChildService {
     DateTime? dob,
   }) async {
     try {
-      final token = await _storage.getToken();
-      if (token == null) return null;
+      final supabase = Supabase.instance.client;
+      final insertedChild =
+          await supabase.rpc('create_child_and_link', params: {
+        'p_name_surname': fullName,
+        'p_birthday': dob?.toIso8601String() ?? '',
+        'p_wallet': 0,
+        'p_relationship': 'Parent & Child'
+      });
 
-      final user = await _storage.getUser();
-      if (user == null) return null;
+      return Child.fromJson(insertedChild);
 
-      final url = Uri.parse("$apiBaseUrl/children");
+      // final token = await _storage.getToken();
+      // if (token == null) return null;
 
-      final response = await http.post(
-        url,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $token",
-        },
-        body: jsonEncode({
-          'parentId': user.id,
-          'fullName': fullName,
-          if (dob != null) 'dob': dob.toIso8601String(),
-        }),
-      );
+      // final user = await _storage.getUser();
+      // if (user == null) return null;
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = jsonDecode(response.body) as Map<String, dynamic>;
-        return Child.fromJson(data);
-      } else {
-        print('Add child error: ${response.statusCode} - ${response.body}');
-        return null;
-      }
+      // final url = Uri.parse("$apiBaseUrl/children");
+
+      // final response = await http.post(
+      //   url,
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     "Authorization": "Bearer $token",
+      //   },
+      //   body: jsonEncode({
+      //     'parentId': user.id,
+      //     'fullName': fullName,
+      //     if (dob != null) 'dob': dob.toIso8601String(),
+      //   }),
+      // );
+
+      // if (response.statusCode == 200 || response.statusCode == 201) {
+      //   final data = jsonDecode(response.body) as Map<String, dynamic>;
+      //   return Child.fromJson(data);
+      // } else {
+      //   print('Add child error: ${response.statusCode} - ${response.body}');
+      //   return null;
+      // }
     } catch (e) {
       print('Add child exception: $e');
       return null;

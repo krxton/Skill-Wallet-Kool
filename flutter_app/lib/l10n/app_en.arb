@@ -31,6 +31,13 @@
   "register_okBtn": "OK",
   "register_pls":"Please fill in all the information in the list. ",
   "register_finish":"Successfully registered!",
+  "register_relation": "RELATION",
+  "register_pickbirthday": "Choose birthday",
+  "register_Anerroroccurredplstry" :"An error occurred. Please try again.",
+  "register_Anerroroccurred" : "An error occurred: {index}",
+  "register_sus":"Registration successful! Added {index} child.",
+  "register_submitterror":"Submit error: {index}",
+  "register_requiredinformation" : "Please fill in all the required information (name, date of birth, relationship) in the list. {index}",
 
   "login_backBtn": "BACK",
   "login_facebookBtn": "CONTINUE WITH FACEBOOK",

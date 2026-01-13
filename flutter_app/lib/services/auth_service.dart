@@ -96,6 +96,7 @@ class AuthService {
     try {
       final url = Uri.parse("$apiBaseUrl/sign-in/social");
 
+      print(url);
       final response = await http.post(
         url,
         headers: {"Content-Type": "application/json"},
@@ -104,6 +105,7 @@ class AuthService {
           'callbackURL': 'skillwalletkool://auth-callback',
         }),
       );
+      print(response.statusCode);
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;

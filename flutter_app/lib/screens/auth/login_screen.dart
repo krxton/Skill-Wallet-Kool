@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart'; // ✅ เพิ่ม
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
+import 'package:skill_wallet_kool/routes/app_routes.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../providers/auth_provider.dart'; // ✅ เพิ่ม
 
 class LoginScreen extends StatelessWidget {
@@ -57,13 +60,9 @@ class LoginScreen extends StatelessWidget {
                           authProvider.isLoading // ✅ เพิ่ม: disable ถ้า loading
                               ? () {}
                               : () async {
-                                  // ✅ เพิ่ม: เรียก Google login
-                                  final success =
-                                      await authProvider.signInWithGoogle();
-                                  if (success && context.mounted) {
-                                    // รอ callback จาก deep link
-                                    // จะถูกจัดการใน main.dart
-                                  }
+                                  await _nativeGoogleSignIn(
+                                    context,
+                                  );
                                 },
                     ),
 
@@ -111,6 +110,52 @@ class LoginScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Future<void> _nativeGoogleSignIn(
+    BuildContext context,
+  ) async {
+    // Web Client ID
+    const webClientId = '286775717840-494vogfnb2oclk746pgqu83o66sm7qsc.apps.googleusercontent.com';
+    // iOS Client ID
+    const iosClientId = '286775717840-etqs6h74ku98274lcb03be4hmoj12s7u.apps.googleusercontent.com';
+
+    final scopes = ['email', 'profile'];
+    final googleSignIn = GoogleSignIn.instance;
+
+    await googleSignIn.initialize(
+      serverClientId: webClientId,
+      clientId: iosClientId,
+    );
+
+    final googleUser = await googleSignIn.authenticate();
+
+    if (googleUser == null) {
+      // throw AuthException('Failed to sign in with Google.');
+      return; // ยกเลิกการ login
+    }
+
+    final authorization =
+        await googleUser.authorizationClient.authorizationForScopes(scopes) ??
+            await googleUser.authorizationClient.authorizeScopes(scopes);
+
+    final idToken = googleUser.authentication.idToken;
+
+    if (idToken == null) {
+      throw const AuthException('No ID Token found.');
+    }
+    final supabase = Supabase.instance.client;
+    await supabase.auth.signInWithIdToken(
+      provider: OAuthProvider.google,
+      idToken: idToken,
+      accessToken: authorization.accessToken,
+    );
+
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      AppRoutes.home,
+      (route) => route.isFirst,
     );
   }
 
