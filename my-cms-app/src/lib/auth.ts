@@ -37,6 +37,10 @@ export const auth = betterAuth({
   
   // ✅ ต้องมี baseURL
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+
+  trustedOrigins: [
+    "skillwalletkool://"
+  ],
   
   plugins: [openAPI()],
 });

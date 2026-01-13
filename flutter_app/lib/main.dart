@@ -1,3 +1,5 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -26,6 +28,10 @@ Future<void> main() async {
 
   print('🔧 API_BASE_URL: ${dotenv.env['API_BASE_URL']}');
 
+  await Supabase.initialize(
+    url: 'https://wgrfsbmbakfprfjmiidl.supabase.co',
+    anonKey: 'sb_publishable_pIHQQYxRzUP9z5Uxpr5Kag_ljYp0fmW',
+  );
   runApp(
     MultiProvider(
       providers: [

@@ -3,9 +3,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart'; // ✅ เพิ่ม
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import 'package:skill_wallet_kool/services/auth_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../providers/auth_provider.dart'; // ✅ เพิ่ม
 import '../../services/child_service.dart'; // ✅ เพิ่ม
 import '../../routes/app_routes.dart'; // ✅ เพิ่ม
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key, this.initialStep = 0});
@@ -87,11 +90,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             onTap: authProvider.isLoading // ✅ เพิ่ม: disable ถ้า loading
                 ? () {}
                 : () async {
-                    // ✅ เพิ่ม: เรียก Google sign up
-                    final success = await authProvider.signInWithGoogle();
-                    if (success && mounted) {
-                      // รอ callback จาก deep link
-                    }
+                   _nativeGoogleSignIn();
                   }),
 
         // ✅ เพิ่ม: แสดง loading indicator
@@ -135,6 +134,51 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ],
     );
   }
+Future<void> _nativeGoogleSignIn() async {
+  /// TODO: update the Web client ID with your own.
+  ///
+  /// Web Client ID that you registered with Google Cloud.
+  const webClientId = '286775717840-494vogfnb2oclk746pgqu83o66sm7qsc.apps.googleusercontent.com';
+
+  /// TODO: update the iOS client ID with your own.
+  ///
+  /// iOS Client ID that you registered with Google Cloud.
+  const iosClientId = '286775717840-etqs6h74ku98274lcb03be4hmoj12s7u.apps.googleusercontent.com';
+
+  final scopes = ['email', 'profile'];
+  final googleSignIn = GoogleSignIn.instance;
+
+  await googleSignIn.initialize(
+    serverClientId: webClientId,
+    clientId: iosClientId,
+  );
+
+  final googleUser = await googleSignIn.attemptLightweightAuthentication();
+  // or await googleSignIn.authenticate(); which will return a GoogleSignInAccount or throw an exception
+
+  if (googleUser == null) {
+    throw AuthException('Failed to sign in with Google.');
+  }
+
+  /// Authorization is required to obtain the access token with the appropriate scopes for Supabase authentication,
+  /// while also granting permission to access user information.
+  final authorization =
+      await googleUser.authorizationClient.authorizationForScopes(scopes) ??
+      await googleUser.authorizationClient.authorizeScopes(scopes);
+
+  final idToken = googleUser.authentication.idToken;
+
+  if (idToken == null) {
+    throw AuthException('No ID Token found.');
+  }
+  final supabase = Supabase.instance.client;
+  await supabase.auth.signInWithIdToken(
+    provider: OAuthProvider.google,
+    idToken: idToken,
+    accessToken: authorization.accessToken,
+  );
+}
+
 
   // ---------- STEP 1 : ADDITIONAL INFO (UI เดิม + แก้ logic) ----------
   Widget _secondPage() {
