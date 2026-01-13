@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import 'package:skill_wallet_kool/main.dart';
+import 'package:skill_wallet_kool/routes/app_routes.dart';
 
 // Import Provider
 import '../../../providers/user_provider.dart';
+import '../../../providers/auth_provider.dart';
 
 // Import หน้าย่อยต่างๆ
 import 'profile_setting_screen.dart'; // หน้าแก้ไขโปรไฟล์
@@ -195,9 +198,25 @@ class _SettingScreenState extends State<SettingScreen> {
 
                 // --- 3. Log Out Button ---
                 GestureDetector(
-                  onTap: () {
+                  onTap: () async {
+                    try {
+                      final supabase = Supabase.instance.client;
+                      await supabase.auth.signOut();
+                    } catch (e) {
+                      // Optionally show a message, but continue clearing local state
+                    }
+
+                    // Clear local providers/state
+                    await context.read<AuthProvider>().signOut();
                     context.read<UserProvider>().clearUserData();
-                    Navigator.pop(context);
+
+                    // Navigate to Welcome and clear back stack
+                    if (mounted) {
+                      Navigator.of(context).pushNamedAndRemoveUntil(
+                        AppRoutes.welcome,
+                        (route) => false,
+                      );
+                    }
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
