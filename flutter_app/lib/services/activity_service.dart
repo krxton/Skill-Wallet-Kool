@@ -104,9 +104,9 @@ class ActivityService {
     try {
       final supabase = Supabase.instance.client;
       final activity = await supabase
-          .from('activities')
+          .from('activity')
           .select()
-          .order('playCount', ascending: false);
+          .order('play_count', ascending: false);
       return activity.map<Activity>((json) => Activity.fromJson(json)).toList();
 
       // // 1. ดึงข้อมูลกิจกรรมทั้งหมด
