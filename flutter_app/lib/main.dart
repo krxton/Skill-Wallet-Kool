@@ -75,6 +75,9 @@ class _SWKAppState extends State<SWKApp> {
     // 1. เช็คว่ามี session เดิมอยู่หรือไม่
     await authProvider.initialize();
 
+    // 1.1 หลัง initialize สำเร็จ: ดึงชื่อผู้ปกครองจาก Supabase แล้วตั้งใน UserProvider
+    await _populateParentNameFromSupabase();
+
     // 2. Deep Links (เฉพาะ Mobile/Desktop ที่รองรับ)
     // ✅ Skip สำหรับ Windows/Web (uni_links ไม่รองรับ)
     if (!kIsWeb &&
@@ -103,6 +106,56 @@ class _SWKAppState extends State<SWKApp> {
     }
   }
 
+  // ✅ ดึงชื่อผู้ปกครองจาก Supabase แล้วตั้งใน UserProvider
+  Future<void> _populateParentNameFromSupabase() async {
+    if (!mounted) return;
+
+    try {
+      final supabase = Supabase.instance.client;
+      final authUser = supabase.auth.currentUser;
+      String? parentName;
+
+      // 1) ลองดึงจาก userMetadata (เช่น name หรือ full_name)
+      final meta = authUser?.userMetadata;
+      if (meta != null) {
+        parentName = (meta['name'] as String?) ?? (meta['full_name'] as String?);
+      }
+
+      // 2) ถ้ายังไม่พบ ลอง query จากตาราง users (ปรับได้ตาม schema จริง)
+      if (parentName == null && authUser != null) {
+        try {
+          final row = await supabase
+              .from('users')
+              .select('name')
+              .eq('id', authUser.id)
+              .maybeSingle();
+
+          if (row != null && row['name'] is String) {
+            parentName = row['name'] as String;
+          }
+        } catch (e) {
+          // ถ้าตาราง users ไม่มีหรือ schema ต่างไป ให้ข้าม
+          print('ℹ️ users table lookup skipped: $e');
+        }
+      }
+
+      // 3) ถ้ายังไม่พบ ใช้ชื่อจาก AuthProvider (Backend session)
+      if (parentName == null) {
+        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+        parentName = authProvider.user?.name;
+      }
+
+      // 4) ตั้งค่าลง UserProvider
+      if (parentName != null && parentName.isNotEmpty) {
+        Provider.of<UserProvider>(context, listen: false)
+            .setParentName(parentName);
+        print('👤 Parent name set: $parentName');
+      }
+    } catch (e) {
+      print('⚠️ Fetch parent name failed: $e');
+    }
+  }
+
   // ✅ Handle Deep Link Callback from OAuth
   void _handleDeepLink(Uri uri) {
     print('📱 Handling deep link: $uri');
@@ -117,6 +170,8 @@ class _SWKAppState extends State<SWKApp> {
       authProvider.handleOAuthCallback(uri).then((success) {
         if (success && mounted) {
           print('✅ OAuth login successful');
+          // หลัง login สำเร็จ: ตั้งชื่อผู้ปกครองจาก Supabase
+          _populateParentNameFromSupabase();
           // Navigate จะถูกจัดการโดย AuthWrapper
         } else {
           print('❌ OAuth login failed');
