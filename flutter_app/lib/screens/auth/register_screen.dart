@@ -153,7 +153,8 @@ Future<void> _nativeGoogleSignIn() async {
     clientId: iosClientId,
   );
 
-  final googleUser = await googleSignIn.attemptLightweightAuthentication();
+  final googleUser = await googleSignIn.authenticate();
+  // final googleUser = await googleSignIn.attemptLightweightAuthentication();
   // or await googleSignIn.authenticate(); which will return a GoogleSignInAccount or throw an exception
 
   if (googleUser == null) {
