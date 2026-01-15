@@ -13,6 +13,8 @@
   "dependencies": {
     "@clerk/nextjs": "^6.36.2",
     "@prisma/client": "^6.19.0",
+    "@supabase/ssr": "^0.8.0",
+    "@supabase/supabase-js": "^2.90.1",
     "better-auth": "^1.4.10",
     "cuid": "^3.0.0",
     "lucide-react": "^0.548.0",

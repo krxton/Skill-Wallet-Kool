@@ -1,182 +1,264 @@
-// src/app/api/activities/route.ts
+// app/api/activities/route.ts
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
 
-import { NextResponse } from 'next/server'
-import prisma from '@/lib/prisma'
-
-interface ActivityData {
-  name: string;
-  category: string;
-  content: string;
-  difficulty: string;
-  maxScore: number;
-  description: string;
-  videoUrl?: string;
-  segments?: any;
+// Helper function to safely serialize JSON fields
+function safeJsonSerialize(value: any) {
+  if (value === null || value === undefined) return null;
+  
+  // ถ้าเป็น string แล้ว ให้ parse ก่อน
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return value;
+    }
+  }
+  
+  // ถ้าเป็น object อยู่แล้ว return ตรงๆ
+  return value;
 }
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
-  'Access-Control-Max-Age': '86400',
-};
-
-/**
- * @swagger
- * /api/activities:
- *   post:
- *     tags:
- *       - Activities
- *     summary: สร้างกิจกรรมใหม่
- *     description: สร้างกิจกรรมใหม่พร้อมข้อมูลรายละเอียด
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/ActivityInput'
- *           examples:
- *             example1:
- *               summary: ตัวอย่างกิจกรรมด้านคิดวิเคราะห์
- *               value:
- *                 name: "กิจกรรมเรียนรู้ตัวเลข"
- *                 category: "ด้านคิดวิเคราะห์"
- *                 content: "กิจกรรมสำหรับเด็กอายุ 3-5 ปี"
- *                 difficulty: "ง่าย"
- *                 maxScore: 100
- *                 description: "เรียนรู้การนับเลข 1-10"
- *                 videoUrl: null
- *                 segments: 
- *                   - id: "cmiu3xomg0000356vj5aw19zo"
- *                     question: "1+1"
- *                     answer: "2"
- *                     solution: ""
- *                     score: 100
- *     responses:
- *       201:
- *         description: สร้างกิจกรรมสำเร็จ
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Activity'
- *       400:
- *         $ref: '#/components/responses/BadRequest'
- *       500:
- *         $ref: '#/components/responses/InternalServerError'
- */
-export async function POST(request: Request) {
+// GET: ดึง activities ทั้งหมด
+export async function GET(request: Request) {
   try {
-    const body: ActivityData = await request.json()
-    const {
-      name,
-      category,
-      content,
-      difficulty,
-      maxScore,
-      description,
-      videoUrl,
-      segments
-    } = body
+    const { searchParams } = new URL(request.url);
+    const search = searchParams.get('search');
+    const category = searchParams.get('category');
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '10');
+    const skip = (page - 1) * limit;
 
-    if (!name || !category || !content || !difficulty || maxScore === undefined) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400, headers: corsHeaders })
+    // Build where clause
+    const where: any = {};
+
+    if (search) {
+      where.name_activity = {
+        contains: search,
+        mode: 'insensitive'
+      };
     }
 
-    const segmentsString: string | undefined = segments
-      ? JSON.stringify(segments)
-      : undefined;
+    if (category && category !== 'all') {
+      where.category = category;
+    }
 
-    const newActivity = await prisma.activity.create({
-      data: {
-        name,
-        category,
-        content,
-        difficulty,
-        maxScore: parseInt(maxScore as any),
-        description,
-        videoUrl: videoUrl || null,
-        segments: segmentsString,
-      },
-    })
+    // Get total count
+    const totalCount = await prisma.activity.count({ where });
+    const totalPages = Math.ceil(totalCount / limit);
 
-    return NextResponse.json(newActivity, { status: 201, headers: corsHeaders })
-  } catch (error) {
-    console.error('Error creating activity:', error)
-    return NextResponse.json({ error: 'Failed to create activity' }, { status: 500, headers: corsHeaders })
-  }
-}
-
-/**
- * @swagger
- * /api/activities:
- *   get:
- *     tags:
- *       - Activities
- *     summary: ดึงรายการกิจกรรมทั้งหมด
- *     description: ดึงรายการกิจกรรมทั้งหมดเรียงตาม ID จากน้อยไปมาก
- *     responses:
- *       200:
- *         description: ดึงข้อมูลสำเร็จ
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Activity'
- *             examples:
- *               example1:
- *                 summary: ตัวอย่างรายการกิจกรรม
- *                 value:
- *                   - id: "clxxx12345"
- *                     name: "กิจกรรมเรียนรู้ตัวเลข"
- *                     category: "คณิตศาสตร์"
- *                     content: "เรียนรู้การนับเลข 1-10"
- *                     difficulty: "Easy"
- *                     maxScore: 100
- *                     description: "กิจกรรมสำหรับเด็กอายุ 3-5 ปี"
- *                     videoUrl: "https://www.youtube.com/watch?v=xxx"
- *                     segments: null
- *                     createdAt: "2024-01-01T00:00:00.000Z"
- *                     updatedAt: "2024-01-01T00:00:00.000Z"
- *       500:
- *         $ref: '#/components/responses/InternalServerError'
- */
-export async function GET() {
-  try {
+    // Get activities
     const activities = await prisma.activity.findMany({
+      where,
+      skip,
+      take: limit,
+      select: {
+        activity_id: true,
+        name_activity: true,
+        category: true,
+        content: true,
+        level_activity: true,
+        maxscore: true,
+        description_activity: true,
+        segments: true,
+        videourl: true,
+        thumbnailurl: true,
+        play_count: true,
+        created_at: true,
+        update_at: true,
+        parent_id: true,
+      },
       orderBy: {
-        id: 'asc',
-      },
-    })
-
-    const formattedJson = JSON.stringify(activities, null, 2);
-
-    return new Response(formattedJson, {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        ...corsHeaders,
-      },
+        created_at: 'desc'
+      }
     });
 
-  } catch (error) {
-    console.error('Error fetching activities:', error)
-    return NextResponse.json({ error: 'Failed to fetch activities' }, { status: 500, headers: corsHeaders })
+    // แปลงเป็น format ที่ frontend ต้องการ
+    const activitiesResponse = activities.map(activity => {
+      try {
+        return {
+          // Format สำหรับ admin UI
+          activityId: activity.activity_id,
+          nameActivity: activity.name_activity,
+          category: activity.category,
+          descriptionActivity: activity.description_activity || '',
+          createdAt: activity.created_at.toISOString(),
+          responses: 0,
+          
+          // Format สำหรับ EditForm
+          id: activity.activity_id,
+          name: activity.name_activity,
+          difficulty: activity.level_activity,
+          maxScore: Number(activity.maxscore),
+          content: activity.content,
+          description: activity.description_activity || '',
+          videoUrl: activity.videourl || '',
+          thumbnailUrl: activity.thumbnailurl || '',
+          segments: safeJsonSerialize(activity.segments), // ✅ จัดการ JSON field
+          playCount: activity.play_count ? Number(activity.play_count) : 0,
+          parentId: activity.parent_id,
+          updatedAt: activity.update_at.toISOString(),
+        };
+      } catch (err) {
+        console.error('Error serializing activity:', activity.activity_id, err);
+        // Return minimal data ถ้า serialize ไม่ได้
+        return {
+          activityId: activity.activity_id,
+          nameActivity: activity.name_activity,
+          category: activity.category,
+          descriptionActivity: activity.description_activity || '',
+          createdAt: activity.created_at.toISOString(),
+          responses: 0,
+          id: activity.activity_id,
+          name: activity.name_activity,
+          difficulty: activity.level_activity,
+          maxScore: Number(activity.maxscore),
+          content: activity.content,
+          description: activity.description_activity || '',
+          videoUrl: activity.videourl || '',
+          thumbnailUrl: activity.thumbnailurl || '',
+          segments: null,
+          playCount: 0,
+          parentId: activity.parent_id,
+          updatedAt: activity.update_at.toISOString(),
+        };
+      }
+    });
+
+    // Return with proper structure (match frontend expectations)
+    const response = {
+      success: true,  // ✅ เพิ่ม success flag
+      data: activitiesResponse,  // ✅ ใช้ data แทน activities
+      pagination: {
+        currentPage: page,
+        totalPages,
+        total: totalCount,  // ✅ ใช้ total แทน totalCount
+        limit
+      }
+    };
+
+    return NextResponse.json(response);
+  } catch (error: any) {
+    console.error('GET /api/activities error:', error);
+    
+    // Return proper error response
+    return NextResponse.json(
+      { 
+        success: false,  // ✅ เพิ่ม success: false
+        error: 'Failed to fetch activities', 
+        details: error.message,
+        data: [],  // ✅ ใช้ data แทน activities
+        pagination: {
+          currentPage: 1,
+          totalPages: 0,
+          total: 0,  // ✅ ใช้ total แทน totalCount
+          limit: 10
+        }
+      },
+      { status: 500 }
+    );
   }
 }
 
-/**
- * @swagger
- * /api/activities:
- *   options:
- *     tags:
- *       - Activities
- *     summary: CORS Preflight Request
- *     description: จัดการ CORS preflight request
- *     responses:
- *       200:
- *         description: CORS headers returned successfully
- */
-export async function OPTIONS() {
-  return NextResponse.json({}, { status: 200, headers: corsHeaders });
+// POST: สร้าง activity ใหม่
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+
+    // Validate required fields
+    if (!body.name) {
+      return NextResponse.json(
+        { error: 'name is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!body.category) {
+      return NextResponse.json(
+        { error: 'category is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!body.content) {
+      return NextResponse.json(
+        { error: 'content is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!body.difficulty) {
+      return NextResponse.json(
+        { error: 'difficulty is required' },
+        { status: 400 }
+      );
+    }
+
+    if (body.maxScore === undefined) {
+      return NextResponse.json(
+        { error: 'maxScore is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!body.parentId) {
+      return NextResponse.json(
+        { error: 'parentId is required' },
+        { status: 400 }
+      );
+    }
+
+    // Prepare segments data
+    let segmentsData = null;
+    if (body.segments) {
+      segmentsData = typeof body.segments === 'string' 
+        ? JSON.parse(body.segments) 
+        : body.segments;
+    }
+
+    // Create activity
+    const activity = await prisma.activity.create({
+      data: {
+        name_activity: body.name,
+        category: body.category,
+        content: body.content,
+        level_activity: body.difficulty,
+        maxscore: body.maxScore,
+        description_activity: body.description || '',
+        segments: segmentsData,
+        videourl: body.videoUrl || null,
+        thumbnailurl: body.thumbnailUrl || null,
+        parent_id: body.parentId,
+        update_at: new Date(),
+      }
+    });
+
+    // Return response
+    const activityResponse = {
+      activityId: activity.activity_id,
+      nameActivity: activity.name_activity,
+      category: activity.category,
+      descriptionActivity: activity.description_activity || '',
+      id: activity.activity_id,
+      name: activity.name_activity,
+      difficulty: activity.level_activity,
+      maxScore: Number(activity.maxscore),
+      videoUrl: activity.videourl || '',
+      thumbnailUrl: activity.thumbnailurl || '',
+      content: activity.content,
+      description: activity.description_activity || '',
+      segments: safeJsonSerialize(activity.segments),
+      parentId: activity.parent_id,
+      createdAt: activity.created_at.toISOString(),
+      updatedAt: activity.update_at.toISOString(),
+    };
+
+    return NextResponse.json(activityResponse, { status: 201 });
+  } catch (error: any) {
+    console.error('POST /api/activities error:', error);
+    return NextResponse.json(
+      { error: 'Failed to create activity', details: error.message },
+      { status: 400 }
+    );
+  }
 }

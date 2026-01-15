@@ -1,21 +1,16 @@
-// src/lib/prisma.ts
-import { PrismaClient } from '@prisma/client'
+// lib/prisma.ts
+import { PrismaClient } from '@prisma/client';
 
-// 1. สร้าง Type สำหรับ Global Prisma Client
-type PrismaClientSingleton = PrismaClient
-// 2. ขยาย Global Interface เพื่อเพิ่ม Prisma Client เข้าไป
-declare global {
-  // eslint-disable-next-line no-var
-  var prismaGlobal: PrismaClientSingleton | undefined
-}
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
 
-// 3. สร้าง Client Instance ที่ใช้ร่วมกัน (Singleton)
-const prisma = globalThis.prismaGlobal ?? new PrismaClient()
+export const prisma = globalForPrisma.prisma ?? new PrismaClient({
+  log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+});
 
-// 4. Export Client ที่สร้างขึ้น
-export default prisma
-
-// 5. ป้องกันการสร้าง Client ซ้ำซ้อนในโหมด Development
 if (process.env.NODE_ENV !== 'production') {
-  globalThis.prismaGlobal = prisma
+  globalForPrisma.prisma = prisma;
 }
+
+export default prisma;
