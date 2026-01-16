@@ -1,7 +1,7 @@
 // app/admin/users/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { Search, MoreVertical, Eye, UserCheck, UserX } from 'lucide-react';
 
@@ -25,10 +25,26 @@ export default function UsersPage() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchUsers();
   }, [searchQuery, statusFilter, verificationFilter, currentPage]);
+
+  // Click outside to close menu
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpenMenuId(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -53,6 +69,10 @@ export default function UsersPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const toggleMenu = (id: string) => {
+    setOpenMenuId(openMenuId === id ? null : id);
   };
 
   const getStatusBadge = (status: string) => {
@@ -207,19 +227,25 @@ export default function UsersPage() {
                   })}
                 </td>
                 <td className="px-4 py-3">
-                  <div className="relative group">
-                    <button className="p-1 hover:bg-gray--light1 rounded">
+                  <div className="relative" ref={openMenuId === user.id ? menuRef : null}>
+                    <button 
+                      onClick={() => toggleMenu(user.id)}
+                      className="p-1 hover:bg-gray--light1 rounded"
+                    >
                       <MoreVertical size={16} className="text-secondary--text" />
                     </button>
-                    <div className="absolute right-0 top-full mt-1 bg-white border border-gray4 rounded-lg shadow-lg py-2 hidden group-hover:block z-10 min-w-[120px]">
-                      <Link
-                        href={`/admin/users/${user.id}`}
-                        className="flex items-center gap-2 px-4 py-2 hover:bg-gray--light1 body-small-medium whitespace-nowrap"
-                      >
-                        <Eye size={16} />
-                        View Detail
-                      </Link>
-                    </div>
+                    {openMenuId === user.id && (
+                      <div className="absolute right-0 top-full mt-1 bg-white border border-gray4 rounded-lg shadow-lg py-2 z-10 min-w-[120px]">
+                        <Link
+                          href={`/admin/users/${user.id}`}
+                          className="flex items-center gap-2 px-4 py-2 hover:bg-gray--light1 body-small-medium whitespace-nowrap"
+                          onClick={() => setOpenMenuId(null)}
+                        >
+                          <Eye size={16} />
+                          View Detail
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 </td>
               </tr>

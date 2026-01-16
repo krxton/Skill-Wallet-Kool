@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { Plus, Search, MoreVertical, Edit, Trash2 } from 'lucide-react';
 
@@ -21,10 +21,26 @@ export default function ActivitiesPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchActivities();
   }, [page, searchQuery]);
+
+  // Click outside to close menu
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpenMenuId(null);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const fetchActivities = async () => {
     try {
@@ -38,7 +54,6 @@ export default function ActivitiesPage() {
       const res = await fetch(`/api/activities?${params}`);
       const result = await res.json();
       
-      // ← แก้ตรงนี้: ใช้ result.data
       if (result.success) {
         setActivities(result.data);
         setTotal(result.pagination.total);
@@ -81,6 +96,7 @@ export default function ActivitiesPage() {
       
       if (res.ok) {
         fetchActivities();
+        setOpenMenuId(null);
       } else {
         alert('Failed to delete activity');
       }
@@ -108,7 +124,11 @@ export default function ActivitiesPage() {
 
   const handleSearch = (value: string) => {
     setSearchQuery(value);
-    setPage(1); // Reset to page 1 on search
+    setPage(1);
+  };
+
+  const toggleMenu = (id: string) => {
+    setOpenMenuId(openMenuId === id ? null : id);
   };
 
   if (loading && activities.length === 0) {
@@ -236,26 +256,32 @@ export default function ActivitiesPage() {
                     {activity.responses || '-'}
                   </td>
                   <td className="px-4 py-3">
-                    <div className="relative group">
-                      <button className="p-1 hover:bg-gray--light1 rounded">
+                    <div className="relative" ref={openMenuId === activity.activityId ? menuRef : null}>
+                      <button 
+                        onClick={() => toggleMenu(activity.activityId)}
+                        className="p-1 hover:bg-gray--light1 rounded"
+                      >
                         <MoreVertical size={16} className="text-secondary--text" />
                       </button>
-                      <div className="absolute right-0 top-full mt-1 bg-white border border-gray4 rounded-lg shadow-lg py-2 hidden group-hover:block z-10">
-                        <Link
-                          href={`/admin/activities/${activity.activityId}`}
-                          className="flex items-center gap-2 px-4 py-2 hover:bg-gray--light1 body-small-medium whitespace-nowrap"
-                        >
-                          <Edit size={16} />
-                          Edit
-                        </Link>
-                        <button
-                          onClick={() => handleDelete(activity.activityId)}
-                          className="flex items-center gap-2 px-4 py-2 hover:bg-gray--light1 body-small-medium text-red w-full text-left whitespace-nowrap"
-                        >
-                          <Trash2 size={16} />
-                          Delete
-                        </button>
-                      </div>
+                      {openMenuId === activity.activityId && (
+                        <div className="absolute right-0 top-full mt-1 bg-white border border-gray4 rounded-lg shadow-lg py-2 z-10">
+                          <Link
+                            href={`/admin/activities/${activity.activityId}`}
+                            className="flex items-center gap-2 px-4 py-2 hover:bg-gray--light1 body-small-medium whitespace-nowrap"
+                            onClick={() => setOpenMenuId(null)}
+                          >
+                            <Edit size={16} />
+                            Edit
+                          </Link>
+                          <button
+                            onClick={() => handleDelete(activity.activityId)}
+                            className="flex items-center gap-2 px-4 py-2 hover:bg-gray--light1 body-small-medium text-red w-full text-left whitespace-nowrap"
+                          >
+                            <Trash2 size={16} />
+                            Delete
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </td>
                 </tr>
