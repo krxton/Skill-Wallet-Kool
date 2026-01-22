@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart'; // ✅ เพิ่ม
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
+import 'package:skill_wallet_kool/providers/user_provider.dart';
 import 'package:skill_wallet_kool/routes/app_routes.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../providers/auth_provider.dart'; // ✅ เพิ่ม
@@ -116,10 +117,10 @@ class LoginScreen extends StatelessWidget {
   Future<void> _nativeGoogleSignIn(
     BuildContext context,
   ) async {
-    // Web Client ID
-    const webClientId = '286775717840-494vogfnb2oclk746pgqu83o66sm7qsc.apps.googleusercontent.com';
-    // iOS Client ID
-    const iosClientId = '286775717840-etqs6h74ku98274lcb03be4hmoj12s7u.apps.googleusercontent.com';
+    const webClientId =
+        '286775717840-494vogfnb2oclk746pgqu83o66sm7qsc.apps.googleusercontent.com';
+    const iosClientId =
+        '286775717840-etqs6h74ku98274lcb03be4hmoj12s7u.apps.googleusercontent.com';
 
     final scopes = ['email', 'profile'];
     final googleSignIn = GoogleSignIn.instance;
@@ -131,10 +132,10 @@ class LoginScreen extends StatelessWidget {
 
     final googleUser = await googleSignIn.authenticate();
 
-    if (googleUser == null) {
-      // throw AuthException('Failed to sign in with Google.');
-      return; // ยกเลิกการ login
-    }
+    if (googleUser == null) return;
+
+    // ✅ 1. ดึงชื่อจริง (DisplayName) จาก Google ไว้ก่อน
+    final String? fullName = googleUser.displayName;
 
     final authorization =
         await googleUser.authorizationClient.authorizationForScopes(scopes) ??
@@ -145,18 +146,57 @@ class LoginScreen extends StatelessWidget {
     if (idToken == null) {
       throw const AuthException('No ID Token found.');
     }
+
     final supabase = Supabase.instance.client;
-    await supabase.auth.signInWithIdToken(
+
+    // ✅ 2. ประกาศตัวแปร response มารับค่าจากการ SignIn
+    final response = await supabase.auth.signInWithIdToken(
       provider: OAuthProvider.google,
       idToken: idToken,
       accessToken: authorization.accessToken,
     );
 
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      AppRoutes.home,
-      (route) => route.isFirst,
-    );
+    final user = response.user;
+    if (user != null) {
+      final String nameToSave = fullName ?? user.email!.split('@')[0];
+
+      try {
+        // ✅ เปลี่ยนจาก upsert มาใช้การตรวจสอบก่อน
+        final existingParent = await supabase
+            .from('parent')
+            .select()
+            .eq('user_id', user.id)
+            .maybeSingle();
+
+        if (existingParent == null) {
+          // ถ้ายังไม่มีข้อมูล ให้ Insert
+          await supabase.from('parent').insert({
+            'user_id': user.id,
+            'email': user.email,
+            'name_surname': nameToSave,
+          });
+        } else {
+          // ถ้ามีแล้ว ให้ Update ชื่อล่าสุดจาก Google
+          await supabase.from('parent').update({
+            'name_surname': nameToSave,
+          }).eq('user_id', user.id);
+        }
+
+        if (context.mounted) {
+          context.read<UserProvider>().setParentName(nameToSave);
+        }
+      } catch (e) {
+        debugPrint('Error syncing parent data during login: $e');
+      }
+    }
+
+    if (context.mounted) {
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoutes.home,
+        (route) => false, // เปลี่ยนเป็น false เพื่อเคลียร์ stack ทั้งหมด
+      );
+    }
   }
 
   // UI เดิม - ไม่เปลี่ยน

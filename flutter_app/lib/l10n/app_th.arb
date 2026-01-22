@@ -173,6 +173,14 @@
   "itemintro_listenExampleBtn": "ฟังตัวอย่าง",
   "itemintro_practiceNowBtn": "เริ่มฝึกทันที",
   "itemintro_submitBtn": "ส่งผลงาน",
+  "itemintro_playsection":"เล่นข้อความ",
+  "itemintro_record":"บันทึก",
+  "itemintro_casttotv":"ส่งไปยังทีวี",
+  "itemintro_airplay":"เล่นทางอากาศ",
+  "itemintro_previous":"< ก่อนหน้า",
+  "itemintro_next":"ถัดไป >",
+  "itemintro_finish":"เสร็จสิ้น >",
+  "itemintro_Videonotavailable":"ไม่มีวิดีโอ",
 
   "record_loading": "กำลังโหลด...",
   "record_finishBtn": "เสร็จสิ้น",
@@ -197,6 +205,7 @@
   "calculate_mixBtn": "ผสม + - * /",
   "calculate_problemsSolveBtn": "โจทย์ปัญหา",
 
+
   "languagehub_searchHint": "ค้นหา...",
   "languagehub_trainingTitle": "ฝึกฝนภาษา",
   "languagehub_listeningSpeakingTitle": "การฟังและการพูด",
@@ -216,6 +225,14 @@
   "problemanswer_defaultAnswer": "รวมมีแมวทั้งหมด 8 ตัว",
 
   "problemplaying_finishBtn": "เสร็จสิ้น",
+
+  "createpost_sharesus":"แชร์โพสต์เรียบร้อย!",
+  "createpost_error":"เกิดข้อผิดพลาด:",
+  "createpost_newpost":"โพสต์ใหม่",
+  "createpost_share":"แชร์",
+  "createpost_picksomepicture":"แตะเพื่อเลือกรูป",
+  "createpost_changepic":"เปลี่ยนรูป",
+  "createpost_writecaption":"เขียนคำบรรยาย...",
 
   "languagelist_snackNotConnected": "ส่วนนี้ยังไม่ได้เชื่อมต่อกับกิจกรรมจริง"
 }

@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart'; // ✅ 1. เพิ่ม Supabase
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
+
 import '../../providers/user_provider.dart';
 import 'settings/setting_screen.dart';
+import '../post/post_detail_screen.dart'; // ✅ 2. Import หน้าดูรายละเอียดโพสต์ (ตรวจสอบ path ให้ถูกต้อง)
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -16,6 +19,13 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   static const cream = Color(0xFFFFF5CD);
   static const deepGrey = Color(0xFF000000);
+
+  // ✅ 3. เพิ่มตัวแปร Stream สำหรับดึงโพสต์แบบ Realtime
+  final _postsStream = Supabase.instance.client
+      .from('posts')
+      .stream(primaryKey: ['id'])
+      .eq('user_id', Supabase.instance.client.auth.currentUser?.id ?? '') // ดึงเฉพาะของ user นี้
+      .order('created_at', ascending: false); // เรียงจากใหม่ไปเก่า
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
@@ -37,7 +47,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     // ดึงข้อมูลจาก Provider มาเฝ้าดู (Watch)
     final userProvider = context.watch<UserProvider>();
-    final parentName = userProvider.currentParentName ?? 'PARENT2';
+    final parentName = userProvider.currentParentName ?? 'PARENT';
     final profileImageBytes = userProvider.profileImageBytes; // ดึงรูปภาพ
 
     return Container(
@@ -49,6 +59,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const SizedBox(height: 16),
+            // --- ส่วน Header (รูปโปรไฟล์ + ชื่อ + ปุ่ม Setting) ---
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: Stack(
@@ -80,7 +91,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        // --- แก้ไขตรงนี้: ปรับ Style ให้รองรับภาษาไทย ---
                         Text(
                           parentName,
                           style: TextStyle(
@@ -117,7 +127,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
+            
             const SizedBox(height: 32),
+            
+            // --- ส่วนหัวข้อ Grid View ---
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: Column(
@@ -147,7 +160,83 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 16),
+
+            // ✅ 4. เพิ่ม Expanded เพื่อแสดงรูปจาก Supabase ให้เต็มพื้นที่ที่เหลือ
+            Expanded(
+              child: StreamBuilder<List<Map<String, dynamic>>>(
+                stream: _postsStream,
+                builder: (context, snapshot) {
+                  // สถานะโหลด
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  // สถานะ Error หรือ ไม่มีข้อมูล
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error loading posts'));
+                  }
+                  
+                  final posts = snapshot.data ?? [];
+
+                  if (posts.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.camera_alt_outlined, 
+                               size: 48, color: Colors.grey.withOpacity(0.5)),
+                          const SizedBox(height: 8),
+                          Text(
+                            'No posts yet',
+                            style: GoogleFonts.itim(
+                              color: Colors.grey, 
+                              fontSize: 16
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
+                  // แสดงผลแบบตาราง (Grid)
+                  return GridView.builder(
+                    padding: const EdgeInsets.all(2), // เว้นขอบนิดหน่อย
+                    itemCount: posts.length,
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3, // 3 รูปต่อแถว
+                      crossAxisSpacing: 2,
+                      mainAxisSpacing: 2,
+                      childAspectRatio: 1.0, // สี่เหลี่ยมจัตุรัส
+                    ),
+                    itemBuilder: (context, index) {
+                      final post = posts[index];
+                      return GestureDetector(
+                        onTap: () {
+                          // ✅ 5. กดแล้วไปหน้า PostDetailScreen
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => PostDetailScreen(postData: post),
+                            ),
+                          );
+                        },
+                        child: Image.network(
+                          post['image_url'],
+                          fit: BoxFit.cover,
+                          // โหลดรูปไม่ผ่านให้โชว์สีเทา
+                          errorBuilder: (context, error, stack) => 
+                              Container(color: Colors.grey[300]),
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return Container(color: Colors.grey[200]);
+                          },
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),

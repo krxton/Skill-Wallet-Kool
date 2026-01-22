@@ -78,7 +78,8 @@ class _ManageChildScreenState extends State<ManageChildScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: Text(
             AppLocalizations.of(context)!.dialog_deleteTitle,
             style: TextStyle(
@@ -109,7 +110,8 @@ class _ManageChildScreenState extends State<ManageChildScreen> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // ปิด Dialog
-                Navigator.of(context).pop(true); // กลับหน้าก่อนหน้าพร้อมค่า true (แจ้งลบ)
+                Navigator.of(context)
+                    .pop(true); // กลับหน้าก่อนหน้าพร้อมค่า true (แจ้งลบ)
               },
               child: Text(
                 AppLocalizations.of(context)!.dialog_confirmDelete,
@@ -241,9 +243,11 @@ class _ManageChildScreenState extends State<ManageChildScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                AppLocalizations.of(context)!.managechild_nameBtn,
+                                AppLocalizations.of(context)!
+                                    .managechild_nameBtn,
                                 style: TextStyle(
-                                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                                  fontFamily:
+                                      GoogleFonts.luckiestGuy().fontFamily,
                                   fontFamilyFallback: [
                                     GoogleFonts.itim().fontFamily!
                                   ],

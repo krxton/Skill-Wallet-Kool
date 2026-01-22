@@ -63,7 +63,7 @@ class HomeHeader extends StatelessWidget {
                   ),
                   decoration: InputDecoration(
                     // ใช้ Text จาก AppLocalizations
-                    hintText: loc.home_searchBtn, 
+                    hintText: loc.home_searchBtn,
                     // ปรับ Style Hint ให้รองรับภาษาไทย
                     hintStyle: TextStyle(
                       fontFamily: GoogleFonts.luckiestGuy().fontFamily,

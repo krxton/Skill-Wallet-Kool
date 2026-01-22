@@ -76,6 +76,7 @@ class _SWKAppState extends State<SWKApp> {
     await authProvider.initialize();
 
     // 1.1 หลัง initialize สำเร็จ: ดึงชื่อผู้ปกครองจาก Supabase แล้วตั้งใน UserProvider
+    //ต้องรีสตาทชื่อจากdatabaseถึงจะขึ้นชื่อใหม่
     await _populateParentNameFromSupabase();
 
     // 2. Deep Links (เฉพาะ Mobile/Desktop ที่รองรับ)
@@ -115,10 +116,8 @@ class _SWKAppState extends State<SWKApp> {
       String? parentName;
 
       try {
-        final row = await supabase
-            .from('parent')
-            .select('name_surname')
-            .maybeSingle();
+        final row =
+            await supabase.from('parent').select('name_surname').maybeSingle();
 
         if (row != null && row['name_surname'] is String) {
           parentName = row['name_surname'] as String;

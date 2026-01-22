@@ -503,6 +503,30 @@ class AppLocalizationsTh extends AppLocalizations {
   String get itemintro_submitBtn => 'ส่งผลงาน';
 
   @override
+  String get itemintro_playsection => 'เล่นข้อความ';
+
+  @override
+  String get itemintro_record => 'บันทึก';
+
+  @override
+  String get itemintro_casttotv => 'ส่งไปยังทีวี';
+
+  @override
+  String get itemintro_airplay => 'เล่นทางอากาศ';
+
+  @override
+  String get itemintro_previous => '< ก่อนหน้า';
+
+  @override
+  String get itemintro_next => 'ถัดไป >';
+
+  @override
+  String get itemintro_finish => 'เสร็จสิ้น >';
+
+  @override
+  String get itemintro_Videonotavailable => 'ไม่มีวิดีโอ';
+
+  @override
   String get record_loading => 'กำลังโหลด...';
 
   @override
@@ -609,6 +633,27 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get problemplaying_finishBtn => 'เสร็จสิ้น';
+
+  @override
+  String get createpost_sharesus => 'แชร์โพสต์เรียบร้อย!';
+
+  @override
+  String get createpost_error => 'เกิดข้อผิดพลาด:';
+
+  @override
+  String get createpost_newpost => 'โพสต์ใหม่';
+
+  @override
+  String get createpost_share => 'แชร์';
+
+  @override
+  String get createpost_picksomepicture => 'แตะเพื่อเลือกรูป';
+
+  @override
+  String get createpost_changepic => 'เปลี่ยนรูป';
+
+  @override
+  String get createpost_writecaption => 'เขียนคำบรรยาย...';
 
   @override
   String get languagelist_snackNotConnected =>

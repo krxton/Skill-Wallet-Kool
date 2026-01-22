@@ -301,7 +301,7 @@ const LanguageActivityForm = ({ initialCategory, extractVideoId }: FormProps) =>
                     </div>
                 </div>
                 <label className="body-medium-semibold text-gray-700 block">
-                    Content / Instruction (วิธีการเล่น)
+                    Content / Instruction 
                 </label>
                 <input
                     type="text"

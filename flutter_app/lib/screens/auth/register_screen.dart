@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
+import 'package:skill_wallet_kool/providers/user_provider.dart';
 import 'package:skill_wallet_kool/services/auth_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-
-// Imports ของโปรเจกต์คุณ
 import '../../providers/auth_provider.dart';
 import '../../services/child_service.dart';
 import '../../routes/app_routes.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key, this.initialStep = 0});
+
   final int initialStep;
 
   @override
@@ -21,16 +21,23 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final AuthService authService = AuthService();
+
   final ChildService childService = ChildService();
 
   late int step;
 
-  // palette (UI เดิม)
+// palette (UI เดิม)
+
   static const cream = Color(0xFFFFF5CD);
+
   static const sky = Color(0xFF0D92F4);
+
   static const redLabel = Color(0xFFE54D4D);
+
   static const fieldBg = Color(0xFFFDC05E);
+
   static const okGreen = Color(0xFF66BB6A);
+
   static const backPink = Color(0xFFEA5B6F);
 
   final List<_ChildFields> _children = [_ChildFields()];
@@ -40,6 +47,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   void initState() {
     super.initState();
+
     step = (widget.initialStep == 1) ? 1 : 0;
   }
 
@@ -48,10 +56,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
     for (final c in _children) {
       c.dispose();
     }
+
     super.dispose();
   }
 
-  // ---------- STEP 0 : SOCIAL ----------
+// ---------- STEP 0 : SOCIAL ----------
+
   Widget _firstPage() {
     final authProvider = Provider.of<AuthProvider>(context);
 
@@ -77,8 +87,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ? () {}
               : () async {
                   final success = await authProvider.signInWithFacebook();
+
                   if (success && mounted) {
-                    // รอ callback จาก deep link
+// รอ callback จาก deep link
                   }
                 },
         ),
@@ -91,7 +102,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 : () async {
                     _nativeGoogleSignIn();
                   }),
-
         if (authProvider.isLoading) ...[
           const SizedBox(height: 24),
           const Center(child: CircularProgressIndicator()),
@@ -106,17 +116,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
           ),
         ],
-
         const SizedBox(height: 40),
       ],
     );
   }
 
   Future<void> _nativeGoogleSignIn() async {
-    // Web Client ID
-    const webClientId = '286775717840-494vogfnb2oclk746pgqu83o66sm7qsc.apps.googleusercontent.com';
-    // iOS Client ID
-    const iosClientId = '286775717840-etqs6h74ku98274lcb03be4hmoj12s7u.apps.googleusercontent.com';
+    // 1. ตั้งค่า Google Sign-In
+    const webClientId =
+        '286775717840-494vogfnb2oclk746pgqu83o66sm7qsc.apps.googleusercontent.com';
+    const iosClientId =
+        '286775717840-etqs6h74ku98274lcb03be4hmoj12s7u.apps.googleusercontent.com';
 
     final scopes = ['email', 'profile'];
     final googleSignIn = GoogleSignIn.instance;
@@ -126,34 +136,60 @@ class _RegisterScreenState extends State<RegisterScreen> {
       clientId: iosClientId,
     );
 
+    // 2. เริ่มกระบวนการตรวจสอบสิทธิ์กับ Google
     final googleUser = await googleSignIn.authenticate();
+    if (googleUser == null) return; // ผู้ใช้ยกเลิกการ Login
 
-    if (googleUser == null) {
-      // throw AuthException('Failed to sign in with Google.');
-      return; // ยกเลิกการ login
-    }
+    final String? fullName = googleUser.displayName; // เก็บชื่อจาก Google ไว้
 
     final authorization =
         await googleUser.authorizationClient.authorizationForScopes(scopes) ??
             await googleUser.authorizationClient.authorizeScopes(scopes);
 
     final idToken = googleUser.authentication.idToken;
+    if (idToken == null) throw const AuthException('No ID Token found.');
 
-    if (idToken == null) {
-      throw const AuthException('No ID Token found.');
-    }
     final supabase = Supabase.instance.client;
-    await supabase.auth.signInWithIdToken(
+
+    // ✅ 3. ทำการ Login เข้า Supabase และประกาศตัวแปร 'response' มารับค่า (จุดที่แก้)
+    final response = await supabase.auth.signInWithIdToken(
       provider: OAuthProvider.google,
       idToken: idToken,
       accessToken: authorization.accessToken,
     );
-    setState(() {
-      step = 1;
-    });
+
+    // 4. ดึง user จาก response เพื่อนำไปบันทึกลง Database
+    final user = response.user;
+    if (user != null) {
+      // เตรียมชื่อ: ถ้าใน Google ไม่มีชื่อ (ซึ่งปกติจะมี) ให้ใช้ชื่อจาก Email แทน
+      final String nameToSave = fullName ?? user.email!.split('@')[0];
+
+      try {
+        // บันทึกข้อมูลลงตาราง parent ใน Supabase
+        await supabase.from('parent').upsert({
+          'user_id': user.id,
+          'email': user.email,
+          'name_surname': nameToSave,
+        });
+
+        // อัปเดตข้อมูลใน Provider ทันทีเพื่อให้หน้าอื่นๆ แสดงชื่อได้ถูกต้อง
+        if (mounted) {
+          context.read<UserProvider>().setParentName(nameToSave);
+        }
+      } catch (e) {
+        debugPrint('Error upserting parent: $e');
+      }
+    }
+
+    if (mounted) {
+      setState(() {
+        step = 1;
+      });
+    }
   }
 
-  // ---------- STEP 1 : ADDITIONAL INFO ----------
+// ---------- STEP 1 : ADDITIONAL INFO ----------
+
   Widget _secondPage() {
     return ListView(
       padding: const EdgeInsets.fromLTRB(24, 10, 24, 24),
@@ -166,7 +202,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               fontSize: 28,
               color: sky),
         ),
+
         const SizedBox(height: 2),
+
         Text(
           AppLocalizations.of(context)!.register_additionalBtn,
           style: TextStyle(
@@ -175,18 +213,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
               fontSize: 22,
               color: sky),
         ),
+
         const SizedBox(height: 20),
-        
-        // Loop สร้างฟอร์มลูก
+
+// Loop สร้างฟอร์มลูก
+
         ..._children.asMap().entries.map((e) {
           final i = e.key;
+
           final c = e.value;
+
           return Padding(
             padding: const EdgeInsets.only(bottom: 18),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ชื่อลูก + ปุ่มลบ
+// ชื่อลูก + ปุ่มลบ
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -212,11 +255,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                   ],
                 ),
+
                 const SizedBox(height: 6),
+
                 TextField(controller: c.nameCtrl, decoration: _dec()),
 
-                // วันเกิด
+// วันเกิด
+
                 const SizedBox(height: 14),
+
                 Text(
                   AppLocalizations.of(context)!.register_birthdayBtn,
                   style: TextStyle(
@@ -225,7 +272,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       fontSize: 16,
                       color: redLabel),
                 ),
+
                 const SizedBox(height: 6),
+
                 GestureDetector(
                   onTap: () => _pickBirthday(i),
                   child: AbsorbPointer(
@@ -234,8 +283,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                 ),
 
-                // ✅ ส่วนที่เพิ่ม: Relation
+// ✅ ส่วนที่เพิ่ม: Relation
+
                 const SizedBox(height: 14),
+
                 Text(
                   AppLocalizations.of(context)!.register_relation,
                   style: TextStyle(
@@ -244,15 +295,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       fontSize: 16,
                       color: redLabel),
                 ),
+
                 const SizedBox(height: 6),
+
                 TextField(controller: c.relationCtrl, decoration: _dec()),
-                // ✅ จบส่วนที่เพิ่ม
+
+// ✅ จบส่วนที่เพิ่ม
               ],
             ),
           );
         }),
 
         const SizedBox(height: 8),
+
         Center(
           child: InkWell(
             onTap: () => setState(() => _children.add(_ChildFields())),
@@ -268,7 +323,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
           ),
         ),
+
         const SizedBox(height: 24),
+
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
@@ -294,12 +351,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  // ---------- Helpers ----------
+// ---------- Helpers ----------
+
   void _toast(String m) =>
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(m)));
 
   Future<void> _pickBirthday(int index) async {
     final now = DateTime.now();
+
     final picked = await showDatePicker(
       context: context,
       initialDate: _children[index].birthday ??
@@ -308,9 +367,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
       lastDate: now,
       helpText: AppLocalizations.of(context)!.register_pickbirthday,
     );
+
     if (picked != null) {
       setState(() {
         _children[index].birthday = picked;
+
         _children[index].birthCtrl.text =
             '${picked.day.toString().padLeft(2, '0')}/'
             '${picked.month.toString().padLeft(2, '0')}/'
@@ -320,16 +381,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void _submit(BuildContext context) async {
+// Validate
 
-    // Validate
     for (var i = 0; i < _children.length; i++) {
-      // ✅ เช็คเพิ่ม: Relation ต้องไม่ว่าง
+// ✅ เช็คเพิ่ม: Relation ต้องไม่ว่าง
+
       if (_children[i].nameCtrl.text.trim().isEmpty ||
           _children[i].birthCtrl.text.trim().isEmpty ||
           _children[i].relationCtrl.text.trim().isEmpty) {
-        _toast(AppLocalizations.of(context)!.register_requiredinformation(
-          i + 1
-        ));
+        _toast(
+            AppLocalizations.of(context)!.register_requiredinformation(i + 1));
+
         return;
       }
     }
@@ -341,22 +403,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
 
     try {
-      // ✅ เตรียมข้อมูลลูก (เพิ่ม relation)
+// ✅ เตรียมข้อมูลลูก (เพิ่ม relation)
+
       List<Map<String, dynamic>> childrenData = _children.map((c) {
         return {
           'fullName': c.nameCtrl.text.trim(),
-          'dob': c.birthday, // เช็ค format กับ backend ว่ารับ DateTime หรือ String
+
+          'dob':
+              c.birthday, // เช็ค format กับ backend ว่ารับ DateTime หรือ String
+
           'relation': c.relationCtrl.text.trim(), // ส่งค่า relation
         };
       }).toList();
 
-      // บันทึกลูกเข้า database
+// บันทึกลูกเข้า database
+
       final addedChildren = await childService.addChildren(childrenData);
 
       if (mounted) Navigator.pop(context);
 
       if (addedChildren.isNotEmpty) {
-        _toast(AppLocalizations.of(context)!.register_sus(addedChildren.length));
+        _toast(
+            AppLocalizations.of(context)!.register_sus(addedChildren.length));
+
         if (mounted) {
           Navigator.pushNamedAndRemoveUntil(
             context,
@@ -369,7 +438,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
     } catch (e) {
       if (mounted) Navigator.pop(context);
+
       _toast(AppLocalizations.of(context)!.register_Anerroroccurred(e));
+
       print(AppLocalizations.of(context)!.register_submitterror);
     }
   }
@@ -490,16 +561,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
 }
 
 // ✅ Class นี้ถูกแก้ไขเพิ่ม relationCtrl
+
 class _ChildFields {
   final TextEditingController nameCtrl = TextEditingController();
+
   final TextEditingController birthCtrl = TextEditingController();
+
   final TextEditingController relationCtrl = TextEditingController(); // เพิ่ม
 
   DateTime? birthday;
-  
+
   void dispose() {
     nameCtrl.dispose();
+
     birthCtrl.dispose();
+
     relationCtrl.dispose(); // เพิ่ม
   }
 }

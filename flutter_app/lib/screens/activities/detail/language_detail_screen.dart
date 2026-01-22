@@ -1,9 +1,6 @@
-// lib/screens/language_detail_screen.dart
-
-// ignore_for_file: unused_local_variable
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import '../../../models/activity.dart';
 import '../../../routes/app_routes.dart';
 
@@ -55,13 +52,15 @@ class LanguageDetailScreen extends StatelessWidget {
             const SizedBox(height: 16),
 
             // 2. 🆕 แสดง Name (ชื่อกิจกรรม) แทน Description ใน Card แรก
-            _buildSectionTitle('ACTIVITY TITLE'), // 🆕 หัวข้อใหม่
+            _buildSectionTitle(AppLocalizations.of(context)!
+                .languagedetail_activityTitleLabel), // 🆕 หัวข้อใหม่
             _buildContentCard(name), // 🆕 ใช้ name
 
             const SizedBox(height: 20),
 
             // 3. 🆕 แสดง Description ใน Card ที่สอง
-            _buildSectionTitle('DESCRIPTION'), // 🆕 หัวข้อใหม่
+            _buildSectionTitle(AppLocalizations.of(context)!
+                .languagedetail_descriptionLabel), // 🆕 หัวข้อใหม่
             _buildContentCard(description), // 🆕 ใช้ description
 
             const SizedBox(height: 30),
@@ -95,9 +94,12 @@ class LanguageDetailScreen extends StatelessWidget {
                 ),
               ),
               child: Text(
-                'START',
-                style:
-                    GoogleFonts.luckiestGuy(fontSize: 20, color: Colors.white),
+                AppLocalizations.of(context)!.languagedetail_startBtn,
+                style: TextStyle(
+                    fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                    fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                    fontSize: 20,
+                    color: Colors.white),
               ),
             ),
           ],

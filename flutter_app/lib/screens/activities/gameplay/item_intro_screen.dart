@@ -1,5 +1,3 @@
-// lib/screens/item_intro_screen.dart
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';

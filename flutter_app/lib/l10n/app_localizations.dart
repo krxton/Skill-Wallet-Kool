@@ -1040,6 +1040,54 @@ abstract class AppLocalizations {
   /// **'SUBMIT'**
   String get itemintro_submitBtn;
 
+  /// No description provided for @itemintro_playsection.
+  ///
+  /// In en, this message translates to:
+  /// **'PLAY SECTION'**
+  String get itemintro_playsection;
+
+  /// No description provided for @itemintro_record.
+  ///
+  /// In en, this message translates to:
+  /// **'RECORD'**
+  String get itemintro_record;
+
+  /// No description provided for @itemintro_casttotv.
+  ///
+  /// In en, this message translates to:
+  /// **'CAST TO TV'**
+  String get itemintro_casttotv;
+
+  /// No description provided for @itemintro_airplay.
+  ///
+  /// In en, this message translates to:
+  /// **'AIRPLAY'**
+  String get itemintro_airplay;
+
+  /// No description provided for @itemintro_previous.
+  ///
+  /// In en, this message translates to:
+  /// **'< PREVIOUS'**
+  String get itemintro_previous;
+
+  /// No description provided for @itemintro_next.
+  ///
+  /// In en, this message translates to:
+  /// **'NEXT >'**
+  String get itemintro_next;
+
+  /// No description provided for @itemintro_finish.
+  ///
+  /// In en, this message translates to:
+  /// **'FINISH >'**
+  String get itemintro_finish;
+
+  /// No description provided for @itemintro_Videonotavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Video not available'**
+  String get itemintro_Videonotavailable;
+
   /// No description provided for @record_loading.
   ///
   /// In en, this message translates to:
@@ -1249,6 +1297,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'FINISH'**
   String get problemplaying_finishBtn;
+
+  /// No description provided for @createpost_sharesus.
+  ///
+  /// In en, this message translates to:
+  /// **'Post shared successfully!'**
+  String get createpost_sharesus;
+
+  /// No description provided for @createpost_error.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred:'**
+  String get createpost_error;
+
+  /// No description provided for @createpost_newpost.
+  ///
+  /// In en, this message translates to:
+  /// **'New post'**
+  String get createpost_newpost;
+
+  /// No description provided for @createpost_share.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get createpost_share;
+
+  /// No description provided for @createpost_picksomepicture.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to select a picture'**
+  String get createpost_picksomepicture;
+
+  /// No description provided for @createpost_changepic.
+  ///
+  /// In en, this message translates to:
+  /// **'Change picture'**
+  String get createpost_changepic;
+
+  /// No description provided for @createpost_writecaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Write a caption...'**
+  String get createpost_writecaption;
 
   /// No description provided for @languagelist_snackNotConnected.
   ///

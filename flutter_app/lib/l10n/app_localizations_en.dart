@@ -504,6 +504,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get itemintro_submitBtn => 'SUBMIT';
 
   @override
+  String get itemintro_playsection => 'PLAY SECTION';
+
+  @override
+  String get itemintro_record => 'RECORD';
+
+  @override
+  String get itemintro_casttotv => 'CAST TO TV';
+
+  @override
+  String get itemintro_airplay => 'AIRPLAY';
+
+  @override
+  String get itemintro_previous => '< PREVIOUS';
+
+  @override
+  String get itemintro_next => 'NEXT >';
+
+  @override
+  String get itemintro_finish => 'FINISH >';
+
+  @override
+  String get itemintro_Videonotavailable => 'Video not available';
+
+  @override
   String get record_loading => 'Loading...';
 
   @override
@@ -610,6 +634,27 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get problemplaying_finishBtn => 'FINISH';
+
+  @override
+  String get createpost_sharesus => 'Post shared successfully!';
+
+  @override
+  String get createpost_error => 'An error occurred:';
+
+  @override
+  String get createpost_newpost => 'New post';
+
+  @override
+  String get createpost_share => 'Share';
+
+  @override
+  String get createpost_picksomepicture => 'Tap to select a picture';
+
+  @override
+  String get createpost_changepic => 'Change picture';
+
+  @override
+  String get createpost_writecaption => 'Write a caption...';
 
   @override
   String get languagelist_snackNotConnected =>

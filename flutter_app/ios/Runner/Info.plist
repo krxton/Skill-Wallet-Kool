@@ -22,6 +22,17 @@
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.286775717840-etqs6h74ku98274lcb03be4hmoj12s7u</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
@@ -45,19 +56,11 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<!-- Put me in the [my_project]/ios/Runner/Info.plist file -->
-<!-- Google Sign-in Section -->
-<key>CFBundleURLTypes</key>
-<array>
-  <dict>
-    <key>CFBundleTypeRole</key>
-    <string>Editor</string>
-    <key>CFBundleURLSchemes</key>
-    <array>
-      <string>com.googleusercontent.apps.286775717840-etqs6h74ku98274lcb03be4hmoj12s7u</string>
-    </array>
-  </dict>
-</array>
-
+	<key>NSPhotoLibraryUsageDescription</key>
+		<string>แอปต้องการเข้าถึงรูปภาพเพื่อเลือกรูปโปรไฟล์หรือโพสต์รูป</string>
+	<key>NSCameraUsageDescription</key>
+		<string>แอปต้องการเข้าถึงกล้องเพื่อถ่ายรูป</string>
+	<key>NSMicrophoneUsageDescription</key>
+		<string>แอปต้องการเข้าถึงไมโครโฟนสำหรับวิดีโอ</string>
 </dict>
 </plist>

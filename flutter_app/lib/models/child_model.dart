@@ -20,7 +20,9 @@ class Child {
     return Child(
       id: json['child_id'] as String?,
       fullName: json['name_surname'] as String,
-      dob: json['birthday'] != null ? DateTime.parse(json['birthday'] as String) : null,
+      dob: json['birthday'] != null
+          ? DateTime.parse(json['birthday'] as String)
+          : null,
       score: json['wallet'] as int? ?? 0,
       scoreUpdate: json['update_wallet'] as int? ?? 0, // ✅ เพิ่ม scoreUpdate
     );

@@ -199,6 +199,14 @@
   "itemintro_listenExampleBtn": "LISTEN TO EXAMPLE",
   "itemintro_practiceNowBtn": "PRACTICE NOW",
   "itemintro_submitBtn": "SUBMIT",
+  "itemintro_playsection":"PLAY SECTION",
+  "itemintro_record":"RECORD",
+  "itemintro_casttotv":"CAST TO TV",
+  "itemintro_airplay":"AIRPLAY",
+  "itemintro_previous":"< PREVIOUS",
+  "itemintro_next":"NEXT >",
+  "itemintro_finish":"FINISH >",
+  "itemintro_Videonotavailable":"Video not available",
 
   "record_loading": "Loading...",
   "record_finishBtn": "FINISH",
@@ -228,6 +236,7 @@
   "calculate_divideBtn": "DEVIDE /",
   "calculate_mixBtn": "MIX + - * /",
   "calculate_problemsSolveBtn": "PROBLEMS SOLVE",
+  
 
   "languagehub_searchHint": "search...",
   "languagehub_trainingTitle": "LANGUAGE TRAINING",
@@ -248,6 +257,14 @@
   "problemanswer_defaultAnswer": "THERE ARE 8 CATS IN TOTAL.",
 
   "problemplaying_finishBtn": "FINISH",
+
+  "createpost_sharesus":"Post shared successfully!",
+  "createpost_error":"An error occurred:",
+  "createpost_newpost":"New post",
+  "createpost_share":"Share",
+  "createpost_picksomepicture":"Tap to select a picture",
+  "createpost_changepic":"Change picture",
+  "createpost_writecaption":"Write a caption...",
 
   "languagelist_snackNotConnected": "This flow is not connected to activities yet."
 }

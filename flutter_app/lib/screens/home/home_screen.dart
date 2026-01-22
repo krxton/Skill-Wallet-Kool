@@ -13,6 +13,7 @@ import '../../widgets/activity_card.dart';
 import '../../widgets/scrollable_activity_list.dart';
 import '../../widgets/main_bottom_nav.dart';
 import '../profile/profile_screen.dart';
+import '../post/create_post_screen.dart'; 
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -96,11 +97,9 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       });
     }
-    // 🆕 เพิ่มเงื่อนไขสำหรับ Calculation ตรงนี้ครับ
     else if (value.toUpperCase() == 'CALCULATION') {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushNamed(context, AppRoutes.calculateHub).then((_) {
-          // เมื่อกด Back กลับมา ให้รีเซ็ตค่า Dropdown เป็น CATEGORY เหมือนเดิม
           if (mounted) setState(() => _categoryValue = 'CATEGORY');
         });
       });
@@ -352,7 +351,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return null;
   }
 
-  /// เนื้อหาของ "หน้า Home" (ไม่มี bottom bar)
   Widget _buildHomeBody(BuildContext context) {
     if (_currentChildId == null) {
       return const Center(
@@ -360,7 +358,6 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    // Listen to UserProvider so parent name updates reactively
     final parentName = context.watch<UserProvider>().currentParentName;
 
     return ListView(
@@ -522,11 +519,11 @@ class _HomeScreenState extends State<HomeScreen> {
             Text(
               AppLocalizations.of(context)!.home_viewallBtn,
               style: TextStyle(
-                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                      fontSize: 16,
-                      color: sky),
-                ),
+                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                  fontSize: 16,
+                  color: sky),
+            ),
           ],
         ),
         const SizedBox(height: 12),
@@ -562,11 +559,11 @@ class _HomeScreenState extends State<HomeScreen> {
             Text(
               AppLocalizations.of(context)!.home_viewallBtn,
               style: TextStyle(
-                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                      fontSize: 16,
-                      color: sky),
-                ),
+                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                  fontSize: 16,
+                  color: sky),
+            ),
           ],
         ),
         const SizedBox(height: 12),
@@ -619,7 +616,13 @@ class _HomeScreenState extends State<HomeScreen> {
           selectedIndex: _selectedTab,
           onTabSelected: (i) {
             if (i == 1) {
-              // Navigator.pushNamed(context, AppRoutes.addActivity);
+              // ✅ 2. แก้ไขให้กดแล้วเด้งหน้า CreatePostScreen ขึ้นมาแบบ Modal
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const CreatePostScreen(),
+                  fullscreenDialog: true, // ตัวนี้แหละครับที่ทำให้เหมือน IG เด้งจากล่างขึ้นบน
+                ),
+              );
               return;
             }
             setState(() => _selectedTab = i);

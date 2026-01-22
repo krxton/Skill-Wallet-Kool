@@ -216,7 +216,8 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text(AppLocalizations.of(context)!.addchild_okBtn, style: _getTextStyle(18, Palette.sky)),
+            child: Text(AppLocalizations.of(context)!.addchild_okBtn,
+                style: _getTextStyle(18, Palette.sky)),
           )
         ],
       ),
@@ -417,7 +418,8 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
     // ชื่อ Title ตาม Tab
     String title = '';
     if (_selectedIndex == 0) {
-      title = AppLocalizations.of(context)!.dairyactivity_medalsBtn.toUpperCase();
+      title =
+          AppLocalizations.of(context)!.dairyactivity_medalsBtn.toUpperCase();
     } else if (_selectedIndex == 1) {
       // ✅ ใช้ Key: medalredemption_redemptionBtn
       title = AppLocalizations.of(context)!.medalredemption_redemptionBtn;

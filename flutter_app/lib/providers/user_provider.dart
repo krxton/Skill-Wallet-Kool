@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UserProvider extends ChangeNotifier {
+  final _supabase = Supabase.instance.client;
+
   // ==========================================
   // 1. ส่วนข้อมูล ID (Child/Parent ID)
   // ==========================================
-  String? _currentChildId = 'CHILD_001';
-  String? _currentParentId = 'PARENT_001';
+  String? _currentChildId = 'CHILD_001'; // ปรับตามการใช้งานจริงของคุณ
+  String? _currentParentId = '';
 
   String? get currentChildId => _currentChildId;
   String? get currentParentId => _currentParentId;
@@ -25,38 +27,55 @@ class UserProvider extends ChangeNotifier {
   // ==========================================
   // 2. ส่วนชื่อผู้ปกครอง (Parent Name)
   // ==========================================
-  String? _currentParentName = 'PARENT2';
+  // ปรับจาก 'PARENT2' เป็นค่าว่าง เพื่อรอรับข้อมูลจริงจาก Google หรือ Database
+  String? _currentParentName = '';
 
   String? get currentParentName => _currentParentName;
 
+  /// ใช้สำหรับอัปเดตค่าในแอปทันที (เช่น ตอน Google Login สำเร็จ)
   void setParentName(String name) {
     _currentParentName = name;
     notifyListeners();
   }
 
   // ==========================================
-  // 3.1 อัปเดตชื่อใน Supabase (parent.name_surname)
+  // 3. ฟังก์ชันจัดการข้อมูลใน Database (Supabase)
   // ==========================================
+  Future<void> fetchParentData() async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+
+      if (userId != null) {
+        final data = await _supabase
+            .from('parent')
+            .select('name_surname, parent_id')
+            .eq('user_id', userId)
+            .maybeSingle();
+
+        if (data != null) {
+          _currentParentName = data['name_surname'] ?? '';
+          _currentParentId = data['parent_id']?.toString();
+          notifyListeners();
+        }
+      }
+    } catch (e) {
+      debugPrint('fetchParentData error: $e');
+    }
+  }
+
   Future<bool> updateParentName(String name) async {
     try {
-      final supabase = Supabase.instance.client;
+      final userId = _supabase.auth.currentUser?.id;
 
-      // ค้นหา row ของผู้ปกครองปัจจุบัน (อาศัย RLS จำกัดให้เห็นเฉพาะของตัวเอง)
-      final parentRow =
-          await supabase.from('parent').select('id').maybeSingle();
-
-      if (parentRow == null || parentRow['id'] == null) {
+      if (userId == null) {
+        debugPrint('Update failed: No authenticated user found.');
         return false;
       }
 
-      final parentId = parentRow['id'];
-
-      // อัปเดตชื่อในตาราง parent
-      await supabase
+      await _supabase
           .from('parent')
-          .update({'name_surname': name}).eq('id', parentId);
+          .update({'name_surname': name}).eq('user_id', userId);
 
-      // อัปเดตค่าใน Provider ด้วย
       _currentParentName = name;
       notifyListeners();
       return true;
@@ -79,13 +98,13 @@ class UserProvider extends ChangeNotifier {
   }
 
   // ==========================================
-  // 5. ฟังก์ชันล้างค่า (แก้ Error: clearUserData)
+  // 5. ฟังก์ชันล้างค่า (ใช้ตอน Logout)
   // ==========================================
   void clearUserData() {
-    _currentParentName = 'PARENT2';
+    _currentParentName = '';
+    _currentParentId = '';
     _profileImageBytes = null;
-    // _currentChildId = null; // ถ้าต้องการล้าง ID ด้วยให้เอา comment ออก
-    // _currentParentId = null;
+    // _currentChildId = null;
     notifyListeners();
   }
 }
