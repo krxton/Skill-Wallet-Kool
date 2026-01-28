@@ -1,20 +1,19 @@
 import 'dart:async';
-import 'package:uni_links/uni_links.dart';
+import 'package:app_links/app_links.dart';
 
 class DeepLinkService {
   static final DeepLinkService _instance = DeepLinkService._internal();
   factory DeepLinkService() => _instance;
   DeepLinkService._internal();
 
+  final _appLinks = AppLinks();
   StreamSubscription? _sub;
 
   // ✅ Start listening for deep links
   void startListening(Function(Uri) onLink) {
-    _sub = uriLinkStream.listen((Uri? uri) {
-      if (uri != null) {
-        print('📱 Deep link received: $uri');
-        onLink(uri);
-      }
+    _sub = _appLinks.uriLinkStream.listen((Uri uri) {
+      print('📱 Deep link received: $uri');
+      onLink(uri);
     }, onError: (err) {
       print('❌ Deep link error: $err');
     });
@@ -29,7 +28,7 @@ class DeepLinkService {
   // ✅ Get initial link (เมื่อแอปเปิดจาก deep link)
   Future<Uri?> getInitialLink() async {
     try {
-      final initialUri = await getInitialUri();
+      final initialUri = await _appLinks.getInitialLink();
       if (initialUri != null) {
         print('📱 Initial deep link: $initialUri');
       }
