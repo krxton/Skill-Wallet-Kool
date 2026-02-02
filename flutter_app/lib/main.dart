@@ -11,6 +11,7 @@ import 'providers/user_provider.dart';
 import 'providers/auth_provider.dart';
 import 'services/deep_link_service.dart';
 import 'services/storage_service.dart';
+import 'services/mock_auth_service.dart';
 import 'screens/auth/auth_loading_screen.dart';
 import 'screens/auth/welcome_screen.dart';
 import 'screens/home/home_screen.dart';
@@ -32,6 +33,10 @@ Future<void> main() async {
     url: 'https://wgrfsbmbakfprfjmiidl.supabase.co',
     anonKey: 'sb_publishable_pIHQQYxRzUP9z5Uxpr5Kag_ljYp0fmW',
   );
+
+  // 🔧 Developer Mode Check
+  MockAuthService.printDebugInfo();
+
   runApp(
     MultiProvider(
       providers: [
@@ -203,18 +208,60 @@ class _SWKAppState extends State<SWKApp> {
 }
 
 // ✅ AuthWrapper - ตรวจสอบสถานะ login
-class AuthWrapper extends StatelessWidget {
+class AuthWrapper extends StatefulWidget {
   const AuthWrapper({super.key});
 
   @override
+  State<AuthWrapper> createState() => _AuthWrapperState();
+}
+
+class _AuthWrapperState extends State<AuthWrapper> {
+  bool _isInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeDeveloperMode();
+  }
+
+  Future<void> _initializeDeveloperMode() async {
+    // ถ้าเปิด Developer Mode ให้สร้าง mock session
+    if (MockAuthService.isDeveloperMode) {
+      try {
+        await MockAuthService.createMockSession();
+        // ตั้งชื่อ parent ใน UserProvider
+        if (mounted) {
+          context.read<UserProvider>().setParentName('Developer (Mock User)');
+        }
+      } catch (e) {
+        print('⚠️ Error initializing developer mode: $e');
+      }
+    }
+
+    setState(() {
+      _isInitialized = true;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    // รอให้ initialize เสร็จก่อน
+    if (!_isInitialized) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
-        // ถ้ากำลัง initialize อยู่ แสดง loading
-        // if (authProvider.isLoading) {
-        //   return const AuthLoadingScreen();
-        // }
+        // 🔧 Developer Mode: Bypass authentication
+        if (MockAuthService.isDeveloperMode) {
+          return const HomeScreen();
+        }
 
+        // Normal flow: ตรวจสอบ session
         final supabase = Supabase.instance.client;
         final Session? session = supabase.auth.currentSession;
 

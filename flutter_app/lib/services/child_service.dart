@@ -103,9 +103,18 @@ class ChildService {
     List<Child> addedChildren = [];
 
     for (var childData in childrenData) {
+      // แก้ไข: Parse String เป็น DateTime ถ้าเป็น String, หรือใช้ DateTime โดยตรงถ้าเป็น DateTime
+      DateTime? dob;
+      final dobData = childData['dob'];
+      if (dobData is String) {
+        dob = DateTime.tryParse(dobData);
+      } else if (dobData is DateTime) {
+        dob = dobData;
+      }
+
       final child = await addChild(
         fullName: childData['fullName'] as String,
-        dob: childData['dob'] as DateTime?,
+        dob: dob,
       );
 
       if (child != null) {

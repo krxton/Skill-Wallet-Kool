@@ -8,7 +8,6 @@ import '../../providers/user_provider.dart';
 import '../../services/activity_service.dart';
 import '../../models/activity.dart';
 
-import '../../widgets/home_header.dart';
 import '../../widgets/activity_card.dart';
 import '../../widgets/scrollable_activity_list.dart';
 import '../../widgets/main_bottom_nav.dart';
@@ -28,7 +27,9 @@ class _HomeScreenState extends State<HomeScreen> {
   static const sky = Color(0xFF0D92F4);
   static const deepSky = Color(0xFF7DBEF1);
 
-  String _categoryValue = 'CATEGORY';
+  // Filter states
+  String? _selectedCategory; // null = ทั้งหมด, 'ด้านภาษา', 'ด้านร่างกาย', 'ด้านวิเคราะห์'
+  String? _selectedLevel; // null = ทั้งหมด, 'ง่าย', 'กลาง', 'ยาก'
 
   final ActivityService _activityService = ActivityService();
   late Future<List<Activity>> _popularActivitiesFuture;
@@ -79,31 +80,32 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _currentChildId = childId;
         _currentParentId = parentId;
-        _popularActivitiesFuture =
-            _activityService.fetchPopularActivities(childId);
-        _newActivitiesFuture = _activityService.fetchNewActivities(childId);
+        _popularActivitiesFuture = _activityService.fetchPopularActivities(
+          childId,
+          category: _selectedCategory,
+          level: _selectedLevel,
+        );
+        _newActivitiesFuture = _activityService.fetchNewActivities(
+          childId,
+          category: _selectedCategory,
+          level: _selectedLevel,
+        );
       });
     }
   }
 
-  void _onCategoryChanged(String? value) {
-    if (value == null) return;
-    setState(() => _categoryValue = value);
+  void _onCategoryFilterChanged(String? category) {
+    setState(() {
+      _selectedCategory = category;
+    });
+    _loadData();
+  }
 
-    if (value.toUpperCase() == 'LANGUAGE') {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushNamed(context, AppRoutes.languageHub).then((_) {
-          if (mounted) setState(() => _categoryValue = 'CATEGORY');
-        });
-      });
-    }
-    else if (value.toUpperCase() == 'CALCULATION') {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushNamed(context, AppRoutes.calculateHub).then((_) {
-          if (mounted) setState(() => _categoryValue = 'CATEGORY');
-        });
-      });
-    }
+  void _onLevelFilterChanged(String? level) {
+    setState(() {
+      _selectedLevel = level;
+    });
+    _loadData();
   }
 
   // ===== Carousel Item =====
@@ -351,6 +353,92 @@ class _HomeScreenState extends State<HomeScreen> {
     return null;
   }
 
+  Widget _buildCategoryFilterTabs() {
+    final categories = [
+      {'label': 'ทั้งหมด', 'value': null},
+      {'label': 'ภาษา', 'value': 'ด้านภาษา'},
+      {'label': 'ร่างกาย', 'value': 'ด้านร่างกาย'},
+      {'label': 'วิเคราะห์', 'value': 'ด้านวิเคราะห์'},
+    ];
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: categories.map((cat) {
+          final isSelected = _selectedCategory == cat['value'];
+          return Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: GestureDetector(
+              onTap: () => _onCategoryFilterChanged(cat['value'] as String?),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: isSelected ? sky : deepSky.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isSelected ? sky : deepSky,
+                    width: 2,
+                  ),
+                ),
+                child: Text(
+                  cat['label'] as String,
+                  style: GoogleFonts.itim(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: isSelected ? Colors.white : Colors.black87,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildLevelFilterTabs() {
+    final levels = [
+      {'label': 'ทั้งหมด', 'value': null},
+      {'label': 'ง่าย', 'value': 'ง่าย'},
+      {'label': 'กลาง', 'value': 'กลาง'},
+      {'label': 'ยาก', 'value': 'ยาก'},
+    ];
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: levels.map((level) {
+          final isSelected = _selectedLevel == level['value'];
+          return Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: GestureDetector(
+              onTap: () => _onLevelFilterChanged(level['value'] as String?),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: isSelected ? const Color(0xFFFFB74D) : Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: isSelected ? const Color(0xFFFF9800) : Colors.grey.shade400,
+                    width: 2,
+                  ),
+                ),
+                child: Text(
+                  level['label'] as String,
+                  style: GoogleFonts.itim(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: isSelected ? Colors.white : Colors.black87,
+                  ),
+                ),
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
   Widget _buildHomeBody(BuildContext context) {
     if (_currentChildId == null) {
       return const Center(
@@ -363,11 +451,80 @@ class _HomeScreenState extends State<HomeScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        HomeHeader(
-          parentName: parentName,
-          categoryValue: _categoryValue,
-          onCategoryChanged: _onCategoryChanged,
+        // Search Bar
+        Container(
+          height: 56,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF6D9DC),
+            borderRadius: BorderRadius.circular(28),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(.06),
+                blurRadius: 12,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.menu, color: Colors.black87),
+              const SizedBox(width: 10),
+              Expanded(
+                child: TextField(
+                  style: TextStyle(
+                    fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                    fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                    fontSize: 16,
+                    color: Colors.black,
+                  ),
+                  decoration: InputDecoration(
+                    hintText: 'ค้นหา',
+                    hintStyle: TextStyle(
+                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                      color: Colors.black54,
+                      fontSize: 16,
+                      letterSpacing: .5,
+                    ),
+                    border: InputBorder.none,
+                    enabledBorder: InputBorder.none,
+                    focusedBorder: InputBorder.none,
+                    filled: true,
+                    fillColor: Colors.transparent,
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Icon(Icons.search, color: Colors.black54),
+            ],
+          ),
         ),
+        const SizedBox(height: 20),
+
+        // Parent Name
+        if (parentName != null && parentName.isNotEmpty)
+          Text(
+            parentName,
+            style: TextStyle(
+              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+              fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+              fontSize: 28,
+              height: 1.0,
+              color: sky,
+            ),
+          ),
+        const SizedBox(height: 12),
+
+        // Category Filter Tabs
+        _buildCategoryFilterTabs(),
+        const SizedBox(height: 12),
+
+        // Level Filter Tabs
+        _buildLevelFilterTabs(),
+        const SizedBox(height: 20),
 
         // Top Carousel
         Container(

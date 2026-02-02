@@ -100,13 +100,26 @@ class ActivityService {
   }
 
   /// 2.2 ดึง Popular Activities (เรียงตามจำนวนรอบการเล่น)
-  Future<List<Activity>> fetchPopularActivities(String childId) async {
+  Future<List<Activity>> fetchPopularActivities(
+    String childId, {
+    String? category, // 'ด้านภาษา', 'ด้านร่างกาย', 'ด้านวิเคราะห์'
+    String? level, // 'ง่าย', 'กลาง', 'ยาก'
+  }) async {
     try {
       final supabase = Supabase.instance.client;
-      final activity = await supabase
-          .from('activity')
-          .select()
-          .order('play_count', ascending: false);
+      var query = supabase.from('activity').select();
+
+      // กรองตาม category ถ้ามี
+      if (category != null && category.isNotEmpty) {
+        query = query.eq('category', category);
+      }
+
+      // กรองตาม level ถ้ามี
+      if (level != null && level.isNotEmpty) {
+        query = query.eq('level_activity', level);
+      }
+
+      final activity = await query.order('play_count', ascending: false);
       return activity.map<Activity>((json) => Activity.fromJson(json)).toList();
 
       // // 1. ดึงข้อมูลกิจกรรมทั้งหมด
@@ -159,13 +172,26 @@ class ActivityService {
   }
 
   /// 2.3 ดึง New Activities (เรียงตาม createdAt หรือ id)
-  Future<List<Activity>> fetchNewActivities(String childId) async {
+  Future<List<Activity>> fetchNewActivities(
+    String childId, {
+    String? category, // 'ด้านภาษา', 'ด้านร่างกาย', 'ด้านวิเคราะห์'
+    String? level, // 'ง่าย', 'กลาง', 'ยาก'
+  }) async {
     try {
       final supabase = Supabase.instance.client;
-      final activity = await supabase
-          .from('activity')
-          .select()
-          .order('created_at', ascending: false);
+      var query = supabase.from('activity').select();
+
+      // กรองตาม category ถ้ามี
+      if (category != null && category.isNotEmpty) {
+        query = query.eq('category', category);
+      }
+
+      // กรองตาม level ถ้ามี
+      if (level != null && level.isNotEmpty) {
+        query = query.eq('level_activity', level);
+      }
+
+      final activity = await query.order('created_at', ascending: false);
       return activity.map<Activity>((json) => Activity.fromJson(json)).toList();
       // final allActivities = await _fetchAllActivities();
       // // เรียงตาม createdAt หรือ ID (CUID)
@@ -197,6 +223,44 @@ class ActivityService {
       // return processedActivities;
     } catch (e) {
       debugPrint('Error fetching new activities: $e');
+      return [];
+    }
+  }
+
+  // ----------------------------------------------------
+  // 2.4 ดึง Language Activities (ตามหัวข้อและระดับ)
+  // ----------------------------------------------------
+  /// ดึง Language Activities กรองตาม topic และ level
+  Future<List<Activity>> fetchLanguageActivities({
+    String? topic, // 'LISTENING AND SPEAKING' หรือ 'FILL IN THE BLANKS'
+    String? level, // 'ง่าย', 'กลาง', 'ยาก'
+  }) async {
+    try {
+      final supabase = Supabase.instance.client;
+
+      // เริ่มต้น query ด้วย category = 'ด้านภาษา'
+      var query = supabase
+          .from('activity')
+          .select()
+          .eq('category', 'ด้านภาษา');
+
+      // กรองตาม level ถ้ามี
+      if (level != null) {
+        query = query.eq('level_activity', level);
+      }
+
+      final activities = await query;
+
+      debugPrint('📚 Language Activities Found: ${activities.length}');
+      if (activities.isNotEmpty) {
+        debugPrint('📋 Sample Activity: ${activities.first}');
+      }
+
+      return activities
+          .map<Activity>((json) => Activity.fromJson(json))
+          .toList();
+    } catch (e) {
+      debugPrint('❌ Error fetching language activities: $e');
       return [];
     }
   }

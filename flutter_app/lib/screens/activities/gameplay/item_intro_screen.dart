@@ -1,10 +1,15 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart'; // for kIsWeb
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:audioplayers/audioplayers.dart' as ap;
 import 'package:youtube_player_iframe/youtube_player_iframe.dart' as yp;
+import 'package:record/record.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../../providers/user_provider.dart';
 import '../../../services/activity_service.dart';
@@ -65,6 +70,16 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
   // 🔊 สำหรับเล่นเสียงที่บันทึกเอง
   final ap.AudioPlayer _playbackPlayer = ap.AudioPlayer();
 
+  // 🎙️ สำหรับอัดเสียง
+  final AudioRecorder _audioRecorder = AudioRecorder();
+  bool _isRecording = false;
+  Duration _recordingDuration = Duration.zero;
+  Timer? _recordingTimer;
+  String _recordedFilePath = '';
+  BytesBuilder? _webBytesBuilder;
+  StreamSubscription<List<int>>? _webAudioSub;
+  Uint8List? _webAudioBytes;
+
   String _youtubeVideoId = ''; // ID จาก URL
 
   late List<dynamic> _rawSegments;
@@ -115,23 +130,36 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
     if (_youtubeVideoId.isNotEmpty) {
       _ytController = yp.YoutubePlayerController.fromVideoId(
         videoId: _youtubeVideoId,
-        autoPlay:
-            false, // ✅ autoPlay อยู่ตรงนี้ (constructor) ไม่ใช่ใน params แล้ว
+        autoPlay: false,
         params: const yp.YoutubePlayerParams(
           showControls: true,
           showFullscreenButton: true,
           origin: 'https://www.youtube-nocookie.com',
         ),
       )..listen((event) {
-          // ✅ PlayerState.ready ไม่มีแล้ว ใช้ PlayerState.cued แทน
-          if (!_isPlayerReady && event.playerState == yp.PlayerState.cued) {
+          // เซ็ตเป็น ready เมื่อ player อยู่ในสถานะ cued, playing, หรือ paused
+          if (!_isPlayerReady &&
+              (event.playerState == yp.PlayerState.cued ||
+                  event.playerState == yp.PlayerState.playing ||
+                  event.playerState == yp.PlayerState.paused)) {
             if (mounted) {
               setState(() {
                 _isPlayerReady = true;
               });
+              debugPrint('✅ YouTube Player Ready');
             }
           }
         });
+
+      // เซ็ตเป็น ready ทันทีถ้า controller สร้างเสร็จแล้ว
+      Future.delayed(const Duration(seconds: 2), () {
+        if (mounted && !_isPlayerReady) {
+          setState(() {
+            _isPlayerReady = true;
+          });
+          debugPrint('✅ YouTube Player Ready (timeout)');
+        }
+      });
     }
 
     // 5. โหลด childId
@@ -151,6 +179,9 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
   void dispose() {
     _ytController?.close(); // ปิด YouTube controller
     _playbackPlayer.dispose(); // ปิด audio player
+    _audioRecorder.dispose(); // ปิด audio recorder
+    _recordingTimer?.cancel();
+    _webAudioSub?.cancel();
     super.dispose();
   }
 
@@ -178,26 +209,58 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
   }
 
   // 🔊 เล่น Section ด้วย youtube_player_iframe: seekTo + playVideo + pauseVideo
-  void _playSection() {
-    if (_ytController == null || !_isPlayerReady) return;
-    if (_rawSegments.isEmpty || current > totalSegments) return;
+  void _playSection() async {
+    if (_ytController == null) {
+      debugPrint('❌ Play Section: YouTube controller is null');
+      return;
+    }
+
+    if (!_isPlayerReady) {
+      debugPrint('❌ Play Section: Player not ready yet');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('โปรดรอสักครู่ วิดีโอกำลังโหลด...')),
+      );
+      return;
+    }
+
+    if (_rawSegments.isEmpty || current > totalSegments) {
+      debugPrint('❌ Play Section: No segments or invalid current index');
+      return;
+    }
 
     final currentSegment = _rawSegments[current - 1] as Map<String, dynamic>;
     final start = (currentSegment['start'] as num?)?.toDouble();
     final end = (currentSegment['end'] as num?)?.toDouble();
 
-    if (start == null || end == null) return;
+    if (start == null || end == null) {
+      debugPrint('❌ Play Section: Missing start/end time in segment data');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('ข้อมูลเวลาของประโยคนี้ไม่ครบถ้วน')),
+      );
+      return;
+    }
 
-    final durationMs = ((end - start) * 1000).toInt();
+    debugPrint('▶️ Playing section: ${start}s - ${end}s (+0.7s buffer)');
+    final durationMs = ((end - start + 0.7) * 1000).toInt(); // ✅ เพิ่ม 0.7 วินาทีให้เล่นยาวขึ้น
 
-    _ytController!.seekTo(seconds: start, allowSeekAhead: true);
-    _ytController!.playVideo();
+    try {
+      await _ytController!.seekTo(seconds: start, allowSeekAhead: true);
+      await _ytController!.playVideo();
 
-    Timer(Duration(milliseconds: durationMs), () {
-      if (mounted && _ytController != null) {
-        _ytController!.pauseVideo();
+      Timer(Duration(milliseconds: durationMs), () {
+        if (mounted && _ytController != null) {
+          _ytController!.pauseVideo();
+          debugPrint('⏸️ Section playback ended');
+        }
+      });
+    } catch (e) {
+      debugPrint('❌ Play Section Error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('ไม่สามารถเล่นวิดีโอได้: $e')),
+        );
       }
-    });
+    }
   }
 
   // 🔊 Playback เสียงที่บันทึกเอง
@@ -230,36 +293,251 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
   Future<void> _handleRecord() async {
     if (_childId == null || _rawSegments.isEmpty) return;
 
-    setState(() => state = 'processing');
-    final result = await Navigator.pushNamed(
-      context,
-      AppRoutes.record,
-      arguments: {
-        'originalText': _getCurrentSegmentText(),
-        'segmentId': _currentSegmentResult.id,
-      },
-    );
-
-    if (result != null && mounted) {
-      final Map<String, dynamic> data = result as Map<String, dynamic>;
-      final int score = data['score'] as int? ?? 0;
-      final String recognizedText = data['recognizedText'] as String? ?? 'N/A';
-      final String audioUrl = data['audioUrl'] as String? ?? '';
-
-      setState(() {
-        _segmentResults[current - 1] = SegmentResult(
-          id: _currentSegmentResult.id,
-          text: _currentSegmentResult.text,
-          maxScore: score,
-          recognizedText: recognizedText,
-          audioUrl: audioUrl,
-        );
-
-        state = 'reviewed';
-        point = score;
-      });
+    if (_isRecording) {
+      // หยุดการอัด
+      await _stopRecording();
+    } else {
+      // เริ่มการอัด
+      await _startRecording();
     }
   }
+
+  Future<void> _startRecording() async {
+    // ขอ permission
+    final hasPermission = await _audioRecorder.hasPermission();
+    if (!hasPermission) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('กรุณาอนุญาตการใช้ไมโครโฟน')),
+        );
+      }
+      return;
+    }
+
+    try {
+      if (kIsWeb) {
+        // Web: ใช้ stream
+        _webBytesBuilder = BytesBuilder(copy: false);
+        final stream = await _audioRecorder.startStream(
+          const RecordConfig(encoder: AudioEncoder.pcm16bits),
+        );
+        _webAudioSub = stream.listen((chunk) {
+          _webBytesBuilder?.add(chunk);
+        });
+      } else {
+        // Mobile/Desktop: บันทึกเป็นไฟล์
+        final tempDir = await getTemporaryDirectory();
+        _recordedFilePath =
+            '${tempDir.path}/recording_${DateTime.now().millisecondsSinceEpoch}.m4a';
+        await _audioRecorder.start(
+          const RecordConfig(encoder: AudioEncoder.aacLc),
+          path: _recordedFilePath,
+        );
+      }
+
+      setState(() {
+        _isRecording = true;
+        _recordingDuration = Duration.zero;
+      });
+
+      // เริ่ม timer
+      _recordingTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (mounted) {
+          setState(() {
+            _recordingDuration += const Duration(seconds: 1);
+          });
+        }
+      });
+
+      debugPrint('🎙️ Recording started');
+    } catch (e) {
+      debugPrint('❌ Recording start error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('ไม่สามารถเริ่มอัดเสียงได้: $e')),
+        );
+      }
+    }
+  }
+
+  Future<void> _stopRecording() async {
+    _recordingTimer?.cancel();
+    await _audioRecorder.stop();
+
+    setState(() {
+      _isRecording = false;
+      state = 'processing';
+    });
+
+    // ตรวจสอบระยะเวลาที่อัด
+    if (_recordingDuration.inSeconds < 1) {
+      debugPrint('⚠️ Recording too short: ${_recordingDuration.inSeconds}s');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('การอัดเสียงสั้นเกินไป กรุณาลองใหม่')),
+        );
+        setState(() => state = 'idle');
+      }
+      return;
+    }
+
+    // แสดง loading dialog
+    if (mounted) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('กำลังประมวลผล AI...'),
+              const SizedBox(height: 10),
+              const Center(child: CircularProgressIndicator()),
+              const SizedBox(height: 10),
+              Text(
+                'ระยะเวลา: ${_recordingDuration.inSeconds} วินาที',
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    try {
+      Map<String, dynamic> result;
+
+      if (kIsWeb) {
+        // Web: ประมวลผล bytes
+        await _webAudioSub?.cancel();
+        _webAudioSub = null;
+        final pcm = _webBytesBuilder?.toBytes();
+        if (pcm == null || pcm.isEmpty) {
+          throw Exception('ไม่มีข้อมูลเสียงที่บันทึก');
+        }
+        if (pcm.length < 8000) {
+          // น้อยกว่า ~0.5 วินาทีที่ 16kHz
+          throw Exception('ข้อมูลเสียงสั้นเกินไป');
+        }
+        _webAudioBytes = _pcm16ToWav(pcm, sampleRate: 44100, channels: 1);
+        debugPrint('📦 Web audio size: ${_webAudioBytes!.length} bytes');
+        result = await _activityService.evaluateAudioBytes(
+          audioBytes: _webAudioBytes!,
+          originalText: _getCurrentSegmentText(),
+          filename: 'recording.wav',
+        );
+        _webBytesBuilder = null;
+      } else {
+        // Mobile/Desktop: ส่งไฟล์
+        final audioFile = File(_recordedFilePath);
+        if (!await audioFile.exists()) {
+          throw Exception('ไม่พบไฟล์เสียงที่บันทึก');
+        }
+        final fileSize = await audioFile.length();
+        if (fileSize < 1000) {
+          throw Exception('ไฟล์เสียงมีขนาดเล็กเกินไป (${fileSize} bytes)');
+        }
+        debugPrint('📦 Audio file size: $fileSize bytes');
+        result = await _activityService.evaluateAudio(
+          audioFile: audioFile,
+          originalText: _getCurrentSegmentText(),
+        );
+      }
+
+      if (mounted) Navigator.pop(context); // ปิด loading dialog
+
+      final int score = result['score'] as int? ?? 0;
+      final String recognizedText = result['text'] as String? ?? 'N/A';
+
+      if (mounted) {
+        setState(() {
+          _segmentResults[current - 1] = SegmentResult(
+            id: _currentSegmentResult.id,
+            text: _currentSegmentResult.text,
+            maxScore: score,
+            recognizedText: recognizedText,
+            audioUrl: kIsWeb ? '' : _recordedFilePath,
+          );
+
+          state = 'reviewed';
+          point = score;
+        });
+
+        // แสดง feedback
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('ผลการประเมิน: $score% - "$recognizedText"'),
+            backgroundColor: score >= 70 ? Colors.green : Colors.orange,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+
+      debugPrint('✅ Recording processed: $score% (recognized: "$recognizedText")');
+    } catch (e) {
+      if (mounted) Navigator.pop(context); // ปิด loading dialog
+      debugPrint('❌ Recording processing error: $e');
+      if (mounted) {
+        String errorMessage = 'เกิดข้อผิดพลาด';
+        if (e.toString().contains('ไม่มีข้อมูลเสียง') ||
+            e.toString().contains('สั้นเกินไป') ||
+            e.toString().contains('ไม่พบไฟล์')) {
+          errorMessage = e.toString().replaceAll('Exception: ', '');
+        } else if (e.toString().contains('Failed host lookup') ||
+            e.toString().contains('SocketException')) {
+          errorMessage = 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้';
+        } else {
+          errorMessage = 'เกิดข้อผิดพลาด: ${e.toString().substring(0, 50)}';
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+        setState(() => state = 'idle');
+      }
+    }
+  }
+
+  // Helper: Convert PCM16 to WAV format (for Web)
+  Uint8List _pcm16ToWav(Uint8List pcmData,
+      {required int sampleRate, required int channels}) {
+    final int byteRate = sampleRate * channels * 2;
+    final int blockAlign = channels * 2;
+    final int subchunk2Size = pcmData.lengthInBytes;
+    final int chunkSize = 36 + subchunk2Size;
+
+    final bytes = BytesBuilder();
+    bytes.add(_ascii('RIFF'));
+    bytes.add(_le32(chunkSize));
+    bytes.add(_ascii('WAVE'));
+    bytes.add(_ascii('fmt '));
+    bytes.add(_le32(16));
+    bytes.add(_le16(1));
+    bytes.add(_le16(channels));
+    bytes.add(_le32(sampleRate));
+    bytes.add(_le32(byteRate));
+    bytes.add(_le16(blockAlign));
+    bytes.add(_le16(16));
+    bytes.add(_ascii('data'));
+    bytes.add(_le32(subchunk2Size));
+    bytes.add(pcmData);
+
+    return bytes.toBytes();
+  }
+
+  Uint8List _ascii(String s) => Uint8List.fromList(s.codeUnits);
+  Uint8List _le16(int value) =>
+      Uint8List.fromList([value & 0xFF, (value >> 8) & 0xFF]);
+  Uint8List _le32(int value) => Uint8List.fromList([
+        value & 0xFF,
+        (value >> 8) & 0xFF,
+        (value >> 16) & 0xFF,
+        (value >> 24) & 0xFF,
+      ]);
 
   Future<void> _handleFinishQuest() async {
     if (_childId == null) return;
@@ -318,9 +596,6 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
       );
     }
 
-    final currentSegmentResult = _currentSegmentResult;
-    final currentText = _getCurrentSegmentText();
-
     final titleStyle = GoogleFonts.luckiestGuy(
       color: sky,
       fontSize: 22,
@@ -332,14 +607,13 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
 
     if (hasVideo) {
       return yp.YoutubePlayerScaffold(
+        key: ValueKey('yt-$current-$state-$_isPlayerReady'), // 🔑 Force rebuild on state changes
         controller: _ytController!,
         aspectRatio: 16 / 9,
         builder: (context, player) {
           return _buildScaffold(
             context,
             titleStyle: titleStyle,
-            currentSegmentResult: currentSegmentResult,
-            currentText: currentText,
             videoWidget: player,
           );
         },
@@ -350,8 +624,6 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
     return _buildScaffold(
       context,
       titleStyle: titleStyle,
-      currentSegmentResult: currentSegmentResult,
-      currentText: currentText,
       videoWidget: Center(
         child: Text(
           'Video not available',
@@ -365,10 +637,12 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
   Widget _buildScaffold(
     BuildContext context, {
     required TextStyle titleStyle,
-    required SegmentResult currentSegmentResult,
-    required String currentText,
     required Widget videoWidget,
   }) {
+    // ✅ Calculate current values inside this method so they're always fresh
+    final currentSegmentResult = _currentSegmentResult;
+    final currentText = _getCurrentSegmentText();
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: cream,
@@ -425,18 +699,6 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 14),
-
-              // ปุ่ม Cast / AirPlay (ยังเป็น placeholder)
-              Row(
-                children: [
-                  _pillButton('CAST TO TV', lilac,
-                      textDark: true, onTap: () {}),
-                  const SizedBox(width: 10),
-                  _pillButton('AIRPLAY', sunshine,
-                      textDark: true, onTap: () {}),
-                ],
               ),
               const SizedBox(height: 14),
 
@@ -503,10 +765,16 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                         if (current < totalSegments) {
                           setState(() {
                             current++;
-                            state = _currentSegmentResult.maxScore > 0
+                            // ตรวจสอบ segment ใหม่ว่ามี score หรือยัง
+                            final newSegmentResult = _segmentResults[current - 1];
+                            state = newSegmentResult.maxScore > 0
                                 ? 'reviewed'
                                 : 'idle';
                           });
+                          debugPrint(
+                              '➡️ Moved to segment $current/${totalSegments}');
+                          debugPrint('   Text: ${_getCurrentSegmentText()}');
+                          debugPrint('   State: $state');
                         } else {
                           _handleFinishQuest();
                         }
@@ -553,6 +821,57 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
     );
   }
 
+  Widget _recordButton({required bool isReviewed}) {
+    final Color bg = _isRecording
+        ? Colors.red
+        : (isReviewed ? greenPill : const Color(0xFFE7686B));
+
+    return Expanded(
+      child: InkWell(
+        onTap: _handleRecord,
+        borderRadius: BorderRadius.circular(_isRecording ? 8 : 14),
+        child: Container(
+          height: 42,
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(_isRecording ? 8 : 14),
+          ),
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (_isRecording) ...[
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '${_recordingDuration.inMinutes.toString().padLeft(2, '0')}:${(_recordingDuration.inSeconds % 60).toString().padLeft(2, '0')}',
+                  style: GoogleFonts.luckiestGuy(
+                    color: Colors.white,
+                    fontSize: 14,
+                  ),
+                ),
+              ] else
+                Text(
+                  'RECORD',
+                  style: GoogleFonts.luckiestGuy(
+                    color: Colors.white,
+                    fontSize: 14,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _contentCard({required String text, int? score}) {
     final isReviewed = score != null && score > 0;
     return Container(
@@ -579,11 +898,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                     : null,
               ),
               const SizedBox(width: 10),
-              _pillButton(
-                'RECORD',
-                isReviewed ? greenPill : const Color(0xFFE7686B),
-                onTap: _handleRecord,
-              ),
+              _recordButton(isReviewed: isReviewed),
             ],
           ),
           const SizedBox(height: 10),
