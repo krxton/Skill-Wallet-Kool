@@ -517,7 +517,7 @@ export default function EditForm({ id }: EditFormProps) {
                         historyIndex={historyIndex}
                         setHistoryIndex={setHistoryIndex}
                         saveSnapshot={saveSnapshot as any} // Cast Type
-                        currentScore={formData.maxScore} // ✅ ส่ง current score
+                        maxScore={formData.maxScore}
                     />
                 )}
                 

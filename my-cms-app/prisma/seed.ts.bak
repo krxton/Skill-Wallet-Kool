@@ -44,21 +44,21 @@ async function main() {
   // *** 1. ลบข้อมูลเก่าตามลำดับ (ลำดับสำคัญมาก) ***
   console.log('🗑️  Deleting old data...');
   
-  await prisma.activityRecord.deleteMany({});     // 1. ActivityRecord
+  await prisma.activity_record.deleteMany({});     // 1. ActivityRecord
   console.log('   ✅ Deleted ActivityRecords');
-  
-  await prisma.rewardRedemption.deleteMany({});   // 2. RewardRedemption
-  console.log('   ✅ Deleted RewardRedemptions');
-  
-  await prisma.parentReward.deleteMany({});       // 3. ParentReward
-  console.log('   ✅ Deleted ParentRewards');
-  
-  await prisma.parentChild.deleteMany({});        // 4. ParentChild
-  console.log('   ✅ Deleted ParentChildren');
+
+  await prisma.redemption.deleteMany({});   // 2. Redemption
+  console.log('   ✅ Deleted Redemptions');
+
+  await prisma.parent_and_medals.deleteMany({});       // 3. ParentAndMedals
+  console.log('   ✅ Deleted ParentAndMedals');
+
+  await prisma.parent_and_child.deleteMany({});        // 4. ParentAndChild
+  console.log('   ✅ Deleted ParentAndChild');
 
   // ลบ Entity หลัก (หลังจากตารางที่อ้างอิงถูกลบแล้ว)
-  await prisma.reward.deleteMany({});             // 5. Reward
-  console.log('   ✅ Deleted Rewards');
+  await prisma.medals.deleteMany({});             // 5. Medals
+  console.log('   ✅ Deleted Medals');
   
   await prisma.activity.deleteMany({});           // 6. Activity
   console.log('   ✅ Deleted Activities');

@@ -15,7 +15,7 @@ const ACTIVITY_TYPES = [
 ];
 
 // Utility: ดึง Video ID จาก URL (รองรับ YouTube และ TikTok)
-export const extractVideoId = (url: string) => {
+const extractVideoId = (url: string) => {
     let id: string | null = null;
     let type: 'youtube' | 'tiktok' | null = null;
 

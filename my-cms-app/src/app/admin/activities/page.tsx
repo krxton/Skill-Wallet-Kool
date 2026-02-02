@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { Plus, Search, MoreVertical, Edit, Trash2 } from 'lucide-react';
+import UserProfile from '@/components/UserProfile';
 
 interface Activity {
   activityId: string;
@@ -150,9 +151,7 @@ export default function ActivitiesPage() {
           <h1 className="heading-h3">ACTIVITIES</h1>
         </div>
         <div className="flex items-center gap-4">
-          <span className="body-small-medium text-secondary--text">
-            Goff<br/>System Admin
-          </span>
+          <UserProfile />
           <Link href="/admin/activities/new">
             <button className="btn-primary px-4 py-2 rounded-lg flex items-center gap-2">
               <Plus size={20} />

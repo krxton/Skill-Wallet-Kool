@@ -32,7 +32,14 @@
       "Bash(flutter analyze:*)",
       "Bash(flutter pub outdated:*)",
       "Bash(flutter pub deps:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm install:*)",
+      "Bash(npm i:*)",
+      "Bash(test:*)",
+      "Bash(timeout 10 npm run dev:*)",
+      "Bash(npm update:*)"
     ]
   }
 }

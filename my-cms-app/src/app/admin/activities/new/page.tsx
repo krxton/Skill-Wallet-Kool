@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Save, Send, Plus, Trash2 } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
+import UserProfile from '@/components/UserProfile';
 
 // Types
 interface Segment {
@@ -55,7 +56,6 @@ export default function NewActivityPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [userEmail, setUserEmail] = useState<string>('');
 
   // Get parentId from Supabase
   useEffect(() => {
@@ -70,7 +70,6 @@ export default function NewActivityPage() {
         }
 
         const user = session.user;
-        setUserEmail(user.email || '');
 
         const { data: parent, error: parentError } = await supabase
           .from('parent')
@@ -413,10 +412,7 @@ export default function NewActivityPage() {
           <h1 className="heading-h3">Create New Activity</h1>
         </div>
         <div className="flex items-center gap-4">
-          <div className="text-right">
-            <div className="body-small-medium">{userEmail}</div>
-            <div className="body-xs-regular text-secondary--text">Admin</div>
-          </div>
+          <UserProfile />
           {selectedCategory && (
             <div className="flex items-center gap-3">
               <button

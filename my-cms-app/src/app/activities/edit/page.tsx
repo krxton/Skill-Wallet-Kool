@@ -2,14 +2,15 @@
 
 'use client';
 
-import EditForm from './EditForm'; 
+import { Suspense } from 'react';
+import EditForm from './EditForm';
 import { useSearchParams } from 'next/navigation';
 
-export default function EditActivityPageWrapper() {
-    
+// 🔧 Separate component for useSearchParams to enable Suspense
+function EditFormWithParams() {
     const searchParams = useSearchParams();
-    const activityId = searchParams.get('id'); 
-    
+    const activityId = searchParams.get('id');
+
     // ตรวจสอบความถูกต้องของ ID ที่ได้จาก Query
     if (!activityId) {
         return (
@@ -20,7 +21,18 @@ export default function EditActivityPageWrapper() {
     }
 
     // ส่ง id ที่ดึงมาอย่างปลอดภัย ลงไปยัง Client Component
+    return <EditForm id={activityId} />;
+}
+
+// 🚀 Main page component with Suspense boundary
+export default function EditActivityPageWrapper() {
     return (
-        <EditForm id={activityId} />
+        <Suspense fallback={
+            <div className="p-8 text-center text-gray-600 text-xl">
+                Loading activity...
+            </div>
+        }>
+            <EditFormWithParams />
+        </Suspense>
     );
 }

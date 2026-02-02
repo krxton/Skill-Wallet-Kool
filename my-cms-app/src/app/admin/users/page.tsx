@@ -4,6 +4,7 @@
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { Search, MoreVertical, Eye, UserCheck, UserX } from 'lucide-react';
+import UserProfile from '@/components/UserProfile';
 
 interface User {
   id: string;
@@ -121,9 +122,7 @@ export default function UsersPage() {
           <h1 className="heading-h3">USERS</h1>
         </div>
         <div className="flex items-center gap-4">
-          <span className="body-small-medium text-secondary--text">
-            Goff<br/>System Admin
-          </span>
+          <UserProfile />
         </div>
       </div>
 

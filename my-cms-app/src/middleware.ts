@@ -24,14 +24,23 @@ export async function middleware(req: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession()
 
-  // ❌ ยังไม่ login
-  if (!session && !req.nextUrl.pathname.startsWith('/')) {
-    return NextResponse.redirect(new URL('/', req.url))
+  // Public paths that don't require authentication
+  const publicPaths = ['/login', '/api', '/_next', '/favicon.ico']
+  const isPublicPath = publicPaths.some(path => req.nextUrl.pathname.startsWith(path))
+
+  // ❌ Not logged in and trying to access protected route
+  if (!session && !isPublicPath) {
+    return NextResponse.redirect(new URL('/login', req.url))
+  }
+
+  // ✅ Logged in and trying to access login page → redirect to admin
+  if (session && req.nextUrl.pathname === '/login') {
+    return NextResponse.redirect(new URL('/admin/activities', req.url))
   }
 
   return res
 }
 
 export const config = {
-  matcher: ['/((?!_next|favicon.ico).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 }
