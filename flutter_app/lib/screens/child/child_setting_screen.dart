@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 
 import 'add_child_screen.dart';
 import 'manage_child_screen.dart';
 import 'child_profile_screen.dart';
+import '../../providers/user_provider.dart';
 
 class ChildSettingScreen extends StatefulWidget {
   const ChildSettingScreen({super.key});
@@ -19,58 +21,146 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
   static const sky = Color(0xFF5AB2FF);
   static const greenIcon = Color(0xFF88C273);
 
-  // ข้อมูล Mock Data (รายชื่อเด็ก)
-  List<Map<String, dynamic>> children = [
-    {
-      'name': 'KRATON',
-      'score': 1000000,
-      'img': 'https://i.pravatar.cc/150?img=1'
-    },
-    {'name': 'GOLF', 'score': 300, 'img': 'https://i.pravatar.cc/150?img=8'},
-  ];
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadChildren();
+    });
+  }
+
+  Future<void> _loadChildren() async {
+    if (!mounted) return;
+    setState(() => _isLoading = true);
+    final userProvider = context.read<UserProvider>();
+    await userProvider.fetchChildrenData();
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+  }
 
   // ฟังก์ชันเพิ่มเด็กใหม่
-  void _addNewChild() async {
+  Future<void> _addNewChild() async {
     final newChildData = await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const AddChildScreen()),
     );
 
-    if (newChildData != null) {
-      setState(() {
-        children.add(newChildData);
-      });
+    if (!mounted) return;
+
+    if (newChildData != null && newChildData is Map<String, dynamic>) {
+      final userProvider = context.read<UserProvider>();
+
+      // Parse birthday if exists
+      DateTime birthday = DateTime.now();
+      if (newChildData['birthday'] != null) {
+        birthday = newChildData['birthday'] as DateTime;
+      }
+
+      final success = await userProvider.addChild(
+        name: newChildData['name'] as String,
+        birthday: birthday,
+      );
+
+      if (!mounted) return;
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'เพิ่มเด็กสำเร็จ',
+              style: TextStyle(
+                fontFamily: GoogleFonts.itim().fontFamily,
+              ),
+            ),
+          ),
+        );
+      }
     }
   }
 
   // ✅ ฟังก์ชันจัดการเด็ก
-  void _manageChild(int index) async {
-    final child = children[index];
+  Future<void> _manageChild(Map<String, dynamic> childData) async {
+    final childInfo = childData['child'] as Map<String, dynamic>;
+    final childId = childInfo['child_id'] as String;
+    final childName = childInfo['name_surname'] as String;
+    final childWallet = childInfo['wallet'] as int? ?? 0;
 
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ManageChildScreen(
-          name: child['name'],
-          imageUrl: child['img'],
-          score: child['score'],
+          name: childName,
+          imageUrl: '', // No image URL for now
+          score: childWallet,
         ),
       ),
     );
 
+    if (!mounted) return;
+
+    final userProvider = context.read<UserProvider>();
+
     if (result == true) {
       // กรณีได้รับค่า true กลับมา = ลบ
-      setState(() {
-        children.removeAt(index);
-      });
-    } else if (result is Map) {
+      final success = await userProvider.deleteChild(childId);
+
+      if (!mounted) return;
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'ลบเด็กสำเร็จ',
+              style: TextStyle(
+                fontFamily: GoogleFonts.itim().fontFamily,
+              ),
+            ),
+          ),
+        );
+      }
+    } else if (result is Map && result['newName'] != null) {
       // กรณีได้รับ Map กลับมา = มีการแก้ไขข้อมูล
-      setState(() {
-        if (result['newName'] != null) {
-          children[index]['name'] = result['newName'];
-        }
-        // ถ้ามี logic อัปเดตรูปภาพเพิ่ม ก็ใส่ตรงนี้ได้
-      });
+      final success = await userProvider.updateChild(
+        childId: childId,
+        name: result['newName'] as String,
+      );
+
+      if (!mounted) return;
+
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'แก้ไขข้อมูลสำเร็จ',
+              style: TextStyle(
+                fontFamily: GoogleFonts.itim().fontFamily,
+              ),
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  // ✅ เลือกเด็กเป็น active child
+  void _selectChild(String childId) {
+    final userProvider = context.read<UserProvider>();
+    userProvider.selectChild(childId);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'เลือกเด็กสำเร็จ',
+            style: TextStyle(
+              fontFamily: GoogleFonts.itim().fontFamily,
+            ),
+          ),
+          duration: const Duration(seconds: 1),
+        ),
+      );
     }
   }
 
