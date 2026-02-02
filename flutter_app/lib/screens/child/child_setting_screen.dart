@@ -195,147 +195,262 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
           const SizedBox(width: 16),
         ],
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-        itemCount: children.length,
-        itemBuilder: (context, index) {
-          final child = children[index];
-          return Container(
-            margin: const EdgeInsets.only(bottom: 20),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(25),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                // Profile Row
-                Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 35,
-                      backgroundImage: NetworkImage(child['img']),
-                      backgroundColor: Colors.grey.shade200,
+      body: Consumer<UserProvider>(
+        builder: (context, userProvider, child) {
+          final children = userProvider.children;
+          final currentChildId = userProvider.currentChildId;
+
+          if (_isLoading) {
+            return const Center(
+              child: CircularProgressIndicator(color: sky),
+            );
+          }
+
+          if (children.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.child_care, size: 80, color: Colors.grey.shade400),
+                  const SizedBox(height: 16),
+                  Text(
+                    'ยังไม่มีเด็กในระบบ',
+                    style: TextStyle(
+                      fontFamily: GoogleFonts.itim().fontFamily,
+                      fontSize: 18,
+                      color: Colors.grey,
                     ),
-                    const SizedBox(width: 16),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    onPressed: _addNewChild,
+                    icon: const Icon(Icons.add),
+                    label: Text(
+                      'เพิ่มเด็ก',
+                      style: TextStyle(
+                        fontFamily: GoogleFonts.itim().fontFamily,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: greenIcon,
+                      foregroundColor: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+            itemCount: children.length,
+            itemBuilder: (context, index) {
+              final childData = children[index];
+              final childInfo = childData['child'] as Map<String, dynamic>;
+              final childId = childInfo['child_id'] as String;
+              final childName = childInfo['name_surname'] as String;
+              final childWallet = childInfo['wallet'] as int? ?? 0;
+              final isSelected = currentChildId == childId;
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 20),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: isSelected ? const Color(0xFFE3F2FD) : Colors.white,
+                  borderRadius: BorderRadius.circular(25),
+                  border: isSelected
+                      ? Border.all(color: sky, width: 3)
+                      : null,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    // Profile Row
+                    Row(
                       children: [
-                        Text(
-                          child['name'],
-                          style: TextStyle(
-                            fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                            fontFamilyFallback: [
-                              GoogleFonts.itim().fontFamily!
-                            ],
-                            fontSize: 24,
-                            color: Colors.black87,
+                        CircleAvatar(
+                          radius: 35,
+                          backgroundColor: Colors.grey.shade200,
+                          child: Text(
+                            childName.isNotEmpty ? childName[0].toUpperCase() : '?',
+                            style: TextStyle(
+                              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                              fontSize: 28,
+                              color: sky,
+                            ),
                           ),
                         ),
-                        Text(
-                          '${AppLocalizations.of(context)!.childsetting_scoreBtn} : ${child['score']}',
-                          style: TextStyle(
-                            fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                            fontFamilyFallback: [
-                              GoogleFonts.itim().fontFamily!
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      childName,
+                                      style: TextStyle(
+                                        fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                                        fontFamilyFallback: [
+                                          GoogleFonts.itim().fontFamily!
+                                        ],
+                                        fontSize: 22,
+                                        color: Colors.black87,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  if (isSelected)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: greenIcon,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        'ACTIVE',
+                                        style: TextStyle(
+                                          fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                                          fontSize: 10,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                '${AppLocalizations.of(context)!.childsetting_scoreBtn} : $childWallet',
+                                style: TextStyle(
+                                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                                  fontFamilyFallback: [
+                                    GoogleFonts.itim().fontFamily!
+                                  ],
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                ),
+                              ),
                             ],
-                            fontSize: 14,
-                            color: Colors.grey,
                           ),
                         ),
                       ],
                     ),
-                  ],
-                ),
-                const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-                // Buttons Row
-                Row(
-                  children: [
-                    // View Profile Button
-                    Expanded(
-                      child: SizedBox(
-                        height: 45,
-                        child: OutlinedButton(
-                          onPressed: () {
-                            // กดเพื่อไปหน้า Profile ของเด็กคนนั้น
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ChildProfileScreen(
-                                  name: child['name'],
-                                  imageUrl: child['img'],
-                                  points: child['score'],
+                    // Buttons Row
+                    Row(
+                      children: [
+                        // SELECT Button (เฉพาะเมื่อไม่ใช่ child ที่เลือกอยู่)
+                        if (!isSelected)
+                          Expanded(
+                            child: SizedBox(
+                              height: 45,
+                              child: ElevatedButton(
+                                onPressed: () => _selectChild(childId),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: sky,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15),
+                                  ),
+                                ),
+                                child: Text(
+                                  'SELECT',
+                                  style: TextStyle(
+                                    fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                                    fontFamilyFallback: [
+                                      GoogleFonts.itim().fontFamily!
+                                    ],
+                                    fontSize: 14,
+                                  ),
                                 ),
                               ),
-                            );
-                          },
-                          style: OutlinedButton.styleFrom(
-                            side:
-                                const BorderSide(color: Colors.black, width: 2),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
                             ),
                           ),
-                          child: Text(
-                            AppLocalizations.of(context)!
-                                .childsetting_viewprofileBtn,
-                            style: TextStyle(
-                              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                              fontFamilyFallback: [
-                                GoogleFonts.itim().fontFamily!
-                              ],
-                              fontSize: 14,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
+                        if (!isSelected) const SizedBox(width: 10),
 
-                    // Manage Button
-                    Expanded(
-                      child: SizedBox(
-                        height: 45,
-                        child: OutlinedButton(
-                          onPressed: () {
-                            // เรียกฟังก์ชันจัดการเด็ก
-                            _manageChild(index);
-                          },
-                          style: OutlinedButton.styleFrom(
-                            side:
-                                const BorderSide(color: Colors.black, width: 2),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                          ),
-                          child: Text(
-                            AppLocalizations.of(context)!
-                                .childsetting_manageBtn,
-                            style: TextStyle(
-                              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                              fontFamilyFallback: [
-                                GoogleFonts.itim().fontFamily!
-                              ],
-                              fontSize: 14,
-                              color: Colors.black,
+                        // View Profile Button
+                        Expanded(
+                          child: SizedBox(
+                            height: 45,
+                            child: OutlinedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ChildProfileScreen(
+                                      name: childName,
+                                      imageUrl: '',
+                                      points: childWallet,
+                                    ),
+                                  ),
+                                );
+                              },
+                              style: OutlinedButton.styleFrom(
+                                side:
+                                    const BorderSide(color: Colors.black, width: 2),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                              ),
+                              child: Text(
+                                AppLocalizations.of(context)!
+                                    .childsetting_viewprofileBtn,
+                                style: TextStyle(
+                                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                                  fontFamilyFallback: [
+                                    GoogleFonts.itim().fontFamily!
+                                  ],
+                                  fontSize: 14,
+                                  color: Colors.black,
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
+                        const SizedBox(width: 10),
+
+                        // Manage Button
+                        Expanded(
+                          child: SizedBox(
+                            height: 45,
+                            child: OutlinedButton(
+                              onPressed: () => _manageChild(childData),
+                              style: OutlinedButton.styleFrom(
+                                side:
+                                    const BorderSide(color: Colors.black, width: 2),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                              ),
+                              child: Text(
+                                AppLocalizations.of(context)!
+                                    .childsetting_manageBtn,
+                                style: TextStyle(
+                                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                                  fontFamilyFallback: [
+                                    GoogleFonts.itim().fontFamily!
+                                  ],
+                                  fontSize: 14,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
                   ],
-                )
-              ],
-            ),
+                ),
+              );
+            },
           );
         },
       ),

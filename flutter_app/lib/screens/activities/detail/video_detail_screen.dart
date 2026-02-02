@@ -34,7 +34,8 @@ class VideoDetailScreen extends StatelessWidget {
     debugPrint('🎬 Video Detail Screen - ${activity.name}');
     debugPrint('  - Activity ID: ${activity.id}');
     debugPrint('  - tiktokHtmlContent (raw): ${activity.tiktokHtmlContent}');
-    debugPrint('  - htmlContent: ${htmlContent.isNotEmpty ? 'Present (${htmlContent.length} chars)' : 'EMPTY'}');
+    debugPrint(
+        '  - htmlContent: ${htmlContent.isNotEmpty ? 'Present (${htmlContent.length} chars)' : 'EMPTY'}');
     debugPrint('  - thumbnailUrl: ${activity.thumbnailUrl ?? 'NULL'}');
     debugPrint('  - videoUrl: $videoUrl');
 
@@ -54,33 +55,80 @@ class VideoDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            SizedBox(
-              height: 300,
+            AspectRatio(
+              aspectRatio: 9 / 16,
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: htmlContent.isNotEmpty
-                    ? InAppWebView(
-                        initialData: InAppWebViewInitialData(
-                          data: htmlContent,
-                          mimeType: 'text/html',
-                          encoding: 'utf-8',
-                        ),
-                        initialSettings: InAppWebViewSettings(
-                          javaScriptEnabled: true,
-                          transparentBackground: true,
-                          mediaPlaybackRequiresUserGesture: false,
-                          allowsInlineMediaPlayback: true,
-                        ),
-                        onReceivedError: (controller, request, error) {
-                          debugPrint('❌ WebView Error: ${error.description}');
-                        },
-                        onConsoleMessage: (controller, consoleMessage) {
-                          debugPrint('🖥️ WebView Console: ${consoleMessage.message}');
-                        },
-                      )
-                    : _buildVideoPlaceholder(videoUrl),
+                borderRadius: BorderRadius.circular(24),
+                child: Container(
+                  color: Colors.black,
+                  child: htmlContent.isNotEmpty
+                      ? InAppWebView(
+                          initialData: InAppWebViewInitialData(
+                            data: buildResponsiveTikTokHtml(htmlContent),
+                            mimeType: 'text/html',
+                            encoding: 'utf-8',
+                          ),
+                          initialSettings: InAppWebViewSettings(
+                            javaScriptEnabled: true,
+                            mediaPlaybackRequiresUserGesture: false,
+                            allowsInlineMediaPlayback: true,
+
+                            // 🚫 กันเด้งออกไป TikTok
+                            supportMultipleWindows: false,
+                            javaScriptCanOpenWindowsAutomatically: false,
+
+                            disableVerticalScroll: true,
+                            disableHorizontalScroll: true,
+                            transparentBackground: false,
+                          ),
+                          shouldOverrideUrlLoading:
+                              (controller, navigationAction) async {
+                            final url = navigationAction.request.url.toString();
+
+                            if (url.contains('tiktok.com')) {
+                              debugPrint('🚫 Blocked TikTok redirect: $url');
+                              return NavigationActionPolicy.CANCEL;
+                            }
+
+                            return NavigationActionPolicy.ALLOW;
+                          },
+                          onConsoleMessage: (controller, consoleMessage) {
+                            debugPrint(
+                              '🖥️ TikTok Console: ${consoleMessage.message}',
+                            );
+                          },
+                        )
+                      : _buildVideoPlaceholder(videoUrl),
+                ),
               ),
             ),
+            // SizedBox(
+            //   height: 300,
+            //   child: ClipRRect(
+            //     borderRadius: BorderRadius.circular(20),
+            //     child: htmlContent.isNotEmpty
+            //         ? InAppWebView(
+            //             initialData: InAppWebViewInitialData(
+            //               data: htmlContent,
+            //               mimeType: 'text/html',
+            //               encoding: 'utf-8',
+            //             ),
+            //             initialSettings: InAppWebViewSettings(
+            //               javaScriptEnabled: true,
+            //               transparentBackground: true,
+            //               mediaPlaybackRequiresUserGesture: false,
+            //               allowsInlineMediaPlayback: true,
+            //             ),
+            //             onReceivedError: (controller, request, error) {
+            //               debugPrint('❌ WebView Error: ${error.description}');
+            //             },
+            //             onConsoleMessage: (controller, consoleMessage) {
+            //               debugPrint('🖥️ WebView Console: ${consoleMessage.message}');
+            //             },
+            //           )
+            //         : _buildVideoPlaceholder(videoUrl),
+            //   ),
+            // ),
             const SizedBox(height: 24),
             Text(
               'ACTIVITY NAME:',
@@ -228,7 +276,8 @@ class VideoDetailScreen extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.video_library, size: 60, color: Colors.white.withOpacity(0.7)),
+          Icon(Icons.video_library,
+              size: 60, color: Colors.white.withOpacity(0.7)),
           const SizedBox(height: 16),
           Text(
             'Video Preview Not Available',
@@ -252,11 +301,13 @@ class VideoDetailScreen extends StatelessWidget {
                 }
               },
               icon: const Icon(Icons.open_in_browser, size: 18),
-              label: Text('OPEN TIKTOK', style: GoogleFonts.luckiestGuy(fontSize: 14)),
+              label: Text('OPEN TIKTOK',
+                  style: GoogleFonts.luckiestGuy(fontSize: 14)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 foregroundColor: deepGrey,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               ),
             ),
           ] else
@@ -268,4 +319,81 @@ class VideoDetailScreen extends StatelessWidget {
       ),
     );
   }
+}
+
+String buildResponsiveTikTokHtml(String rawHtml) {
+  return '''
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: black;
+    width: 100%;
+    height: 100%;
+  }
+
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  blockquote {
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+
+  iframe {
+    width: 100% !important;
+    aspect-ratio: 9 / 16;
+    border: none !important;
+  }
+
+  a, aside {
+    display: none !important;
+  }
+</style>
+
+<script>
+  let hooked = false;
+
+  function forceLoop() {
+    const video = document.querySelector("video");
+    if (!video || hooked) return;
+
+    hooked = true;
+    video.loop = false;
+    video.autoplay = true;
+    video.controls = true;
+
+    video.addEventListener('ended', () => {
+      video.pause();
+      video.currentTime = 0;
+
+      setTimeout(() => {
+        video.play();
+      }, 200);
+    });
+  }
+
+  const observer = new MutationObserver(() => {
+    forceLoop();
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+  });
+</script>
+</head>
+
+<body>
+$rawHtml
+</body>
+</html>
+''';
 }

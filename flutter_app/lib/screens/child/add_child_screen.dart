@@ -13,12 +13,41 @@ class _AddChildScreenState extends State<AddChildScreen> {
   // 1. สร้าง Controller เพื่อดึงข้อความจากช่องกรอก
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _birthDayController = TextEditingController();
+  DateTime? _selectedBirthday;
 
   // 🎨 สีตาม Theme
   static const cream = Color(0xFFFFF5CD);
   static const sky = Color(0xFF5AB2FF);
   static const orangeInput = Color(0xFFFFCC80);
   static const greenBtn = Color(0xFF88C273);
+
+  Future<void> _selectBirthday() async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedBirthday ?? DateTime.now().subtract(const Duration(days: 365 * 5)),
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: sky,
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      setState(() {
+        _selectedBirthday = picked;
+        _birthDayController.text = '${picked.day}/${picked.month}/${picked.year}';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -100,17 +129,28 @@ class _AddChildScreenState extends State<AddChildScreen> {
               ),
             ),
             const SizedBox(height: 5),
-            Container(
-              height: 50,
-              decoration: BoxDecoration(
-                color: orangeInput,
-                borderRadius: BorderRadius.circular(25),
-              ),
-              child: TextField(
-                controller: _birthDayController, // เชื่อม Controller
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 20),
+            GestureDetector(
+              onTap: _selectBirthday,
+              child: Container(
+                height: 50,
+                decoration: BoxDecoration(
+                  color: orangeInput,
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                child: AbsorbPointer(
+                  child: TextField(
+                    controller: _birthDayController,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                      hintText: 'เลือกวันเกิด',
+                      hintStyle: TextStyle(
+                        fontFamily: GoogleFonts.itim().fontFamily,
+                        color: Colors.grey,
+                      ),
+                      suffixIcon: const Icon(Icons.calendar_today, color: Colors.grey),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -124,14 +164,12 @@ class _AddChildScreenState extends State<AddChildScreen> {
               child: ElevatedButton(
                 onPressed: () {
                   // 2. Logic ส่งข้อมูลกลับ
-                  String name = _nameController.text;
+                  String name = _nameController.text.trim();
                   if (name.isNotEmpty) {
                     // สร้าง Map ข้อมูลเด็กใหม่
                     Map<String, dynamic> newChild = {
                       'name': name,
-                      'score': 0, // คะแนนเริ่มต้น 0
-                      'img':
-                          'https://i.pravatar.cc/150?img=12', // รูป Default สุ่มๆ
+                      'birthday': _selectedBirthday ?? DateTime.now(),
                     };
 
                     // ส่งข้อมูลกลับไปหน้าก่อนหน้า (Pop with Result)

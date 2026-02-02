@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
+import '../../providers/user_provider.dart';
+import '../../services/child_service.dart';
 
 // 🎨 Mock Palette Class เพื่อให้โค้ดทำงานได้โดยไม่ต้อง Import ไฟล์อื่น
 class Palette {
@@ -30,60 +33,101 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
   // ข้อมูล Rewards และ History
   List<Map<String, dynamic>> _rewards = [];
   List<Map<String, dynamic>> history = [];
-  bool _isDataInitialized = false;
+  List<Map<String, dynamic>> _activityHistory = [];
+  bool _isLoading = true;
+
+  final ChildService _childService = ChildService();
 
   @override
   void initState() {
     super.initState();
     _currentScore = widget.score;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadData();
+    });
   }
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_isDataInitialized) {
-      // โหลดข้อมูลเริ่มต้นโดยใช้ภาษาจาก AppLocalizations
-      final loc = AppLocalizations.of(context)!;
+  Future<void> _loadData() async {
+    if (!mounted) return;
 
-      _rewards = [
-        {
-          'name': loc.redemption_rewardIceCream,
-          'cost': 100,
-          'icon': Icons.icecream_rounded
-        },
-        {
-          'name': loc.redemption_rewardPlaytime,
-          'cost': 500,
-          'icon': Icons.videogame_asset_rounded
-        },
-        {
-          'name': loc.redemption_rewardToy,
-          'cost': 2000,
-          'icon': Icons.toys_rounded
-        },
-        {
-          'name': loc.redemption_rewardStickers,
-          'cost': 150,
-          'icon': Icons.star_rounded
-        },
-      ];
+    setState(() => _isLoading = true);
 
-      history = [
-        {
-          'action': loc.redemption_historyPlayedDefault,
-          'point': '+50',
-          'isGain': true,
-          'date': 'Today'
-        },
-        {
-          'action': loc.redemption_historyRedeemedDefault,
-          'point': '-100',
-          'isGain': false,
-          'date': 'Yesterday'
-        },
-      ];
+    final userProvider = context.read<UserProvider>();
+    final parentId = userProvider.currentParentId;
+    final childId = userProvider.currentChildId;
 
-      _isDataInitialized = true;
+    if (parentId != null && childId != null) {
+      try {
+        // ดึงข้อมูลของรางวัล
+        final rewards = await _childService.getRewards(parentId);
+
+        // ดึงประวัติกิจกรรม
+        final activityHistory = await _childService.getActivityHistory(childId);
+
+        // ดึงประวัติคะแนน (ได้+ใช้)
+        final pointHistory = await _childService.getPointHistory(childId);
+
+        // ดึงคะแนนปัจจุบัน
+        final stats = await _childService.getChildStats(childId);
+
+        if (mounted) {
+          setState(() {
+            // ถ้ามีของรางวัลจาก DB ให้ใช้ ไม่งั้นใช้ mock
+            // rewards มาจาก parent_and_medals พร้อม nested medals object
+            if (rewards.isNotEmpty) {
+              _rewards = rewards.map((r) {
+                final medal = r['medals'] as Map<String, dynamic>?;
+                // point_medals อาจเป็น Decimal
+                final pointValue = medal?['point_medals'];
+                int cost = 0;
+                if (pointValue is int) {
+                  cost = pointValue;
+                } else if (pointValue is double) {
+                  cost = pointValue.toInt();
+                } else if (pointValue != null) {
+                  cost = int.tryParse(pointValue.toString()) ?? 0;
+                }
+
+                return {
+                  'id': medal?['id']?.toString() ?? '',
+                  'name': medal?['name_medals']?.toString() ?? '',
+                  'cost': cost,
+                  'icon': Icons.card_giftcard_rounded, // Default icon
+                };
+              }).toList();
+            } else {
+              // ไม่แสดง mock rewards - แสดง empty state แทน
+              _rewards = [];
+            }
+
+            // ถ้ามีประวัติจาก DB ให้ใช้
+            if (pointHistory.isNotEmpty) {
+              history = pointHistory;
+            } else {
+              // ไม่แสดง mock history - แสดง empty state แทน
+              history = [];
+            }
+
+            _activityHistory = activityHistory;
+            _currentScore = stats['wallet'] as int? ?? widget.score;
+            _isLoading = false;
+          });
+        }
+      } catch (e) {
+        debugPrint('❌ Error loading data: $e');
+        _loadMockData();
+      }
+    } else {
+      _loadMockData();
+    }
+  }
+
+  void _loadMockData() {
+    // ไม่โหลด mock data - แสดง empty state แทน
+    _rewards = [];
+    history = [];
+    if (mounted) {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -110,7 +154,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         backgroundColor: Palette.cream,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(loc.medalredemption_addrewardBtn,
@@ -148,7 +192,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(loc.medalredemption_cancelBtn,
                 style: _getTextStyle(18, Colors.grey)),
           ),
@@ -158,17 +202,44 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(15)),
             ),
-            onPressed: () {
+            onPressed: () async {
               if (nameController.text.isNotEmpty &&
                   costController.text.isNotEmpty) {
-                setState(() {
-                  _rewards.add({
-                    'name': nameController.text.toUpperCase(),
-                    'cost': int.tryParse(costController.text) ?? 0,
-                    'icon': Icons.card_giftcard_rounded,
+                // Get parentId before closing dialog
+                final userProvider = context.read<UserProvider>();
+                final parentId = userProvider.currentParentId;
+
+                Navigator.pop(dialogContext);
+
+                if (parentId != null) {
+                  // บันทึกลง database
+                  final result = await _childService.addReward(
+                    parentId: parentId,
+                    name: nameController.text.toUpperCase(),
+                    cost: int.tryParse(costController.text) ?? 0,
+                  );
+
+                  if (result != null && mounted) {
+                    // Refresh ข้อมูล
+                    await _loadData();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('เพิ่มของรางวัลสำเร็จ!'),
+                        backgroundColor: Palette.green,
+                      ),
+                    );
+                  }
+                } else {
+                  // ถ้าไม่มี parentId ให้เพิ่มใน local state
+                  setState(() {
+                    _rewards.add({
+                      'id': DateTime.now().toString(),
+                      'name': nameController.text.toUpperCase(),
+                      'cost': int.tryParse(costController.text) ?? 0,
+                      'icon': Icons.card_giftcard_rounded,
+                    });
                   });
-                });
-                Navigator.pop(context);
+                }
               }
             },
             child: Text(loc.medalredemption_addBtn,
@@ -179,23 +250,60 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
     );
   }
 
-  void _redeemItem(String name, int cost) {
+  Future<void> _redeemItem(String rewardId, String name, int cost) async {
     if (_currentScore >= cost) {
-      setState(() {
-        _currentScore -= cost;
-        history.insert(0, {
-          'action': 'Redeemed $name',
-          'point': '-$cost',
-          'isGain': false,
-          'date': 'Just Now'
+      final userProvider = context.read<UserProvider>();
+      final childId = userProvider.currentChildId;
+      final parentId = userProvider.currentParentId;
+
+      if (childId != null) {
+        // แลกผ่าน database (ใช้ตาราง redemption)
+        final result = await _childService.redeemReward(
+          childId: childId,
+          rewardId: rewardId,
+          rewardName: name,
+          cost: cost,
+          parentId: parentId,
+        );
+
+        if (!mounted) return;
+
+        if (result['success'] == true) {
+          setState(() {
+            _currentScore = result['newWallet'] as int? ?? (_currentScore - cost);
+            history.insert(0, {
+              'action': 'แลก $name',
+              'point': '-$cost',
+              'isGain': false,
+              'date': 'Just Now'
+            });
+          });
+          _showSuccessDialog(name);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(result['error']?.toString() ?? 'เกิดข้อผิดพลาด'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      } else {
+        // ถ้าไม่มี childId ให้แลกใน local state
+        setState(() {
+          _currentScore -= cost;
+          history.insert(0, {
+            'action': 'แลก $name',
+            'point': '-$cost',
+            'isGain': false,
+            'date': 'Just Now'
+          });
         });
-      });
-      _showSuccessDialog(name);
+        _showSuccessDialog(name);
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content:
-              Text('Not enough points! You need ${cost - _currentScore} more.'),
+          content: Text('คะแนนไม่เพียงพอ! ต้องการอีก ${cost - _currentScore} คะแนน'),
           backgroundColor: Colors.red,
         ),
       );
@@ -226,6 +334,10 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
 
   // --- 1. หน้ากิจกรรม ---
   Widget _buildActivitiesPage() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator(color: Palette.sky));
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -242,7 +354,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Palette.sky.withOpacity(0.15),
+                  color: Palette.sky.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
@@ -258,14 +370,78 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
           ),
         ),
         Expanded(
-          child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-            children: [
-              _buildActivityRow('PING PONG GAME'),
-              _buildActivityRow('DICTATION GAME'),
-              _buildActivityRow('PICTURE MEMORY GAME'),
-            ],
-          ),
+          child: _activityHistory.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.sports_esports, size: 60, color: Colors.grey.shade400),
+                      const SizedBox(height: 16),
+                      Text(
+                        'ยังไม่มีประวัติกิจกรรม',
+                        style: _getTextStyle(16, Colors.grey),
+                      ),
+                    ],
+                  ),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+                  itemCount: _activityHistory.length,
+                  itemBuilder: (context, index) {
+                    final activity = _activityHistory[index];
+                    final activityName = activity['activity']?['name_activity'] ?? 'กิจกรรม';
+                    // point อาจเป็น Decimal จาก Supabase
+                    final pointValue = activity['point'];
+                    int scoreEarned = 0;
+                    if (pointValue is int) {
+                      scoreEarned = pointValue;
+                    } else if (pointValue is double) {
+                      scoreEarned = pointValue.toInt();
+                    } else if (pointValue != null) {
+                      scoreEarned = int.tryParse(pointValue.toString()) ?? 0;
+                    }
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 14),
+                      child: _OutlineCard(
+                        onTap: () {},
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    activityName.toString().toUpperCase(),
+                                    style: _getTextStyle(16, Colors.black),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  Text(
+                                    '+$scoreEarned คะแนน',
+                                    style: _getTextStyle(14, Palette.green),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFD1E9FF),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                'DONE',
+                                style: _getTextStyle(14, Palette.sky),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
         ),
       ],
     );
@@ -311,7 +487,26 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
           ),
         ),
         Expanded(
-          child: ListView.separated(
+          child: _rewards.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.card_giftcard_outlined, size: 60, color: Colors.grey.shade400),
+                      const SizedBox(height: 16),
+                      Text(
+                        'ยังไม่มีของรางวัล',
+                        style: _getTextStyle(16, Colors.grey),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'กด + เพื่อเพิ่มของรางวัลใหม่',
+                        style: _getTextStyle(14, Colors.grey.shade500),
+                      ),
+                    ],
+                  ),
+                )
+              : ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
             itemCount: _rewards.length,
             separatorBuilder: (_, __) => const SizedBox(height: 12),
@@ -319,9 +514,11 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
               final item = _rewards[index];
               final int cost = item['cost'] as int;
               final bool canAfford = _currentScore >= cost;
+              final String rewardId = item['id']?.toString() ?? '';
+              final String rewardName = item['name'] as String;
 
               return _OutlineCard(
-                onTap: () => _redeemItem(item['name'] as String, cost),
+                onTap: () => _redeemItem(rewardId, rewardName, cost),
                 child: Row(
                   children: [
                     Container(
@@ -339,6 +536,8 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                         item['name'] as String,
                         style: _getTextStyle(
                             18, canAfford ? Colors.black87 : Colors.grey),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     Container(
@@ -377,7 +576,21 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
               style: _getTextStyle(24, Colors.black)),
         ),
         Expanded(
-          child: ListView.separated(
+          child: history.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.history, size: 60, color: Colors.grey.shade400),
+                      const SizedBox(height: 16),
+                      Text(
+                        'ยังไม่มีประวัติ',
+                        style: _getTextStyle(16, Colors.grey),
+                      ),
+                    ],
+                  ),
+                )
+              : ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
             itemCount: history.length,
             separatorBuilder: (_, __) => const SizedBox(height: 12),
@@ -388,16 +601,23 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(log['action'] as String,
-                            style: _getTextStyle(16, Colors.black87)),
-                        Text(log['date'] as String,
-                            style: GoogleFonts.openSans(
-                                fontSize: 12, color: Colors.grey)),
-                      ],
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            log['action'] as String,
+                            style: _getTextStyle(16, Colors.black87),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          Text(log['date'] as String,
+                              style: GoogleFonts.openSans(
+                                  fontSize: 12, color: Colors.grey)),
+                        ],
+                      ),
                     ),
+                    const SizedBox(width: 8),
                     Text(
                       log['point'] as String,
                       style: _getTextStyle(
@@ -553,39 +773,6 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
     );
   }
 
-  Widget _buildActivityRow(String title) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      // แก้ไข 1: เปลี่ยน OutlineCard เป็น _OutlineCard
-      child: _OutlineCard(
-        onTap: () {},
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Text(
-                title,
-                // แก้ไข 2: เปลี่ยน luckiestH เป็น _getTextStyle
-                style: _getTextStyle(18, Colors.black),
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFD1E9FF),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                AppLocalizations.of(context)!.redemption_playBtn,
-                // แก้ไข 3: เปลี่ยน luckiestH เป็น _getTextStyle
-                style: _getTextStyle(16, Palette.sky),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
 
 // 📦 Internal Widget: OutlineCard (Mocking the one from ui.dart)

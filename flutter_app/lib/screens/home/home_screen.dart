@@ -108,6 +108,64 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadData();
   }
 
+  // ✅ แสดง dialog แจ้งเตือนให้เลือกเด็กก่อน
+  void _showSelectChildDialog() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
+            const SizedBox(width: 8),
+            Text(
+              'กรุณาเลือกเด็ก',
+              style: TextStyle(
+                fontFamily: GoogleFonts.itim().fontFamily,
+                fontSize: 20,
+              ),
+            ),
+          ],
+        ),
+        content: Text(
+          'คุณต้องเลือกเด็กก่อนจึงจะสามารถเล่นกิจกรรมได้',
+          style: TextStyle(
+            fontFamily: GoogleFonts.itim().fontFamily,
+            fontSize: 16,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(
+              'ปิด',
+              style: TextStyle(
+                fontFamily: GoogleFonts.itim().fontFamily,
+                color: Colors.grey,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              Navigator.pushNamed(context, AppRoutes.childSetting);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: sky,
+            ),
+            child: Text(
+              'ไปเลือกเด็ก',
+              style: TextStyle(
+                fontFamily: GoogleFonts.itim().fontFamily,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // 🆕 แสดง Filter Bottom Sheet
   void _showFilterBottomSheet() {
     showModalBottomSheet(
@@ -313,6 +371,13 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       },
       onTap: () {
+        // ✅ ตรวจสอบว่าเลือกเด็กแล้วหรือยัง
+        final userProvider = context.read<UserProvider>();
+        if (userProvider.currentChildId == null) {
+          _showSelectChildDialog();
+          return;
+        }
+
         if (category == 'ด้านภาษา' || category == 'LANGUAGE') {
           Navigator.pushNamed(
             context,

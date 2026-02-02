@@ -221,14 +221,15 @@ class AuthWrapper extends StatefulWidget {
 
 class _AuthWrapperState extends State<AuthWrapper> {
   bool _isInitialized = false;
+  bool _isAuthenticated = false;
 
   @override
   void initState() {
     super.initState();
-    _initializeDeveloperMode();
+    _initializeAuth();
   }
 
-  Future<void> _initializeDeveloperMode() async {
+  Future<void> _initializeAuth() async {
     // ถ้าเปิด Developer Mode ให้สร้าง mock session
     if (MockAuthService.isDeveloperMode) {
       try {
@@ -237,14 +238,56 @@ class _AuthWrapperState extends State<AuthWrapper> {
         if (mounted) {
           context.read<UserProvider>().setParentName('Developer (Mock User)');
         }
+        setState(() {
+          _isAuthenticated = true;
+          _isInitialized = true;
+        });
+        return;
       } catch (e) {
         print('⚠️ Error initializing developer mode: $e');
       }
     }
 
-    setState(() {
-      _isInitialized = true;
-    });
+    // ✅ ตรวจสอบ session จากทั้ง Supabase และ Custom API
+    bool authenticated = false;
+
+    // 1. ตรวจสอบ Supabase session ก่อน
+    final supabase = Supabase.instance.client;
+    final supabaseSession = supabase.auth.currentSession;
+    if (supabaseSession != null) {
+      authenticated = true;
+      debugPrint('✅ Found Supabase session');
+    }
+
+    // 2. ถ้าไม่มี Supabase session ให้ตรวจสอบ token ใน storage
+    if (!authenticated) {
+      try {
+        final storageService = StorageService();
+        final token = await storageService.getToken();
+        if (token != null && mounted) {
+          // มี token ใน storage ให้ลอง validate
+          final authProvider = context.read<AuthProvider>();
+          await authProvider.initialize();
+          authenticated = authProvider.isAuthenticated;
+          debugPrint('✅ Token validation result: $authenticated');
+        }
+      } catch (e) {
+        debugPrint('⚠️ Token validation error: $e');
+      }
+    }
+
+    // 3. ถ้า authenticated แล้วให้ดึงข้อมูล children
+    if (authenticated && mounted) {
+      final userProvider = context.read<UserProvider>();
+      await userProvider.fetchChildrenData();
+    }
+
+    if (mounted) {
+      setState(() {
+        _isAuthenticated = authenticated;
+        _isInitialized = true;
+      });
+    }
   }
 
   @override
@@ -258,31 +301,17 @@ class _AuthWrapperState extends State<AuthWrapper> {
       );
     }
 
-    return Consumer<AuthProvider>(
-      builder: (context, authProvider, child) {
-        // 🔧 Developer Mode: Bypass authentication
-        if (MockAuthService.isDeveloperMode) {
-          return const HomeScreen();
-        }
+    // 🔧 Developer Mode: Bypass authentication
+    if (MockAuthService.isDeveloperMode) {
+      return const HomeScreen();
+    }
 
-        // Normal flow: ตรวจสอบ session
-        final supabase = Supabase.instance.client;
-        final Session? session = supabase.auth.currentSession;
+    // ✅ ใช้ค่า _isAuthenticated ที่ตรวจสอบแล้ว
+    if (_isAuthenticated) {
+      return const HomeScreen();
+    }
 
-        // ถ้า login แล้ว ไปหน้า Home
-        if (session != null) {
-          // TODO: ในอนาคต เช็คว่ามีลูกหรือยัง
-          // final childService = ChildService();
-          // final children = await childService.getChildren();
-          // if (children.isEmpty) {
-          //   return const AddChildScreen();
-          // }
-          return const HomeScreen();
-        }
-
-        // ถ้ายังไม่ login ไปหน้า Welcome
-        return const WelcomeScreen();
-      },
-    );
+    // ถ้ายังไม่ login ไปหน้า Welcome
+    return const WelcomeScreen();
   }
 }

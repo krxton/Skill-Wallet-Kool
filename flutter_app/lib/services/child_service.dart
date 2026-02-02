@@ -184,4 +184,351 @@ class ChildService {
       return false;
     }
   }
+
+  // =====================================================
+  // ACTIVITY HISTORY (ใช้ตาราง activity_record)
+  // =====================================================
+
+  /// ดึงประวัติกิจกรรมของเด็ก
+  Future<List<Map<String, dynamic>>> getActivityHistory(String childId) async {
+    try {
+      final supabase = Supabase.instance.client;
+
+      // ดึงจาก activity_record table
+      final response = await supabase
+          .from('activity_record')
+          .select('''
+            *,
+            activity:activity_id (
+              name_activity,
+              category,
+              maxscore
+            )
+          ''')
+          .eq('child_id', childId)
+          .order('created_at', ascending: false);
+
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      print('❌ getActivityHistory error: $e');
+      return [];
+    }
+  }
+
+  /// ดึงสรุปคะแนนของเด็ก
+  Future<Map<String, dynamic>> getChildStats(String childId) async {
+    try {
+      final supabase = Supabase.instance.client;
+
+      // ดึงข้อมูลเด็ก
+      final childData = await supabase
+          .from('child')
+          .select('wallet, name_surname')
+          .eq('child_id', childId)
+          .single();
+
+      // ดึงจำนวนกิจกรรมที่ทำ (จาก activity_record)
+      final activityCount = await supabase
+          .from('activity_record')
+          .select('ActivityRecord_id')
+          .eq('child_id', childId);
+
+      // wallet อาจเป็น Decimal ใน Supabase
+      final walletValue = childData['wallet'];
+      int wallet = 0;
+      if (walletValue is int) {
+        wallet = walletValue;
+      } else if (walletValue is double) {
+        wallet = walletValue.toInt();
+      } else if (walletValue != null) {
+        wallet = int.tryParse(walletValue.toString()) ?? 0;
+      }
+
+      return {
+        'wallet': wallet,
+        'name': childData['name_surname'] ?? '',
+        'totalActivities': (activityCount as List).length,
+      };
+    } catch (e) {
+      print('❌ getChildStats error: $e');
+      return {'wallet': 0, 'name': '', 'totalActivities': 0};
+    }
+  }
+
+  // =====================================================
+  // MEDALS/REWARDS MANAGEMENT (ใช้ตาราง medals + parent_and_medals)
+  // =====================================================
+
+  /// ดึง medals ที่ผู้ปกครองสร้าง
+  Future<List<Map<String, dynamic>>> getMedals(String parentId) async {
+    try {
+      final supabase = Supabase.instance.client;
+
+      // ดึง medals ผ่าน parent_and_medals
+      final response = await supabase
+          .from('parent_and_medals')
+          .select('''
+            *,
+            medals:medals_id (
+              id,
+              name_medals,
+              point_medals,
+              created_at
+            )
+          ''')
+          .eq('parent_id', parentId)
+          .order('created_at', ascending: false);
+
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      print('❌ getMedals error: $e');
+      return [];
+    }
+  }
+
+  // Alias for backward compatibility
+  Future<List<Map<String, dynamic>>> getRewards(String parentId) async {
+    return getMedals(parentId);
+  }
+
+  /// เพิ่ม medal ใหม่
+  Future<Map<String, dynamic>?> addMedal({
+    required String parentId,
+    required String name,
+    required int cost,
+  }) async {
+    try {
+      final supabase = Supabase.instance.client;
+
+      // 1. เพิ่มใน medals table
+      final medalResponse = await supabase
+          .from('medals')
+          .insert({
+            'name_medals': name,
+            'point_medals': cost,
+          })
+          .select()
+          .single();
+
+      final medalsId = medalResponse['id'];
+
+      // 2. เชื่อมกับ parent ใน parent_and_medals
+      await supabase.from('parent_and_medals').insert({
+        'parent_id': parentId,
+        'medals_id': medalsId,
+      });
+
+      print('✅ Medal added: $medalResponse');
+      return medalResponse;
+    } catch (e) {
+      print('❌ addMedal error: $e');
+      return null;
+    }
+  }
+
+  // Alias for backward compatibility
+  Future<Map<String, dynamic>?> addReward({
+    required String parentId,
+    required String name,
+    required int cost,
+    String? description,
+    String? iconName,
+  }) async {
+    return addMedal(parentId: parentId, name: name, cost: cost);
+  }
+
+  /// ลบ medal
+  Future<bool> deleteMedal(String medalsId) async {
+    try {
+      final supabase = Supabase.instance.client;
+
+      // ลบจาก parent_and_medals ก่อน (foreign key)
+      await supabase.from('parent_and_medals').delete().eq('medals_id', medalsId);
+
+      // ลบจาก medals
+      await supabase.from('medals').delete().eq('id', medalsId);
+
+      return true;
+    } catch (e) {
+      print('❌ deleteMedal error: $e');
+      return false;
+    }
+  }
+
+  // Alias for backward compatibility
+  Future<bool> deleteReward(String rewardId) async {
+    return deleteMedal(rewardId);
+  }
+
+  /// แลก medal (บันทึกใน redemption table)
+  Future<Map<String, dynamic>> redeemMedal({
+    required String childId,
+    required String medalsId,
+    required String parentId,
+    required int cost,
+  }) async {
+    try {
+      final supabase = Supabase.instance.client;
+
+      // 1. ดึงคะแนนปัจจุบันของเด็ก
+      final childResponse = await supabase
+          .from('child')
+          .select('wallet')
+          .eq('child_id', childId)
+          .single();
+
+      // แปลง wallet (อาจเป็น Decimal)
+      final walletValue = childResponse['wallet'];
+      int currentWallet = 0;
+      if (walletValue is int) {
+        currentWallet = walletValue;
+      } else if (walletValue is double) {
+        currentWallet = walletValue.toInt();
+      } else if (walletValue != null) {
+        currentWallet = int.tryParse(walletValue.toString()) ?? 0;
+      }
+
+      if (currentWallet < cost) {
+        return {
+          'success': false,
+          'error': 'คะแนนไม่เพียงพอ ต้องการ $cost แต่มีเพียง $currentWallet',
+        };
+      }
+
+      // 2. หักคะแนน
+      final newWallet = currentWallet - cost;
+      await supabase
+          .from('child')
+          .update({'wallet': newWallet})
+          .eq('child_id', childId);
+
+      // 3. บันทึกประวัติการแลกใน redemption table
+      try {
+        await supabase.from('redemption').insert({
+          'child_id': childId,
+          'medals_id': medalsId,
+          'parent_id': parentId,
+          'point_for_reward': cost,
+          'date_redemption': DateTime.now().toIso8601String(),
+        });
+      } catch (e) {
+        print('⚠️ Could not save redemption: $e');
+      }
+
+      return {
+        'success': true,
+        'newWallet': newWallet,
+        'message': 'แลกของรางวัลสำเร็จ!',
+      };
+    } catch (e) {
+      print('❌ redeemMedal error: $e');
+      return {
+        'success': false,
+        'error': 'เกิดข้อผิดพลาด: $e',
+      };
+    }
+  }
+
+  // Alias for backward compatibility
+  Future<Map<String, dynamic>> redeemReward({
+    required String childId,
+    required String rewardId,
+    required String rewardName,
+    required int cost,
+    String? parentId,
+  }) async {
+    return redeemMedal(
+      childId: childId,
+      medalsId: rewardId,
+      parentId: parentId ?? '',
+      cost: cost,
+    );
+  }
+
+  /// ดึงประวัติการแลก (จาก redemption table)
+  Future<List<Map<String, dynamic>>> getRedemptionHistory(String childId) async {
+    try {
+      final supabase = Supabase.instance.client;
+
+      final response = await supabase
+          .from('redemption')
+          .select('''
+            *,
+            medals:medals_id (
+              name_medals,
+              point_medals
+            )
+          ''')
+          .eq('child_id', childId)
+          .order('created_at', ascending: false);
+
+      return List<Map<String, dynamic>>.from(response);
+    } catch (e) {
+      print('❌ getRedemptionHistory error: $e');
+      return [];
+    }
+  }
+
+  /// ดึงประวัติคะแนน (ได้และใช้)
+  Future<List<Map<String, dynamic>>> getPointHistory(String childId) async {
+    try {
+      // รวมประวัติกิจกรรม (ได้คะแนน) และประวัติแลกของ (ใช้คะแนน)
+      final activities = await getActivityHistory(childId);
+      final redemptions = await getRedemptionHistory(childId);
+
+      List<Map<String, dynamic>> history = [];
+
+      // เพิ่มประวัติกิจกรรม
+      for (var activity in activities) {
+        final point = activity['point'];
+        int pointValue = 0;
+        if (point is int) {
+          pointValue = point;
+        } else if (point is double) {
+          pointValue = point.toInt();
+        } else if (point != null) {
+          pointValue = int.tryParse(point.toString()) ?? 0;
+        }
+
+        history.add({
+          'type': 'earn',
+          'action': activity['activity']?['name_activity'] ?? 'กิจกรรม',
+          'point': '+$pointValue',
+          'isGain': true,
+          'date': activity['created_at'] ?? '',
+        });
+      }
+
+      // เพิ่มประวัติแลกของ
+      for (var redemption in redemptions) {
+        final cost = redemption['point_for_reward'];
+        int costValue = 0;
+        if (cost is int) {
+          costValue = cost;
+        } else if (cost is double) {
+          costValue = cost.toInt();
+        } else if (cost != null) {
+          costValue = int.tryParse(cost.toString()) ?? 0;
+        }
+
+        final medalName = redemption['medals']?['name_medals'] ?? 'ของรางวัล';
+        history.add({
+          'type': 'spend',
+          'action': 'แลก $medalName',
+          'point': '-$costValue',
+          'isGain': false,
+          'date': redemption['created_at'] ?? '',
+        });
+      }
+
+      // เรียงตามวันที่
+      history.sort((a, b) =>
+          (b['date'] as String).compareTo(a['date'] as String));
+
+      return history;
+    } catch (e) {
+      print('❌ getPointHistory error: $e');
+      return [];
+    }
+  }
 }

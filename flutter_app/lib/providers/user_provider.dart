@@ -108,7 +108,7 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-  /// 3.2 เพิ่มเด็กใหม่
+  /// 3.2 เพิ่มเด็กใหม่ (ใช้ RPC function เพื่อ bypass RLS)
   Future<bool> addChild({
     required String name,
     required DateTime birthday,
@@ -117,38 +117,75 @@ class UserProvider extends ChangeNotifier {
     try {
       final userId = _supabase.auth.currentUser?.id;
 
-      if (userId == null || _currentParentId == null) {
-        debugPrint('❌ Add child failed: No authenticated user or parent ID');
+      if (userId == null) {
+        debugPrint('❌ Add child failed: No authenticated user');
         return false;
       }
 
-      // 1. Insert child ลง child table
-      final childResponse = await _supabase
-          .from('child')
-          .insert({
-            'name_surname': name,
-            'birthday': birthday.toIso8601String(),
-            'wallet': 0, // เริ่มต้นที่ 0
-          })
-          .select('child_id')
-          .single();
-
-      final newChildId = childResponse['child_id'];
-
-      // 2. Link กับ parent ใน parent_and_child table
-      await _supabase.from('parent_and_child').insert({
-        'parent_id': _currentParentId,
-        'child_id': newChildId,
-        'relationship': relationship ?? 'พ่อ/แม่',
+      // ใช้ RPC function ที่มี SECURITY DEFINER เพื่อ bypass RLS
+      final result = await _supabase.rpc('create_child_and_link', params: {
+        'p_name_surname': name,
+        'p_birthday': birthday.toIso8601String(),
+        'p_wallet': 0,
+        'p_relationship': relationship ?? 'พ่อ/แม่',
       });
 
-      // 3. Refresh children list
+      debugPrint('✅ RPC create_child_and_link result: $result');
+
+      // Refresh children list
       await fetchChildrenData();
 
-      debugPrint('✅ Child added successfully: $newChildId');
+      debugPrint('✅ Child added successfully');
       return true;
     } catch (e) {
       debugPrint('❌ addChild error: $e');
+
+      // ตรวจสอบประเภท error
+      final errorMsg = e.toString();
+      if (errorMsg.contains('row-level security policy')) {
+        debugPrint('⚠️ RLS policy blocking insert. Need to update RLS policies in Supabase.');
+      } else if (errorMsg.contains('function') && errorMsg.contains('does not exist')) {
+        debugPrint('⚠️ RPC function create_child_and_link does not exist in Supabase.');
+        debugPrint('📝 กรุณาสร้าง function นี้ใน Supabase SQL Editor:');
+        debugPrint('''
+CREATE OR REPLACE FUNCTION create_child_and_link(
+  p_name_surname TEXT,
+  p_birthday TEXT,
+  p_wallet INTEGER DEFAULT 0,
+  p_relationship TEXT DEFAULT 'พ่อ/แม่'
+)
+RETURNS JSON
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS \$\$
+DECLARE
+  v_child_id UUID;
+  v_parent_id UUID;
+BEGIN
+  -- Get parent_id from current user
+  SELECT parent_id INTO v_parent_id
+  FROM parent
+  WHERE user_id = auth.uid();
+
+  IF v_parent_id IS NULL THEN
+    RAISE EXCEPTION 'Parent not found for current user';
+  END IF;
+
+  -- Insert child
+  INSERT INTO child (name_surname, birthday, wallet)
+  VALUES (p_name_surname, p_birthday::DATE, p_wallet)
+  RETURNING child_id INTO v_child_id;
+
+  -- Link parent and child
+  INSERT INTO parent_and_child (parent_id, child_id, relationship)
+  VALUES (v_parent_id, v_child_id, p_relationship);
+
+  RETURN json_build_object('child_id', v_child_id, 'success', true);
+END;
+\$\$;
+        ''');
+      }
+
       return false;
     }
   }

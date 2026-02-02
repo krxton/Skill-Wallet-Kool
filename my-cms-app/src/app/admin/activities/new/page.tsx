@@ -542,7 +542,7 @@ export default function NewActivityPage() {
                       />
                     </div>
                   ) : (
-                    <div className="relative w-full max-w-md mx-auto" style={{ paddingBottom: '160%' }}>
+                    <div className="relative w-full max-w-md mx-auto" style={{ paddingBottom: '100%' }}>
                       <iframe
                         className="absolute inset-0 w-full h-full rounded-lg"
                         src={`https://www.tiktok.com/embed/v2/${videoId}`}
