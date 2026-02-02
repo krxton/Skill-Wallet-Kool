@@ -53,6 +53,12 @@ class ActivityCard extends StatelessWidget {
           AppRoutes.videoDetail,
           arguments: activity,
         );
+      } else if (category == 'ด้านวิเคราะห์') {
+        Navigator.pushNamed(
+          context,
+          AppRoutes.analysisActivity,
+          arguments: activity,
+        );
       } else {
         Navigator.pushNamed(
           context,

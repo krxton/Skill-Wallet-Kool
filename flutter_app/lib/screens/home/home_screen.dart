@@ -108,6 +108,147 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadData();
   }
 
+  // 🆕 แสดง Filter Bottom Sheet
+  void _showFilterBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setModalState) => Container(
+          decoration: BoxDecoration(
+            color: cream,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 10,
+                offset: const Offset(0, -2),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'FILTER ACTIVITIES',
+                    style: GoogleFonts.luckiestGuy(
+                      fontSize: 20,
+                      color: sky,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.black87, size: 20),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+
+              // Category Filter
+              Text(
+                'CATEGORY',
+                style: GoogleFonts.luckiestGuy(fontSize: 14, color: Colors.black54),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  {'label': 'ทั้งหมด', 'value': null},
+                  {'label': 'ภาษา', 'value': 'ด้านภาษา'},
+                  {'label': 'ร่างกาย', 'value': 'ด้านร่างกาย'},
+                  {'label': 'วิเคราะห์', 'value': 'ด้านวิเคราะห์'},
+                ].map((cat) {
+                  final isSelected = _selectedCategory == cat['value'];
+                  return GestureDetector(
+                    onTap: () {
+                      _onCategoryFilterChanged(cat['value']);
+                      setModalState(() {}); // Update modal UI
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: isSelected ? sky : Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: isSelected ? sky : Colors.grey.shade300,
+                          width: 2,
+                        ),
+                      ),
+                      child: Text(
+                        cat['label'] as String,
+                        style: GoogleFonts.itim(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: isSelected ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Level Filter
+              Text(
+                'LEVEL',
+                style: GoogleFonts.luckiestGuy(fontSize: 14, color: Colors.black54),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  {'label': 'ทั้งหมด', 'value': null},
+                  {'label': 'ง่าย', 'value': 'ง่าย'},
+                  {'label': 'กลาง', 'value': 'กลาง'},
+                  {'label': 'ยาก', 'value': 'ยาก'},
+                ].map((level) {
+                  final isSelected = _selectedLevel == level['value'];
+                  return GestureDetector(
+                    onTap: () {
+                      _onLevelFilterChanged(level['value']);
+                      setModalState(() {}); // Update modal UI
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: isSelected ? const Color(0xFFFFB74D) : Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: isSelected ? const Color(0xFFFF9800) : Colors.grey.shade300,
+                          width: 2,
+                        ),
+                      ),
+                      child: Text(
+                        level['label'] as String,
+                        style: GoogleFonts.itim(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: isSelected ? Colors.white : Colors.black87,
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   // ===== Carousel Item =====
   Widget _buildCarouselItem({
     required Activity activity,
@@ -182,6 +323,12 @@ class _HomeScreenState extends State<HomeScreen> {
           Navigator.pushNamed(
             context,
             AppRoutes.videoDetail,
+            arguments: activity,
+          );
+        } else if (category == 'ด้านวิเคราะห์') {
+          Navigator.pushNamed(
+            context,
+            AppRoutes.analysisActivity,
             arguments: activity,
           );
         } else {
@@ -353,92 +500,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return null;
   }
 
-  Widget _buildCategoryFilterTabs() {
-    final categories = [
-      {'label': 'ทั้งหมด', 'value': null},
-      {'label': 'ภาษา', 'value': 'ด้านภาษา'},
-      {'label': 'ร่างกาย', 'value': 'ด้านร่างกาย'},
-      {'label': 'วิเคราะห์', 'value': 'ด้านวิเคราะห์'},
-    ];
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: categories.map((cat) {
-          final isSelected = _selectedCategory == cat['value'];
-          return Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: GestureDetector(
-              onTap: () => _onCategoryFilterChanged(cat['value'] as String?),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                decoration: BoxDecoration(
-                  color: isSelected ? sky : deepSky.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: isSelected ? sky : deepSky,
-                    width: 2,
-                  ),
-                ),
-                child: Text(
-                  cat['label'] as String,
-                  style: GoogleFonts.itim(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: isSelected ? Colors.white : Colors.black87,
-                  ),
-                ),
-              ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _buildLevelFilterTabs() {
-    final levels = [
-      {'label': 'ทั้งหมด', 'value': null},
-      {'label': 'ง่าย', 'value': 'ง่าย'},
-      {'label': 'กลาง', 'value': 'กลาง'},
-      {'label': 'ยาก', 'value': 'ยาก'},
-    ];
-
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: levels.map((level) {
-          final isSelected = _selectedLevel == level['value'];
-          return Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: GestureDetector(
-              onTap: () => _onLevelFilterChanged(level['value'] as String?),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFFFFB74D) : Colors.grey.shade200,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: isSelected ? const Color(0xFFFF9800) : Colors.grey.shade400,
-                    width: 2,
-                  ),
-                ),
-                child: Text(
-                  level['label'] as String,
-                  style: GoogleFonts.itim(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: isSelected ? Colors.white : Colors.black87,
-                  ),
-                ),
-              ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
   Widget _buildHomeBody(BuildContext context) {
     if (_currentChildId == null) {
       return const Center(
@@ -468,7 +529,32 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           child: Row(
             children: [
-              const Icon(Icons.menu, color: Colors.black87),
+              // Menu icon สำหรับเปิด Filter พร้อม badge
+              GestureDetector(
+                onTap: _showFilterBottomSheet,
+                child: Stack(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      child: const Icon(Icons.filter_list, color: Colors.black87, size: 24),
+                    ),
+                    // Badge แสดงว่ามี filter active
+                    if (_selectedCategory != null || _selectedLevel != null)
+                      Positioned(
+                        right: 4,
+                        top: 4,
+                        child: Container(
+                          width: 10,
+                          height: 10,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFFFF9800),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
               const SizedBox(width: 10),
               Expanded(
                 child: TextField(
@@ -516,14 +602,6 @@ class _HomeScreenState extends State<HomeScreen> {
               color: sky,
             ),
           ),
-        const SizedBox(height: 12),
-
-        // Category Filter Tabs
-        _buildCategoryFilterTabs(),
-        const SizedBox(height: 12),
-
-        // Level Filter Tabs
-        _buildLevelFilterTabs(),
         const SizedBox(height: 20),
 
         // Top Carousel

@@ -1,0 +1,694 @@
+// lib/screens/activities/detail/analysis_activity_screen.dart
+
+import 'dart:async';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+
+import '../../../models/activity.dart';
+import '../../../providers/user_provider.dart';
+import '../../../routes/app_routes.dart';
+import '../../../services/activity_service.dart';
+
+class AnalysisActivityScreen extends StatefulWidget {
+  static const String routeName = '/analysis_activity';
+
+  final Activity activity;
+
+  const AnalysisActivityScreen({
+    super.key,
+    required this.activity,
+  });
+
+  @override
+  State<AnalysisActivityScreen> createState() => _AnalysisActivityScreenState();
+}
+
+class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
+  // Colors
+  static const cream = Color(0xFFFFF5CD);
+  static const sky = Color(0xFF0D92F4);
+  static const orangeItem = Color(0xFFEF9C66);
+  static const greenBtn = Color(0xFF88C273);
+  static const redText = Color(0xFFFF8A8A);
+  static const blueBtn = Color(0xFFA2D2FF);
+
+  final ActivityService _activityService = ActivityService();
+
+  // Timer
+  final Stopwatch _activityStopwatch = Stopwatch();
+  Timer? _uiUpdateTimer;
+  bool _isTimerRunning = false;
+
+  // Evidence
+  String? _videoPath;
+  String? _imagePath;
+  final TextEditingController _descriptionController = TextEditingController();
+
+  // Segment Results (คะแนนแต่ละข้อ)
+  final List<SegmentResult> _segmentResults = [];
+  List<dynamic> _segments = [];
+  final Map<int, int> _originalScores = {}; // เก็บคะแนนเดิมของแต่ละข้อ
+
+  bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSegments();
+  }
+
+  @override
+  void dispose() {
+    _activityStopwatch.stop();
+    _uiUpdateTimer?.cancel();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
+  void _loadSegments() {
+    // Parse segments from activity
+    if (widget.activity.segments != null) {
+      if (widget.activity.segments is List) {
+        _segments = widget.activity.segments as List;
+      } else if (widget.activity.segments is String) {
+        // If it's a string, it might need parsing
+        debugPrint('⚠️ Segments is a string, might need JSON parsing');
+        _segments = [];
+      } else {
+        _segments = [];
+      }
+    }
+
+    // Initialize segment results and store original scores
+    for (int i = 0; i < _segments.length; i++) {
+      final segment = _segments[i];
+      final int scoreFromSegment = segment['score'] as int? ??
+                                   segment['maxScore'] as int? ??
+                                   segment['point'] as int? ??
+                                   100; // Fallback to 100
+
+      // Store original score
+      _originalScores[i] = scoreFromSegment;
+
+      // Initialize with 0 score (not answered yet)
+      _segmentResults.add(SegmentResult(
+        id: segment['id']?.toString() ?? '',
+        text: segment['question']?.toString() ?? segment['text']?.toString() ?? '',
+        maxScore: 0, // Start with 0 (not answered)
+      ));
+    }
+
+    debugPrint('📊 Loaded ${_segments.length} questions');
+    debugPrint('📊 Original scores: $_originalScores');
+  }
+
+  void _startTimer() {
+    if (_isTimerRunning) return;
+
+    setState(() {
+      _isTimerRunning = true;
+    });
+
+    _activityStopwatch.start();
+    _uiUpdateTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (mounted && _isTimerRunning) {
+        setState(() {}); // Trigger rebuild for time display
+      }
+    });
+
+    debugPrint('⏱️ Timer started for analysis activity');
+  }
+
+  void _pauseTimer() {
+    _activityStopwatch.stop();
+    _uiUpdateTimer?.cancel();
+
+    setState(() {
+      _isTimerRunning = false;
+    });
+
+    debugPrint('⏱️ Timer paused at ${_activityStopwatch.elapsed.inSeconds}s');
+  }
+
+  void _stopTimer() {
+    _activityStopwatch.stop();
+    _uiUpdateTimer?.cancel();
+
+    setState(() {
+      _isTimerRunning = false;
+    });
+
+    debugPrint('⏱️ Timer stopped at ${_activityStopwatch.elapsed.inSeconds}s');
+  }
+
+  String _formatTime(int seconds) {
+    final h = seconds ~/ 3600;
+    final m = (seconds % 3600) ~/ 60;
+    final s = seconds % 60;
+    return "${h.toString().padLeft(2, '0')}:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}";
+  }
+
+  Future<void> _handleMediaSelection({required bool isVideo}) async {
+    try {
+      final ImageSource source = await _showSourceDialog();
+      final ImagePicker picker = ImagePicker();
+      XFile? pickedFile;
+
+      if (isVideo) {
+        pickedFile = await picker.pickVideo(source: source);
+      } else {
+        pickedFile = await picker.pickImage(source: source);
+      }
+
+      if (pickedFile != null) {
+        final String path = pickedFile.path;
+        setState(() {
+          if (isVideo) {
+            _videoPath = path;
+          } else {
+            _imagePath = path;
+          }
+        });
+        debugPrint('📸 ${isVideo ? 'Video' : 'Image'} selected: $path');
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to pick file: $e')),
+        );
+      }
+    }
+  }
+
+  Future<ImageSource> _showSourceDialog() async {
+    return await showDialog<ImageSource>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Select Source', style: GoogleFonts.luckiestGuy()),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.camera_alt, color: greenBtn),
+                  title: Text('Camera', style: GoogleFonts.openSans()),
+                  onTap: () => Navigator.pop(context, ImageSource.camera),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.photo_library, color: blueBtn),
+                  title: Text('Gallery', style: GoogleFonts.openSans()),
+                  onTap: () => Navigator.pop(context, ImageSource.gallery),
+                ),
+              ],
+            ),
+          ),
+        ) ??
+        ImageSource.gallery;
+  }
+
+  void _markQuestionCorrect(int index) {
+    // Get original score from stored map
+    final int originalScore = _originalScores[index] ?? 100;
+
+    setState(() {
+      _segmentResults[index].maxScore = originalScore; // Full score from segment
+    });
+    debugPrint('✅ Question ${index + 1} marked as correct (score: $originalScore)');
+  }
+
+  void _markQuestionIncorrect(int index) {
+    setState(() {
+      _segmentResults[index].maxScore = 0; // No score
+    });
+    debugPrint('❌ Question ${index + 1} marked as incorrect');
+  }
+
+  Future<void> _handleSubmit() async {
+    final String? childId = context.read<UserProvider>().currentChildId;
+
+    if (childId == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Child ID not found. Please login again.')),
+        );
+      }
+      return;
+    }
+
+    // Stop timer
+    _stopTimer();
+    final timeSpentSeconds = _activityStopwatch.elapsed.inSeconds;
+
+    setState(() => _isSubmitting = true);
+
+    // Prepare evidence payload
+    final evidencePayload = {
+      'videoPathLocal': _videoPath,
+      'imagePathLocal': _imagePath,
+      'status': 'Pending Approval',
+      'description': _descriptionController.text.trim().isNotEmpty
+          ? _descriptionController.text.trim()
+          : null,
+    };
+
+    try {
+      debugPrint('📊 Submitting analysis activity');
+      debugPrint('  - Questions answered: ${_segmentResults.length}');
+      debugPrint('  - Time spent: $timeSpentSeconds seconds');
+      debugPrint('  - Evidence: $evidencePayload');
+
+      final response = await _activityService.finalizeQuest(
+        childId: childId,
+        activityId: widget.activity.id,
+        segmentResults: _segmentResults,
+        activityMaxScore: widget.activity.maxScore,
+        evidence: evidencePayload,
+        timeSpent: timeSpentSeconds,
+        useDirectScore: true, // ✅ ใช้คะแนนดิบสำหรับกิจกรรมวิเคราะห์
+      );
+
+      if (mounted) {
+        // Go directly to result screen
+        Navigator.pushReplacementNamed(
+          context,
+          AppRoutes.result,
+          arguments: {
+            'activityName': widget.activity.name,
+            'totalScore': response['calculatedScore'] as int? ?? 0,
+            'scoreEarned': response['scoreEarned'] as int? ?? 0,
+            'timeSpend': timeSpentSeconds,
+            'activityObject': widget.activity,
+          },
+        );
+      }
+    } catch (e) {
+      debugPrint('❌ Error submitting activity: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error completing activity: $e')),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final elapsedSeconds = _activityStopwatch.elapsed.inSeconds;
+
+    return Scaffold(
+      backgroundColor: cream,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black, size: 30),
+          onPressed: () => Navigator.pop(context),
+        ),
+        centerTitle: true,
+        title: Text(
+          widget.activity.name,
+          style: GoogleFonts.luckiestGuy(
+            fontSize: 24,
+            color: sky,
+            letterSpacing: 1.5,
+          ),
+        ),
+      ),
+      body: _segments.isEmpty
+          ? Center(
+              child: Text(
+                'No questions available',
+                style: GoogleFonts.luckiestGuy(fontSize: 20, color: Colors.grey),
+              ),
+            )
+          : SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Timer display
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: Text(
+                        _formatTime(elapsedSeconds),
+                        style: GoogleFonts.luckiestGuy(
+                          fontSize: 24,
+                          color: sky,
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Start/Stop timer button
+                  Center(
+                    child: ElevatedButton.icon(
+                      onPressed: _isTimerRunning ? _pauseTimer : _startTimer,
+                      icon: Icon(
+                        _isTimerRunning ? Icons.pause : Icons.play_arrow,
+                        color: Colors.white,
+                      ),
+                      label: Text(
+                        _isTimerRunning ? 'PAUSE' : 'START',
+                        style: GoogleFonts.luckiestGuy(fontSize: 20, color: Colors.white),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: _isTimerRunning ? Colors.orange : greenBtn,
+                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Questions header
+                  Text(
+                    'QUESTIONS',
+                    style: GoogleFonts.luckiestGuy(
+                      fontSize: 24,
+                      color: sky,
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  // Questions list
+                  ...List.generate(_segments.length, (index) {
+                    final segment = _segments[index];
+                    final question = segment['question']?.toString() ??
+                        segment['text']?.toString() ??
+                        'Question ${index + 1}';
+                    final isCorrect = _segmentResults[index].maxScore > 0;
+                    final isAnswered = _segmentResults[index].maxScore == 0 ? false : true;
+
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: orangeItem,
+                        borderRadius: BorderRadius.circular(25),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${index + 1}. $question',
+                            style: GoogleFonts.luckiestGuy(
+                              fontSize: 18,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              // Correct button
+                              ElevatedButton.icon(
+                                onPressed: () => _markQuestionCorrect(index),
+                                icon: Icon(
+                                  isCorrect ? Icons.check_circle : Icons.check_circle_outline,
+                                  size: 20,
+                                ),
+                                label: Text(
+                                  'Correct',
+                                  style: GoogleFonts.openSans(fontSize: 14),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: isCorrect ? greenBtn : Colors.grey.shade300,
+                                  foregroundColor: isCorrect ? Colors.white : Colors.black,
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              // Incorrect button
+                              ElevatedButton.icon(
+                                onPressed: () => _markQuestionIncorrect(index),
+                                icon: Icon(
+                                  (!isCorrect && isAnswered) ? Icons.cancel : Icons.cancel_outlined,
+                                  size: 20,
+                                ),
+                                label: Text(
+                                  'Wrong',
+                                  style: GoogleFonts.openSans(fontSize: 14),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: (!isCorrect && isAnswered)
+                                      ? Colors.red.shade400
+                                      : Colors.grey.shade300,
+                                  foregroundColor:
+                                      (!isCorrect && isAnswered) ? Colors.white : Colors.black,
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+
+                  const SizedBox(height: 30),
+
+                  // Evidence section
+                  Text(
+                    'EVIDENCE',
+                    style: GoogleFonts.luckiestGuy(fontSize: 20, color: redText),
+                  ),
+
+                  const SizedBox(height: 15),
+
+                  // Diary
+                  Text(
+                    'DIARY / NOTES',
+                    style: GoogleFonts.luckiestGuy(fontSize: 18, color: Colors.black54),
+                  ),
+                  const SizedBox(height: 5),
+                  Container(
+                    height: 100,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: TextField(
+                      controller: _descriptionController,
+                      maxLines: null,
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.all(16),
+                        hintText: 'Write your notes here...',
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 15),
+
+                  // Image
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'IMAGE',
+                              style: GoogleFonts.luckiestGuy(fontSize: 18, color: Colors.black54),
+                            ),
+                            const SizedBox(height: 5),
+                            GestureDetector(
+                              onTap: () => _handleMediaSelection(isVideo: false),
+                              child: Container(
+                                height: 120,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: _imagePath != null ? greenBtn : Colors.grey.shade300,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: _imagePath != null && !kIsWeb
+                                    ? Stack(
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius: BorderRadius.circular(18),
+                                            child: SizedBox(
+                                              width: double.infinity,
+                                              height: double.infinity,
+                                              child: Image.file(
+                                                File(_imagePath!),
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ),
+                                          Positioned(
+                                            top: 4,
+                                            right: 4,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.black54,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: IconButton(
+                                                icon: const Icon(Icons.close, color: Colors.white, size: 16),
+                                                onPressed: () => setState(() => _imagePath = null),
+                                                padding: EdgeInsets.zero,
+                                                constraints: const BoxConstraints(
+                                                  minWidth: 28,
+                                                  minHeight: 28,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          const Icon(Icons.add_photo_alternate, size: 40, color: Colors.grey),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            'Add Image',
+                                            style: GoogleFonts.openSans(fontSize: 12, color: Colors.grey),
+                                          ),
+                                        ],
+                                      ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+
+                      // Video
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'VIDEO',
+                              style: GoogleFonts.luckiestGuy(fontSize: 18, color: Colors.black54),
+                            ),
+                            const SizedBox(height: 5),
+                            GestureDetector(
+                              onTap: () => _handleMediaSelection(isVideo: true),
+                              child: Container(
+                                height: 120,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: _videoPath != null ? greenBtn : Colors.grey.shade300,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: _videoPath != null
+                                    ? Stack(
+                                        children: [
+                                          Center(
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                const Icon(Icons.videocam, size: 50, color: greenBtn),
+                                                const SizedBox(height: 8),
+                                                Text(
+                                                  'Video Added',
+                                                  style: GoogleFonts.openSans(
+                                                    fontSize: 12,
+                                                    color: greenBtn,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Positioned(
+                                            top: 4,
+                                            right: 4,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.black54,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: IconButton(
+                                                icon: const Icon(Icons.close, color: Colors.white, size: 16),
+                                                onPressed: () => setState(() => _videoPath = null),
+                                                padding: EdgeInsets.zero,
+                                                constraints: const BoxConstraints(
+                                                  minWidth: 28,
+                                                  minHeight: 28,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          const Icon(Icons.add_circle_outline, size: 40, color: Colors.grey),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            'Add Video',
+                                            style: GoogleFonts.openSans(fontSize: 12, color: Colors.grey),
+                                          ),
+                                        ],
+                                      ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  // Finish button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _isSubmitting ? null : _handleSubmit,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: greenBtn,
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                      child: _isSubmitting
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : Text(
+                              'FINISH',
+                              style: GoogleFonts.luckiestGuy(
+                                fontSize: 20,
+                                color: Colors.white,
+                              ),
+                            ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+                ],
+              ),
+            ),
+    );
+  }
+}

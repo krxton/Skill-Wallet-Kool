@@ -292,7 +292,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
       // Update Provider
       if (mounted) {
-        context.read<UserProvider>().setParentName(nameToSave);
+        final userProvider = context.read<UserProvider>();
+        userProvider.setParentName(nameToSave);
+
+        // 🆕 ดึงข้อมูล children เพื่อตั้งค่า childId
+        await userProvider.fetchChildrenData();
       }
     } catch (e) {
       debugPrint('❌ Error syncing user data: $e');

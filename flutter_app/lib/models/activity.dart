@@ -89,22 +89,23 @@ class Activity {
   // ----------------------------------------------------
 
   Map<String, dynamic> toJson() {
+    // ✅ ใช้ key แบบ snake_case เหมือนกับ database และ fromJson()
     return {
-      'id': id,
-      'name': name,
+      'activity_id': id,
+      'name_activity': name,
       'category': category,
       'content': content,
-      'difficulty': difficulty,
-      'maxScore': maxScore,
-      'description': description,
-      'videoUrl': videoUrl,
+      'level_activity': difficulty,
+      'maxscore': maxScore,
+      'description_activity': description,
+      'videourl': videoUrl,
       'segments': segments,
-      'thumbnailUrl': thumbnailUrl,
-      'tiktokHtmlContent': tiktokHtmlContent,
+      'thumbnailurl': thumbnailUrl,          // ✅ snake_case
+      'tiktokhtmlcontent': tiktokHtmlContent, // ✅ snake_case
 
       // 🆕 แปลง DateTime เป็น ISO8601 String
-      'createdAt': createdAt?.toIso8601String(),
-      'updatedAt': updatedAt?.toIso8601String(),
+      'created_at': createdAt?.toIso8601String(),
+      'update_at': updatedAt?.toIso8601String(),
     };
   }
 }

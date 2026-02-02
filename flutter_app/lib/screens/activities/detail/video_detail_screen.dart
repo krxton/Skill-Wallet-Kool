@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../models/activity.dart';
 import '../../../routes/app_routes.dart';
 
@@ -23,10 +24,19 @@ class VideoDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String htmlContent = activity.tiktokHtmlContent ?? '';
+    final String videoUrl = activity.videoUrl ?? '';
     final String name = activity.name;
     final String description =
         activity.description ?? 'No description provided.';
     final String content = activity.content;
+
+    // 🐛 Debug: ตรวจสอบว่ามี content หรือไม่
+    debugPrint('🎬 Video Detail Screen - ${activity.name}');
+    debugPrint('  - Activity ID: ${activity.id}');
+    debugPrint('  - tiktokHtmlContent (raw): ${activity.tiktokHtmlContent}');
+    debugPrint('  - htmlContent: ${htmlContent.isNotEmpty ? 'Present (${htmlContent.length} chars)' : 'EMPTY'}');
+    debugPrint('  - thumbnailUrl: ${activity.thumbnailUrl ?? 'NULL'}');
+    debugPrint('  - videoUrl: $videoUrl');
 
     return Scaffold(
       backgroundColor: cream,
@@ -61,15 +71,14 @@ class VideoDetailScreen extends StatelessWidget {
                           mediaPlaybackRequiresUserGesture: false,
                           allowsInlineMediaPlayback: true,
                         ),
+                        onReceivedError: (controller, request, error) {
+                          debugPrint('❌ WebView Error: ${error.description}');
+                        },
+                        onConsoleMessage: (controller, consoleMessage) {
+                          debugPrint('🖥️ WebView Console: ${consoleMessage.message}');
+                        },
                       )
-                    : Container(
-                        color: deepGrey,
-                        alignment: Alignment.center,
-                        child: Text(
-                          'Video Not Available (HTML Content Missing)',
-                          style: GoogleFonts.luckiestGuy(color: Colors.white),
-                        ),
-                      ),
+                    : _buildVideoPlaceholder(videoUrl),
               ),
             ),
             const SizedBox(height: 24),
@@ -206,6 +215,56 @@ class VideoDetailScreen extends StatelessWidget {
           color: color,
           fontWeight: FontWeight.bold,
         ),
+      ),
+    );
+  }
+
+  // 🆕 Placeholder สำหรับกรณีที่ไม่มี TikTok HTML Content
+  Widget _buildVideoPlaceholder(String videoUrl) {
+    return Container(
+      color: deepGrey,
+      alignment: Alignment.center,
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.video_library, size: 60, color: Colors.white.withOpacity(0.7)),
+          const SizedBox(height: 16),
+          Text(
+            'Video Preview Not Available',
+            style: GoogleFonts.luckiestGuy(color: Colors.white, fontSize: 16),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 12),
+          if (videoUrl.isNotEmpty) ...[
+            Text(
+              'Open in Browser to Watch',
+              style: GoogleFonts.openSans(color: Colors.white70, fontSize: 12),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () async {
+                final Uri url = Uri.parse(videoUrl);
+                if (await canLaunchUrl(url)) {
+                  await launchUrl(url, mode: LaunchMode.externalApplication);
+                } else {
+                  debugPrint('❌ Cannot launch URL: $videoUrl');
+                }
+              },
+              icon: const Icon(Icons.open_in_browser, size: 18),
+              label: Text('OPEN TIKTOK', style: GoogleFonts.luckiestGuy(fontSize: 14)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                foregroundColor: deepGrey,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              ),
+            ),
+          ] else
+            Text(
+              'No video URL available',
+              style: GoogleFonts.openSans(color: Colors.white70, fontSize: 12),
+            ),
+        ],
       ),
     );
   }

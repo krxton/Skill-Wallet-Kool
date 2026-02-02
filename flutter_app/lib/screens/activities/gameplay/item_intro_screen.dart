@@ -80,6 +80,10 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
   StreamSubscription<List<int>>? _webAudioSub;
   Uint8List? _webAudioBytes;
 
+  // ⏱️ Stopwatch สำหรับจับเวลาทำกิจกรรม
+  final Stopwatch _activityStopwatch = Stopwatch();
+  final List<String> _tempAudioFiles = []; // เก็บรายการไฟล์เสียงที่ต้องลบ
+
   String _youtubeVideoId = ''; // ID จาก URL
 
   late List<dynamic> _rawSegments;
@@ -173,6 +177,10 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
         setState(() => _isPlaybackPlaying = false);
       }
     });
+
+    // 7. เริ่มจับเวลากิจกรรม
+    _activityStopwatch.start();
+    debugPrint('⏱️ Activity timer started');
   }
 
   @override
@@ -325,7 +333,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
           _webBytesBuilder?.add(chunk);
         });
       } else {
-        // Mobile/Desktop: บันทึกเป็นไฟล์
+        // Mobile/Desktop: บันทึกเป็นไฟล์ temp (จะลบหลังเสร็จกิจกรรม)
         final tempDir = await getTemporaryDirectory();
         _recordedFilePath =
             '${tempDir.path}/recording_${DateTime.now().millisecondsSinceEpoch}.m4a';
@@ -333,6 +341,10 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
           const RecordConfig(encoder: AudioEncoder.aacLc),
           path: _recordedFilePath,
         );
+
+        // เก็บ path ไว้ลบภายหลัง
+        _tempAudioFiles.add(_recordedFilePath);
+        debugPrint('📝 Added temp audio file: $_recordedFilePath');
       }
 
       setState(() {
@@ -539,8 +551,37 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
         (value >> 24) & 0xFF,
       ]);
 
+  // ลบไฟล์เสียงชั่วคราวทั้งหมด (เรียกหลังเสร็จกิจกรรม)
+  Future<void> _cleanupAudioFiles() async {
+    if (kIsWeb) {
+      debugPrint('🌐 Web platform - no audio files to cleanup');
+      return;
+    }
+
+    int deletedCount = 0;
+    for (final filePath in _tempAudioFiles) {
+      try {
+        final file = File(filePath);
+        if (await file.exists()) {
+          await file.delete();
+          deletedCount++;
+          debugPrint('🗑️ Deleted temp audio: $filePath');
+        }
+      } catch (e) {
+        debugPrint('⚠️ Failed to delete $filePath: $e');
+      }
+    }
+    _tempAudioFiles.clear();
+    debugPrint('✅ Cleanup complete: $deletedCount file(s) deleted');
+  }
+
   Future<void> _handleFinishQuest() async {
     if (_childId == null) return;
+
+    // หยุดจับเวลา
+    _activityStopwatch.stop();
+    final timeSpentSeconds = _activityStopwatch.elapsed.inSeconds;
+    debugPrint('⏱️ Activity completed in $timeSpentSeconds seconds');
 
     try {
       final result = await _activityService.finalizeQuest(
@@ -548,7 +589,11 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
         activityId: widget.activity.id,
         segmentResults: _segmentResults,
         activityMaxScore: widget.activity.maxScore,
+        timeSpent: timeSpentSeconds, // ส่งเวลาที่ใช้
       );
+
+      // ลบไฟล์เสียงชั่วคราว (privacy-first: เก็บเฉพาะ scores + text)
+      await _cleanupAudioFiles();
 
       if (!mounted) return;
       Navigator.pushReplacementNamed(
@@ -558,7 +603,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
           'activityName': widget.activity.name,
           'totalScore': result['calculatedScore'] as int? ?? 0,
           'scoreEarned': result['scoreEarned'] as int? ?? 0,
-          'timeSpend': 120,
+          'timeSpend': timeSpentSeconds,
           'activityObject': widget.activity,
         },
       );

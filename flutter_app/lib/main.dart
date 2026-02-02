@@ -112,11 +112,13 @@ class _SWKAppState extends State<SWKApp> {
     }
   }
 
-  // ✅ ดึงชื่อผู้ปกครองจาก Supabase แล้วตั้งใน UserProvider
+  // ✅ ดึงชื่อผู้ปกครองและ children จาก Supabase แล้วตั้งใน UserProvider
   Future<void> _populateParentNameFromSupabase() async {
     if (!mounted) return;
 
     try {
+      // Get UserProvider reference before any async operations
+      final userProvider = Provider.of<UserProvider>(context, listen: false);
       final supabase = Supabase.instance.client;
       String? parentName;
 
@@ -133,9 +135,11 @@ class _SWKAppState extends State<SWKApp> {
       }
 
       if (parentName != null && parentName.isNotEmpty) {
-        Provider.of<UserProvider>(context, listen: false)
-            .setParentName(parentName);
+        userProvider.setParentName(parentName);
         print('👤 Parent name set: $parentName');
+
+        // 🆕 ดึงข้อมูล children เพื่อตั้งค่า childId
+        await userProvider.fetchChildrenData();
       }
     } catch (e) {
       print('⚠️ Fetch parent name failed: $e');

@@ -155,16 +155,37 @@ class _ResultScreenState extends State<ResultScreen>
                 SizedBox(
                   height: 55,
                   child: ElevatedButton(
-                    // 🔥 แก้ไข: ส่ง Activity object แทน activityName
                     onPressed: activityToReplay != null
                         ? () {
-                            // 🚀 นำทางกลับไป ItemIntroScreen เพื่อเริ่มข้อแรกใหม่
-                            Navigator.pushReplacementNamed(
-                              context,
-                              AppRoutes.itemIntro,
-                              arguments:
-                                  activityToReplay, // ✅ ส่ง Activity object
-                            );
+                            // 🚀 นำทางไปหน้าที่เหมาะสมตาม category
+                            final category = activityToReplay.category.toUpperCase();
+
+                            if (category == 'ด้านภาษา' || category == 'LANGUAGE') {
+                              Navigator.pushReplacementNamed(
+                                context,
+                                AppRoutes.itemIntro,
+                                arguments: activityToReplay,
+                              );
+                            } else if (category == 'ด้านร่างกาย' && activityToReplay.videoUrl != null) {
+                              Navigator.pushReplacementNamed(
+                                context,
+                                AppRoutes.videoDetail,
+                                arguments: activityToReplay,
+                              );
+                            } else if (category == 'ด้านวิเคราะห์') {
+                              Navigator.pushReplacementNamed(
+                                context,
+                                AppRoutes.analysisActivity,
+                                arguments: activityToReplay,
+                              );
+                            } else {
+                              // Fallback: กลับไป itemIntro
+                              Navigator.pushReplacementNamed(
+                                context,
+                                AppRoutes.itemIntro,
+                                arguments: activityToReplay,
+                              );
+                            }
                           }
                         : null, // ถ้าไม่มี activity object ให้ปุ่มถูก disable
                     style: ElevatedButton.styleFrom(
@@ -207,20 +228,6 @@ class _ResultScreenState extends State<ResultScreen>
                   ),
                 ),
                 const SizedBox(height: 16),
-
-                // 🏠 ปุ่ม 3: กลับหน้าหลัก
-                SizedBox(
-                  height: 50,
-                  child: TextButton(
-                    onPressed: () => Navigator.pushNamedAndRemoveUntil(
-                        context, AppRoutes.home, (route) => false),
-                    child: Text(
-                      'RETURN HOME',
-                      style: GoogleFonts.luckiestGuy(
-                          fontSize: 16, color: Palette.deepGrey),
-                    ),
-                  ),
-                ),
               ],
             ),
           ],

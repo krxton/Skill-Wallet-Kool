@@ -46,9 +46,10 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
   String? _videoPath;
   String? _imagePath;
 
+  // ⏱️ เปลี่ยนจาก Timer เป็น Stopwatch (แม่นยำกว่า)
+  final Stopwatch _activityStopwatch = Stopwatch();
+  Timer? _uiUpdateTimer; // Timer สำหรับอัพเดท UI เท่านั้น
   bool _isPlaying = false;
-  int _timeSpentSeconds = 0;
-  Timer? _timer;
 
   int _parentScore = 0;
   bool _isSubmitting = false;
@@ -59,11 +60,13 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
   @override
   void initState() {
     super.initState();
+    debugPrint('⏱️ Physical Activity initialized');
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
+    _activityStopwatch.stop();
+    _uiUpdateTimer?.cancel();
     _scoreController.dispose();
     _descriptionController.dispose(); // 🆕 Dispose controller
     super.dispose();
@@ -76,37 +79,50 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
   void _handleStart() {
     if (_isPlaying) return;
 
-    _timeSpentSeconds = 0;
-    _isPlaying = true;
+    setState(() {
+      _isPlaying = true;
+    });
 
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (mounted) {
-        setState(() {
-          _timeSpentSeconds++;
-        });
+    // เริ่ม Stopwatch
+    _activityStopwatch.reset();
+    _activityStopwatch.start();
+
+    // เริ่ม Timer เพื่ออัพเดท UI ทุกวินาที
+    _uiUpdateTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (mounted && _isPlaying) {
+        setState(() {}); // บังคับให้ rebuild เพื่ออัพเดทเวลา
       }
     });
-    setState(() {});
+
+    debugPrint('⏱️ Stopwatch started');
   }
 
   void _handleFinish() {
-    _timer?.cancel();
-    _isPlaying = false;
-    setState(() {});
+    _activityStopwatch.stop();
+    _uiUpdateTimer?.cancel();
+
+    setState(() {
+      _isPlaying = false;
+    });
+
+    debugPrint('⏱️ Stopwatch stopped at ${_activityStopwatch.elapsed.inSeconds}s');
   }
 
-  // 🆕 Logic: เลือก Video/Image และเก็บ Path อย่างอิสระ
-  Future<void> _handleMediaSelection({required bool isVideo}) async {
+  // 🆕 Logic: เลือก Video/Image จาก Camera หรือ Gallery
+  Future<void> _handleMediaSelection({required bool isVideo, ImageSource? source}) async {
     try {
+      // ถ้าไม่ระบุ source ให้เลือก
+      ImageSource selectedSource = source ?? await _showSourceDialog();
+
       final ImagePicker picker = ImagePicker();
       XFile? pickedFile;
 
       if (isVideo) {
-        // เลือก Video
-        pickedFile = await picker.pickVideo(source: ImageSource.gallery);
+        // เลือก/ถ่าย Video
+        pickedFile = await picker.pickVideo(source: selectedSource);
       } else {
-        // เลือก Image
-        pickedFile = await picker.pickImage(source: ImageSource.gallery);
+        // เลือก/ถ่าย Image
+        pickedFile = await picker.pickImage(source: selectedSource);
       }
 
       if (pickedFile != null) {
@@ -119,6 +135,7 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
             _imagePath = path;
           }
         });
+        debugPrint('📸 ${isVideo ? 'Video' : 'Image'} selected: $path');
       }
     } catch (e) {
       if (mounted) {
@@ -126,6 +143,32 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
             .showSnackBar(SnackBar(content: Text('Failed to pick file: $e')));
       }
     }
+  }
+
+  // 🆕 Dialog เลือก Camera หรือ Gallery
+  Future<ImageSource> _showSourceDialog() async {
+    return await showDialog<ImageSource>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text('Select Source', style: GoogleFonts.luckiestGuy()),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.camera_alt, color: startGreen),
+                  title: Text('Camera', style: GoogleFonts.openSans()),
+                  onTap: () => Navigator.pop(context, ImageSource.camera),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.photo_library, color: Colors.blue),
+                  title: Text('Gallery', style: GoogleFonts.openSans()),
+                  onTap: () => Navigator.pop(context, ImageSource.gallery),
+                ),
+              ],
+            ),
+          ),
+        ) ??
+        ImageSource.gallery; // default
   }
 
   // 🆕 Logic: การส่งหลักฐานและคะแนน
@@ -150,7 +193,11 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
       return;
     }
 
+    // หยุดจับเวลา
     _handleFinish();
+    final timeSpentSeconds = _activityStopwatch.elapsed.inSeconds;
+    debugPrint('⏱️ Physical activity completed in $timeSpentSeconds seconds');
+
     setState(() => _isSubmitting = true);
 
     // 1. ดึงค่า description
@@ -166,9 +213,8 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
     };
 
     try {
-      // 🆕 Debug: ดูว่าส่งอะไรไป
-      // print('📊 Sending parentScore: $_parentScore');
-      // print('📦 Evidence payload: $evidencePayload');
+      debugPrint('📊 Sending parentScore: $_parentScore, timeSpent: $timeSpentSeconds');
+      debugPrint('📦 Evidence payload: $evidencePayload');
 
       // ignore: unused_local_variable
       final response = await _activityService.finalizeQuest(
@@ -178,6 +224,7 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
         activityMaxScore: widget.activity.maxScore,
         evidence: evidencePayload,
         parentScore: _parentScore, // ✅ ส่ง parentScore แยกต่างหาก
+        timeSpent: timeSpentSeconds, // ⏱️ ส่งเวลาที่ใช้
       );
 
       // print('✅ Submit Response: $response');
@@ -360,8 +407,10 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // แสดงเวลาจาก Stopwatch
     String two(int n) => n.toString().padLeft(2, '0');
-    final mm = two(_timeSpentSeconds ~/ 60), ss = two(_timeSpentSeconds % 60);
+    final int elapsedSeconds = _activityStopwatch.elapsed.inSeconds;
+    final mm = two(elapsedSeconds ~/ 60), ss = two(elapsedSeconds % 60);
     final bool isEvidenceAttached = _videoPath != null || _imagePath != null;
 
     return Scaffold(

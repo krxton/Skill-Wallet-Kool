@@ -2,16 +2,29 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ApiService {
+  final _supabase = Supabase.instance.client;
+
   // 1. Base URL
   static String get _baseUrl =>
       dotenv.env['API_BASE_URL'] ?? 'http://127.0.0.1:3000/api';
 
-  // 2. Headers Getter
-  Map<String, String> get _headers => {
-        'Content-Type': 'application/json',
-      };
+  // 2. Headers Getter with Supabase Authentication
+  Future<Map<String, String>> _getHeaders() async {
+    final headers = <String, String>{
+      'Content-Type': 'application/json',
+    };
+
+    // Get Supabase access token if user is logged in
+    final session = _supabase.auth.currentSession;
+    if (session != null) {
+      headers['Authorization'] = 'Bearer ${session.accessToken}';
+    }
+
+    return headers;
+  }
 
   // (สามารถเป็น Map หรือ List ก็ได้)
   Future<dynamic> get(String path,
@@ -24,7 +37,8 @@ class ApiService {
       uri = uri.replace(queryParameters: stringQueryParameters);
     }
 
-    final response = await http.get(uri, headers: _headers);
+    final headers = await _getHeaders();
+    final response = await http.get(uri, headers: headers);
 
     if (response.statusCode == 200) {
       if (response.body.isEmpty) return {};
@@ -85,9 +99,10 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> post(String path, dynamic body) async {
+    final headers = await _getHeaders();
     final response = await http.post(
       Uri.parse('$_baseUrl$path'),
-      headers: _headers,
+      headers: headers,
       body: jsonEncode(body),
     );
 

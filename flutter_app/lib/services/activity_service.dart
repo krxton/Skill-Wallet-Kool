@@ -25,12 +25,13 @@ class SegmentResult {
     this.audioUrl,
   });
   // แปลงเป็น JSON สำหรับส่งไป Backend
+  // 🔒 Privacy-first: ไม่ส่ง audioUrl (เก็บเฉพาะในเครื่อง)
   Map<String, dynamic> toJson() => {
         'id': id,
         'text': text,
         'maxScore': maxScore,
         'recognizedText': recognizedText,
-        'audioUrl': audioUrl,
+        // audioUrl จะไม่ถูกส่งไปเซิร์ฟเวอร์ (เก็บเฉพาะ local)
       };
 }
 
@@ -88,8 +89,8 @@ class ActivityService {
             await _fetchTikTokOEmbedData(physicalActivity.videoUrl!);
         // ผสานข้อมูล
         final Map<String, dynamic> activityJson = physicalActivity.toJson();
-        activityJson['thumbnailUrl'] = oEmbedData['thumbnail_url'];
-        activityJson['tiktokHtmlContent'] = oEmbedData['html'];
+        activityJson['thumbnailurl'] = oEmbedData['thumbnail_url'];
+        activityJson['tiktokhtmlcontent'] = oEmbedData['html'];
         return Activity.fromJson(activityJson);
       }
       return null;
@@ -119,52 +120,46 @@ class ActivityService {
         query = query.eq('level_activity', level);
       }
 
-      final activity = await query.order('play_count', ascending: false);
-      return activity.map<Activity>((json) => Activity.fromJson(json)).toList();
+      final activityData = await query.order('play_count', ascending: false);
+      final activities = activityData.map<Activity>((json) => Activity.fromJson(json)).toList();
 
-      // // 1. ดึงข้อมูลกิจกรรมทั้งหมด
-      // final allActivities = await _fetchAllActivities();
-      // // 2. ดึงข้อมูล Activity Records (รอบการเล่น) จาก Backend
-      // final records = await _apiService.getArray(
-      //   path: '/activity-records',
-      //   queryParameters: {'childId': childId},
-      // );
-      // // 3. สร้าง Map เก็บจำนวนรอบการเล่นของแต่ละ Activity
-      // final Map<String, int> activityPlayCount = {};
-      // for (var record in records) {
-      //   final activityId = record['activityId'] as String?;
-      //   if (activityId != null) {
-      //     activityPlayCount[activityId] =
-      //         (activityPlayCount[activityId] ?? 0) + 1;
-      //   }
-      // }
-      // // 4. เรียงกิจกรรมตามจำนวนรอบการเล่น (มากสุดก่อน)
-      // allActivities.sort((a, b) {
-      //   final countA = activityPlayCount[a.id] ?? 0;
-      //   final countB = activityPlayCount[b.id] ?? 0;
-      //   return countB.compareTo(countA); // เรียงจากมากไปน้อย
-      // });
-      // // 5. ประมวลผล OEmbed สำหรับกิจกรรมที่มี Video
-      // final List<Future<Activity>> processedActivitiesFutures =
-      //     allActivities.map((activity) async {
-      //   // TikTok (ด้านร่างกาย)
-      //   if (activity.videoUrl != null &&
-      //       activity.category.toUpperCase() == 'ด้านร่างกาย') {
-      //     try {
-      //       final oEmbedData = await _fetchTikTokOEmbedData(activity.videoUrl!);
-      //       final Map<String, dynamic> activityJson = activity.toJson();
-      //       activityJson['thumbnailUrl'] = oEmbedData['thumbnail_url'];
-      //       activityJson['tiktokHtmlContent'] = oEmbedData['html'];
-      //       return Activity.fromJson(activityJson);
-      //     } catch (e) {
-      //       debugPrint('OEmbed failed for ${activity.name}: $e');
-      //     }
-      //   }
-      //   return activity;
-      // }).toList();
-      // final List<Activity> processedActivities =
-      //     await Future.wait(processedActivitiesFutures);
-      // return processedActivities;
+      // ✅ ประมวลผล TikTok OEmbed สำหรับกิจกรรมที่มี Video
+      final List<Future<Activity>> processedActivitiesFutures =
+          activities.map((activity) async {
+        // TikTok (ด้านร่างกาย)
+        if (activity.videoUrl != null &&
+            activity.category == 'ด้านร่างกาย') {
+          try {
+            debugPrint('🎬 Fetching TikTok OEmbed for: ${activity.name}');
+            final oEmbedData = await _fetchTikTokOEmbedData(activity.videoUrl!);
+
+            // ✅ Null-safe: ตรวจสอบว่ามีข้อมูลครบก่อน
+            final String? thumbnailUrl = oEmbedData['thumbnail_url'] as String?;
+            final String? htmlContent = oEmbedData['html'] as String?;
+
+            debugPrint('  - thumbnail: ${thumbnailUrl != null ? 'OK' : 'NULL'}');
+            debugPrint('  - html: ${htmlContent != null ? 'OK (${htmlContent.length} chars)' : 'NULL'}');
+
+            // ถ้ามีข้อมูล html ให้ผสานเข้า activity
+            if (htmlContent != null && htmlContent.isNotEmpty) {
+              final Map<String, dynamic> activityJson = activity.toJson();
+              activityJson['thumbnailurl'] = thumbnailUrl ?? '';
+              activityJson['tiktokhtmlcontent'] = htmlContent;
+              debugPrint('✅ OEmbed success for ${activity.name}');
+              return Activity.fromJson(activityJson);
+            } else {
+              debugPrint('⚠️ OEmbed returned null/empty html for ${activity.name}');
+            }
+          } catch (e) {
+            debugPrint('❌ OEmbed failed for ${activity.name}: $e');
+          }
+        }
+        return activity;
+      }).toList();
+
+      final List<Activity> processedActivities =
+          await Future.wait(processedActivitiesFutures);
+      return processedActivities;
     } catch (e) {
       debugPrint('Error fetching popular activities: $e');
       return [];
@@ -191,36 +186,45 @@ class ActivityService {
         query = query.eq('level_activity', level);
       }
 
-      final activity = await query.order('created_at', ascending: false);
-      return activity.map<Activity>((json) => Activity.fromJson(json)).toList();
-      // final allActivities = await _fetchAllActivities();
-      // // เรียงตาม createdAt หรือ ID (CUID)
-      // allActivities.sort((a, b) {
-      //   if (a.createdAt != null && b.createdAt != null) {
-      //     return b.createdAt!.compareTo(a.createdAt!); // ล่าสุดก่อน
-      //   }
-      //   return b.id.compareTo(a.id);
-      // });
-      // // ประมวลผล OEmbed
-      // final List<Future<Activity>> processedActivitiesFutures =
-      //     allActivities.map((activity) async {
-      //   if (activity.videoUrl != null &&
-      //       activity.category.toUpperCase() == 'ด้านร่างกาย') {
-      //     try {
-      //       final oEmbedData = await _fetchTikTokOEmbedData(activity.videoUrl!);
-      //       final Map<String, dynamic> activityJson = activity.toJson();
-      //       activityJson['thumbnailUrl'] = oEmbedData['thumbnail_url'];
-      //       activityJson['tiktokHtmlContent'] = oEmbedData['html'];
-      //       return Activity.fromJson(activityJson);
-      //     } catch (e) {
-      //       debugPrint('OEmbed failed for ${activity.name}: $e');
-      //     }
-      //   }
-      //   return activity;
-      // }).toList();
-      // final List<Activity> processedActivities =
-      //     await Future.wait(processedActivitiesFutures);
-      // return processedActivities;
+      final activityData = await query.order('created_at', ascending: false);
+      final activities = activityData.map<Activity>((json) => Activity.fromJson(json)).toList();
+
+      // ✅ ประมวลผล TikTok OEmbed สำหรับกิจกรรมที่มี Video
+      final List<Future<Activity>> processedActivitiesFutures =
+          activities.map((activity) async {
+        if (activity.videoUrl != null &&
+            activity.category == 'ด้านร่างกาย') {
+          try {
+            debugPrint('🎬 Fetching TikTok OEmbed for: ${activity.name}');
+            final oEmbedData = await _fetchTikTokOEmbedData(activity.videoUrl!);
+
+            // ✅ Null-safe: ตรวจสอบว่ามีข้อมูลครบก่อน
+            final String? thumbnailUrl = oEmbedData['thumbnail_url'] as String?;
+            final String? htmlContent = oEmbedData['html'] as String?;
+
+            debugPrint('  - thumbnail: ${thumbnailUrl != null ? 'OK' : 'NULL'}');
+            debugPrint('  - html: ${htmlContent != null ? 'OK (${htmlContent.length} chars)' : 'NULL'}');
+
+            // ถ้ามีข้อมูล html ให้ผสานเข้า activity
+            if (htmlContent != null && htmlContent.isNotEmpty) {
+              final Map<String, dynamic> activityJson = activity.toJson();
+              activityJson['thumbnailurl'] = thumbnailUrl ?? '';
+              activityJson['tiktokhtmlcontent'] = htmlContent;
+              debugPrint('✅ OEmbed success for ${activity.name}');
+              return Activity.fromJson(activityJson);
+            } else {
+              debugPrint('⚠️ OEmbed returned null/empty html for ${activity.name}');
+            }
+          } catch (e) {
+            debugPrint('❌ OEmbed failed for ${activity.name}: $e');
+          }
+        }
+        return activity;
+      }).toList();
+
+      final List<Activity> processedActivities =
+          await Future.wait(processedActivitiesFutures);
+      return processedActivities;
     } catch (e) {
       debugPrint('Error fetching new activities: $e');
       return [];
@@ -375,28 +379,55 @@ class ActivityService {
     required int activityMaxScore,
     Map<String, dynamic>? evidence,
     int? parentScore, // 🆕 รับ parentScore แยกเป็น parameter
+    int? timeSpent, // ⏱️ เวลาที่ใช้ในการทำกิจกรรม (วินาที)
+    bool useDirectScore = false, // 🆕 สำหรับกิจกรรมวิเคราะห์ที่ใช้คะแนนดิบ
   }) async {
     final numSections = segmentResults.length;
-    // 1. คำนวณค่าเฉลี่ยความถูกต้อง
-    double totalAccuracy = 0.0;
-    for (var res in segmentResults) {
-      totalAccuracy += res.maxScore;
+
+    int finalScore;
+    int calculatedScore;
+
+    if (useDirectScore) {
+      // 🎯 สำหรับกิจกรรมวิเคราะห์: ใช้คะแนนดิบโดยตรง
+      double totalScore = 0.0;
+      for (var res in segmentResults) {
+        totalScore += res.maxScore;
+      }
+      finalScore = parentScore ?? totalScore.toInt();
+      calculatedScore = totalScore.toInt(); // คะแนนดิบ
+
+      print('📊 Service Debug (Direct Score):');
+      print('  - Total raw score: $totalScore');
+      print('  - Activity maxScore: $activityMaxScore');
+      print('  - finalScore: $finalScore');
+    } else {
+      // 📚 สำหรับกิจกรรมภาษา: คำนวณจาก accuracy percentage
+      double totalAccuracy = 0.0;
+      for (var res in segmentResults) {
+        totalAccuracy += res.maxScore;
+      }
+      final averageAccuracy =
+          numSections > 0 ? (totalAccuracy / numSections) : 0.0;
+      final scoreEarned = (activityMaxScore * (averageAccuracy / 100)).floor();
+
+      finalScore = parentScore ?? scoreEarned;
+      calculatedScore = parentScore ?? averageAccuracy.round();
+
+      print('📊 Service Debug (Percentage):');
+      print('  - Average accuracy: $averageAccuracy%');
+      print('  - scoreEarned: $scoreEarned');
+      print('  - finalScore: $finalScore');
     }
-    final averageAccuracy =
-        numSections > 0 ? (totalAccuracy / numSections) : 0.0;
-    // 2. คำนวณคะแนนที่ได้รับ
-    final scoreEarned = (activityMaxScore * (averageAccuracy / 100)).floor();
-    // ใช้ parentScore ถ้ามี
-    final int finalScore = parentScore ?? scoreEarned;
-    // Debug
-    print('📊 Service Debug:');
+
     print('  - parentScore received: $parentScore');
-    print('  - finalScore: $finalScore');
     print('  - evidence: $evidence');
+
     // 3. สร้าง Payload
     final payload = {
+      'childId': childId,
       'activityId': activityId,
       'totalScoreEarned': finalScore,
+      'timeSpent': timeSpent,
       'segmentResults': segmentResults.map((r) => r.toJson()).toList(),
       'evidence': evidence,
       'parentScore': parentScore,
@@ -405,8 +436,7 @@ class ActivityService {
     try {
       final res = await _apiService.post('/complete-quest', payload);
       res['scoreEarned'] = finalScore;
-      res['calculatedScore'] =
-          parentScore ?? averageAccuracy.round(); // % accuracy
+      res['calculatedScore'] = calculatedScore;
       return res;
     } catch (e) {
       debugPrint('Finalize Quest Error: $e');
