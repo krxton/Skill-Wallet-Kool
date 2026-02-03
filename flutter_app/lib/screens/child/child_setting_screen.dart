@@ -91,6 +91,7 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => ManageChildScreen(
+          childId: childId, // ส่ง childId เพื่อให้แสดงข้อมูลเด็กคนที่ถูกต้อง
           name: childName,
           imageUrl: '', // No image URL for now
           score: childWallet,
@@ -386,6 +387,7 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => ChildProfileScreen(
+                                      childId: childId, // ส่ง childId เพื่อให้แสดงข้อมูลเด็กคนที่ถูกต้อง
                                       name: childName,
                                       imageUrl: '',
                                       points: childWallet,

@@ -1,26 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'playing_result_detail_screen.dart'; // 🔗 เชื่อมไปหน้าระดับที่ 3
+import 'package:intl/intl.dart';
+import 'playing_result_detail_screen.dart';
 
 class DailyActivityScreen extends StatelessWidget {
   final String date;
+  final List<Map<String, dynamic>> records;
 
-  const DailyActivityScreen({super.key, required this.date});
+  const DailyActivityScreen({
+    super.key,
+    required this.date,
+    required this.records,
+  });
 
   static const cream = Color(0xFFFFF5CD);
   static const skyBlue = Color(0xFF5AB2FF);
   static const itemBlue = Color(0xFF90CAF9);
   static const numberPink = Color(0xFFFF8A80);
 
+  String _formatTime(String? createdAt) {
+    if (createdAt == null) return '--:--';
+    final dateTime = DateTime.tryParse(createdAt);
+    if (dateTime == null) return '--:--';
+    return DateFormat('HH:mm').format(dateTime.toLocal());
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Mock Data: รายการเล่นในวันนั้น (สมมติว่าเล่น 4 ครั้ง)
-    final sessions = [
-      {'id': 1, 'time': '09:00 AM', 'medals': 5},
-      {'id': 2, 'time': '11:30 AM', 'medals': 3},
-      {'id': 3, 'time': '02:15 PM', 'medals': 6},
-      {'id': 4, 'time': '04:45 PM', 'medals': 4},
-    ];
+    // Sort records by time (oldest first for that day)
+    final sortedRecords = List<Map<String, dynamic>>.from(records)
+      ..sort((a, b) {
+        final aTime = a['created_at'] as String? ?? '';
+        final bTime = b['created_at'] as String? ?? '';
+        return aTime.compareTo(bTime);
+      });
 
     return Scaffold(
       backgroundColor: cream,
@@ -40,9 +53,12 @@ class DailyActivityScreen extends StatelessWidget {
                   const SizedBox(width: 15),
                   Expanded(
                     child: Text(
-                      date, // แสดงวันที่ที่เลือกมา
-                      style:
-                          GoogleFonts.luckiestGuy(fontSize: 26, color: skyBlue),
+                      date,
+                      style: GoogleFonts.itim(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: skyBlue,
+                      ),
                     ),
                   ),
                 ],
@@ -50,94 +66,138 @@ class DailyActivityScreen extends StatelessWidget {
             ),
 
             Text(
-              'PLAYING HISTORY',
-              style: GoogleFonts.luckiestGuy(fontSize: 20, color: Colors.grey),
+              'ประวัติการเล่น',
+              style: GoogleFonts.itim(fontSize: 18, color: Colors.grey),
             ),
             const SizedBox(height: 20),
 
-            // List of Times (Time 1, Time 2...)
+            // List of sessions
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                itemCount: sessions.length,
-                itemBuilder: (context, index) {
-                  final session = sessions[index];
-                  return GestureDetector(
-                    onTap: () {
-                      // 👉 กดแล้วไปดูรายละเอียด (หน้า Result Detail)
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PlayingResultDetailScreen(
-                            sessionNumber: session['id'] as int,
-                            date: date,
-                            medals: session['medals'] as int,
-                          ),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 15),
-                      child: Row(
-                        children: [
-                          // วงกลมตัวเลข (1, 2, 3, 4)
-                          Container(
-                            width: 50,
-                            height: 50,
-                            decoration: const BoxDecoration(
-                              color: numberPink,
-                              shape: BoxShape.circle,
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              '${session['id']}',
-                              style: GoogleFonts.luckiestGuy(
-                                  fontSize: 24, color: Colors.white),
-                            ),
-                          ),
-                          const SizedBox(width: 15),
-
-                          // กล่องรายละเอียดเวลา
-                          Expanded(
-                            child: Container(
-                              height: 60,
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 20),
-                              decoration: BoxDecoration(
-                                color: itemBlue,
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    '${session['time']}',
-                                    style: GoogleFonts.luckiestGuy(
-                                        fontSize: 18, color: Colors.white),
-                                  ),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.emoji_events,
-                                          color: Colors.yellow, size: 24),
-                                      const SizedBox(width: 5),
-                                      Text(
-                                        '${session['medals']}',
-                                        style: GoogleFonts.luckiestGuy(
-                                            fontSize: 18, color: Colors.white),
-                                      ),
-                                    ],
-                                  )
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
+              child: sortedRecords.isEmpty
+                  ? Center(
+                      child: Text(
+                        'ไม่มีข้อมูล',
+                        style: GoogleFonts.itim(fontSize: 18, color: Colors.grey),
                       ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      itemCount: sortedRecords.length,
+                      itemBuilder: (context, index) {
+                        final record = sortedRecords[index];
+                        // point อาจเป็น Decimal จาก Supabase
+                        final pointRaw = record['point'];
+                        int score = 0;
+                        if (pointRaw is int) {
+                          score = pointRaw;
+                        } else if (pointRaw is double) {
+                          score = pointRaw.toInt();
+                        } else if (pointRaw != null) {
+                          score = int.tryParse(pointRaw.toString()) ?? 0;
+                        }
+                        final createdAt = record['created_at'] as String?;
+                        final activityName = record['activity']?['name_activity'] as String? ?? 'กิจกรรม';
+
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PlayingResultDetailScreen(
+                                  record: record,
+                                  sessionNumber: index + 1,
+                                ),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 15),
+                            child: Row(
+                              children: [
+                                // วงกลมตัวเลข
+                                Container(
+                                  width: 50,
+                                  height: 50,
+                                  decoration: const BoxDecoration(
+                                    color: numberPink,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    '${index + 1}',
+                                    style: GoogleFonts.luckiestGuy(
+                                        fontSize: 24, color: Colors.white),
+                                  ),
+                                ),
+                                const SizedBox(width: 15),
+
+                                // กล่องรายละเอียด
+                                Expanded(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 12),
+                                    decoration: BoxDecoration(
+                                      color: itemBlue,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        // ชื่อกิจกรรม
+                                        Text(
+                                          activityName,
+                                          style: GoogleFonts.itim(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        const SizedBox(height: 4),
+                                        // เวลาและคะแนน
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                const Icon(Icons.access_time,
+                                                    color: Colors.white70, size: 16),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  _formatTime(createdAt),
+                                                  style: GoogleFonts.itim(
+                                                    fontSize: 14,
+                                                    color: Colors.white70,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            Row(
+                                              children: [
+                                                const Icon(Icons.emoji_events,
+                                                    color: Colors.yellow, size: 20),
+                                                const SizedBox(width: 5),
+                                                Text(
+                                                  '$score',
+                                                  style: GoogleFonts.luckiestGuy(
+                                                      fontSize: 18, color: Colors.white),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
             ),
           ],
         ),

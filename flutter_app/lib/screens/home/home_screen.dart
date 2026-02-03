@@ -6,13 +6,14 @@ import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import '../../routes/app_routes.dart';
 import '../../providers/user_provider.dart';
 import '../../services/activity_service.dart';
+import '../../services/child_service.dart';
 import '../../models/activity.dart';
 
 import '../../widgets/activity_card.dart';
 import '../../widgets/scrollable_activity_list.dart';
 import '../../widgets/main_bottom_nav.dart';
 import '../profile/profile_screen.dart';
-import '../post/create_post_screen.dart'; 
+import '../post/create_post_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,11 +29,16 @@ class _HomeScreenState extends State<HomeScreen> {
   static const deepSky = Color(0xFF7DBEF1);
 
   // Filter states
-  String? _selectedCategory; // null = ทั้งหมด, 'ด้านภาษา', 'ด้านร่างกาย', 'ด้านวิเคราะห์'
+  String?
+      _selectedCategory; // null = ทั้งหมด, 'ด้านภาษา', 'ด้านร่างกาย', 'ด้านวิเคราะห์'
   String? _selectedLevel; // null = ทั้งหมด, 'ง่าย', 'กลาง', 'ยาก'
 
   final ActivityService _activityService = ActivityService();
-  late Future<List<Activity>> _popularActivitiesFuture;
+  final ChildService _childService = ChildService();
+  late Future<List<Activity>>
+      _recommendedActivitiesFuture; // สำหรับ carousel ด้านบน
+  late Future<List<Activity>>
+      _popularActivitiesFuture; // สำหรับ Popular list ด้านล่าง
   late Future<List<Activity>> _newActivitiesFuture;
 
   String? _currentChildId;
@@ -80,6 +86,9 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _currentChildId = childId;
         _currentParentId = parentId;
+        // Carousel ด้านบน = กิจกรรมแนะนำตามหมวดที่เคยเล่น
+        _recommendedActivitiesFuture = _fetchRecommendedActivities(childId);
+        // Popular list ด้านล่าง = กิจกรรมยอดนิยม (ตาม play_count)
         _popularActivitiesFuture = _activityService.fetchPopularActivities(
           childId,
           category: _selectedCategory,
@@ -91,6 +100,92 @@ class _HomeScreenState extends State<HomeScreen> {
           level: _selectedLevel,
         );
       });
+    }
+  }
+
+  /// ดึงกิจกรรมแนะนำสำหรับ Carousel ตามหมวดที่เคยเล่น (รวม 5 กิจกรรม)
+  Future<List<Activity>> _fetchRecommendedActivities(String childId) async {
+    try {
+      // 1. ดึงประวัติกิจกรรมของเด็ก
+      final history = await _childService.getActivityHistory(childId);
+
+      // 2. นับจำนวนครั้งที่เล่นแต่ละหมวดหมู่
+      Map<String, int> categoryCount = {};
+      for (var record in history) {
+        final category = record['activity']?['category'] as String?;
+        if (category != null) {
+          categoryCount[category] = (categoryCount[category] ?? 0) + 1;
+        }
+      }
+
+      List<Activity> recommended = [];
+      const int targetCount = 5;
+
+      if (categoryCount.isNotEmpty) {
+        // 3. เรียงหมวดตามความถี่ (มากไปน้อย)
+        final sortedCategories = categoryCount.entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
+
+        debugPrint('📊 Category frequency: $categoryCount');
+
+        // 4. คำนวณสัดส่วนการเลือกจากแต่ละหมวด
+        final totalPlays = categoryCount.values.reduce((a, b) => a + b);
+
+        for (var entry in sortedCategories) {
+          if (recommended.length >= targetCount) break;
+
+          final category = entry.key;
+          final plays = entry.value;
+
+          // คำนวณจำนวนที่ควรเลือกตามสัดส่วน (อย่างน้อย 1 ถ้าเคยเล่น)
+          int countToFetch = ((plays / totalPlays) * targetCount).ceil();
+          countToFetch =
+              countToFetch.clamp(1, targetCount - recommended.length);
+
+          debugPrint(
+              '📌 Fetching $countToFetch from $category (played $plays times)');
+
+          // ดึงกิจกรรมจากหมวดนี้
+          final activities = await _activityService.fetchPopularActivities(
+            childId,
+            category: category,
+          );
+
+          // สุ่มเลือก
+          if (activities.isNotEmpty) {
+            activities.shuffle();
+            final toAdd = activities.take(countToFetch).toList();
+            recommended.addAll(toAdd);
+          }
+        }
+      }
+
+      // 5. ถ้ายังไม่ครบ 5 อัน ให้เติมด้วยกิจกรรมแบบสุ่ม
+      if (recommended.length < targetCount) {
+        debugPrint(
+            '📌 Filling ${targetCount - recommended.length} more with random activities');
+
+        final allActivities =
+            await _activityService.fetchPopularActivities(childId);
+        final existingIds = recommended.map((a) => a.id).toSet();
+
+        // กรองออกกิจกรรมที่มีอยู่แล้ว
+        final remaining =
+            allActivities.where((a) => !existingIds.contains(a.id)).toList();
+        remaining.shuffle();
+
+        final needed = targetCount - recommended.length;
+        recommended.addAll(remaining.take(needed));
+      }
+
+      debugPrint('✅ Recommended activities: ${recommended.length} items');
+      return recommended;
+    } catch (e) {
+      debugPrint('❌ Error fetching recommended activities: $e');
+      // Fallback: ดึงทั้งหมดแบบสุ่ม
+      final all = await _activityService.fetchPopularActivities(childId);
+      all.shuffle();
+      return all.take(5).toList();
     }
   }
 
@@ -116,7 +211,8 @@ class _HomeScreenState extends State<HomeScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
+            const Icon(Icons.warning_amber_rounded,
+                color: Colors.orange, size: 28),
             const SizedBox(width: 8),
             Text(
               'กรุณาเลือกเด็ก',
@@ -202,7 +298,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close, color: Colors.black87, size: 20),
+                    icon: const Icon(Icons.close,
+                        color: Colors.black87, size: 20),
                     onPressed: () => Navigator.pop(context),
                   ),
                 ],
@@ -212,7 +309,8 @@ class _HomeScreenState extends State<HomeScreen> {
               // Category Filter
               Text(
                 'CATEGORY',
-                style: GoogleFonts.luckiestGuy(fontSize: 14, color: Colors.black54),
+                style: GoogleFonts.luckiestGuy(
+                    fontSize: 14, color: Colors.black54),
               ),
               const SizedBox(height: 8),
               Wrap(
@@ -231,7 +329,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       setModalState(() {}); // Update modal UI
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
                         color: isSelected ? sky : Colors.white,
                         borderRadius: BorderRadius.circular(16),
@@ -258,7 +357,8 @@ class _HomeScreenState extends State<HomeScreen> {
               // Level Filter
               Text(
                 'LEVEL',
-                style: GoogleFonts.luckiestGuy(fontSize: 14, color: Colors.black54),
+                style: GoogleFonts.luckiestGuy(
+                    fontSize: 14, color: Colors.black54),
               ),
               const SizedBox(height: 8),
               Wrap(
@@ -277,12 +377,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       setModalState(() {}); // Update modal UI
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
-                        color: isSelected ? const Color(0xFFFFB74D) : Colors.white,
+                        color:
+                            isSelected ? const Color(0xFFFFB74D) : Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: isSelected ? const Color(0xFFFF9800) : Colors.grey.shade300,
+                          color: isSelected
+                              ? const Color(0xFFFF9800)
+                              : Colors.grey.shade300,
                           width: 2,
                         ),
                       ),
@@ -513,7 +617,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        'POPULAR',
+                        'SUGGESTED',
                         style: GoogleFonts.luckiestGuy(
                           fontSize: 12,
                           color: Colors.white,
@@ -531,8 +635,62 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildPlaceholder(String category) {
+    // ด้านวิเคราะห์ = Math symbols with orange background
+    if (category == 'ด้านวิเคราะห์') {
+      return Container(
+        height: double.infinity,
+        width: double.infinity,
+        color: const Color(0xFFFF9800), // Orange
+        alignment: Alignment.center,
+        child: const Text(
+          '+-×÷',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 48,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 4,
+          ),
+        ),
+      );
+    }
+
+    // ด้านภาษา = ABC with yellow background
+    if (category == 'ด้านภาษา' || category.toUpperCase() == 'LANGUAGE') {
+      return Container(
+        height: double.infinity,
+        width: double.infinity,
+        color: const Color(0xFFFFEB3B), // Yellow
+        alignment: Alignment.center,
+        child: const Text(
+          'ABC',
+          style: TextStyle(
+            color: Colors.black87,
+            fontSize: 48,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 4,
+          ),
+        ),
+      );
+    }
+
+    // ด้านร่างกาย = Running icon with pink background
+    if (category == 'ด้านร่างกาย') {
+      return Container(
+        height: double.infinity,
+        width: double.infinity,
+        color: const Color(0xFFFFAB91), // Pink/Peach
+        alignment: Alignment.center,
+        child: const Icon(
+          Icons.directions_run,
+          color: Colors.white,
+          size: 70,
+        ),
+      );
+    }
+
+    // Default fallback
     return Container(
-      height: 100,
+      height: double.infinity,
       width: double.infinity,
       color: deepSky,
       alignment: Alignment.center,
@@ -540,7 +698,7 @@ class _HomeScreenState extends State<HomeScreen> {
         category.isNotEmpty ? category.substring(0, 1) : '?',
         style: const TextStyle(
           color: Colors.white,
-          fontSize: 40,
+          fontSize: 48,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -572,7 +730,8 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    final parentName = context.watch<UserProvider>().currentParentName;
+    // แสดงชื่อเด็กที่เลือกอยู่แทนชื่อผู้ปกครอง
+    final childName = context.watch<UserProvider>().currentChildName;
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -601,7 +760,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(8),
-                      child: const Icon(Icons.filter_list, color: Colors.black87, size: 24),
+                      child: const Icon(Icons.filter_list,
+                          color: Colors.black87, size: 24),
                     ),
                     // Badge แสดงว่ามี filter active
                     if (_selectedCategory != null || _selectedLevel != null)
@@ -655,10 +815,10 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         const SizedBox(height: 20),
 
-        // Parent Name
-        if (parentName != null && parentName.isNotEmpty)
+        // Child Name (ชื่อเด็กที่เลือกอยู่)
+        if (childName != null && childName.isNotEmpty)
           Text(
-            parentName,
+            childName,
             style: TextStyle(
               fontFamily: GoogleFonts.luckiestGuy().fontFamily,
               fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
@@ -669,7 +829,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         const SizedBox(height: 20),
 
-        // Top Carousel
+        // Top Carousel - แสดงกิจกรรมแนะนำตามหมวดที่เคยเล่น
         Container(
           height: 280,
           decoration: BoxDecoration(
@@ -678,7 +838,7 @@ class _HomeScreenState extends State<HomeScreen> {
             border: Border.all(color: sky, width: 3),
           ),
           child: FutureBuilder<List<Activity>>(
-            future: _popularActivitiesFuture,
+            future: _recommendedActivitiesFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
@@ -701,7 +861,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               }
 
-              final topActivities = snapshot.data!.take(3).toList();
+              // แสดง 5 กิจกรรมแนะนำ
+              final topActivities = snapshot.data!.take(5).toList();
 
               return Stack(
                 children: [
@@ -920,7 +1081,8 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => const CreatePostScreen(),
-                  fullscreenDialog: true, // ตัวนี้แหละครับที่ทำให้เหมือน IG เด้งจากล่างขึ้นบน
+                  fullscreenDialog:
+                      true, // ตัวนี้แหละครับที่ทำให้เหมือน IG เด้งจากล่างขึ้นบน
                 ),
               );
               return;

@@ -249,7 +249,8 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
     }
 
     debugPrint('▶️ Playing section: ${start}s - ${end}s (+0.7s buffer)');
-    final durationMs = ((end - start + 0.7) * 1000).toInt(); // ✅ เพิ่ม 0.7 วินาทีให้เล่นยาวขึ้น
+    final durationMs = ((end - start + 0.7) * 1000)
+        .toInt(); // ✅ เพิ่ม 0.7 วินาทีให้เล่นยาวขึ้น
 
     try {
       await _ytController!.seekTo(seconds: start, allowSeekAhead: true);
@@ -402,7 +403,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('กำลังประมวลผล AI...'),
+              const Text('กำลังประมวลผล...'),
               const SizedBox(height: 10),
               const Center(child: CircularProgressIndicator()),
               const SizedBox(height: 10),
@@ -485,7 +486,8 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
         );
       }
 
-      debugPrint('✅ Recording processed: $score% (recognized: "$recognizedText")');
+      debugPrint(
+          '✅ Recording processed: $score% (recognized: "$recognizedText")');
     } catch (e) {
       if (mounted) Navigator.pop(context); // ปิด loading dialog
       debugPrint('❌ Recording processing error: $e');
@@ -652,7 +654,8 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
 
     if (hasVideo) {
       return yp.YoutubePlayerScaffold(
-        key: ValueKey('yt-$current-$state-$_isPlayerReady'), // 🔑 Force rebuild on state changes
+        key: ValueKey(
+            'yt-$current-$state-$_isPlayerReady'), // 🔑 Force rebuild on state changes
         controller: _ytController!,
         aspectRatio: 16 / 9,
         builder: (context, player) {
@@ -811,7 +814,8 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                           setState(() {
                             current++;
                             // ตรวจสอบ segment ใหม่ว่ามี score หรือยัง
-                            final newSegmentResult = _segmentResults[current - 1];
+                            final newSegmentResult =
+                                _segmentResults[current - 1];
                             state = newSegmentResult.maxScore > 0
                                 ? 'reviewed'
                                 : 'idle';

@@ -226,13 +226,70 @@ class ActivityCard extends StatelessWidget {
   }
 
   Widget _buildPlaceholder() {
+    // กำหนดสีและไอคอนตามประเภทกิจกรรม
+    final category = activity.category;
+
+    // ด้านวิเคราะห์ = Math symbols with orange background
+    if (category == 'ด้านวิเคราะห์') {
+      return Container(
+        height: 100,
+        width: double.infinity,
+        color: const Color(0xFFFF9800), // Orange
+        alignment: Alignment.center,
+        child: const Text(
+          '+-×÷',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 2,
+          ),
+        ),
+      );
+    }
+
+    // ด้านภาษา = ABC with yellow background
+    if (category == 'ด้านภาษา' || category.toUpperCase() == 'LANGUAGE') {
+      return Container(
+        height: 100,
+        width: double.infinity,
+        color: const Color(0xFFFFEB3B), // Yellow
+        alignment: Alignment.center,
+        child: const Text(
+          'ABC',
+          style: TextStyle(
+            color: Colors.black87,
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 2,
+          ),
+        ),
+      );
+    }
+
+    // ด้านร่างกาย = Running icon with pink background
+    if (category == 'ด้านร่างกาย') {
+      return Container(
+        height: 100,
+        width: double.infinity,
+        color: const Color(0xFFFFAB91), // Pink/Peach
+        alignment: Alignment.center,
+        child: const Icon(
+          Icons.directions_run,
+          color: Colors.white,
+          size: 50,
+        ),
+      );
+    }
+
+    // Default fallback
     return Container(
       height: 100,
       width: double.infinity,
       color: deepSky,
       alignment: Alignment.center,
       child: Text(
-        activity.category.isNotEmpty ? activity.category.substring(0, 1) : '?',
+        category.isNotEmpty ? category.substring(0, 1) : '?',
         style: const TextStyle(
           color: Colors.white,
           fontSize: 40,

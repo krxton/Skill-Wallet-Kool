@@ -9,12 +9,14 @@ import 'child_name_setting_screen.dart';
 import 'medals_redemption_screen.dart';
 
 class ManageChildScreen extends StatefulWidget {
+  final String? childId; // ใช้สำหรับดึงข้อมูลเด็กคนนี้โดยเฉพาะ
   final String name;
   final String imageUrl;
   final int score;
 
   const ManageChildScreen({
     super.key,
+    this.childId,
     required this.name,
     required this.imageUrl,
     required this.score,
@@ -293,6 +295,7 @@ class _ManageChildScreenState extends State<ManageChildScreen> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => MedalsRedemptionScreen(
+                                childId: widget.childId,
                                 score: widget.score,
                               ),
                             ),

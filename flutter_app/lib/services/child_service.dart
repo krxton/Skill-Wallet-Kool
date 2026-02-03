@@ -291,7 +291,7 @@ class ChildService {
     return getMedals(parentId);
   }
 
-  /// เพิ่ม medal ใหม่
+  /// เพิ่ม medal ใหม่ (ใช้ RPC function เพื่อ bypass RLS)
   Future<Map<String, dynamic>?> addMedal({
     required String parentId,
     required String name,
@@ -300,28 +300,32 @@ class ChildService {
     try {
       final supabase = Supabase.instance.client;
 
-      // 1. เพิ่มใน medals table
-      final medalResponse = await supabase
-          .from('medals')
-          .insert({
-            'name_medals': name,
-            'point_medals': cost,
-          })
-          .select()
-          .single();
-
-      final medalsId = medalResponse['id'];
-
-      // 2. เชื่อมกับ parent ใน parent_and_medals
-      await supabase.from('parent_and_medals').insert({
-        'parent_id': parentId,
-        'medals_id': medalsId,
+      // ใช้ RPC function ที่มี SECURITY DEFINER เพื่อ bypass RLS
+      final result = await supabase.rpc('create_medal_and_link', params: {
+        'p_name_medals': name,
+        'p_point_medals': cost,
       });
 
-      print('✅ Medal added: $medalResponse');
-      return medalResponse;
+      print('✅ RPC create_medal_and_link result: $result');
+
+      if (result != null && result['id'] != null) {
+        return {
+          'id': result['id'],
+          'name_medals': name,
+          'point_medals': cost,
+        };
+      }
+      return result;
     } catch (e) {
       print('❌ addMedal error: $e');
+
+      // ตรวจสอบประเภท error
+      final errorMsg = e.toString();
+      if (errorMsg.contains('function') && errorMsg.contains('does not exist')) {
+        print('⚠️ RPC function create_medal_and_link does not exist in Supabase.');
+        print('📝 กรุณาสร้าง function นี้ใน Supabase SQL Editor');
+      }
+
       return null;
     }
   }

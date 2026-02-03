@@ -251,7 +251,7 @@ class _RecordScreenState extends State<RecordScreen> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('กำลังประมวลผล AI...'),
+              Text('กำลังประมวลผล...'),
               SizedBox(height: 10),
               Center(child: CircularProgressIndicator()),
             ],

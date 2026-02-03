@@ -431,52 +431,51 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // 1. ปุ่ม START / ADD PHOTO
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _isSubmitting
-                        ? null
-                        : (_isPlaying ? _handleFinish : _handleStart),
-                    icon: Icon(_isPlaying ? Icons.stop : Icons.play_arrow),
-                    label: Text(_isPlaying ? 'STOP' : 'START',
-                        style: GoogleFonts.luckiestGuy(fontSize: 20)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _isPlaying ? finishPink : startGreen,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
+            // 1. TIME DISPLAY (ย้ายมาไว้บนสุด)
+            Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Text(
+                  '$mm:$ss',
+                  style: GoogleFonts.luckiestGuy(
+                    fontSize: 28,
+                    color: const Color(0xFF0D92F4),
                   ),
                 ),
-                const SizedBox(width: 10),
-                // ปุ่ม ADD PHOTO
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _isSubmitting
-                        ? null
-                        : () => _handleMediaSelection(isVideo: false),
-                    icon: const Icon(Icons.add_a_photo),
-                    label: Text('TAKE PHOTO',
-                        style: GoogleFonts.luckiestGuy(fontSize: 16)),
-                    style: ElevatedButton.styleFrom(
-                      // ignore: deprecated_member_use
-                      backgroundColor: deepGrey.withOpacity(0.1),
-                      foregroundColor: deepGrey,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
 
             const SizedBox(height: 20),
 
-            // 2. PLAYER / GAME RESULTS HEADER
+            // 2. START/STOP BUTTON
             Center(
-                child: Text('',
-                    style: GoogleFonts.luckiestGuy(
-                        fontSize: 32, color: deepGrey))),
+              child: ElevatedButton.icon(
+                onPressed: _isSubmitting
+                    ? null
+                    : (_isPlaying ? _handleFinish : _handleStart),
+                icon: Icon(
+                  _isPlaying ? Icons.stop : Icons.play_arrow,
+                  color: Colors.white,
+                ),
+                label: Text(
+                  _isPlaying ? 'STOP' : 'START',
+                  style: GoogleFonts.luckiestGuy(fontSize: 20, color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _isPlaying ? finishPink : startGreen,
+                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
 
             // 3. SCORE CONTROL
             Text('MEDALS / SCORE',
@@ -544,27 +543,9 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
                     path: _videoPath, icon: Icons.videocam),
               ),
             ),
-            const SizedBox(height: 20),
-
-            // 7. TIME DISPLAY
-            Text('TIME',
-                style:
-                    GoogleFonts.luckiestGuy(fontSize: 18, color: finishPink)),
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              decoration: BoxDecoration(
-                  color: Colors.white, borderRadius: BorderRadius.circular(10)),
-              child: Center(
-                child: Text('$mm:$ss',
-                    style: GoogleFonts.openSans(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: const Color(0xFF0D92F4))),
-              ),
-            ),
             const SizedBox(height: 40),
 
-            // 8. FINISH BUTTON (Submit)
+            // 7. FINISH BUTTON (Submit)
             SizedBox(
               height: 55,
               child: ElevatedButton(

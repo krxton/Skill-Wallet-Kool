@@ -16,6 +16,38 @@ class UserProvider extends ChangeNotifier {
   String? get currentParentId => _currentParentId;
   List<Map<String, dynamic>> get children => _children;
 
+  /// ดึงชื่อเด็กที่เลือกอยู่
+  String? get currentChildName {
+    if (_currentChildId == null || _children.isEmpty) return null;
+    try {
+      final childData = _children.firstWhere(
+        (c) => c['child']?['child_id'] == _currentChildId,
+        orElse: () => {},
+      );
+      return childData['child']?['name_surname'] as String?;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// ดึง wallet ของเด็กที่เลือกอยู่
+  int get currentChildWallet {
+    if (_currentChildId == null || _children.isEmpty) return 0;
+    try {
+      final childData = _children.firstWhere(
+        (c) => c['child']?['child_id'] == _currentChildId,
+        orElse: () => {},
+      );
+      final wallet = childData['child']?['wallet'];
+      if (wallet is int) return wallet;
+      if (wallet is double) return wallet.toInt();
+      if (wallet != null) return int.tryParse(wallet.toString()) ?? 0;
+      return 0;
+    } catch (e) {
+      return 0;
+    }
+  }
+
   void setChildId(String id) {
     _currentChildId = id;
     notifyListeners();
@@ -91,14 +123,20 @@ class UserProvider extends ChangeNotifier {
           if (childrenResponse.isNotEmpty) {
             _children = List<Map<String, dynamic>>.from(childrenResponse);
 
-            // ตั้งค่า currentChildId เป็นเด็กคนแรก (หรือจะให้ user เลือกก็ได้)
-            if (_children.isNotEmpty && _children[0]['child'] != null) {
+            // ตั้งค่า currentChildId เฉพาะเมื่อยังไม่ได้เลือก หรือเลือกไว้แล้วแต่ไม่มีในรายการ
+            final currentStillExists = _currentChildId != null &&
+                _children.any((c) => c['child']?['child_id'] == _currentChildId);
+
+            if (!currentStillExists && _children.isNotEmpty && _children[0]['child'] != null) {
               _currentChildId = _children[0]['child']['child_id'];
-              debugPrint('✅ Child ID set to: $_currentChildId');
+              debugPrint('✅ Child ID set to first child: $_currentChildId');
+            } else if (currentStillExists) {
+              debugPrint('✅ Keeping current selected child: $_currentChildId');
             }
 
             notifyListeners();
           } else {
+            _children = [];
             debugPrint('⚠️ No children found for parent: $parentId');
           }
         }

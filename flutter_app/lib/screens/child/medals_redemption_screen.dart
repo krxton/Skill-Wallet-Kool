@@ -15,10 +15,12 @@ class Palette {
 }
 
 class MedalsRedemptionScreen extends StatefulWidget {
+  final String? childId; // ใช้สำหรับดึงข้อมูลเด็กคนนี้โดยเฉพาะ
   final int score;
 
   const MedalsRedemptionScreen({
     super.key,
+    this.childId,
     required this.score,
   });
 
@@ -54,7 +56,8 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
 
     final userProvider = context.read<UserProvider>();
     final parentId = userProvider.currentParentId;
-    final childId = userProvider.currentChildId;
+    // ใช้ childId ที่ส่งมา หรือถ้าไม่มีให้ใช้ currentChildId จาก Provider
+    final childId = widget.childId ?? userProvider.currentChildId;
 
     if (parentId != null && childId != null) {
       try {
