@@ -226,6 +226,104 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
     debugPrint('❌ Question ${index + 1} marked as incorrect');
   }
 
+  void _showAnswerHint(int index) {
+    final segment = _segments[index];
+    final answer = segment['answer']?.toString() ?? 'ไม่มีเฉลย';
+    final question = segment['question']?.toString() ??
+        segment['text']?.toString() ??
+        'คำถามข้อ ${index + 1}';
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: cream,
+        title: Row(
+          children: [
+            const Icon(Icons.lightbulb, color: Colors.amber, size: 28),
+            const SizedBox(width: 10),
+            Text(
+              'เฉลยข้อ ${index + 1}',
+              style: GoogleFonts.itim(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: sky,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'คำถาม:',
+              style: GoogleFonts.itim(
+                fontSize: 14,
+                color: Colors.grey.shade600,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              question,
+              style: GoogleFonts.itim(
+                fontSize: 16,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: greenBtn.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: greenBtn, width: 2),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.check_circle, color: greenBtn, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        'คำตอบ:',
+                        style: GoogleFonts.itim(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: greenBtn,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    answer,
+                    style: GoogleFonts.itim(
+                      fontSize: 16,
+                      color: Colors.black87,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'ปิด',
+              style: GoogleFonts.itim(fontSize: 16, color: sky),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Future<void> _handleSubmit() async {
     final String? childId = context.read<UserProvider>().currentChildId;
 
@@ -407,12 +505,43 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            '${index + 1}. $question',
-                            style: GoogleFonts.luckiestGuy(
-                              fontSize: 18,
-                              color: Colors.white,
-                            ),
+                          // Question text with hint button
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  '${index + 1}. $question',
+                                  style: GoogleFonts.luckiestGuy(
+                                    fontSize: 18,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              // Hint button
+                              GestureDetector(
+                                onTap: () => _showAnswerHint(index),
+                                child: Container(
+                                  padding: const EdgeInsets.all(6),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.9),
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(alpha: 0.15),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: const Icon(
+                                    Icons.lightbulb_outline,
+                                    color: Colors.amber,
+                                    size: 20,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                           const SizedBox(height: 10),
                           Row(
