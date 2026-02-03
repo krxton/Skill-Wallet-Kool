@@ -1,90 +1,110 @@
 # scripts/whisper_eval.py
-
 import sys
 import json
 import whisper
+import subprocess
+import tempfile
 import os
 import re
 
-# การตั้งค่า Encoding สำหรับ stdout (สำคัญมากสำหรับ Windows/UTF-8)
+# Fix UTF-8
 try:
     sys.stdout.reconfigure(encoding='utf-8')
     sys.stderr.reconfigure(encoding='utf-8')
-except AttributeError:
+except:
     pass
 
 if len(sys.argv) < 3:
-    print(json.dumps({"error": "Usage: python whisper_eval.py <audio_path> <expected_text>"}))
+    print(json.dumps({"error": "Usage: python whisper_eval.py <audio_path> <expected_text_path>"}))
     sys.exit(1)
 
 audio_path = sys.argv[1]
-expected_text = sys.argv[2]
+expected_text_path = sys.argv[2]
 
-# ----------------------------------------------------------------
-# Utility: Clean Text (ลบเครื่องหมายวรรคตอน)
-# ----------------------------------------------------------------
+# ---------------------------
+# Utils
+# ---------------------------
 def clean_text(text):
     text = text.lower()
-    text = re.sub(r'[^\w\s]', '', text)  # ลบเครื่องหมายวรรคตอน
+    text = re.sub(r'[^\w\s]', '', text)
     return text.strip()
 
+# ---------------------------
+# Load expected text safely
+# ---------------------------
+with open(expected_text_path, "r", encoding="utf-8") as f:
+    expected_text = f.read()
+
+# ---------------------------
+# Normalize audio (🔥 สำคัญ)
+# ---------------------------
+normalized_audio = tempfile.NamedTemporaryFile(
+    suffix=".wav",
+    delete=False
+)
+
 try:
-    # โหลดโมเดล Whisper 
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-y",
+            "-i", audio_path,
+            "-ac", "1",
+            "-ar", "16000",
+            normalized_audio.name
+        ],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=True
+    )
+except Exception as e:
+    print(json.dumps({"error": f"FFmpeg error: {str(e)}"}))
+    sys.exit(1)
+
+# ---------------------------
+# Whisper
+# ---------------------------
+try:
     model = whisper.load_model("base")
 
-    # ถอดเสียง
-    # 🆕 เพิ่ม initial_prompt เพื่อช่วยให้ AI รู้ว่าต้องพูดภาษาอังกฤษ
     result = model.transcribe(
-        audio_path,
+        normalized_audio.name,
         language="en",
-        initial_prompt="This is an English sentence."
+        fp16=False
     )
-    recognized_text_raw = result["text"]
 
-    # ทำความสะอาดข้อความ
+    recognized_text_raw = result["text"]
     recognized_text = clean_text(recognized_text_raw)
     cleaned_expected = clean_text(expected_text)
 
-    # ----------------------------------------------------------------
-    # คำนวณความถูกต้อง (Fixed Matching Logic)
-    # ----------------------------------------------------------------
     expected_words = cleaned_expected.split()
     recognized_words = recognized_text.split()
 
-    # 🆕 1. สร้าง Frequency Map ของคำที่คาดหวัง
-    expected_word_counts = {}
-    for word in expected_words:
-        expected_word_counts[word] = expected_word_counts.get(word, 0) + 1
+    expected_counts = {}
+    for w in expected_words:
+        expected_counts[w] = expected_counts.get(w, 0) + 1
 
     match_count = 0
-
-    # 🆕 2. นับคำที่ตรงกันอย่างแม่นยำและป้องกันการนับซ้ำซ้อน
-    for rec_word in recognized_words:
-        if rec_word in expected_word_counts and expected_word_counts[rec_word] > 0:
+    for w in recognized_words:
+        if w in expected_counts and expected_counts[w] > 0:
             match_count += 1
-            expected_word_counts[rec_word] -= 1  # ลดจำนวนนับเมื่อจับคู่แล้ว
+            expected_counts[w] -= 1
 
-    # 3. คำนวณ Accuracy
-    if len(expected_words) == 0:
-        accuracy = 100
-    else:
-        # คำนวณ: (จำนวนคำที่ตรงกัน) / (จำนวนคำที่คาดหวัง) * 100
-        accuracy = int(match_count / len(expected_words) * 100)
-        accuracy = min(accuracy, 100)
+    accuracy = 100 if not expected_words else min(
+        int(match_count / len(expected_words) * 100),
+        100
+    )
 
-    # 🆕 Debug Log
-    print(f"DEBUG: Expected Text: {expected_text}", file=sys.stderr)
-    print(f"DEBUG: Clean Rec Text: {recognized_text}", file=sys.stderr)
-    print(f"DEBUG: Match Count: {match_count} / {len(expected_words)}", file=sys.stderr)
-
-    # ส่งออก JSON
-    output_json = {
+    print(json.dumps({
         "text": recognized_text_raw,
         "score": accuracy
-    }
-
-    print(json.dumps(output_json, ensure_ascii=False))
+    }, ensure_ascii=False))
 
 except Exception as e:
-    print(json.dumps({"error": f"Python AI Runtime Error: {str(e)}", "path": audio_path}), file=sys.stderr)
+    print(json.dumps({"error": f"Whisper error: {str(e)}"}))
     sys.exit(1)
+
+finally:
+    if os.path.exists(normalized_audio.name):
+        normalized_audio.close()
+        os.unlink(normalized_audio.name)

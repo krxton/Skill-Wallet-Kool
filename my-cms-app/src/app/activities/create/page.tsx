@@ -11,7 +11,7 @@ import AnalyticalActivityForm from './components/AnalyticalActivityForm';
 const ACTIVITY_TYPES = [
     { value: 'ด้านภาษา', label: '1. ด้านภาษา' },
     { value: 'ด้านร่างกาย', label: '2. ด้านร่างกาย' },
-    { value: 'ด้านคิดวิเคราะห์', label: '3. ด้านคิดวิเคราะห์' },
+    { value: 'ด้านวิเคราะห์', label: '3. ด้านวิเคราะห์' },
 ];
 
 // Utility: ดึง Video ID จาก URL (รองรับ YouTube และ TikTok)
@@ -65,7 +65,7 @@ export default function CreateActivityPage() {
                         extractVideoId={extractVideoId}
                     />
                 );
-            case 'ด้านคิดวิเคราะห์':
+            case 'ด้านวิเคราะห์':
                 return (
                     <AnalyticalActivityForm initialCategory={selectedType} />
                 );
@@ -100,7 +100,7 @@ export default function CreateActivityPage() {
                                         'วิดีโอ YouTube, Subtitle, การฝึกอ่านออกเสียง'}
                                     {type.value === 'ด้านร่างกาย' &&
                                         'ภาพถ่าย, วิดีโอสั้น, การฝึกทักษะการเคลื่อนไหว'}
-                                    {type.value === 'ด้านคิดวิเคราะห์' &&
+                                    {type.value === 'ด้านวิเคราะห์' &&
                                         'ปริศนา, โจทย์คณิตศาสตร์, เกมตรรกะ'}
                                 </p>
                             </button>

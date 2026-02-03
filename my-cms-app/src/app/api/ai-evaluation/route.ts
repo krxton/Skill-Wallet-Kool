@@ -235,13 +235,25 @@ export async function POST(request: NextRequest) {
         fs.writeFileSync(tmpFilePath, buffer);
 
         // 2. 🟢 รัน Python script (WHISPER EVAL)
-        const pythonScriptPath = path.join(process.cwd(), "scripts", "whisper_eval.py"); 
+        const pythonScriptPath = path.join(process.cwd(), "scripts", "whisper_eval.py");
         const pythonCmd = process.platform === "win32" ? "python" : "python3";
-        
-        const result = spawnSync(pythonCmd, [pythonScriptPath, tmpFilePath, originalText], {
+
+        // 2.1 🟢 เขียน expected text ลงไฟล์ชั่วคราว (แก้ปัญหา argv แตก)
+        const textPath = path.join(os.tmpdir(), `expected_${fileId}.txt`);
+        fs.writeFileSync(textPath, originalText, "utf-8");
+
+        // 2.2 🟢 รัน Python script
+        const result = spawnSync(
+        pythonCmd,
+        [pythonScriptPath, tmpFilePath, textPath],
+        {
             encoding: "utf-8",
-            env: { ...process.env, PYTHONIOENCODING: 'utf-8' } 
-        });
+            env: { ...process.env, PYTHONIOENCODING: "utf-8" },
+        }
+        );
+
+        // 2.3 🟢 ลบไฟล์ข้อความชั่วคราว
+        fs.unlinkSync(textPath);
 
         // 3. ลบไฟล์ชั่วคราวทันทีหลังการใช้งาน
         fs.unlinkSync(tmpFilePath);

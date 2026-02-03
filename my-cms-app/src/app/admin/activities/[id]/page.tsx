@@ -1,9 +1,10 @@
 // app/admin/activities/[id]/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Edit2, Save, X, Video, FileText, BarChart3, Users, Calendar, Award } from 'lucide-react';
+import { ArrowLeft, Edit2, Save, X, Video, FileText, BarChart3, Users, Calendar, Award, Undo2, Redo2, Merge, Trash2, Plus, Lightbulb } from 'lucide-react';
+import cuid from 'cuid';
 
 interface ActivityRecord {
   id: string;
@@ -12,6 +13,25 @@ interface ActivityRecord {
   dateCompleted: string;
   status: string;
 }
+
+// Segment สำหรับ Language
+interface LanguageSegment {
+  id: string;
+  start: number;
+  end: number;
+  text: string;
+}
+
+// Segment สำหรับ Analysis
+interface AnalysisSegment {
+  id: string;
+  question: string;
+  answer: string;
+  solution: string;
+  score: number;
+}
+
+type SegmentType = LanguageSegment[] | AnalysisSegment[];
 
 interface ActivityDetail {
   activityId: string;
@@ -38,6 +58,17 @@ export default function ActivityDetailPage() {
   const [editForm, setEditForm] = useState<Partial<ActivityDetail>>({});
   const [saving, setSaving] = useState(false);
 
+  // Segment state สำหรับ Language
+  const [languageSegments, setLanguageSegments] = useState<LanguageSegment[]>([]);
+  const [selectedSegmentIndices, setSelectedSegmentIndices] = useState<number[]>([]);
+  const [languageHistory, setLanguageHistory] = useState<LanguageSegment[][]>([]);
+  const [languageHistoryIndex, setLanguageHistoryIndex] = useState(-1);
+
+  // Segment state สำหรับ Analysis
+  const [analysisSegments, setAnalysisSegments] = useState<AnalysisSegment[]>([]);
+  const [analysisHistory, setAnalysisHistory] = useState<AnalysisSegment[][]>([]);
+  const [analysisHistoryIndex, setAnalysisHistoryIndex] = useState(-1);
+
   useEffect(() => {
     if (params.id) {
       fetchActivityDetail();
@@ -51,6 +82,23 @@ export default function ActivityDetailPage() {
         const data = await res.json();
         setActivity(data);
         setEditForm(data);
+
+        // Initialize segments based on category
+        if (data.segments) {
+          const parsedSegments = typeof data.segments === 'string'
+            ? JSON.parse(data.segments)
+            : data.segments;
+
+          if (data.category === 'ด้านภาษา') {
+            setLanguageSegments(parsedSegments || []);
+            setLanguageHistory([parsedSegments || []]);
+            setLanguageHistoryIndex(0);
+          } else if (data.category === 'ด้านวิเคราะห์') {
+            setAnalysisSegments(parsedSegments || []);
+            setAnalysisHistory([parsedSegments || []]);
+            setAnalysisHistoryIndex(0);
+          }
+        }
       } else {
         console.error('Activity not found');
       }
@@ -59,6 +107,172 @@ export default function ActivityDetailPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // ==================== Language Segment Functions ====================
+  const saveLanguageSnapshot = (newSegments: LanguageSegment[]) => {
+    setLanguageHistory(prev => {
+      const newHistory = prev.slice(0, languageHistoryIndex + 1);
+      newHistory.push(newSegments);
+      if (newHistory.length > 50) newHistory.shift();
+      return newHistory;
+    });
+    setLanguageHistoryIndex(prev => Math.min(prev + 1, 49));
+  };
+
+  const handleLanguageUndo = () => {
+    if (languageHistoryIndex > 0) {
+      const newIndex = languageHistoryIndex - 1;
+      setLanguageHistoryIndex(newIndex);
+      setLanguageSegments(languageHistory[newIndex]);
+      setSelectedSegmentIndices([]);
+    }
+  };
+
+  const handleLanguageRedo = () => {
+    if (languageHistoryIndex < languageHistory.length - 1) {
+      const newIndex = languageHistoryIndex + 1;
+      setLanguageHistoryIndex(newIndex);
+      setLanguageSegments(languageHistory[newIndex]);
+      setSelectedSegmentIndices([]);
+    }
+  };
+
+  const handleLanguageSegmentChange = (index: number, field: 'start' | 'end' | 'text', value: string | number) => {
+    const newSegments = languageSegments.map((seg, i) => {
+      if (i === index) {
+        if (field === 'start' || field === 'end') {
+          return { ...seg, [field]: parseFloat(value as string) || 0 };
+        }
+        return { ...seg, [field]: value as string };
+      }
+      return seg;
+    });
+    setLanguageSegments(newSegments);
+    saveLanguageSnapshot(newSegments);
+  };
+
+  const handleSelectSegment = (index: number, isSelected: boolean) => {
+    setSelectedSegmentIndices(prev => {
+      if (isSelected) {
+        return [...prev, index].sort((a, b) => a - b);
+      }
+      return prev.filter(i => i !== index);
+    });
+  };
+
+  const handleMergeSegments = () => {
+    if (selectedSegmentIndices.length < 2) {
+      alert('กรุณาเลือกอย่างน้อย 2 ประโยคเพื่อรวม');
+      return;
+    }
+
+    const sortedIndices = selectedSegmentIndices;
+    const segmentsToMerge = sortedIndices.map(i => languageSegments[i]);
+
+    const mergedText = segmentsToMerge.map(s => s.text).join(' ');
+    const earliestStart = segmentsToMerge[0].start;
+    const latestEnd = segmentsToMerge[segmentsToMerge.length - 1].end;
+
+    const newSegment: LanguageSegment = {
+      id: cuid(),
+      start: earliestStart,
+      end: latestEnd,
+      text: mergedText,
+    };
+
+    const newSegments: LanguageSegment[] = [];
+    const firstIndex = sortedIndices[0];
+
+    languageSegments.forEach((seg, index) => {
+      if (index === firstIndex) {
+        newSegments.push(newSegment);
+      } else if (!sortedIndices.includes(index)) {
+        newSegments.push(seg);
+      }
+    });
+
+    setLanguageSegments(newSegments);
+    setSelectedSegmentIndices([]);
+    saveLanguageSnapshot(newSegments);
+  };
+
+  const handleDeleteLanguageSegment = (index: number) => {
+    const newSegments = languageSegments.filter((_, i) => i !== index);
+    setLanguageSegments(newSegments);
+    saveLanguageSnapshot(newSegments);
+  };
+
+  // ==================== Analysis Segment Functions ====================
+  const saveAnalysisSnapshot = (newSegments: AnalysisSegment[]) => {
+    setAnalysisHistory(prev => {
+      const newHistory = prev.slice(0, analysisHistoryIndex + 1);
+      newHistory.push(newSegments);
+      if (newHistory.length > 50) newHistory.shift();
+      return newHistory;
+    });
+    setAnalysisHistoryIndex(prev => Math.min(prev + 1, 49));
+  };
+
+  const handleAnalysisUndo = () => {
+    if (analysisHistoryIndex > 0) {
+      const newIndex = analysisHistoryIndex - 1;
+      setAnalysisHistoryIndex(newIndex);
+      setAnalysisSegments(analysisHistory[newIndex]);
+    }
+  };
+
+  const handleAnalysisRedo = () => {
+    if (analysisHistoryIndex < analysisHistory.length - 1) {
+      const newIndex = analysisHistoryIndex + 1;
+      setAnalysisHistoryIndex(newIndex);
+      setAnalysisSegments(analysisHistory[newIndex]);
+    }
+  };
+
+  const handleAnalysisSegmentChange = (index: number, field: keyof AnalysisSegment, value: string | number) => {
+    const newSegments = analysisSegments.map((seg, i) => {
+      if (i === index) {
+        if (field === 'score') {
+          return { ...seg, score: parseInt(value as string) || 0 };
+        }
+        return { ...seg, [field]: value as string };
+      }
+      return seg;
+    });
+    setAnalysisSegments(newSegments);
+    saveAnalysisSnapshot(newSegments);
+
+    // Update maxScore
+    const totalScore = newSegments.reduce((sum, q) => sum + q.score, 0);
+    setEditForm(prev => ({ ...prev, maxScore: totalScore }));
+  };
+
+  const handleAddAnalysisSegment = () => {
+    const newSegment: AnalysisSegment = {
+      id: cuid(),
+      question: '',
+      answer: '',
+      solution: '',
+      score: 10,
+    };
+    const newSegments = [...analysisSegments, newSegment];
+    setAnalysisSegments(newSegments);
+    saveAnalysisSnapshot(newSegments);
+
+    // Update maxScore
+    const totalScore = newSegments.reduce((sum, q) => sum + q.score, 0);
+    setEditForm(prev => ({ ...prev, maxScore: totalScore }));
+  };
+
+  const handleDeleteAnalysisSegment = (index: number) => {
+    const newSegments = analysisSegments.filter((_, i) => i !== index);
+    setAnalysisSegments(newSegments);
+    saveAnalysisSnapshot(newSegments);
+
+    // Update maxScore
+    const totalScore = newSegments.reduce((sum, q) => sum + q.score, 0);
+    setEditForm(prev => ({ ...prev, maxScore: totalScore }));
   };
 
   const handleEdit = () => {
@@ -73,6 +287,18 @@ export default function ActivityDetailPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
+      // เตรียม segments ตาม category
+      let segmentsToSave = null;
+      let maxScoreToSave = editForm.maxScore;
+
+      if (activity?.category === 'ด้านภาษา') {
+        segmentsToSave = languageSegments;
+      } else if (activity?.category === 'ด้านวิเคราะห์') {
+        segmentsToSave = analysisSegments;
+        // คำนวณ maxScore จาก segments
+        maxScoreToSave = analysisSegments.reduce((sum, q) => sum + q.score, 0);
+      }
+
       const res = await fetch(`/api/activities/${params.id}`, {
         method: 'PATCH',
         headers: {
@@ -83,9 +309,10 @@ export default function ActivityDetailPage() {
           category: editForm.category,
           description: editForm.descriptionActivity,
           difficulty: editForm.difficulty,
-          maxScore: editForm.maxScore,
+          maxScore: maxScoreToSave,
           videoUrl: editForm.videoUrl,
           content: editForm.content,
+          segments: segmentsToSave,
         }),
       });
 
