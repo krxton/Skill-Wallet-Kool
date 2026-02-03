@@ -604,7 +604,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.orange,
+                    color: const Color.fromARGB(255, 26, 170, 136),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
@@ -741,7 +741,7 @@ class _HomeScreenState extends State<HomeScreen> {
           height: 56,
           padding: const EdgeInsets.symmetric(horizontal: 10),
           decoration: BoxDecoration(
-            color: const Color(0xFFF6D9DC),
+            color: const Color.fromARGB(255, 195, 234, 255),
             borderRadius: BorderRadius.circular(28),
             boxShadow: [
               BoxShadow(
