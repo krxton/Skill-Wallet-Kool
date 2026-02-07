@@ -26,8 +26,6 @@ class VideoDetailScreen extends StatelessWidget {
     final String htmlContent = activity.tiktokHtmlContent ?? '';
     final String videoUrl = activity.videoUrl ?? '';
     final String name = activity.name;
-    final String description =
-        activity.description ?? 'No description provided.';
     final String content = activity.content;
 
     // 🐛 Debug: ตรวจสอบว่ามี content หรือไม่
@@ -80,17 +78,68 @@ class VideoDetailScreen extends StatelessWidget {
                             disableVerticalScroll: true,
                             disableHorizontalScroll: true,
                             transparentBackground: false,
+
+                            // iOS specific settings
+                            allowsBackForwardNavigationGestures: false,
+                            allowsLinkPreview: false,
+                            isFraudulentWebsiteWarningEnabled: false,
+
+                            // Allow mixed content (HTTP in HTTPS)
+                            mixedContentMode:
+                                MixedContentMode.MIXED_CONTENT_ALWAYS_ALLOW,
+
+                            // User agent to help with embed compatibility
+                            userAgent:
+                                'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148',
                           ),
                           shouldOverrideUrlLoading:
                               (controller, navigationAction) async {
                             final url = navigationAction.request.url.toString();
+                            final isMainFrame = navigationAction.isForMainFrame;
 
-                            if (url.contains('tiktok.com')) {
-                              debugPrint('🚫 Blocked TikTok redirect: $url');
+                            // อนุญาตเฉพาะ resources ที่จำเป็นสำหรับ embed
+                            final allowedPatterns = [
+                              'about:blank',
+                              'embed.js',
+                              'embed.tiktok.com',
+                              'lf16-tiktok',
+                              'musical.ly',
+                              'byteoversea',
+                              'byteimg',
+                              'ibytedtos',
+                            ];
+
+                            for (final pattern in allowedPatterns) {
+                              if (url.contains(pattern)) {
+                                debugPrint('✅ Allowed: $url');
+                                return NavigationActionPolicy.ALLOW;
+                              }
+                            }
+
+                            // Block ทุก navigation ใน main frame (ป้องกันเด้งออก)
+                            if (isMainFrame &&
+                                !url.startsWith('data:') &&
+                                !url.startsWith('about:')) {
+                              debugPrint('🚫 Blocked main frame: $url');
+                              return NavigationActionPolicy.CANCEL;
+                            }
+
+                            // Block tiktok URLs โดยตรง
+                            if (url.contains('tiktok.com/@') ||
+                                url.contains('tiktok.com/video') ||
+                                url.contains('vm.tiktok.com') ||
+                                url.contains('tiktok.com/music')) {
+                              debugPrint('🚫 Blocked TikTok URL: $url');
                               return NavigationActionPolicy.CANCEL;
                             }
 
                             return NavigationActionPolicy.ALLOW;
+                          },
+                          onCreateWindow:
+                              (controller, createWindowAction) async {
+                            // Block popup windows
+                            debugPrint('🚫 Blocked popup window');
+                            return false;
                           },
                           onConsoleMessage: (controller, consoleMessage) {
                             debugPrint(
@@ -149,24 +198,6 @@ class VideoDetailScreen extends StatelessWidget {
                   color: Colors.black,
                 ),
                 textAlign: TextAlign.center,
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'DESCRIPTION:',
-              style: GoogleFonts.luckiestGuy(fontSize: 18, color: sky),
-            ),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: sky, width: 1),
-              ),
-              child: Text(
-                description,
-                style: GoogleFonts.openSans(fontSize: 15, color: Colors.black),
               ),
             ),
             const SizedBox(height: 20),
@@ -326,73 +357,165 @@ String buildResponsiveTikTokHtml(String rawHtml) {
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <style>
-  html, body {
+  * {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
+  }
+
+  html, body {
     background: black;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  /* Main container */
+  .video-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: black;
+  }
+
+  /* TikTok content - scale up and shift to crop bottom UI elements */
+  .tiktok-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    /* -42% = เลื่อนวิดีโอลงเพื่อตัดส่วนล่างมากขึ้น, scale 1.3 = ขยายเพื่อตัดขอบมากขึ้น */
+    transform: translate(-50%, -42%) scale(1.25);
     width: 100%;
     height: 100%;
   }
 
-  body {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  blockquote.tiktok-embed {
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    width: 100% !important;
+    height: 100% !important;
+    border: none !important;
+    background: black !important;
   }
 
-  blockquote {
-    margin: 0 !important;
-    max-width: 100% !important;
+  blockquote.tiktok-embed section {
+    display: none !important;
   }
 
   iframe {
     width: 100% !important;
-    aspect-ratio: 9 / 16;
+    height: 100% !important;
     border: none !important;
+    display: block !important;
   }
 
   a, aside {
     display: none !important;
   }
+
+  /* ===== BLOCKERS ===== */
+
+  /* ด้านบน - บังชื่อผู้ใช้/โปรไฟล์ */
+  .top-blocker {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40%;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, transparent 100%);
+    z-index: 100;
+    pointer-events: auto;
+  }
+
+  /* ด้านขวา - บังปุ่ม like/comment/share */
+  .right-blocker {
+    position: absolute;
+    top: 10%;
+    right: 0;
+    width: 20%;
+    height: 75%;
+    z-index: 100;
+    pointer-events: auto;
+  }
+
+  /* ด้านล่าง - บัง description แต่เว้นมุมซ้ายสุดสำหรับปุ่ม replay */
+  .bottom-center-blocker {
+    position: absolute;
+    bottom: 0;
+    left: 100%;
+    right: 0;
+    height: 30%;
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 60%, transparent 100%);
+    z-index: 100;
+    pointer-events: auto;
+  }
+
+  /* มุมซ้ายล่าง - เว้นช่องสำหรับปุ่ม replay (pointer-events: none = กดทะลุได้) */
+  .replay-area {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 15%;
+    height: 25%;
+    z-index: 99;
+    pointer-events: none;
+  }
 </style>
 
 <script>
-  let hooked = false;
+  // Block ทุก link click
+  document.addEventListener('click', function(e) {
+    const target = e.target;
+    if (target.tagName === 'A' || target.closest('a')) {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
+  }, true);
 
-  function forceLoop() {
-    const video = document.querySelector("video");
-    if (!video || hooked) return;
+  // Block touch events บน links
+  document.addEventListener('touchstart', function(e) {
+    const target = e.target;
+    if (target.tagName === 'A' || target.closest('a')) {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    }
+  }, true);
 
-    hooked = true;
-    video.loop = false;
-    video.autoplay = true;
-    video.controls = true;
-
-    video.addEventListener('ended', () => {
-      video.pause();
-      video.currentTime = 0;
-
-      setTimeout(() => {
-        video.play();
-      }, 200);
-    });
+  // ปรับ iframe เมื่อโหลดเสร็จ
+  function adjustEmbed() {
+    const iframe = document.querySelector('iframe');
+    if (iframe) {
+      iframe.style.cssText = 'width:100%!important;height:100%!important;border:none!important;';
+    }
+    // ซ่อน sections
+    document.querySelectorAll('section').forEach(s => s.style.display = 'none');
   }
 
-  const observer = new MutationObserver(() => {
-    forceLoop();
-  });
+  const observer = new MutationObserver(adjustEmbed);
+  observer.observe(document.body, { childList: true, subtree: true });
 
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true,
-  });
+  setInterval(adjustEmbed, 300);
 </script>
 </head>
 
 <body>
+<div class="video-container">
+  <div class="tiktok-content">
 $rawHtml
+  </div>
+  <!-- Blockers -->
+  <div class="top-blocker"></div>
+  <div class="right-blocker"></div>
+  <div class="bottom-center-blocker"></div>
+  <div class="replay-area"></div>
+</div>
 </body>
 </html>
 ''';

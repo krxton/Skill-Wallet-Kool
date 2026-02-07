@@ -600,6 +600,237 @@ export default function ActivityDetailPage() {
         )}
       </div>
 
+      {/* Language Segments Editor */}
+      {activity?.category === 'ด้านภาษา' && isEditing && (
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="heading-h5">ประโยค (Segments)</h3>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleLanguageUndo}
+                disabled={languageHistoryIndex <= 0}
+                className="p-2 rounded-lg border border-gray6 hover:bg-gray--light1 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Undo"
+              >
+                <Undo2 size={18} />
+              </button>
+              <button
+                type="button"
+                onClick={handleLanguageRedo}
+                disabled={languageHistoryIndex >= languageHistory.length - 1}
+                className="p-2 rounded-lg border border-gray6 hover:bg-gray--light1 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Redo"
+              >
+                <Redo2 size={18} />
+              </button>
+              <button
+                type="button"
+                onClick={handleMergeSegments}
+                disabled={selectedSegmentIndices.length < 2}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-purple text-white hover:bg-purple--dark disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Merge size={18} />
+                Merge ({selectedSegmentIndices.length})
+              </button>
+            </div>
+          </div>
+
+          {languageSegments.length === 0 ? (
+            <div className="text-center py-8 text-secondary--text body-medium-regular">
+              ไม่มีประโยค
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {languageSegments.map((segment, index) => (
+                <div
+                  key={segment.id}
+                  className={`flex items-start gap-3 p-4 rounded-lg border ${
+                    selectedSegmentIndices.includes(index)
+                      ? 'border-purple bg-purple--light5'
+                      : 'border-gray6 bg-gray--light1'
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedSegmentIndices.includes(index)}
+                    onChange={(e) => handleSelectSegment(index, e.target.checked)}
+                    className="mt-2 w-5 h-5 rounded border-gray6 text-purple focus:ring-purple"
+                  />
+                  <div className="flex-1 space-y-2">
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <label className="body-small-medium text-secondary--text">เริ่ม:</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={segment.start}
+                          onChange={(e) => handleLanguageSegmentChange(index, 'start', e.target.value)}
+                          className="w-24 px-2 py-1 border border-gray6 rounded body-medium-regular focus:outline-none focus:ring-2 focus:ring-purple"
+                        />
+                        <span className="body-small-regular text-secondary--text">วินาที</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <label className="body-small-medium text-secondary--text">จบ:</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={segment.end}
+                          onChange={(e) => handleLanguageSegmentChange(index, 'end', e.target.value)}
+                          className="w-24 px-2 py-1 border border-gray6 rounded body-medium-regular focus:outline-none focus:ring-2 focus:ring-purple"
+                        />
+                        <span className="body-small-regular text-secondary--text">วินาที</span>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="body-small-medium text-secondary--text mb-1 block">ประโยค:</label>
+                      <input
+                        type="text"
+                        value={segment.text}
+                        onChange={(e) => handleLanguageSegmentChange(index, 'text', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray6 rounded-lg body-medium-regular focus:outline-none focus:ring-2 focus:ring-purple"
+                        placeholder="กรอกประโยค..."
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteLanguageSegment(index)}
+                    className="p-2 text-red--dark hover:bg-red--light6 rounded-lg"
+                    title="ลบประโยค"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Analysis Segments Editor */}
+      {activity?.category === 'ด้านวิเคราะห์' && isEditing && (
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="heading-h5">คำถาม (Questions)</h3>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleAnalysisUndo}
+                disabled={analysisHistoryIndex <= 0}
+                className="p-2 rounded-lg border border-gray6 hover:bg-gray--light1 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Undo"
+              >
+                <Undo2 size={18} />
+              </button>
+              <button
+                type="button"
+                onClick={handleAnalysisRedo}
+                disabled={analysisHistoryIndex >= analysisHistory.length - 1}
+                className="p-2 rounded-lg border border-gray6 hover:bg-gray--light1 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Redo"
+              >
+                <Redo2 size={18} />
+              </button>
+              <button
+                type="button"
+                onClick={handleAddAnalysisSegment}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-purple text-white hover:bg-purple--dark"
+              >
+                <Plus size={18} />
+                เพิ่มคำถาม
+              </button>
+            </div>
+          </div>
+
+          {analysisSegments.length === 0 ? (
+            <div className="text-center py-8 text-secondary--text body-medium-regular">
+              ไม่มีคำถาม - คลิก "เพิ่มคำถาม" เพื่อเริ่มต้น
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {analysisSegments.map((segment, index) => (
+                <div
+                  key={segment.id}
+                  className="p-4 rounded-lg border border-gray6 bg-gray--light1"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="body-medium-bold text-purple">ข้อที่ {index + 1}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteAnalysisSegment(index)}
+                      className="p-2 text-red--dark hover:bg-red--light6 rounded-lg"
+                      title="ลบคำถาม"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <label className="body-small-medium text-secondary--text mb-1 block">โจทย์:</label>
+                      <input
+                        type="text"
+                        value={segment.question}
+                        onChange={(e) => handleAnalysisSegmentChange(index, 'question', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray6 rounded-lg body-medium-regular focus:outline-none focus:ring-2 focus:ring-purple"
+                        placeholder="กรอกโจทย์..."
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="body-small-medium text-secondary--text mb-1 block">เฉลย:</label>
+                        <input
+                          type="text"
+                          value={segment.answer}
+                          onChange={(e) => handleAnalysisSegmentChange(index, 'answer', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray6 rounded-lg body-medium-regular focus:outline-none focus:ring-2 focus:ring-purple"
+                          placeholder="กรอกเฉลย..."
+                        />
+                      </div>
+                      <div>
+                        <label className="body-small-medium text-secondary--text mb-1 block">คะแนน:</label>
+                        <input
+                          type="number"
+                          value={segment.score}
+                          onChange={(e) => handleAnalysisSegmentChange(index, 'score', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray6 rounded-lg body-medium-regular focus:outline-none focus:ring-2 focus:ring-purple"
+                          min="0"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="body-small-medium text-secondary--text mb-1 flex items-center gap-2">
+                        <Lightbulb size={16} className="text-amber-500" />
+                        คำแนะนำ (Hint):
+                      </label>
+                      <textarea
+                        value={segment.solution}
+                        onChange={(e) => handleAnalysisSegmentChange(index, 'solution', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray6 rounded-lg body-medium-regular focus:outline-none focus:ring-2 focus:ring-purple"
+                        rows={2}
+                        placeholder="กรอกคำแนะนำ..."
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              <div className="pt-3 border-t border-gray6">
+                <div className="flex items-center justify-between">
+                  <span className="body-medium-medium text-secondary--text">คะแนนรวม:</span>
+                  <span className="heading-h5 text-purple">
+                    {analysisSegments.reduce((sum, q) => sum + q.score, 0)} คะแนน
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Recent Records Section */}
       {activity.recentRecords && activity.recentRecords.length > 0 && (
         <div className="bg-white rounded-lg shadow p-6">

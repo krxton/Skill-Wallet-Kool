@@ -62,5 +62,14 @@
 		<string>แอปต้องการเข้าถึงกล้องเพื่อถ่ายรูป</string>
 	<key>NSMicrophoneUsageDescription</key>
 		<string>แอปต้องการเข้าถึงไมโครโฟนสำหรับวิดีโอ</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+		<key>NSAllowsArbitraryLoadsInWebContent</key>
+		<true/>
+	</dict>
+	<key>io.flutter.embedded_views_preview</key>
+	<true/>
 </dict>
 </plist>
