@@ -429,11 +429,11 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
           // Category breakdown
           Row(
             children: [
-              _buildStatCard('ด้านภาษา', _categoryStats['ด้านภาษา'] ?? 0, yellowBtn, Icons.abc),
+              _buildStatCard('ด้านภาษา', _categoryStats['ด้านภาษา'] ?? 0, yellowBtn, icon: Icons.abc),
               const SizedBox(width: 12),
-              _buildStatCard('ด้านร่างกาย', _categoryStats['ด้านร่างกาย'] ?? 0, pinkBtn, Icons.directions_run),
+              _buildStatCard('ด้านร่างกาย', _categoryStats['ด้านร่างกาย'] ?? 0, pinkBtn, icon: Icons.directions_run),
               const SizedBox(width: 12),
-              _buildStatCard('ด้านวิเคราะห์', _categoryStats['ด้านวิเคราะห์'] ?? 0, orangeBtn, Icons.calculate),
+              _buildStatCard('ด้านวิเคราะห์', _categoryStats['ด้านวิเคราะห์'] ?? 0, orangeBtn, imagePath: 'assets/images/Analysis_img.jpg'),
             ],
           ),
         ],
@@ -441,7 +441,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
     );
   }
 
-  Widget _buildStatCard(String title, int count, Color color, IconData icon) {
+  Widget _buildStatCard(String title, int count, Color color, {IconData? icon, String? imagePath}) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -458,7 +458,13 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
         ),
         child: Column(
           children: [
-            Icon(icon, size: 28, color: Colors.black87),
+            if (imagePath != null)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.asset(imagePath, width: 32, height: 32, fit: BoxFit.cover),
+              )
+            else
+              Icon(icon, size: 28, color: Colors.black87),
             const SizedBox(height: 8),
             Text(
               '$count',
@@ -491,26 +497,26 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
         children: [
           _buildCategoryButton(
             "ด้านภาษา",
-            Icons.abc,
             yellowBtn,
             _categoryStats['ด้านภาษา'] ?? 0,
             () => _navigateToHistory('ด้านภาษา'),
+            icon: Icons.abc,
           ),
           const SizedBox(height: 16),
           _buildCategoryButton(
             "ด้านร่างกาย",
-            Icons.directions_run,
             pinkBtn,
             _categoryStats['ด้านร่างกาย'] ?? 0,
             () => _navigateToHistory('ด้านร่างกาย'),
+            icon: Icons.directions_run,
           ),
           const SizedBox(height: 16),
           _buildCategoryButton(
             "ด้านวิเคราะห์",
-            Icons.calculate,
             orangeBtn,
             _categoryStats['ด้านวิเคราะห์'] ?? 0,
             () => _navigateToHistory('ด้านวิเคราะห์'),
+            imagePath: 'assets/images/Analysis_img.jpg',
           ),
         ],
       ),
@@ -535,11 +541,12 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
 
   Widget _buildCategoryButton(
     String title,
-    IconData icon,
     Color color,
     int count,
-    VoidCallback onTap,
-  ) {
+    VoidCallback onTap, {
+    IconData? icon,
+    String? imagePath,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -565,7 +572,11 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
                 color: Colors.white,
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: Colors.black87, size: 30),
+              child: imagePath != null
+                  ? ClipOval(
+                      child: Image.asset(imagePath, width: 50, height: 50, fit: BoxFit.cover),
+                    )
+                  : Icon(icon, color: Colors.black87, size: 30),
             ),
             const SizedBox(width: 16),
             Expanded(

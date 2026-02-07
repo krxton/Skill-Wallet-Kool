@@ -12,6 +12,8 @@ import '../../../providers/user_provider.dart';
 import '../../../services/activity_service.dart';
 import '../../../routes/app_routes.dart';
 
+import 'package:flutter/foundation.dart';
+
 class Palette {
   static const cream = Color(0xFFFFF5CD);
   static const red = Color(0xFFEA5B6F);
@@ -105,11 +107,13 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
       _isPlaying = false;
     });
 
-    debugPrint('⏱️ Stopwatch stopped at ${_activityStopwatch.elapsed.inSeconds}s');
+    debugPrint(
+        '⏱️ Stopwatch stopped at ${_activityStopwatch.elapsed.inSeconds}s');
   }
 
   // 🆕 Logic: เลือก Video/Image จาก Camera หรือ Gallery
-  Future<void> _handleMediaSelection({required bool isVideo, ImageSource? source}) async {
+  Future<void> _handleMediaSelection(
+      {required bool isVideo, ImageSource? source}) async {
     try {
       // ถ้าไม่ระบุ source ให้เลือก
       ImageSource selectedSource = source ?? await _showSourceDialog();
@@ -213,7 +217,8 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
     };
 
     try {
-      debugPrint('📊 Sending parentScore: $_parentScore, timeSpent: $timeSpentSeconds');
+      debugPrint(
+          '📊 Sending parentScore: $_parentScore, timeSpent: $timeSpentSeconds');
       debugPrint('📦 Evidence payload: $evidencePayload');
 
       // ignore: unused_local_variable
@@ -434,7 +439,8 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
             // 1. TIME DISPLAY (ย้ายมาไว้บนสุด)
             Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(30),
@@ -463,11 +469,13 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
                 ),
                 label: Text(
                   _isPlaying ? 'STOP' : 'START',
-                  style: GoogleFonts.luckiestGuy(fontSize: 20, color: Colors.white),
+                  style: GoogleFonts.luckiestGuy(
+                      fontSize: 20, color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: _isPlaying ? finishPink : startGreen,
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
                   ),
@@ -505,45 +513,184 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
             ),
             const SizedBox(height: 20),
 
-            // 5. IMAGE EVIDENCE Preview
-            Text('IMAGE EVIDENCE',
-                style:
-                    GoogleFonts.luckiestGuy(fontSize: 18, color: finishPink)),
-            GestureDetector(
-              onTap: _isSubmitting
-                  ? null
-                  : () => _handleMediaSelection(isVideo: false),
-              child: Container(
-                height: 100,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10)),
-                alignment: Alignment.center,
-                child:
-                    _buildEvidencePreview(path: _imagePath, icon: Icons.image),
-              ),
-            ),
-            const SizedBox(height: 20),
+            // Image
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'IMAGE',
+                        style: GoogleFonts.luckiestGuy(
+                            fontSize: 18, color: Colors.black54),
+                      ),
+                      const SizedBox(height: 5),
+                      GestureDetector(
+                        onTap: () => _handleMediaSelection(isVideo: false),
+                        child: Container(
+                          height: 120,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: _imagePath != null
+                                  ? startGreen
+                                  : Colors.grey.shade300,
+                              width: 2,
+                            ),
+                          ),
+                          child: _imagePath != null && !kIsWeb
+                              ? Stack(
+                                  children: [
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(18),
+                                      child: SizedBox(
+                                        width: double.infinity,
+                                        height: double.infinity,
+                                        child: Image.file(
+                                          File(_imagePath!),
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: 4,
+                                      right: 4,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.black54,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: IconButton(
+                                          icon: const Icon(Icons.close,
+                                              color: Colors.white, size: 16),
+                                          onPressed: () =>
+                                              setState(() => _imagePath = null),
+                                          padding: EdgeInsets.zero,
+                                          constraints: const BoxConstraints(
+                                            minWidth: 28,
+                                            minHeight: 28,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.add_photo_alternate,
+                                        size: 40, color: Colors.grey),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Add Image',
+                                      style: GoogleFonts.openSans(
+                                          fontSize: 12, color: Colors.grey),
+                                    ),
+                                  ],
+                                ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 10),
 
-            // 6. VIDEO EVIDENCE Preview
-            Text('VIDEO EVIDENCE',
-                style:
-                    GoogleFonts.luckiestGuy(fontSize: 18, color: finishPink)),
-            GestureDetector(
-              onTap: _isSubmitting
-                  ? null
-                  : () => _handleMediaSelection(isVideo: true),
-              child: Container(
-                height: 100,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10)),
-                alignment: Alignment.center,
-                child: _buildEvidencePreview(
-                    path: _videoPath, icon: Icons.videocam),
-              ),
+                // Video
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'VIDEO',
+                        style: GoogleFonts.luckiestGuy(
+                            fontSize: 18, color: Colors.black54),
+                      ),
+                      const SizedBox(height: 5),
+                      GestureDetector(
+                        onTap: () => _handleMediaSelection(isVideo: true),
+                        child: Container(
+                          height: 120,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: _videoPath != null
+                                  ? startGreen
+                                  : Colors.grey.shade300,
+                              width: 2,
+                            ),
+                          ),
+                          child: _videoPath != null
+                              ? Stack(
+                                  children: [
+                                    Center(
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          const Icon(Icons.videocam,
+                                              size: 50, color: startGreen),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            'Video Added',
+                                            style: GoogleFonts.openSans(
+                                              fontSize: 12,
+                                              color: startGreen,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Positioned(
+                                      top: 4,
+                                      right: 4,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.black54,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: IconButton(
+                                          icon: const Icon(Icons.close,
+                                              color: Colors.white, size: 16),
+                                          onPressed: () =>
+                                              setState(() => _videoPath = null),
+                                          padding: EdgeInsets.zero,
+                                          constraints: const BoxConstraints(
+                                            minWidth: 28,
+                                            minHeight: 28,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.add_circle_outline,
+                                        size: 40, color: Colors.grey),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      'Add Video',
+                                      style: GoogleFonts.openSans(
+                                          fontSize: 12, color: Colors.grey),
+                                    ),
+                                  ],
+                                ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 40),
+
+            const SizedBox(height: 30),
 
             // 7. FINISH BUTTON (Submit)
             SizedBox(

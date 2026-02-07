@@ -87,9 +87,9 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
     for (int i = 0; i < _segments.length; i++) {
       final segment = _segments[i];
       final int scoreFromSegment = segment['score'] as int? ??
-                                   segment['maxScore'] as int? ??
-                                   segment['point'] as int? ??
-                                   100; // Fallback to 100
+          segment['maxScore'] as int? ??
+          segment['point'] as int? ??
+          100; // Fallback to 100
 
       // Store original score
       _originalScores[i] = scoreFromSegment;
@@ -97,7 +97,9 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
       // Initialize with 0 score (not answered yet)
       _segmentResults.add(SegmentResult(
         id: segment['id']?.toString() ?? '',
-        text: segment['question']?.toString() ?? segment['text']?.toString() ?? '',
+        text: segment['question']?.toString() ??
+            segment['text']?.toString() ??
+            '',
         maxScore: 0, // Start with 0 (not answered)
       ));
     }
@@ -214,9 +216,11 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
     final int originalScore = _originalScores[index] ?? 100;
 
     setState(() {
-      _segmentResults[index].maxScore = originalScore; // Full score from segment
+      _segmentResults[index].maxScore =
+          originalScore; // Full score from segment
     });
-    debugPrint('✅ Question ${index + 1} marked as correct (score: $originalScore)');
+    debugPrint(
+        '✅ Question ${index + 1} marked as correct (score: $originalScore)');
   }
 
   void _markQuestionIncorrect(int index) {
@@ -330,7 +334,8 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
     if (childId == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Child ID not found. Please login again.')),
+          const SnackBar(
+              content: Text('Child ID not found. Please login again.')),
         );
       }
       return;
@@ -423,7 +428,8 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
           ? Center(
               child: Text(
                 'No questions available',
-                style: GoogleFonts.luckiestGuy(fontSize: 20, color: Colors.grey),
+                style:
+                    GoogleFonts.luckiestGuy(fontSize: 20, color: Colors.grey),
               ),
             )
           : SingleChildScrollView(
@@ -434,7 +440,8 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                   // Timer display
                   Center(
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 40, vertical: 10),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(30),
@@ -461,11 +468,14 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                       ),
                       label: Text(
                         _isTimerRunning ? 'PAUSE' : 'START',
-                        style: GoogleFonts.luckiestGuy(fontSize: 20, color: Colors.white),
+                        style: GoogleFonts.luckiestGuy(
+                            fontSize: 20, color: Colors.white),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _isTimerRunning ? Colors.orange : greenBtn,
-                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                        backgroundColor:
+                            _isTimerRunning ? Colors.orange : greenBtn,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
@@ -493,7 +503,8 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                         segment['text']?.toString() ??
                         'Question ${index + 1}';
                     final isCorrect = _segmentResults[index].maxScore > 0;
-                    final isAnswered = _segmentResults[index].maxScore == 0 ? false : true;
+                    final isAnswered =
+                        _segmentResults[index].maxScore == 0 ? false : true;
 
                     return Container(
                       margin: const EdgeInsets.only(bottom: 12),
@@ -528,7 +539,8 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                                     shape: BoxShape.circle,
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withValues(alpha: 0.15),
+                                        color: Colors.black
+                                            .withValues(alpha: 0.15),
                                         blurRadius: 4,
                                         offset: const Offset(0, 2),
                                       ),
@@ -551,7 +563,9 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                               ElevatedButton.icon(
                                 onPressed: () => _markQuestionCorrect(index),
                                 icon: Icon(
-                                  isCorrect ? Icons.check_circle : Icons.check_circle_outline,
+                                  isCorrect
+                                      ? Icons.check_circle
+                                      : Icons.check_circle_outline,
                                   size: 20,
                                 ),
                                 label: Text(
@@ -559,9 +573,13 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                                   style: GoogleFonts.openSans(fontSize: 14),
                                 ),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: isCorrect ? greenBtn : Colors.grey.shade300,
-                                  foregroundColor: isCorrect ? Colors.white : Colors.black,
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  backgroundColor: isCorrect
+                                      ? greenBtn
+                                      : Colors.grey.shade300,
+                                  foregroundColor:
+                                      isCorrect ? Colors.white : Colors.black,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 8),
                                 ),
                               ),
                               const SizedBox(width: 8),
@@ -569,7 +587,9 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                               ElevatedButton.icon(
                                 onPressed: () => _markQuestionIncorrect(index),
                                 icon: Icon(
-                                  (!isCorrect && isAnswered) ? Icons.cancel : Icons.cancel_outlined,
+                                  (!isCorrect && isAnswered)
+                                      ? Icons.cancel
+                                      : Icons.cancel_outlined,
                                   size: 20,
                                 ),
                                 label: Text(
@@ -580,9 +600,11 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                                   backgroundColor: (!isCorrect && isAnswered)
                                       ? Colors.red.shade400
                                       : Colors.grey.shade300,
-                                  foregroundColor:
-                                      (!isCorrect && isAnswered) ? Colors.white : Colors.black,
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                  foregroundColor: (!isCorrect && isAnswered)
+                                      ? Colors.white
+                                      : Colors.black,
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 8),
                                 ),
                               ),
                             ],
@@ -597,7 +619,8 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                   // Evidence section
                   Text(
                     'EVIDENCE',
-                    style: GoogleFonts.luckiestGuy(fontSize: 20, color: redText),
+                    style:
+                        GoogleFonts.luckiestGuy(fontSize: 20, color: redText),
                   ),
 
                   const SizedBox(height: 15),
@@ -605,7 +628,8 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                   // Diary
                   Text(
                     'DIARY / NOTES',
-                    style: GoogleFonts.luckiestGuy(fontSize: 18, color: Colors.black54),
+                    style: GoogleFonts.luckiestGuy(
+                        fontSize: 18, color: Colors.black54),
                   ),
                   const SizedBox(height: 5),
                   Container(
@@ -636,11 +660,13 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                           children: [
                             Text(
                               'IMAGE',
-                              style: GoogleFonts.luckiestGuy(fontSize: 18, color: Colors.black54),
+                              style: GoogleFonts.luckiestGuy(
+                                  fontSize: 18, color: Colors.black54),
                             ),
                             const SizedBox(height: 5),
                             GestureDetector(
-                              onTap: () => _handleMediaSelection(isVideo: false),
+                              onTap: () =>
+                                  _handleMediaSelection(isVideo: false),
                               child: Container(
                                 height: 120,
                                 width: double.infinity,
@@ -648,7 +674,9 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(20),
                                   border: Border.all(
-                                    color: _imagePath != null ? greenBtn : Colors.grey.shade300,
+                                    color: _imagePath != null
+                                        ? greenBtn
+                                        : Colors.grey.shade300,
                                     width: 2,
                                   ),
                                 ),
@@ -656,7 +684,8 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                                     ? Stack(
                                         children: [
                                           ClipRRect(
-                                            borderRadius: BorderRadius.circular(18),
+                                            borderRadius:
+                                                BorderRadius.circular(18),
                                             child: SizedBox(
                                               width: double.infinity,
                                               height: double.infinity,
@@ -675,10 +704,14 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                                                 shape: BoxShape.circle,
                                               ),
                                               child: IconButton(
-                                                icon: const Icon(Icons.close, color: Colors.white, size: 16),
-                                                onPressed: () => setState(() => _imagePath = null),
+                                                icon: const Icon(Icons.close,
+                                                    color: Colors.white,
+                                                    size: 16),
+                                                onPressed: () => setState(
+                                                    () => _imagePath = null),
                                                 padding: EdgeInsets.zero,
-                                                constraints: const BoxConstraints(
+                                                constraints:
+                                                    const BoxConstraints(
                                                   minWidth: 28,
                                                   minHeight: 28,
                                                 ),
@@ -688,13 +721,17 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                                         ],
                                       )
                                     : Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
-                                          const Icon(Icons.add_photo_alternate, size: 40, color: Colors.grey),
+                                          const Icon(Icons.add_photo_alternate,
+                                              size: 40, color: Colors.grey),
                                           const SizedBox(height: 8),
                                           Text(
                                             'Add Image',
-                                            style: GoogleFonts.openSans(fontSize: 12, color: Colors.grey),
+                                            style: GoogleFonts.openSans(
+                                                fontSize: 12,
+                                                color: Colors.grey),
                                           ),
                                         ],
                                       ),
@@ -712,7 +749,8 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                           children: [
                             Text(
                               'VIDEO',
-                              style: GoogleFonts.luckiestGuy(fontSize: 18, color: Colors.black54),
+                              style: GoogleFonts.luckiestGuy(
+                                  fontSize: 18, color: Colors.black54),
                             ),
                             const SizedBox(height: 5),
                             GestureDetector(
@@ -724,7 +762,9 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                                   color: Colors.white,
                                   borderRadius: BorderRadius.circular(20),
                                   border: Border.all(
-                                    color: _videoPath != null ? greenBtn : Colors.grey.shade300,
+                                    color: _videoPath != null
+                                        ? greenBtn
+                                        : Colors.grey.shade300,
                                     width: 2,
                                   ),
                                 ),
@@ -733,9 +773,11 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                                         children: [
                                           Center(
                                             child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
                                               children: [
-                                                const Icon(Icons.videocam, size: 50, color: greenBtn),
+                                                const Icon(Icons.videocam,
+                                                    size: 50, color: greenBtn),
                                                 const SizedBox(height: 8),
                                                 Text(
                                                   'Video Added',
@@ -757,10 +799,14 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                                                 shape: BoxShape.circle,
                                               ),
                                               child: IconButton(
-                                                icon: const Icon(Icons.close, color: Colors.white, size: 16),
-                                                onPressed: () => setState(() => _videoPath = null),
+                                                icon: const Icon(Icons.close,
+                                                    color: Colors.white,
+                                                    size: 16),
+                                                onPressed: () => setState(
+                                                    () => _videoPath = null),
                                                 padding: EdgeInsets.zero,
-                                                constraints: const BoxConstraints(
+                                                constraints:
+                                                    const BoxConstraints(
                                                   minWidth: 28,
                                                   minHeight: 28,
                                                 ),
@@ -770,13 +816,17 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                                         ],
                                       )
                                     : Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
-                                          const Icon(Icons.add_circle_outline, size: 40, color: Colors.grey),
+                                          const Icon(Icons.add_circle_outline,
+                                              size: 40, color: Colors.grey),
                                           const SizedBox(height: 8),
                                           Text(
                                             'Add Video',
-                                            style: GoogleFonts.openSans(fontSize: 12, color: Colors.grey),
+                                            style: GoogleFonts.openSans(
+                                                fontSize: 12,
+                                                color: Colors.grey),
                                           ),
                                         ],
                                       ),

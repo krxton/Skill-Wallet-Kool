@@ -31,7 +31,7 @@ class ScrollableActivityList extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const SizedBox(
-            height: 180,
+            height: 155,
             child: Center(
               child: CircularProgressIndicator(color: sky),
             ),
@@ -39,7 +39,7 @@ class ScrollableActivityList extends StatelessWidget {
         }
         if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
           return Container(
-            height: 180,
+            height: 155,
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
@@ -58,7 +58,7 @@ class ScrollableActivityList extends StatelessWidget {
           onHorizontalDragStart: (d) => onDragStart(d.globalPosition.dx),
           onHorizontalDragUpdate: (d) => onDragUpdate(d.globalPosition.dx),
           child: SizedBox(
-            height: 180,
+            height: 155,
             child: SingleChildScrollView(
               controller: controller,
               scrollDirection: Axis.horizontal,

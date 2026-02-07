@@ -47,10 +47,12 @@ class ActivityCard extends StatelessWidget {
       showDialog(
         context: context,
         builder: (dialogContext) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: Row(
             children: [
-              const Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
+              const Icon(Icons.warning_amber_rounded,
+                  color: Colors.orange, size: 28),
               const SizedBox(width: 8),
               Text(
                 'กรุณาเลือกเด็ก',
@@ -138,11 +140,12 @@ class ActivityCard extends StatelessWidget {
     return GestureDetector(
       onTap: navigate,
       child: Container(
-        width: 150,
-        margin: const EdgeInsets.only(right: 16),
+        width: 125,
+        height: 145,
+        margin: const EdgeInsets.only(right: 12),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
@@ -154,24 +157,27 @@ class ActivityCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(16)),
-              child: _buildThumbnail(
-                hasTikTokOEmbedData: hasTikTokOEmbedData,
-                hasYouTubeVideo: hasYouTubeVideo,
-                youtubeThumbnailUrl: youtubeThumbnailUrl,
+            Expanded(
+              child: ClipRRect(
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(14)),
+                child: _buildThumbnail(
+                  hasTikTokOEmbedData: hasTikTokOEmbedData,
+                  hasYouTubeVideo: hasYouTubeVideo,
+                  youtubeThumbnailUrl: youtubeThumbnailUrl,
+                ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     activity.name,
                     style: GoogleFonts.luckiestGuy(
-                      fontSize: 14,
+                      fontSize: 11,
                       color: Colors.black,
                     ).copyWith(fontFamilyFallback: thaiFallback),
                     maxLines: 1,
@@ -180,7 +186,7 @@ class ActivityCard extends StatelessWidget {
                   Text(
                     'Score: ${activity.maxScore}',
                     style: TextStyle(
-                      fontSize: 10,
+                      fontSize: 9,
                       color: Colors.grey.shade600,
                     ),
                   ),
@@ -199,26 +205,35 @@ class ActivityCard extends StatelessWidget {
     String? youtubeThumbnailUrl,
   }) {
     if (hasTikTokOEmbedData && activity.thumbnailUrl != null) {
-      return Image.network(
-        activity.thumbnailUrl!,
-        fit: BoxFit.cover,
-        height: 100,
+      return SizedBox(
         width: double.infinity,
-        errorBuilder: (context, error, stackTrace) {
-          return _buildPlaceholder();
-        },
+        height: double.infinity,
+        child: Image.network(
+          activity.thumbnailUrl!,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return _buildPlaceholder();
+          },
+        ),
       );
     }
 
     if (hasYouTubeVideo && youtubeThumbnailUrl != null) {
-      return Image.network(
-        youtubeThumbnailUrl,
-        fit: BoxFit.cover,
-        height: 100,
+      // YouTube hqdefault เป็น 4:3 แต่วีดีโอเป็น 16:9 ทำให้มีแถบดำ
+      // ขยาย 1.35x เพื่อตัดแถบดำออก
+      return SizedBox(
         width: double.infinity,
-        errorBuilder: (context, error, stackTrace) {
-          return _buildPlaceholder();
-        },
+        height: double.infinity,
+        child: Transform.scale(
+          scale: 1.32,
+          child: Image.network(
+            youtubeThumbnailUrl,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stackTrace) {
+              return _buildPlaceholder();
+            },
+          ),
+        ),
       );
     }
 
@@ -229,21 +244,29 @@ class ActivityCard extends StatelessWidget {
     // กำหนดสีและไอคอนตามประเภทกิจกรรม
     final category = activity.category;
 
-    // ด้านวิเคราะห์ = Math symbols with orange background
+    // ด้านวิเคราะห์ = ใช้รูป Analysis_img
     if (category == 'ด้านวิเคราะห์') {
-      return Container(
-        height: 100,
+      return SizedBox(
         width: double.infinity,
-        color: const Color(0xFFFF9800), // Orange
-        alignment: Alignment.center,
-        child: const Text(
-          '+-×÷',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 2,
-          ),
+        height: double.infinity,
+        child: Image.asset(
+          'assets/images/Analysis_img.jpg',
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              color: const Color(0xFFFF9800),
+              alignment: Alignment.center,
+              child: const Text(
+                '+-×÷',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2,
+                ),
+              ),
+            );
+          },
         ),
       );
     }
@@ -251,8 +274,8 @@ class ActivityCard extends StatelessWidget {
     // ด้านภาษา = ABC with yellow background
     if (category == 'ด้านภาษา' || category.toUpperCase() == 'LANGUAGE') {
       return Container(
-        height: 100,
         width: double.infinity,
+        height: double.infinity,
         color: const Color(0xFFFFEB3B), // Yellow
         alignment: Alignment.center,
         child: const Text(
@@ -270,8 +293,8 @@ class ActivityCard extends StatelessWidget {
     // ด้านร่างกาย = Running icon with pink background
     if (category == 'ด้านร่างกาย') {
       return Container(
-        height: 100,
         width: double.infinity,
+        height: double.infinity,
         color: const Color(0xFFFFAB91), // Pink/Peach
         alignment: Alignment.center,
         child: const Icon(
@@ -284,8 +307,8 @@ class ActivityCard extends StatelessWidget {
 
     // Default fallback
     return Container(
-      height: 100,
       width: double.infinity,
+      height: double.infinity,
       color: deepSky,
       alignment: Alignment.center,
       child: Text(

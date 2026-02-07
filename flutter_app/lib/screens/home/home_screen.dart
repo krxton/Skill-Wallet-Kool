@@ -103,6 +103,17 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  /// โหลดแค่ suggest carousel ใหม่ (แอบโหลดตอนออกจากหน้า)
+  void _refreshSuggestedOnly() {
+    if (!mounted) return;
+    final childId = context.read<UserProvider>().currentChildId;
+    if (childId != null) {
+      setState(() {
+        _recommendedActivitiesFuture = _fetchRecommendedActivities(childId);
+      });
+    }
+  }
+
   /// ดึงกิจกรรมแนะนำสำหรับ Carousel ตามหมวดที่เคยเล่น (รวม 5 กิจกรรม)
   Future<List<Activity>> _fetchRecommendedActivities(String childId) async {
     try {
@@ -482,50 +493,41 @@ class _HomeScreenState extends State<HomeScreen> {
           return;
         }
 
+        String routeName;
         if (category == 'ด้านภาษา' || category == 'LANGUAGE') {
-          Navigator.pushNamed(
-            context,
-            AppRoutes.languageDetail,
-            arguments: activity,
-          );
+          routeName = AppRoutes.languageDetail;
         } else if (category == 'ด้านร่างกาย' && activity.videoUrl != null) {
-          Navigator.pushNamed(
-            context,
-            AppRoutes.videoDetail,
-            arguments: activity,
-          );
+          routeName = AppRoutes.videoDetail;
         } else if (category == 'ด้านวิเคราะห์') {
-          Navigator.pushNamed(
-            context,
-            AppRoutes.analysisActivity,
-            arguments: activity,
-          );
+          routeName = AppRoutes.analysisActivity;
         } else {
-          Navigator.pushNamed(
-            context,
-            AppRoutes.itemIntro,
-            arguments: activity,
-          );
+          routeName = AppRoutes.itemIntro;
         }
+
+        Navigator.pushNamed(context, routeName, arguments: activity)
+            .then((_) {
+          // กลับมาจากหน้ากิจกรรม → reload suggest ใหม่
+          if (mounted) _loadData();
+        });
       },
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(16),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(21),
           child: Stack(
             fit: StackFit.expand,
             children: [
-              if (thumbnailUrl != null)
+              if (thumbnailUrl != null && hasYouTubeVideo)
+                // YouTube thumbnail 4:3 มีแถบดำ → ขยาย 1.3x ตัดแถบดำ
+                Transform.scale(
+                  scale: 1.3,
+                  child: Image.network(
+                    thumbnailUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return _buildPlaceholder(activity.category);
+                    },
+                  ),
+                )
+              else if (thumbnailUrl != null)
                 Image.network(
                   thumbnailUrl,
                   fit: BoxFit.cover,
@@ -629,28 +631,35 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ],
           ),
-        ),
       ),
     );
   }
 
   Widget _buildPlaceholder(String category) {
-    // ด้านวิเคราะห์ = Math symbols with orange background
+    // ด้านวิเคราะห์ = ใช้รูป Analysis_img
     if (category == 'ด้านวิเคราะห์') {
-      return Container(
+      return Image.asset(
+        'assets/images/Analysis_img.jpg',
+        fit: BoxFit.cover,
         height: double.infinity,
         width: double.infinity,
-        color: const Color(0xFFFF9800), // Orange
-        alignment: Alignment.center,
-        child: const Text(
-          '+-×÷',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 48,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 4,
-          ),
-        ),
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            height: double.infinity,
+            width: double.infinity,
+            color: const Color(0xFFFF9800),
+            alignment: Alignment.center,
+            child: const Text(
+              '+-×÷',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 48,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 4,
+              ),
+            ),
+          );
+        },
       );
     }
 
@@ -1088,6 +1097,8 @@ class _HomeScreenState extends State<HomeScreen> {
               return;
             }
             setState(() => _selectedTab = i);
+            // กลับมาที่ home tab → reload ข้อมูลใหม่ (suggest จะ random ใหม่)
+            if (i == 0) _loadData();
           },
         ),
       ),
