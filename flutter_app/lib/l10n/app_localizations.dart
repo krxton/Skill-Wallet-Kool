@@ -1345,6 +1345,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This flow is not connected to activities yet.'**
   String get languagelist_snackNotConnected;
+
+  /// No description provided for @common_categoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get common_categoryLabel;
+
+  /// No description provided for @common_difficultyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Difficulty'**
+  String get common_difficultyLabel;
+
+  /// No description provided for @common_maxScoreLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Max Score'**
+  String get common_maxScoreLabel;
+
+  /// No description provided for @common_categoryLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get common_categoryLanguage;
+
+  /// No description provided for @common_categoryPhysical.
+  ///
+  /// In en, this message translates to:
+  /// **'Physical'**
+  String get common_categoryPhysical;
+
+  /// No description provided for @common_categoryAnalysis.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis'**
+  String get common_categoryAnalysis;
+
+  /// No description provided for @common_difficultyEasy.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy'**
+  String get common_difficultyEasy;
+
+  /// No description provided for @common_difficultyMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'Medium'**
+  String get common_difficultyMedium;
+
+  /// No description provided for @common_difficultyHard.
+  ///
+  /// In en, this message translates to:
+  /// **'Hard'**
+  String get common_difficultyHard;
 }
 
 class _AppLocalizationsDelegate

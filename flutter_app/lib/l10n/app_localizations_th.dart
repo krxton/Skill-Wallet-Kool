@@ -658,4 +658,31 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get languagelist_snackNotConnected =>
       'ส่วนนี้ยังไม่ได้เชื่อมต่อกับกิจกรรมจริง';
+
+  @override
+  String get common_categoryLabel => 'หมวดหมู่';
+
+  @override
+  String get common_difficultyLabel => 'ความยาก';
+
+  @override
+  String get common_maxScoreLabel => 'คะแนนสูงสุด';
+
+  @override
+  String get common_categoryLanguage => 'ด้านภาษา';
+
+  @override
+  String get common_categoryPhysical => 'ด้านร่างกาย';
+
+  @override
+  String get common_categoryAnalysis => 'ด้านวิเคราะห์';
+
+  @override
+  String get common_difficultyEasy => 'ง่าย';
+
+  @override
+  String get common_difficultyMedium => 'ปานกลาง';
+
+  @override
+  String get common_difficultyHard => 'ยาก';
 }

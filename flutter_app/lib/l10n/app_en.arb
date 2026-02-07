@@ -266,5 +266,15 @@
   "createpost_changepic":"Change picture",
   "createpost_writecaption":"Write a caption...",
 
-  "languagelist_snackNotConnected": "This flow is not connected to activities yet."
+  "languagelist_snackNotConnected": "This flow is not connected to activities yet.",
+
+  "common_categoryLabel": "Category",
+  "common_difficultyLabel": "Difficulty",
+  "common_maxScoreLabel": "Max Score",
+  "common_categoryLanguage": "Language",
+  "common_categoryPhysical": "Physical",
+  "common_categoryAnalysis": "Analysis",
+  "common_difficultyEasy": "Easy",
+  "common_difficultyMedium": "Medium",
+  "common_difficultyHard": "Hard"
 }

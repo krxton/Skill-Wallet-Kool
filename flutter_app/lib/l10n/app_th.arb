@@ -234,5 +234,15 @@
   "createpost_changepic":"เปลี่ยนรูป",
   "createpost_writecaption":"เขียนคำบรรยาย...",
 
-  "languagelist_snackNotConnected": "ส่วนนี้ยังไม่ได้เชื่อมต่อกับกิจกรรมจริง"
+  "languagelist_snackNotConnected": "ส่วนนี้ยังไม่ได้เชื่อมต่อกับกิจกรรมจริง",
+
+  "common_categoryLabel": "หมวดหมู่",
+  "common_difficultyLabel": "ความยาก",
+  "common_maxScoreLabel": "คะแนนสูงสุด",
+  "common_categoryLanguage": "ด้านภาษา",
+  "common_categoryPhysical": "ด้านร่างกาย",
+  "common_categoryAnalysis": "ด้านวิเคราะห์",
+  "common_difficultyEasy": "ง่าย",
+  "common_difficultyMedium": "ปานกลาง",
+  "common_difficultyHard": "ยาก"
 }

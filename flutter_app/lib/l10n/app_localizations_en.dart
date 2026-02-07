@@ -659,4 +659,31 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get languagelist_snackNotConnected =>
       'This flow is not connected to activities yet.';
+
+  @override
+  String get common_categoryLabel => 'Category';
+
+  @override
+  String get common_difficultyLabel => 'Difficulty';
+
+  @override
+  String get common_maxScoreLabel => 'Max Score';
+
+  @override
+  String get common_categoryLanguage => 'Language';
+
+  @override
+  String get common_categoryPhysical => 'Physical';
+
+  @override
+  String get common_categoryAnalysis => 'Analysis';
+
+  @override
+  String get common_difficultyEasy => 'Easy';
+
+  @override
+  String get common_difficultyMedium => 'Medium';
+
+  @override
+  String get common_difficultyHard => 'Hard';
 }

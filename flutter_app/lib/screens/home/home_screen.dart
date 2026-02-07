@@ -6,7 +6,6 @@ import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import '../../routes/app_routes.dart';
 import '../../providers/user_provider.dart';
 import '../../services/activity_service.dart';
-import '../../services/child_service.dart';
 import '../../models/activity.dart';
 
 import '../../widgets/activity_card.dart';
@@ -34,7 +33,6 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _selectedLevel; // null = ทั้งหมด, 'ง่าย', 'กลาง', 'ยาก'
 
   final ActivityService _activityService = ActivityService();
-  final ChildService _childService = ChildService();
   late Future<List<Activity>>
       _recommendedActivitiesFuture; // สำหรับ carousel ด้านบน
   late Future<List<Activity>>
@@ -109,91 +107,65 @@ class _HomeScreenState extends State<HomeScreen> {
     final childId = context.read<UserProvider>().currentChildId;
     if (childId != null) {
       setState(() {
+        _currentCarouselPage = 0;
         _recommendedActivitiesFuture = _fetchRecommendedActivities(childId);
       });
+      // reset carousel position กลับหน้าแรกเสมอ
+      if (_carouselController.hasClients) {
+        _carouselController.jumpToPage(0);
+      }
     }
   }
 
-  /// ดึงกิจกรรมแนะนำสำหรับ Carousel ตามหมวดที่เคยเล่น (รวม 5 กิจกรรม)
+  /// ดึงกิจกรรมแนะนำสำหรับ Carousel สลับ category วนรอบ (รวม 5 กิจกรรม)
   Future<List<Activity>> _fetchRecommendedActivities(String childId) async {
     try {
-      // 1. ดึงประวัติกิจกรรมของเด็ก
-      final history = await _childService.getActivityHistory(childId);
+      // 1. ดึงกิจกรรมทั้งหมด
+      final allActivities =
+          await _activityService.fetchPopularActivities(childId);
 
-      // 2. นับจำนวนครั้งที่เล่นแต่ละหมวดหมู่
-      Map<String, int> categoryCount = {};
-      for (var record in history) {
-        final category = record['activity']?['category'] as String?;
-        if (category != null) {
-          categoryCount[category] = (categoryCount[category] ?? 0) + 1;
-        }
+      if (allActivities.isEmpty) return [];
+
+      // 2. แยกกิจกรรมตาม category แล้วสุ่มภายในแต่ละ category
+      final Map<String, List<Activity>> byCategory = {};
+      for (var a in allActivities) {
+        byCategory.putIfAbsent(a.category, () => []).add(a);
+      }
+      for (var list in byCategory.values) {
+        list.shuffle();
       }
 
+      // 3. สุ่มลำดับ category
+      final categories = byCategory.keys.toList()..shuffle();
+      debugPrint('🔄 Category rotation order: $categories');
+
+      // 4. Round-robin เลือกทีละ category จนครบ 5
       List<Activity> recommended = [];
       const int targetCount = 5;
+      final Map<String, int> categoryIndex = {
+        for (var c in categories) c: 0,
+      };
 
-      if (categoryCount.isNotEmpty) {
-        // 3. เรียงหมวดตามความถี่ (มากไปน้อย)
-        final sortedCategories = categoryCount.entries.toList()
-          ..sort((a, b) => b.value.compareTo(a.value));
+      int catIdx = 0;
+      while (recommended.length < targetCount) {
+        final cat = categories[catIdx % categories.length];
+        final pool = byCategory[cat]!;
+        final idx = categoryIndex[cat]!;
 
-        debugPrint('📊 Category frequency: $categoryCount');
-
-        // 4. คำนวณสัดส่วนการเลือกจากแต่ละหมวด
-        final totalPlays = categoryCount.values.reduce((a, b) => a + b);
-
-        for (var entry in sortedCategories) {
-          if (recommended.length >= targetCount) break;
-
-          final category = entry.key;
-          final plays = entry.value;
-
-          // คำนวณจำนวนที่ควรเลือกตามสัดส่วน (อย่างน้อย 1 ถ้าเคยเล่น)
-          int countToFetch = ((plays / totalPlays) * targetCount).ceil();
-          countToFetch =
-              countToFetch.clamp(1, targetCount - recommended.length);
-
-          debugPrint(
-              '📌 Fetching $countToFetch from $category (played $plays times)');
-
-          // ดึงกิจกรรมจากหมวดนี้
-          final activities = await _activityService.fetchPopularActivities(
-            childId,
-            category: category,
-          );
-
-          // สุ่มเลือก
-          if (activities.isNotEmpty) {
-            activities.shuffle();
-            final toAdd = activities.take(countToFetch).toList();
-            recommended.addAll(toAdd);
-          }
+        if (idx < pool.length) {
+          recommended.add(pool[idx]);
+          categoryIndex[cat] = idx + 1;
         }
-      }
 
-      // 5. ถ้ายังไม่ครบ 5 อัน ให้เติมด้วยกิจกรรมแบบสุ่ม
-      if (recommended.length < targetCount) {
-        debugPrint(
-            '📌 Filling ${targetCount - recommended.length} more with random activities');
-
-        final allActivities =
-            await _activityService.fetchPopularActivities(childId);
-        final existingIds = recommended.map((a) => a.id).toSet();
-
-        // กรองออกกิจกรรมที่มีอยู่แล้ว
-        final remaining =
-            allActivities.where((a) => !existingIds.contains(a.id)).toList();
-        remaining.shuffle();
-
-        final needed = targetCount - recommended.length;
-        recommended.addAll(remaining.take(needed));
+        catIdx++;
+        // ป้องกัน infinite loop ถ้ากิจกรรมทั้งหมดน้อยกว่า targetCount
+        if (catIdx >= categories.length * (targetCount + 1)) break;
       }
 
       debugPrint('✅ Recommended activities: ${recommended.length} items');
       return recommended;
     } catch (e) {
       debugPrint('❌ Error fetching recommended activities: $e');
-      // Fallback: ดึงทั้งหมดแบบสุ่ม
       final all = await _activityService.fetchPopularActivities(childId);
       all.shuffle();
       return all.take(5).toList();
@@ -504,11 +476,9 @@ class _HomeScreenState extends State<HomeScreen> {
           routeName = AppRoutes.itemIntro;
         }
 
-        Navigator.pushNamed(context, routeName, arguments: activity)
-            .then((_) {
-          // กลับมาจากหน้ากิจกรรม → reload suggest ใหม่
-          if (mounted) _loadData();
-        });
+        // แอบโหลด suggest ใหม่ทันทีตอนออกจากหน้า (โหลด background ครั้งเดียว)
+        _refreshSuggestedOnly();
+        Navigator.pushNamed(context, routeName, arguments: activity);
       },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(21),
@@ -1096,9 +1066,9 @@ class _HomeScreenState extends State<HomeScreen> {
               );
               return;
             }
+            // แอบโหลด suggest ใหม่ตอนออกจาก home tab
+            if (_selectedTab == 0 && i != 0) _refreshSuggestedOnly();
             setState(() => _selectedTab = i);
-            // กลับมาที่ home tab → reload ข้อมูลใหม่ (suggest จะ random ใหม่)
-            if (i == 0) _loadData();
           },
         ),
       ),
