@@ -124,7 +124,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
     return Scaffold(
       backgroundColor: creamBg,
       bottomNavigationBar: Container(
-        color: const Color(0xFFD86B77), // salmon color
+        color: const Color.fromARGB(255, 45, 163, 248), // salmon color
         child: SafeArea(
           child: Container(
             height: 64,
@@ -136,7 +136,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF2C46F), // yolk color - selected
+                    color: const Color.fromARGB(255, 249, 216, 98), // yolk color - selected
                     borderRadius: BorderRadius.circular(18),
                   ),
                   child: const Icon(
