@@ -1,6 +1,7 @@
 // app/api/activities/route.ts
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { createAuthClient, getUserRole } from '@/lib/auth-helpers';
 
 // Helper function to safely serialize JSON fields
 function safeJsonSerialize(value: any) {
@@ -67,6 +68,7 @@ export async function GET(request: Request) {
         created_at: true,
         update_at: true,
         parent_id: true,
+        is_public: true,
       },
       orderBy: {
         created_at: 'desc'
@@ -97,6 +99,7 @@ export async function GET(request: Request) {
           segments: safeJsonSerialize(activity.segments), // ✅ จัดการ JSON field
           playCount: activity.play_count ? Number(activity.play_count) : 0,
           parentId: activity.parent_id,
+          isPublic: activity.is_public,
           updatedAt: activity.update_at.toISOString(),
         };
       } catch (err) {
@@ -120,6 +123,7 @@ export async function GET(request: Request) {
           segments: null,
           playCount: 0,
           parentId: activity.parent_id,
+          isPublic: true,
           updatedAt: activity.update_at.toISOString(),
         };
       }
@@ -161,9 +165,25 @@ export async function GET(request: Request) {
 }
 
 // POST: สร้าง activity ใหม่
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+
+    // Check auth & role (optional — unauthenticated = treat as user)
+    let userRole: 'user' | 'admin' = 'user';
+    try {
+      const supabase = await createAuthClient(request);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        userRole = getUserRole(user);
+      }
+    } catch {
+      // No auth = default user role
+    }
+
+    // Admin always creates public activities
+    // User respects the isPublic flag from request
+    const isPublic = userRole === 'admin' ? true : (body.isPublic ?? true);
 
     // Validate required fields
     if (!body.name) {
@@ -229,6 +249,7 @@ export async function POST(request: Request) {
         videourl: body.videoUrl || null,
         thumbnailurl: body.thumbnailUrl || null,
         parent_id: body.parentId,
+        is_public: isPublic,
         update_at: new Date(),
       }
     });
@@ -249,6 +270,7 @@ export async function POST(request: Request) {
       description: activity.description_activity || '',
       segments: safeJsonSerialize(activity.segments),
       parentId: activity.parent_id,
+      isPublic: activity.is_public,
       createdAt: activity.created_at.toISOString(),
       updatedAt: activity.update_at.toISOString(),
     };

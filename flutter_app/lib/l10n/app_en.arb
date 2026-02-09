@@ -323,5 +323,35 @@
   "common_categoryAnalysis": "Analysis",
   "common_difficultyEasy": "Easy",
   "common_difficultyMedium": "Medium",
-  "common_difficultyHard": "Hard"
+  "common_difficultyHard": "Hard",
+
+  "createActivity_title": "CREATE ACTIVITY",
+  "createActivity_selectCategory": "Select Category",
+  "createActivity_physical": "Physical",
+  "createActivity_analysis": "Analysis",
+  "createActivity_name": "Activity Name",
+  "createActivity_description": "Description",
+  "createActivity_content": "How to Play / Instructions",
+  "createActivity_difficulty": "Difficulty",
+  "createActivity_maxScore": "Max Score",
+  "createActivity_videoUrl": "Video URL (TikTok)",
+  "createActivity_addQuestion": "Add Question",
+  "createActivity_question": "Question",
+  "createActivity_answer": "Answer",
+  "createActivity_solution": "Solution / Explanation",
+  "createActivity_score": "Score",
+  "createActivity_submit": "CREATE",
+  "createActivity_success": "Activity created successfully!",
+  "createActivity_error": "Failed to create activity",
+  "createActivity_nameRequired": "Please enter an activity name",
+  "createActivity_contentRequired": "Please enter instructions",
+  "createActivity_needQuestions": "Please add at least one question",
+  "createActivity_questionNo": "Question {index}",
+  "@createActivity_questionNo": {
+    "placeholders": {
+      "index": { "type": "int" }
+    }
+  },
+  "createActivity_removeQuestion": "Remove",
+  "createActivity_creating": "Creating..."
 }

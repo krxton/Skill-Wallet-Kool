@@ -16,6 +16,15 @@ class UserProvider extends ChangeNotifier {
   String? get currentParentId => _currentParentId;
   List<Map<String, dynamic>> get children => _children;
 
+  /// User role from Supabase app_metadata (read-only, set in dashboard only)
+  String get userRole {
+    final meta = _supabase.auth.currentUser?.appMetadata;
+    if (meta != null && meta['role'] == 'admin') return 'admin';
+    return 'user';
+  }
+
+  bool get isAdmin => userRole == 'admin';
+
   /// ดึงชื่อเด็กที่เลือกอยู่
   String? get currentChildName {
     if (_currentChildId == null || _children.isEmpty) return null;

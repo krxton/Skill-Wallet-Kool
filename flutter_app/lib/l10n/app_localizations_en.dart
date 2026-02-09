@@ -769,4 +769,78 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get common_difficultyHard => 'Hard';
+
+  @override
+  String get createActivity_title => 'CREATE ACTIVITY';
+
+  @override
+  String get createActivity_selectCategory => 'Select Category';
+
+  @override
+  String get createActivity_physical => 'Physical';
+
+  @override
+  String get createActivity_analysis => 'Analysis';
+
+  @override
+  String get createActivity_name => 'Activity Name';
+
+  @override
+  String get createActivity_description => 'Description';
+
+  @override
+  String get createActivity_content => 'How to Play / Instructions';
+
+  @override
+  String get createActivity_difficulty => 'Difficulty';
+
+  @override
+  String get createActivity_maxScore => 'Max Score';
+
+  @override
+  String get createActivity_videoUrl => 'Video URL (TikTok)';
+
+  @override
+  String get createActivity_addQuestion => 'Add Question';
+
+  @override
+  String get createActivity_question => 'Question';
+
+  @override
+  String get createActivity_answer => 'Answer';
+
+  @override
+  String get createActivity_solution => 'Solution / Explanation';
+
+  @override
+  String get createActivity_score => 'Score';
+
+  @override
+  String get createActivity_submit => 'CREATE';
+
+  @override
+  String get createActivity_success => 'Activity created successfully!';
+
+  @override
+  String get createActivity_error => 'Failed to create activity';
+
+  @override
+  String get createActivity_nameRequired => 'Please enter an activity name';
+
+  @override
+  String get createActivity_contentRequired => 'Please enter instructions';
+
+  @override
+  String get createActivity_needQuestions => 'Please add at least one question';
+
+  @override
+  String createActivity_questionNo(int index) {
+    return 'Question $index';
+  }
+
+  @override
+  String get createActivity_removeQuestion => 'Remove';
+
+  @override
+  String get createActivity_creating => 'Creating...';
 }

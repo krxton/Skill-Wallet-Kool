@@ -105,10 +105,18 @@ class ActivityService {
     String childId, {
     String? category, // 'ด้านภาษา', 'ด้านร่างกาย', 'ด้านวิเคราะห์'
     String? level, // 'ง่าย', 'กลาง', 'ยาก'
+    String? parentId, // สำหรับ filter visibility
   }) async {
     try {
       final supabase = Supabase.instance.client;
       var query = supabase.from('activity').select();
+
+      // Visibility: is_public=true OR parent_id=currentParent
+      if (parentId != null && parentId.isNotEmpty) {
+        query = query.or('is_public.eq.true,parent_id.eq.$parentId');
+      } else {
+        query = query.eq('is_public', true);
+      }
 
       // กรองตาม category ถ้ามี
       if (category != null && category.isNotEmpty) {
@@ -171,10 +179,18 @@ class ActivityService {
     String childId, {
     String? category, // 'ด้านภาษา', 'ด้านร่างกาย', 'ด้านวิเคราะห์'
     String? level, // 'ง่าย', 'กลาง', 'ยาก'
+    String? parentId, // สำหรับ filter visibility
   }) async {
     try {
       final supabase = Supabase.instance.client;
       var query = supabase.from('activity').select();
+
+      // Visibility: is_public=true OR parent_id=currentParent
+      if (parentId != null && parentId.isNotEmpty) {
+        query = query.or('is_public.eq.true,parent_id.eq.$parentId');
+      } else {
+        query = query.eq('is_public', true);
+      }
 
       // กรองตาม category ถ้ามี
       if (category != null && category.isNotEmpty) {
@@ -442,5 +458,33 @@ class ActivityService {
       debugPrint('Finalize Quest Error: $e');
       throw Exception('Failed to finalize quest and save record.');
     }
+  }
+
+  /// สร้างกิจกรรมใหม่ผ่าน backend API
+  Future<Map<String, dynamic>> createActivity({
+    required String parentId,
+    required String name,
+    required String category,
+    required String content,
+    required String difficulty,
+    required int maxScore,
+    String? description,
+    String? videoUrl,
+    List<Map<String, dynamic>>? segments,
+    bool isPublic = true,
+  }) async {
+    final payload = {
+      'name': name,
+      'category': category,
+      'content': content,
+      'difficulty': difficulty,
+      'maxScore': maxScore,
+      'parentId': parentId,
+      'isPublic': isPublic,
+      if (description != null) 'description': description,
+      if (videoUrl != null && videoUrl.isNotEmpty) 'videoUrl': videoUrl,
+      if (segments != null) 'segments': segments,
+    };
+    return _apiService.post('/activities', payload);
   }
 }

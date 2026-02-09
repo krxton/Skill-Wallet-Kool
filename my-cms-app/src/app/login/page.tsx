@@ -1,22 +1,31 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import { LogIn, Mail, Lock, AlertCircle } from 'lucide-react'
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  // Check if already logged in
+  // Show error from middleware redirect (e.g. unauthorized)
+  useEffect(() => {
+    const urlError = searchParams.get('error')
+    if (urlError === 'unauthorized') {
+      setError('คุณไม่มีสิทธิ์เข้าถึงระบบนี้ เฉพาะผู้ดูแลระบบเท่านั้น')
+    }
+  }, [searchParams])
+
+  // Check if already logged in as admin
   useEffect(() => {
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (session) {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user && user.app_metadata?.role === 'admin') {
         router.push('/admin/activities')
       }
     }
@@ -39,7 +48,15 @@ export default function LoginPage() {
         return
       }
 
-      // Login successful - force reload to refresh middleware
+      // Check role after login
+      const role = data.user?.app_metadata?.role
+      if (role !== 'admin') {
+        await supabase.auth.signOut()
+        setError('คุณไม่มีสิทธิ์เข้าถึงระบบนี้ เฉพาะผู้ดูแลระบบเท่านั้น')
+        return
+      }
+
+      // Admin login successful - force reload to refresh middleware
       window.location.href = '/admin/activities'
     } catch (err) {
       setError('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง')
@@ -166,5 +183,13 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   )
 }

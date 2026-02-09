@@ -768,4 +768,78 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get common_difficultyHard => 'ยาก';
+
+  @override
+  String get createActivity_title => 'สร้างกิจกรรม';
+
+  @override
+  String get createActivity_selectCategory => 'เลือกหมวดหมู่';
+
+  @override
+  String get createActivity_physical => 'ด้านร่างกาย';
+
+  @override
+  String get createActivity_analysis => 'ด้านวิเคราะห์';
+
+  @override
+  String get createActivity_name => 'ชื่อกิจกรรม';
+
+  @override
+  String get createActivity_description => 'คำอธิบาย';
+
+  @override
+  String get createActivity_content => 'วิธีเล่น / คำแนะนำ';
+
+  @override
+  String get createActivity_difficulty => 'ระดับความยาก';
+
+  @override
+  String get createActivity_maxScore => 'คะแนนสูงสุด';
+
+  @override
+  String get createActivity_videoUrl => 'URL วิดีโอ (TikTok)';
+
+  @override
+  String get createActivity_addQuestion => 'เพิ่มโจทย์';
+
+  @override
+  String get createActivity_question => 'คำถาม';
+
+  @override
+  String get createActivity_answer => 'คำตอบ';
+
+  @override
+  String get createActivity_solution => 'วิธีทำ / อธิบาย';
+
+  @override
+  String get createActivity_score => 'คะแนน';
+
+  @override
+  String get createActivity_submit => 'สร้าง';
+
+  @override
+  String get createActivity_success => 'สร้างกิจกรรมสำเร็จ!';
+
+  @override
+  String get createActivity_error => 'ไม่สามารถสร้างกิจกรรมได้';
+
+  @override
+  String get createActivity_nameRequired => 'กรุณาระบุชื่อกิจกรรม';
+
+  @override
+  String get createActivity_contentRequired => 'กรุณาระบุวิธีเล่น';
+
+  @override
+  String get createActivity_needQuestions => 'กรุณาเพิ่มโจทย์อย่างน้อย 1 ข้อ';
+
+  @override
+  String createActivity_questionNo(int index) {
+    return 'โจทย์ที่ $index';
+  }
+
+  @override
+  String get createActivity_removeQuestion => 'ลบ';
+
+  @override
+  String get createActivity_creating => 'กำลังสร้าง...';
 }

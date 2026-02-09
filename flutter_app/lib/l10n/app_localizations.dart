@@ -1549,6 +1549,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hard'**
   String get common_difficultyHard;
+
+  /// No description provided for @createActivity_title.
+  ///
+  /// In en, this message translates to:
+  /// **'CREATE ACTIVITY'**
+  String get createActivity_title;
+
+  /// No description provided for @createActivity_selectCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Category'**
+  String get createActivity_selectCategory;
+
+  /// No description provided for @createActivity_physical.
+  ///
+  /// In en, this message translates to:
+  /// **'Physical'**
+  String get createActivity_physical;
+
+  /// No description provided for @createActivity_analysis.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis'**
+  String get createActivity_analysis;
+
+  /// No description provided for @createActivity_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity Name'**
+  String get createActivity_name;
+
+  /// No description provided for @createActivity_description.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get createActivity_description;
+
+  /// No description provided for @createActivity_content.
+  ///
+  /// In en, this message translates to:
+  /// **'How to Play / Instructions'**
+  String get createActivity_content;
+
+  /// No description provided for @createActivity_difficulty.
+  ///
+  /// In en, this message translates to:
+  /// **'Difficulty'**
+  String get createActivity_difficulty;
+
+  /// No description provided for @createActivity_maxScore.
+  ///
+  /// In en, this message translates to:
+  /// **'Max Score'**
+  String get createActivity_maxScore;
+
+  /// No description provided for @createActivity_videoUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Video URL (TikTok)'**
+  String get createActivity_videoUrl;
+
+  /// No description provided for @createActivity_addQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Question'**
+  String get createActivity_addQuestion;
+
+  /// No description provided for @createActivity_question.
+  ///
+  /// In en, this message translates to:
+  /// **'Question'**
+  String get createActivity_question;
+
+  /// No description provided for @createActivity_answer.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer'**
+  String get createActivity_answer;
+
+  /// No description provided for @createActivity_solution.
+  ///
+  /// In en, this message translates to:
+  /// **'Solution / Explanation'**
+  String get createActivity_solution;
+
+  /// No description provided for @createActivity_score.
+  ///
+  /// In en, this message translates to:
+  /// **'Score'**
+  String get createActivity_score;
+
+  /// No description provided for @createActivity_submit.
+  ///
+  /// In en, this message translates to:
+  /// **'CREATE'**
+  String get createActivity_submit;
+
+  /// No description provided for @createActivity_success.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity created successfully!'**
+  String get createActivity_success;
+
+  /// No description provided for @createActivity_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to create activity'**
+  String get createActivity_error;
+
+  /// No description provided for @createActivity_nameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter an activity name'**
+  String get createActivity_nameRequired;
+
+  /// No description provided for @createActivity_contentRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter instructions'**
+  String get createActivity_contentRequired;
+
+  /// No description provided for @createActivity_needQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Please add at least one question'**
+  String get createActivity_needQuestions;
+
+  /// No description provided for @createActivity_questionNo.
+  ///
+  /// In en, this message translates to:
+  /// **'Question {index}'**
+  String createActivity_questionNo(int index);
+
+  /// No description provided for @createActivity_removeQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get createActivity_removeQuestion;
+
+  /// No description provided for @createActivity_creating.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating...'**
+  String get createActivity_creating;
 }
 
 class _AppLocalizationsDelegate

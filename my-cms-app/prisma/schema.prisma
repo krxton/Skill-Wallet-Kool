@@ -429,6 +429,7 @@ model activity {
   tiktokhtmlcontent    String?
   update_at            DateTime          @db.Timestamptz(6)
   play_count           Decimal?          @db.Decimal
+  is_public            Boolean           @default(true)
   parent               parent            @relation(fields: [parent_id], references: [parent_id], onDelete: NoAction, onUpdate: NoAction)
   activity_record      activity_record[]
 

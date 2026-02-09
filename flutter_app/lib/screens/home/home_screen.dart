@@ -14,7 +14,7 @@ import '../../widgets/activity_card.dart';
 import '../../widgets/scrollable_activity_list.dart';
 import '../../widgets/main_bottom_nav.dart';
 import '../profile/profile_screen.dart';
-import '../post/create_post_screen.dart';
+import '../activities/create_activity_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -90,11 +90,13 @@ class _HomeScreenState extends State<HomeScreen> {
           childId,
           category: _selectedCategory,
           level: _selectedLevel,
+          parentId: parentId,
         );
         _newActivitiesFuture = _activityService.fetchNewActivities(
           childId,
           category: _selectedCategory,
           level: _selectedLevel,
+          parentId: parentId,
         );
       });
     }
@@ -121,7 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
     try {
       // 1. ดึงกิจกรรมทั้งหมด
       final allActivities =
-          await _activityService.fetchPopularActivities(childId);
+          await _activityService.fetchPopularActivities(childId, parentId: _currentParentId);
 
       if (allActivities.isEmpty) return [];
 
@@ -165,7 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return recommended;
     } catch (e) {
       debugPrint('❌ Error fetching recommended activities: $e');
-      final all = await _activityService.fetchPopularActivities(childId);
+      final all = await _activityService.fetchPopularActivities(childId, parentId: _currentParentId);
       all.shuffle();
       return all.take(5).toList();
     }
@@ -1037,14 +1039,16 @@ class _HomeScreenState extends State<HomeScreen> {
           selectedIndex: _selectedTab,
           onTabSelected: (i) {
             if (i == 1) {
-              // ✅ 2. แก้ไขให้กดแล้วเด้งหน้า CreatePostScreen ขึ้นมาแบบ Modal
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const CreatePostScreen(),
-                  fullscreenDialog:
-                      true, // ตัวนี้แหละครับที่ทำให้เหมือน IG เด้งจากล่างขึ้นบน
-                ),
-              );
+              Navigator.of(context)
+                  .push<bool>(
+                    MaterialPageRoute(
+                      builder: (context) => const CreateActivityScreen(),
+                      fullscreenDialog: true,
+                    ),
+                  )
+                  .then((created) {
+                if (created == true) _loadData();
+              });
               return;
             }
             // แอบโหลด suggest ใหม่ตอนออกจาก home tab
