@@ -134,16 +134,63 @@
   "dairyactivity_timeBtn": "time",
   "dairyactivity_medalsBtn": "medals",
 
-  "medalredemption_addrewardBtn": "ADD REWARD",
-  "medalredemption_rewardnameBtn": "Reward Name",
+  "medalredemption_addrewardBtn": "ADD AGREEMENT",
+  "medalredemption_rewardnameBtn": "Agreement Name",
   "medalredemption_costBtn": "Cost (Points)",
   "medalredemption_cancelBtn": "CANCEL",
   "medalredemption_addBtn": "ADD",
-  "medalredemption_redemptionBtn":"REDEMPTION",
+  "medalredemption_redemptionBtn": "AGREEMENTS",
   "medalredemption_activitiesBtn": "ACTIVITIES",
-  "medalredemption_currentscoreBtn":"CURRENT SCORE",
-  "medalredemption_rewardshopBtn":"REWARDS SHOP",
-  "medalredemption_successfullyBtn":"Successfully Redeemed",
+  "medalredemption_currentscoreBtn": "CURRENT SCORE",
+  "medalredemption_rewardshopBtn": "AGREEMENTS",
+  "medalredemption_successfullyBtn": "Successfully Redeemed",
+
+  "agreement_typeTime": "Time",
+  "agreement_typeItem": "Item",
+  "agreement_typePrivilege": "Privilege",
+  "agreement_typeFamily": "Family",
+  "agreement_selectType": "Select Agreement Type",
+  "agreement_confirmTitle": "Confirm Agreement",
+  "agreement_confirmMsg": "Use {cost} points to redeem \"{name}\"?",
+  "@agreement_confirmMsg": {
+    "placeholders": {
+      "cost": { "type": "int" },
+      "name": { "type": "String" }
+    }
+  },
+  "agreement_confirmBtn": "CONFIRM",
+  "agreement_sessionActive": "Session Active",
+  "agreement_timeRemaining": "Time Remaining",
+  "agreement_startTimer": "START",
+  "agreement_stopTimer": "STOP",
+  "agreement_endSession": "END SESSION",
+  "agreement_sessionComplete": "Session Complete!",
+  "agreement_behaviorTitle": "How was the behavior?",
+  "agreement_behaviorGood": "Good",
+  "agreement_behaviorOk": "OK",
+  "agreement_behaviorBad": "Needs Improvement",
+  "agreement_bonusMsg": "Bonus: +{points} points",
+  "@agreement_bonusMsg": {
+    "placeholders": {
+      "points": { "type": "int" }
+    }
+  },
+  "agreement_deductMsg": "Deduction: -{points} points",
+  "@agreement_deductMsg": {
+    "placeholders": {
+      "points": { "type": "int" }
+    }
+  },
+  "agreement_noChange": "No point change",
+  "agreement_notEnoughPoints": "Not enough points! Need {needed} more.",
+  "@agreement_notEnoughPoints": {
+    "placeholders": {
+      "needed": { "type": "int" }
+    }
+  },
+  "agreement_durationLabel": "Duration (minutes)",
+  "agreement_emptyList": "No agreements yet",
+  "agreement_emptyHint": "Tap + to create a new agreement",
 
   "physical_snackNoEvidence": "Please attach video or image evidence.",
   "physical_snackInvalidScore": "Please set a valid score (1 to {maxScore}).",

@@ -368,10 +368,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dairyactivity_medalsBtn => 'medals';
 
   @override
-  String get medalredemption_addrewardBtn => 'ADD REWARD';
+  String get medalredemption_addrewardBtn => 'ADD AGREEMENT';
 
   @override
-  String get medalredemption_rewardnameBtn => 'Reward Name';
+  String get medalredemption_rewardnameBtn => 'Agreement Name';
 
   @override
   String get medalredemption_costBtn => 'Cost (Points)';
@@ -383,7 +383,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get medalredemption_addBtn => 'ADD';
 
   @override
-  String get medalredemption_redemptionBtn => 'REDEMPTION';
+  String get medalredemption_redemptionBtn => 'AGREEMENTS';
 
   @override
   String get medalredemption_activitiesBtn => 'ACTIVITIES';
@@ -392,10 +392,93 @@ class AppLocalizationsEn extends AppLocalizations {
   String get medalredemption_currentscoreBtn => 'CURRENT SCORE';
 
   @override
-  String get medalredemption_rewardshopBtn => 'REWARDS SHOP';
+  String get medalredemption_rewardshopBtn => 'AGREEMENTS';
 
   @override
   String get medalredemption_successfullyBtn => 'Successfully Redeemed';
+
+  @override
+  String get agreement_typeTime => 'Time';
+
+  @override
+  String get agreement_typeItem => 'Item';
+
+  @override
+  String get agreement_typePrivilege => 'Privilege';
+
+  @override
+  String get agreement_typeFamily => 'Family';
+
+  @override
+  String get agreement_selectType => 'Select Agreement Type';
+
+  @override
+  String get agreement_confirmTitle => 'Confirm Agreement';
+
+  @override
+  String agreement_confirmMsg(int cost, String name) {
+    return 'Use $cost points to redeem \"$name\"?';
+  }
+
+  @override
+  String get agreement_confirmBtn => 'CONFIRM';
+
+  @override
+  String get agreement_sessionActive => 'Session Active';
+
+  @override
+  String get agreement_timeRemaining => 'Time Remaining';
+
+  @override
+  String get agreement_startTimer => 'START';
+
+  @override
+  String get agreement_stopTimer => 'STOP';
+
+  @override
+  String get agreement_endSession => 'END SESSION';
+
+  @override
+  String get agreement_sessionComplete => 'Session Complete!';
+
+  @override
+  String get agreement_behaviorTitle => 'How was the behavior?';
+
+  @override
+  String get agreement_behaviorGood => 'Good';
+
+  @override
+  String get agreement_behaviorOk => 'OK';
+
+  @override
+  String get agreement_behaviorBad => 'Needs Improvement';
+
+  @override
+  String agreement_bonusMsg(int points) {
+    return 'Bonus: +$points points';
+  }
+
+  @override
+  String agreement_deductMsg(int points) {
+    return 'Deduction: -$points points';
+  }
+
+  @override
+  String get agreement_noChange => 'No point change';
+
+  @override
+  String agreement_notEnoughPoints(int needed) {
+    return 'Not enough points! Need $needed more.';
+  }
+
+  @override
+  String get agreement_durationLabel => 'Duration (minutes)';
+
+  @override
+  String get agreement_emptyList => 'No agreements yet';
+
+  @override
+  String get agreement_emptyHint => 'Tap + to create a new agreement';
 
   @override
   String get physical_snackNoEvidence =>

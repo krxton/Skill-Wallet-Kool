@@ -791,13 +791,13 @@ abstract class AppLocalizations {
   /// No description provided for @medalredemption_addrewardBtn.
   ///
   /// In en, this message translates to:
-  /// **'ADD REWARD'**
+  /// **'ADD AGREEMENT'**
   String get medalredemption_addrewardBtn;
 
   /// No description provided for @medalredemption_rewardnameBtn.
   ///
   /// In en, this message translates to:
-  /// **'Reward Name'**
+  /// **'Agreement Name'**
   String get medalredemption_rewardnameBtn;
 
   /// No description provided for @medalredemption_costBtn.
@@ -821,7 +821,7 @@ abstract class AppLocalizations {
   /// No description provided for @medalredemption_redemptionBtn.
   ///
   /// In en, this message translates to:
-  /// **'REDEMPTION'**
+  /// **'AGREEMENTS'**
   String get medalredemption_redemptionBtn;
 
   /// No description provided for @medalredemption_activitiesBtn.
@@ -839,7 +839,7 @@ abstract class AppLocalizations {
   /// No description provided for @medalredemption_rewardshopBtn.
   ///
   /// In en, this message translates to:
-  /// **'REWARDS SHOP'**
+  /// **'AGREEMENTS'**
   String get medalredemption_rewardshopBtn;
 
   /// No description provided for @medalredemption_successfullyBtn.
@@ -847,6 +847,156 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Successfully Redeemed'**
   String get medalredemption_successfullyBtn;
+
+  /// No description provided for @agreement_typeTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get agreement_typeTime;
+
+  /// No description provided for @agreement_typeItem.
+  ///
+  /// In en, this message translates to:
+  /// **'Item'**
+  String get agreement_typeItem;
+
+  /// No description provided for @agreement_typePrivilege.
+  ///
+  /// In en, this message translates to:
+  /// **'Privilege'**
+  String get agreement_typePrivilege;
+
+  /// No description provided for @agreement_typeFamily.
+  ///
+  /// In en, this message translates to:
+  /// **'Family'**
+  String get agreement_typeFamily;
+
+  /// No description provided for @agreement_selectType.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Agreement Type'**
+  String get agreement_selectType;
+
+  /// No description provided for @agreement_confirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Agreement'**
+  String get agreement_confirmTitle;
+
+  /// No description provided for @agreement_confirmMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Use {cost} points to redeem \"{name}\"?'**
+  String agreement_confirmMsg(int cost, String name);
+
+  /// No description provided for @agreement_confirmBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'CONFIRM'**
+  String get agreement_confirmBtn;
+
+  /// No description provided for @agreement_sessionActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Session Active'**
+  String get agreement_sessionActive;
+
+  /// No description provided for @agreement_timeRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'Time Remaining'**
+  String get agreement_timeRemaining;
+
+  /// No description provided for @agreement_startTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'START'**
+  String get agreement_startTimer;
+
+  /// No description provided for @agreement_stopTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'STOP'**
+  String get agreement_stopTimer;
+
+  /// No description provided for @agreement_endSession.
+  ///
+  /// In en, this message translates to:
+  /// **'END SESSION'**
+  String get agreement_endSession;
+
+  /// No description provided for @agreement_sessionComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Session Complete!'**
+  String get agreement_sessionComplete;
+
+  /// No description provided for @agreement_behaviorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'How was the behavior?'**
+  String get agreement_behaviorTitle;
+
+  /// No description provided for @agreement_behaviorGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get agreement_behaviorGood;
+
+  /// No description provided for @agreement_behaviorOk.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get agreement_behaviorOk;
+
+  /// No description provided for @agreement_behaviorBad.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs Improvement'**
+  String get agreement_behaviorBad;
+
+  /// No description provided for @agreement_bonusMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Bonus: +{points} points'**
+  String agreement_bonusMsg(int points);
+
+  /// No description provided for @agreement_deductMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Deduction: -{points} points'**
+  String agreement_deductMsg(int points);
+
+  /// No description provided for @agreement_noChange.
+  ///
+  /// In en, this message translates to:
+  /// **'No point change'**
+  String get agreement_noChange;
+
+  /// No description provided for @agreement_notEnoughPoints.
+  ///
+  /// In en, this message translates to:
+  /// **'Not enough points! Need {needed} more.'**
+  String agreement_notEnoughPoints(int needed);
+
+  /// No description provided for @agreement_durationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Duration (minutes)'**
+  String get agreement_durationLabel;
+
+  /// No description provided for @agreement_emptyList.
+  ///
+  /// In en, this message translates to:
+  /// **'No agreements yet'**
+  String get agreement_emptyList;
+
+  /// No description provided for @agreement_emptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap + to create a new agreement'**
+  String get agreement_emptyHint;
 
   /// No description provided for @physical_snackNoEvidence.
   ///

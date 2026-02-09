@@ -368,10 +368,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get dairyactivity_medalsBtn => 'รางวัล';
 
   @override
-  String get medalredemption_addrewardBtn => 'เพิ่มรางวัล';
+  String get medalredemption_addrewardBtn => 'เพิ่มข้อตกลง';
 
   @override
-  String get medalredemption_rewardnameBtn => 'ชื่อรางวัล';
+  String get medalredemption_rewardnameBtn => 'ชื่อข้อตกลง';
 
   @override
   String get medalredemption_costBtn => 'คะแนน';
@@ -383,19 +383,102 @@ class AppLocalizationsTh extends AppLocalizations {
   String get medalredemption_addBtn => 'เพิ่ม';
 
   @override
-  String get medalredemption_redemptionBtn => 'REDEMPTION';
+  String get medalredemption_redemptionBtn => 'ข้อตกลง';
 
   @override
-  String get medalredemption_activitiesBtn => 'ACTIVITIES';
+  String get medalredemption_activitiesBtn => 'กิจกรรม';
 
   @override
-  String get medalredemption_currentscoreBtn => 'CURRENT SCORE';
+  String get medalredemption_currentscoreBtn => 'คะแนนปัจจุบัน';
 
   @override
-  String get medalredemption_rewardshopBtn => 'REWARDS SHOP';
+  String get medalredemption_rewardshopBtn => 'ข้อตกลง';
 
   @override
-  String get medalredemption_successfullyBtn => 'Successfully Redeemed';
+  String get medalredemption_successfullyBtn => 'แลกรางวัลสำเร็จ';
+
+  @override
+  String get agreement_typeTime => 'เวลา';
+
+  @override
+  String get agreement_typeItem => 'สิ่งของ';
+
+  @override
+  String get agreement_typePrivilege => 'สิทธิพิเศษ';
+
+  @override
+  String get agreement_typeFamily => 'กิจกรรมครอบครัว';
+
+  @override
+  String get agreement_selectType => 'เลือกประเภทข้อตกลง';
+
+  @override
+  String get agreement_confirmTitle => 'ยืนยันข้อตกลง';
+
+  @override
+  String agreement_confirmMsg(int cost, String name) {
+    return 'ใช้ $cost คะแนนเพื่อแลก \"$name\"?';
+  }
+
+  @override
+  String get agreement_confirmBtn => 'ยืนยัน';
+
+  @override
+  String get agreement_sessionActive => 'กำลังใช้งาน';
+
+  @override
+  String get agreement_timeRemaining => 'เวลาที่เหลือ';
+
+  @override
+  String get agreement_startTimer => 'เริ่ม';
+
+  @override
+  String get agreement_stopTimer => 'หยุด';
+
+  @override
+  String get agreement_endSession => 'สิ้นสุดการใช้งาน';
+
+  @override
+  String get agreement_sessionComplete => 'เสร็จสิ้น!';
+
+  @override
+  String get agreement_behaviorTitle => 'พฤติกรรมเป็นอย่างไร?';
+
+  @override
+  String get agreement_behaviorGood => 'ดี';
+
+  @override
+  String get agreement_behaviorOk => 'ปกติ';
+
+  @override
+  String get agreement_behaviorBad => 'ต้องปรับปรุง';
+
+  @override
+  String agreement_bonusMsg(int points) {
+    return 'โบนัส: +$points คะแนน';
+  }
+
+  @override
+  String agreement_deductMsg(int points) {
+    return 'หัก: -$points คะแนน';
+  }
+
+  @override
+  String get agreement_noChange => 'ไม่มีการเปลี่ยนแปลงคะแนน';
+
+  @override
+  String agreement_notEnoughPoints(int needed) {
+    return 'คะแนนไม่เพียงพอ! ต้องการอีก $needed คะแนน';
+  }
+
+  @override
+  String get agreement_durationLabel => 'ระยะเวลา (นาที)';
+
+  @override
+  String get agreement_emptyList => 'ยังไม่มีข้อตกลง';
+
+  @override
+  String get agreement_emptyHint => 'กด + เพื่อสร้างข้อตกลงใหม่';
 
   @override
   String get physical_snackNoEvidence => 'กรุณาแนบวิดีโอหรือรูปภาพหลักฐาน';

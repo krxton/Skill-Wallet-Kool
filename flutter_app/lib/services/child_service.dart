@@ -4,10 +4,12 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../models/child_model.dart';
+import 'api_service.dart';
 import 'storage_service.dart';
 
 class ChildService {
   final StorageService _storage = StorageService();
+  final ApiService _apiService = ApiService();
 
   String get apiBaseUrl =>
       dotenv.env['API_BASE_URL'] ?? 'http://127.0.0.1:3000/api';
@@ -341,6 +343,25 @@ class ChildService {
     return addMedal(parentId: parentId, name: name, cost: cost);
   }
 
+  /// อัพเดท medal (ชื่อ + คะแนน)
+  Future<bool> updateMedal({
+    required String medalsId,
+    required String name,
+    required int cost,
+  }) async {
+    try {
+      final supabase = Supabase.instance.client;
+      await supabase.from('medals').update({
+        'name_medals': name,
+        'point_medals': cost,
+      }).eq('id', medalsId);
+      return true;
+    } catch (e) {
+      print('❌ updateMedal error: $e');
+      return false;
+    }
+  }
+
   /// ลบ medal
   Future<bool> deleteMedal(String medalsId) async {
     try {
@@ -364,7 +385,7 @@ class ChildService {
     return deleteMedal(rewardId);
   }
 
-  /// แลก medal (บันทึกใน redemption table)
+  /// แลก medal (ผ่าน backend API เพื่อความถูกต้อง)
   Future<Map<String, dynamic>> redeemMedal({
     required String childId,
     required String medalsId,
@@ -372,57 +393,19 @@ class ChildService {
     required int cost,
   }) async {
     try {
-      final supabase = Supabase.instance.client;
+      final result = await _apiService.post('/redeem-medal', {
+        'childId': childId,
+        'medalsId': medalsId,
+        'cost': cost,
+      });
 
-      // 1. ดึงคะแนนปัจจุบันของเด็ก
-      final childResponse = await supabase
-          .from('child')
-          .select('wallet')
-          .eq('child_id', childId)
-          .single();
-
-      // แปลง wallet (อาจเป็น Decimal)
-      final walletValue = childResponse['wallet'];
-      int currentWallet = 0;
-      if (walletValue is int) {
-        currentWallet = walletValue;
-      } else if (walletValue is double) {
-        currentWallet = walletValue.toInt();
-      } else if (walletValue != null) {
-        currentWallet = int.tryParse(walletValue.toString()) ?? 0;
-      }
-
-      if (currentWallet < cost) {
-        return {
-          'success': false,
-          'error': 'คะแนนไม่เพียงพอ ต้องการ $cost แต่มีเพียง $currentWallet',
-        };
-      }
-
-      // 2. หักคะแนน
-      final newWallet = currentWallet - cost;
-      await supabase
-          .from('child')
-          .update({'wallet': newWallet})
-          .eq('child_id', childId);
-
-      // 3. บันทึกประวัติการแลกใน redemption table
-      try {
-        await supabase.from('redemption').insert({
-          'child_id': childId,
-          'medals_id': medalsId,
-          'parent_id': parentId,
-          'point_for_reward': cost,
-          'date_redemption': DateTime.now().toIso8601String(),
-        });
-      } catch (e) {
-        print('⚠️ Could not save redemption: $e');
-      }
-
+      final newWallet = result['newWallet'];
       return {
-        'success': true,
-        'newWallet': newWallet,
-        'message': 'แลกของรางวัลสำเร็จ!',
+        'success': result['success'] == true,
+        'newWallet': newWallet is int
+            ? newWallet
+            : int.tryParse(newWallet.toString()) ?? 0,
+        'message': result['message'] ?? 'แลกของรางวัลสำเร็จ!',
       };
     } catch (e) {
       print('❌ redeemMedal error: $e');
@@ -470,6 +453,30 @@ class ChildService {
     } catch (e) {
       print('❌ getRedemptionHistory error: $e');
       return [];
+    }
+  }
+
+  /// ปรับ wallet ของเด็ก (บวก/ลบ) สำหรับ behavior assessment (ผ่าน backend API)
+  Future<Map<String, dynamic>> adjustWallet({
+    required String childId,
+    required int delta,
+  }) async {
+    try {
+      final result = await _apiService.post('/adjust-wallet', {
+        'childId': childId,
+        'delta': delta,
+      });
+
+      final newWallet = result['newWallet'];
+      return {
+        'success': result['success'] == true,
+        'newWallet': newWallet is int
+            ? newWallet
+            : int.tryParse(newWallet.toString()) ?? 0,
+      };
+    } catch (e) {
+      print('❌ adjustWallet error: $e');
+      return {'success': false, 'error': e.toString()};
     }
   }
 
