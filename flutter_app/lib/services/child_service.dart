@@ -343,37 +343,32 @@ class ChildService {
     return addMedal(parentId: parentId, name: name, cost: cost);
   }
 
-  /// อัพเดท medal (ชื่อ + คะแนน)
+  /// อัพเดท medal (ชื่อ + คะแนน) ผ่าน backend API
   Future<bool> updateMedal({
     required String medalsId,
     required String name,
     required int cost,
   }) async {
     try {
-      final supabase = Supabase.instance.client;
-      await supabase.from('medals').update({
-        'name_medals': name,
-        'point_medals': cost,
-      }).eq('id', medalsId);
-      return true;
+      final result = await _apiService.post('/update-medal', {
+        'medalsId': medalsId,
+        'name': name,
+        'cost': cost,
+      });
+      return result['success'] == true;
     } catch (e) {
       print('❌ updateMedal error: $e');
       return false;
     }
   }
 
-  /// ลบ medal
+  /// ลบ medal ผ่าน backend API
   Future<bool> deleteMedal(String medalsId) async {
     try {
-      final supabase = Supabase.instance.client;
-
-      // ลบจาก parent_and_medals ก่อน (foreign key)
-      await supabase.from('parent_and_medals').delete().eq('medals_id', medalsId);
-
-      // ลบจาก medals
-      await supabase.from('medals').delete().eq('id', medalsId);
-
-      return true;
+      final result = await _apiService.post('/delete-medal', {
+        'medalsId': medalsId,
+      });
+      return result['success'] == true;
     } catch (e) {
       print('❌ deleteMedal error: $e');
       return false;
