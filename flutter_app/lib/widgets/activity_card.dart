@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../models/activity.dart';
-import '../routes/app_routes.dart';
 import '../providers/user_provider.dart';
+import '../routes/app_routes.dart';
+import '../theme/app_text_styles.dart';
+import '../theme/palette.dart';
+import '../utils/youtube_helper.dart';
 
 class ActivityCard extends StatelessWidget {
   const ActivityCard({
@@ -13,13 +15,10 @@ class ActivityCard extends StatelessWidget {
 
   final Activity activity;
 
-  static const deepSky = Color(0xFF7DBEF1);
-  static const sky = Color(0xFF5AB2FF);
 
   @override
   Widget build(BuildContext context) {
     final category = activity.category.toUpperCase();
-    final thaiFallback = [GoogleFonts.itim().fontFamily!];
 
     final bool hasTikTokOEmbedData = category == 'ด้านร่างกาย' &&
         activity.videoUrl != null &&
@@ -33,7 +32,7 @@ class ActivityCard extends StatelessWidget {
 
     String? youtubeThumbnailUrl;
     if (hasYouTubeVideo) {
-      final videoId = _extractYouTubeVideoId(activity.videoUrl!);
+      final videoId = YouTubeHelper.extractVideoId(activity.videoUrl!);
       if (videoId != null) {
         youtubeThumbnailUrl =
             'https://img.youtube.com/vi/$videoId/hqdefault.jpg';
@@ -56,29 +55,20 @@ class ActivityCard extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 'กรุณาเลือกเด็ก',
-                style: TextStyle(
-                  fontFamily: GoogleFonts.itim().fontFamily,
-                  fontSize: 20,
-                ),
+                style: AppTextStyles.heading(20),
               ),
             ],
           ),
           content: Text(
             'คุณต้องเลือกเด็กก่อนจึงจะสามารถเล่นกิจกรรมได้',
-            style: TextStyle(
-              fontFamily: GoogleFonts.itim().fontFamily,
-              fontSize: 16,
-            ),
+            style: AppTextStyles.body(16),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
               child: Text(
                 'ปิด',
-                style: TextStyle(
-                  fontFamily: GoogleFonts.itim().fontFamily,
-                  color: Colors.grey,
-                ),
+                style: AppTextStyles.body(14, color: Colors.grey),
               ),
             ),
             ElevatedButton(
@@ -87,14 +77,11 @@ class ActivityCard extends StatelessWidget {
                 Navigator.pushNamed(context, AppRoutes.childSetting);
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: sky,
+                backgroundColor: Palette.sky,
               ),
               child: Text(
                 'ไปเลือกเด็ก',
-                style: TextStyle(
-                  fontFamily: GoogleFonts.itim().fontFamily,
-                  color: Colors.white,
-                ),
+                style: AppTextStyles.body(14, color: Colors.white),
               ),
             ),
           ],
@@ -176,10 +163,7 @@ class ActivityCard extends StatelessWidget {
                 children: [
                   Text(
                     activity.name,
-                    style: GoogleFonts.luckiestGuy(
-                      fontSize: 11,
-                      color: Colors.black,
-                    ).copyWith(fontFamilyFallback: thaiFallback),
+                    style: AppTextStyles.heading(11, color: Colors.black),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -309,7 +293,7 @@ class ActivityCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       height: double.infinity,
-      color: deepSky,
+      color: Palette.sky,
       alignment: Alignment.center,
       child: Text(
         category.isNotEmpty ? category.substring(0, 1) : '?',
@@ -322,21 +306,4 @@ class ActivityCard extends StatelessWidget {
     );
   }
 
-  String? _extractYouTubeVideoId(String? url) {
-    if (url == null || url.isEmpty) return null;
-    final patterns = [
-      RegExp(r'youtube\.com/watch\?v=([a-zA-Z0-9_-]{11})'),
-      RegExp(r'youtu\.be/([a-zA-Z0-9_-]{11})'),
-      RegExp(r'youtube\.com/embed/([a-zA-Z0-9_-]{11})'),
-      RegExp(r'youtube\.com/v/([a-zA-Z0-9_-]{11})'),
-    ];
-    for (var p in patterns) {
-      final m = p.firstMatch(url);
-      if (m != null && m.groupCount >= 1) return m.group(1);
-    }
-    if (url.length == 11 && RegExp(r'^[a-zA-Z0-9_-]{11}$').hasMatch(url)) {
-      return url;
-    }
-    return null;
-  }
 }

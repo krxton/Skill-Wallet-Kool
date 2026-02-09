@@ -2,13 +2,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/palette.dart';
 
-class AnswerPlusPage extends StatelessWidget {
-  const AnswerPlusPage({super.key});
+class AnswerPlusScreen extends StatelessWidget {
+  const AnswerPlusScreen({super.key});
 
   // 🎨 สีตาม Theme
-  static const cream = Color(0xFFFFF5CD);
-  static const sky = Color(0xFF0D92F4);
   static const orangeItem = Color(0xFFEF9C66);
 
   @override
@@ -28,7 +27,7 @@ class AnswerPlusPage extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: cream,
+      backgroundColor: Palette.cream,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -41,7 +40,7 @@ class AnswerPlusPage extends StatelessWidget {
           'ANSWER PLUS +', // ชื่อหัวข้อเปลี่ยนเป็น ANSWER PLUS +
           style: GoogleFonts.luckiestGuy(
             fontSize: 28,
-            color: sky,
+            color: Palette.sky,
             letterSpacing: 2,
           ),
         ),

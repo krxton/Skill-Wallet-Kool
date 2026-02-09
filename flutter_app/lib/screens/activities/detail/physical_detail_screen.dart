@@ -1,47 +1,31 @@
-// lib/screens/physical_activity.dart
+// lib/screens/activities/detail/physical_detail_screen.dart
 
-import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import 'dart:io';
 import 'dart:async';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 import '../../../models/activity.dart';
 import '../../../providers/user_provider.dart';
-import '../../../services/activity_service.dart';
 import '../../../routes/app_routes.dart';
+import '../../../services/activity_service.dart';
+import '../../../theme/app_text_styles.dart';
+import '../../../theme/palette.dart';
 
-import 'package:flutter/foundation.dart';
-
-class Palette {
-  static const cream = Color(0xFFFFF5CD);
-  static const red = Color(0xFFEA5B6F);
-  static const green = Color(0xFF66BB6A);
-  static const greyCard = Color(0xFFEDEFF3);
-  static const deepGrey = Color(0xFF5D5D5D);
-  static const bluePill = Color(0xFF78BDF1);
-}
-
-// ⚠️ Note: SegmentResult class must be defined in activity_service.dart
-
-class PhysicalActivityScreen extends StatefulWidget {
+class PhysicalDetailScreen extends StatefulWidget {
   final Activity activity;
-  const PhysicalActivityScreen({super.key, required this.activity});
+  const PhysicalDetailScreen({super.key, required this.activity});
 
   @override
-  State<PhysicalActivityScreen> createState() => _PhysicalActivityScreenState();
+  State<PhysicalDetailScreen> createState() => _PhysicalDetailScreenState();
 }
 
-class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
+class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
   // ----------------------------------------------------
   // 1. STATE & SERVICES
   // ----------------------------------------------------
-
-  static const cream = Color(0xFFFFF5CD);
-  static const deepGrey = Color(0xFF5D5D5D);
-  static const startGreen = Color(0xFF66BB6A);
-  static const finishPink = Color(0xFFEA5B6F);
 
   final ActivityService _activityService = ActivityService();
 
@@ -154,18 +138,18 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
     return await showDialog<ImageSource>(
           context: context,
           builder: (context) => AlertDialog(
-            title: Text('Select Source', style: GoogleFonts.luckiestGuy()),
+            title: Text('Select Source', style: AppTextStyles.heading(18)),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 ListTile(
-                  leading: const Icon(Icons.camera_alt, color: startGreen),
-                  title: Text('Camera', style: GoogleFonts.openSans()),
+                  leading: Icon(Icons.camera_alt, color: Palette.success),
+                  title: Text('Camera', style: AppTextStyles.body(14)),
                   onTap: () => Navigator.pop(context, ImageSource.camera),
                 ),
                 ListTile(
                   leading: const Icon(Icons.photo_library, color: Colors.blue),
-                  title: Text('Gallery', style: GoogleFonts.openSans()),
+                  title: Text('Gallery', style: AppTextStyles.body(14)),
                   onTap: () => Navigator.pop(context, ImageSource.gallery),
                 ),
               ],
@@ -240,10 +224,10 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
             context: context,
             builder: (context) => AlertDialog(
                   title: Text('Submission Complete!',
-                      style: GoogleFonts.luckiestGuy()),
+                      style: AppTextStyles.heading(18)),
                   content: Text(
                       'Your evidence has been submitted for approval.',
-                      style: GoogleFonts.openSans()),
+                      style: AppTextStyles.body(14)),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pushNamedAndRemoveUntil(
@@ -251,7 +235,7 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
                           AppRoutes.home,
                           (route) => route.isFirst), // 🆕 กลับไปหน้า Home
                       child: Text('OK',
-                          style: GoogleFonts.luckiestGuy(color: Colors.blue)),
+                          style: AppTextStyles.heading(16, color: Palette.sky)),
                     ),
                   ],
                 ));
@@ -284,10 +268,10 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
       }
       // สำหรับวิดีโอ (แสดงไอคอน)
       return Center(
-          child: Icon(icon, size: 50, color: const Color(0xFF0D92F4)));
+          child: Icon(icon, size: 50, color: Palette.sky));
     }
     // ignore: deprecated_member_use
-    return Icon(Icons.add, size: 50, color: deepGrey.withOpacity(0.5));
+    return Icon(Icons.add, size: 50, color: Palette.deepGrey.withOpacity(0.5));
   }
 
   // 🆕 Helper: Build Score Control
@@ -322,14 +306,14 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: Text(
                   '$_parentScore / ${widget.activity.maxScore}',
-                  style: GoogleFonts.luckiestGuy(fontSize: 24, color: deepGrey),
+                  style: AppTextStyles.heading(24, color: Palette.deepGrey),
                   textAlign: TextAlign.center,
                 ),
               ),
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.add, color: startGreen),
+            icon: Icon(Icons.add, color: Palette.success),
             onPressed: () {
               setState(() {
                 _parentScore = (_parentScore < widget.activity.maxScore)
@@ -355,7 +339,7 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Enter Score', style: GoogleFonts.luckiestGuy()),
+        title: Text('Enter Score', style: AppTextStyles.heading(18)),
         content: TextField(
           controller: _scoreController,
           keyboardType: TextInputType.number,
@@ -373,7 +357,7 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child:
-                Text('Cancel', style: GoogleFonts.openSans(color: Colors.grey)),
+                Text('Cancel', style: AppTextStyles.body(14, color: Colors.grey)),
           ),
           TextButton(
             onPressed: () {
@@ -381,7 +365,7 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
               Navigator.pop(context);
             },
             child:
-                Text('OK', style: GoogleFonts.luckiestGuy(color: startGreen)),
+                Text('OK', style: AppTextStyles.heading(16, color: Palette.success)),
           ),
         ],
       ),
@@ -419,16 +403,16 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
     final bool isEvidenceAttached = _videoPath != null || _imagePath != null;
 
     return Scaffold(
-      backgroundColor: cream,
+      backgroundColor: Palette.cream,
       appBar: AppBar(
-        backgroundColor: cream,
+        backgroundColor: Palette.cream,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(widget.activity.name.toUpperCase(),
-            style: GoogleFonts.luckiestGuy(color: deepGrey)),
+            style: AppTextStyles.heading(20, color: Palette.deepGrey)),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -447,10 +431,7 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
                 ),
                 child: Text(
                   '$mm:$ss',
-                  style: GoogleFonts.luckiestGuy(
-                    fontSize: 28,
-                    color: const Color(0xFF0D92F4),
-                  ),
+                  style: AppTextStyles.heading(28, color: Palette.sky),
                 ),
               ),
             ),
@@ -469,11 +450,10 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
                 ),
                 label: Text(
                   _isPlaying ? 'STOP' : 'START',
-                  style: GoogleFonts.luckiestGuy(
-                      fontSize: 20, color: Colors.white),
+                  style: AppTextStyles.heading(20, color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _isPlaying ? finishPink : startGreen,
+                  backgroundColor: _isPlaying ? Palette.pink : Palette.success,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                   shape: RoundedRectangleBorder(
@@ -488,7 +468,7 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
             // 3. SCORE CONTROL
             Text('MEDALS / SCORE',
                 style:
-                    GoogleFonts.luckiestGuy(fontSize: 18, color: finishPink)),
+                    AppTextStyles.heading(18, color: Palette.pink)),
             _buildScoreControl(),
 
             const SizedBox(height: 20),
@@ -496,7 +476,7 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
             // 4. DIARY (Notes)
             Text('DIARY',
                 style:
-                    GoogleFonts.luckiestGuy(fontSize: 18, color: finishPink)),
+                    AppTextStyles.heading(18, color: Palette.pink)),
             Container(
               height: 100,
               decoration: BoxDecoration(
@@ -522,8 +502,7 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
                     children: [
                       Text(
                         'IMAGE',
-                        style: GoogleFonts.luckiestGuy(
-                            fontSize: 18, color: Colors.black54),
+                        style: AppTextStyles.heading(18, color: Colors.black54),
                       ),
                       const SizedBox(height: 5),
                       GestureDetector(
@@ -536,7 +515,7 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
                               color: _imagePath != null
-                                  ? startGreen
+                                  ? Palette.success
                                   : Colors.grey.shade300,
                               width: 2,
                             ),
@@ -586,8 +565,7 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
                                     const SizedBox(height: 8),
                                     Text(
                                       'Add Image',
-                                      style: GoogleFonts.openSans(
-                                          fontSize: 12, color: Colors.grey),
+                                      style: AppTextStyles.body(12, color: Colors.grey),
                                     ),
                                   ],
                                 ),
@@ -605,8 +583,7 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
                     children: [
                       Text(
                         'VIDEO',
-                        style: GoogleFonts.luckiestGuy(
-                            fontSize: 18, color: Colors.black54),
+                        style: AppTextStyles.heading(18, color: Colors.black54),
                       ),
                       const SizedBox(height: 5),
                       GestureDetector(
@@ -619,7 +596,7 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
                               color: _videoPath != null
-                                  ? startGreen
+                                  ? Palette.success
                                   : Colors.grey.shade300,
                               width: 2,
                             ),
@@ -632,16 +609,12 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: [
-                                          const Icon(Icons.videocam,
-                                              size: 50, color: startGreen),
+                                          Icon(Icons.videocam,
+                                              size: 50, color: Palette.success),
                                           const SizedBox(height: 8),
                                           Text(
                                             'Video Added',
-                                            style: GoogleFonts.openSans(
-                                              fontSize: 12,
-                                              color: startGreen,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                            style: AppTextStyles.label(12, color: Palette.success),
                                           ),
                                         ],
                                       ),
@@ -677,8 +650,7 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
                                     const SizedBox(height: 8),
                                     Text(
                                       'Add Video',
-                                      style: GoogleFonts.openSans(
-                                          fontSize: 12, color: Colors.grey),
+                                      style: AppTextStyles.body(12, color: Colors.grey),
                                     ),
                                   ],
                                 ),
@@ -698,10 +670,9 @@ class _PhysicalActivityScreenState extends State<PhysicalActivityScreen> {
               child: ElevatedButton(
                 onPressed:
                     isEvidenceAttached && !_isSubmitting ? _handleSubmit : null,
-                style: ElevatedButton.styleFrom(backgroundColor: startGreen),
+                style: ElevatedButton.styleFrom(backgroundColor: Palette.success),
                 child: Text(_isSubmitting ? 'Submitting...' : 'FINISH',
-                    style: GoogleFonts.luckiestGuy(
-                        fontSize: 24, color: Colors.white)),
+                    style: AppTextStyles.heading(24, color: Colors.white)),
               ),
             ),
             const SizedBox(height: 30),

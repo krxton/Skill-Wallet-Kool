@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/palette.dart';
 
-class ProblemAnswerPage extends StatelessWidget {
-  const ProblemAnswerPage({super.key});
+class ProblemAnswerScreen extends StatelessWidget {
+  const ProblemAnswerScreen({super.key});
 
   // 🎨 สีตาม Theme
-  static const cream = Color(0xFFFFF5CD);
-  static const sky = Color(0xFF0D92F4);
   static const textBlue = Color(0xFF5AB2FF);
   static const limeGreen = Color(0xFFDCE775); // สีพื้นหลังเฉลย (เขียวอ่อน)
   static const darkText = Color(0xFF555555); // สีตัวหนังสือเฉลย
@@ -23,7 +22,7 @@ class ProblemAnswerPage extends StatelessWidget {
     final String answer = args['answer'] ?? "THERE ARE 8 CATS IN TOTAL.";
 
     return Scaffold(
-      backgroundColor: cream,
+      backgroundColor: Palette.cream,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -36,7 +35,7 @@ class ProblemAnswerPage extends StatelessWidget {
           'ANSWER',
           style: GoogleFonts.luckiestGuy(
             fontSize: 28,
-            color: sky,
+            color: Palette.sky,
             letterSpacing: 2,
           ),
         ),

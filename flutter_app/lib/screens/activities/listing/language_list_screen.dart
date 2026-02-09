@@ -225,11 +225,11 @@ class _LanguageListScreenState extends State<LanguageListScreen> {
   Color _getDifficultyColor(String difficulty) {
     switch (difficulty) {
       case 'ง่าย':
-        return Palette.green;
+        return Palette.successAlt;
       case 'กลาง':
         return Palette.yellow;
       case 'ยาก':
-        return Palette.red;
+        return Palette.pink;
       default:
         return Colors.grey;
     }

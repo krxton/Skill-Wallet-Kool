@@ -22,7 +22,7 @@ class ActivityL10n {
     switch (rawDifficulty) {
       case 'ง่าย':
         return l10n.common_difficultyEasy;
-      case 'ปานกลาง':
+      case 'กลาง':
         return l10n.common_difficultyMedium;
       case 'ยาก':
         return l10n.common_difficultyHard;

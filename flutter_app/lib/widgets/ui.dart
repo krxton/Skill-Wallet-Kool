@@ -1,18 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_text_styles.dart';
 import '../theme/palette.dart';
 
-/// ตัวอักษรหัวข้อสไตล์ Luckiest Guy + fallback Itim สำหรับภาษาไทย
-TextStyle luckiestH(double size, {Color? color}) {
-  final base = GoogleFonts.luckiestGuy(
-    fontSize: size,
-    color: color ?? Palette.text,
-  );
-
-  return base.copyWith(
-    fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-  );
-}
+/// Alias kept for backward-compatibility with existing callers.
+TextStyle luckiestH(double size, {Color? color}) =>
+    AppTextStyles.heading(size, color: color);
 
 class PillButton extends StatelessWidget {
   final String label;

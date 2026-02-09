@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
+import '../theme/palette.dart';
 
 class PrimaryButton extends StatelessWidget {
   final String label;
@@ -21,7 +21,7 @@ class PrimaryButton extends StatelessWidget {
       width: double.infinity,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
-          backgroundColor: color ?? AppTheme.sky,
+          backgroundColor: color ?? Palette.sky,
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(vertical: 14),
           textStyle: theme.textTheme.titleMedium?.copyWith(

@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../routes/app_routes.dart';
+import '../../../theme/palette.dart';
 
-class ProblemDetailPage extends StatelessWidget {
-  const ProblemDetailPage({super.key});
+class ProblemDetailScreen extends StatelessWidget {
+  const ProblemDetailScreen({super.key});
 
   // 🎨 สีตาม Theme
-  static const cream = Color(0xFFFFF5CD);
-  static const sky = Color(0xFF0D92F4);
   static const greenBtn = Color(0xFF88C273);
   static const purpleBtn = Color(0xFFCD9EFF);
   static const blueBtn = Color(0xFFA2D2FF);
@@ -24,7 +23,7 @@ class ProblemDetailPage extends StatelessWidget {
         "THERE ARE 6 CATS IN THE FIELD.\nANOTHER 2 CATS WALK INTO THE FIELD.\nHOW MANY CATS ARE THERE IN TOTAL ?";
 
     return Scaffold(
-      backgroundColor: cream,
+      backgroundColor: Palette.cream,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -37,7 +36,7 @@ class ProblemDetailPage extends StatelessWidget {
           'PROBLEMS SOLVE',
           style: GoogleFonts.luckiestGuy(
             fontSize: 26,
-            color: sky,
+            color: Palette.sky,
             letterSpacing: 1.5,
           ),
         ),

@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../routes/app_routes.dart';
+import '../../../theme/palette.dart';
 
-class PlusPage extends StatelessWidget {
-  const PlusPage({super.key});
+class PlusScreen extends StatelessWidget {
+  const PlusScreen({super.key});
 
   // 🎨 สีตาม Theme
-  static const cream = Color(0xFFFFF5CD);
-  static const sky = Color(0xFF0D92F4);
   static const orangeItem = Color(0xFFEF9C66); // สีพื้นหลังโจทย์
   static const greenBtn = Color(0xFF88C273); // สีปุ่ม Start
   static const purpleBtn = Color(0xFFCD9EFF); // สีปุ่ม Cast
@@ -30,7 +29,7 @@ class PlusPage extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: cream,
+      backgroundColor: Palette.cream,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -43,7 +42,7 @@ class PlusPage extends StatelessWidget {
           'PLUS +',
           style: GoogleFonts.luckiestGuy(
             fontSize: 32,
-            color: sky,
+            color: Palette.sky,
             letterSpacing: 2,
           ),
         ),

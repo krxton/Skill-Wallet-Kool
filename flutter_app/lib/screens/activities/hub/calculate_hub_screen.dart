@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../routes/app_routes.dart';
+import '../../../theme/palette.dart';
 
-class CalculatePage extends StatelessWidget {
-  const CalculatePage({super.key});
+class CalculateHubScreen extends StatelessWidget {
+  const CalculateHubScreen({super.key});
 
   // 🎨 สีตาม Theme
-  static const cream = Color(0xFFFFF5CD);
-  static const sky = Color(0xFF0D92F4);
   static const orangeBtn = Color(0xFFEF9C66);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: cream,
+      backgroundColor: Palette.cream,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -26,7 +25,7 @@ class CalculatePage extends StatelessWidget {
           'CALCULATE',
           style: GoogleFonts.luckiestGuy(
             fontSize: 32,
-            color: sky,
+            color: Palette.sky,
             letterSpacing: 2,
           ),
         ),

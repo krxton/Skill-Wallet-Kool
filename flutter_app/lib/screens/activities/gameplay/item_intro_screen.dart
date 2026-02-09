@@ -654,8 +654,6 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
 
     if (hasVideo) {
       return yp.YoutubePlayerScaffold(
-        key: ValueKey(
-            'yt-$current-$state-$_isPlayerReady'), // 🔑 Force rebuild on state changes
         controller: _ytController!,
         aspectRatio: 16 / 9,
         builder: (context, player) {
@@ -872,33 +870,27 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
 
   Widget _recordButton({required bool isReviewed}) {
     final Color bg = _isRecording
-        ? Colors.red
-        : (isReviewed ? greenPill : const Color(0xFFE7686B));
+        ? const Color(0xFFE53935)
+        : greenPill;
 
     return Expanded(
       child: InkWell(
         onTap: _handleRecord,
-        borderRadius: BorderRadius.circular(_isRecording ? 8 : 14),
-        child: Container(
+        borderRadius: BorderRadius.circular(14),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
           height: 42,
           decoration: BoxDecoration(
             color: bg,
-            borderRadius: BorderRadius.circular(_isRecording ? 8 : 14),
+            borderRadius: BorderRadius.circular(14),
           ),
           alignment: Alignment.center,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (_isRecording) ...[
-                Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(width: 8),
+                const Icon(Icons.mic, color: Colors.white, size: 18),
+                const SizedBox(width: 6),
                 Text(
                   '${_recordingDuration.inMinutes.toString().padLeft(2, '0')}:${(_recordingDuration.inSeconds % 60).toString().padLeft(2, '0')}',
                   style: GoogleFonts.luckiestGuy(

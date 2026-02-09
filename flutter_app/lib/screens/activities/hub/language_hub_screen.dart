@@ -45,7 +45,7 @@ class LanguageHubScreen extends StatelessWidget {
             children: [
               PillButton(
                 label: 'EASY',
-                bg: Palette.green,
+                bg: Palette.successAlt,
                 fg: Colors.white,
                 onTap: () =>
                     _openList(context, 'LISTENING AND SPEAKING', 'EASY'),
@@ -59,7 +59,7 @@ class LanguageHubScreen extends StatelessWidget {
               ),
               PillButton(
                 label: 'DIFFICULT',
-                bg: Palette.red,
+                bg: Palette.pink,
                 fg: Colors.white,
                 onTap: () =>
                     _openList(context, 'LISTENING AND SPEAKING', 'DIFFICULT'),
@@ -75,7 +75,7 @@ class LanguageHubScreen extends StatelessWidget {
             children: [
               PillButton(
                 label: 'EASY',
-                bg: Palette.green,
+                bg: Palette.successAlt,
                 fg: Colors.white,
                 onTap: () => _openList(context, 'FILL IN THE BLANKS', 'EASY'),
               ),
@@ -87,7 +87,7 @@ class LanguageHubScreen extends StatelessWidget {
               ),
               PillButton(
                 label: 'DIFFICULT',
-                bg: Palette.red,
+                bg: Palette.pink,
                 fg: Colors.white,
                 onTap: () => _openList(context, 'FILL IN THE BLANKS', 'DIFFICULT'),
               ),

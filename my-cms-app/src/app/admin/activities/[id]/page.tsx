@@ -334,9 +334,9 @@ export default function ActivityDetailPage() {
 
   const getDifficultyBadge = (difficulty: string) => {
     const colors: { [key: string]: string } = {
-      'Easy': 'bg-green--light6 text-green--dark',
-      'Medium': 'bg-yellow--light3 text-dark',
-      'Hard': 'bg-red--light6 text-red--dark',
+      'ง่าย': 'bg-green--light6 text-green--dark',
+      'กลาง': 'bg-yellow--light3 text-dark',
+      'ยาก': 'bg-red--light6 text-red--dark',
     };
     return (
       <span className={`inline-flex items-center px-3 py-1 rounded-full body-small-medium ${colors[difficulty] || 'bg-gray3 text-secondary--text'}`}>
@@ -517,9 +517,9 @@ export default function ActivityDetailPage() {
                   onChange={(e) => setEditForm({ ...editForm, difficulty: e.target.value })}
                   className="w-full px-4 py-2 border border-gray6 rounded-lg body-medium-regular focus:outline-none focus:ring-2 focus:ring-purple"
                 >
-                  <option value="Easy">Easy</option>
-                  <option value="Medium">Medium</option>
-                  <option value="Hard">Hard</option>
+                  <option value="ง่าย">ง่าย (Easy)</option>
+                  <option value="กลาง">กลาง (Medium)</option>
+                  <option value="ยาก">ยาก (Hard)</option>
                 </select>
               ) : (
                 getDifficultyBadge(activity.difficulty)

@@ -8,12 +8,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
-import '../../../l10n/app_localizations.dart';
 import '../../../models/activity.dart';
 import '../../../providers/user_provider.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/activity_service.dart';
-import '../../../utils/activity_l10n.dart';
+import '../../../theme/app_text_styles.dart';
+import '../../../theme/palette.dart';
+import '../../../widgets/info_badges.dart';
+import '../../../widgets/sticky_bottom_button.dart';
 
 class AnalysisActivityScreen extends StatefulWidget {
   static const String routeName = '/analysis_activity';
@@ -30,13 +32,6 @@ class AnalysisActivityScreen extends StatefulWidget {
 }
 
 class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
-  // Colors
-  static const cream = Color(0xFFFFF5CD);
-  static const sky = Color(0xFF0D92F4);
-  static const greenBtn = Color(0xFF88C273);
-  static const redText = Color(0xFFFF8A8A);
-  static const blueBtn = Color(0xFFA2D2FF);
-
   final ActivityService _activityService = ActivityService();
 
   // Timer
@@ -193,18 +188,18 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
     return await showDialog<ImageSource>(
           context: context,
           builder: (context) => AlertDialog(
-            title: Text('Select Source', style: GoogleFonts.luckiestGuy()),
+            title: Text('Select Source', style: AppTextStyles.heading(18)),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 ListTile(
-                  leading: const Icon(Icons.camera_alt, color: greenBtn),
-                  title: Text('Camera', style: GoogleFonts.openSans()),
+                  leading: Icon(Icons.camera_alt, color: Palette.success),
+                  title: Text('Camera', style: AppTextStyles.body(14)),
                   onTap: () => Navigator.pop(context, ImageSource.camera),
                 ),
                 ListTile(
-                  leading: const Icon(Icons.photo_library, color: blueBtn),
-                  title: Text('Gallery', style: GoogleFonts.openSans()),
+                  leading: Icon(Icons.photo_library, color: Palette.lightBlue),
+                  title: Text('Gallery', style: AppTextStyles.body(14)),
                   onTap: () => Navigator.pop(context, ImageSource.gallery),
                 ),
               ],
@@ -229,14 +224,14 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        backgroundColor: cream,
+        backgroundColor: Palette.cream,
         title: Row(
           children: [
-            const Icon(Icons.edit_note, color: sky, size: 28),
+            Icon(Icons.edit_note, color: Palette.sky, size: 28),
             const SizedBox(width: 10),
             Text(
               'Answer #${index + 1}',
-              style: GoogleFonts.luckiestGuy(fontSize: 20, color: sky),
+              style: AppTextStyles.heading(20, color: Palette.sky),
             ),
           ],
         ),
@@ -249,19 +244,19 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
               autofocus: true,
               decoration: InputDecoration(
                 hintText: 'Type your answer...',
-                hintStyle: GoogleFonts.openSans(color: Colors.grey),
+                hintStyle: AppTextStyles.body(14, color: Colors.grey),
                 filled: true,
                 fillColor: Colors.white,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: sky),
+                  borderSide: BorderSide(color: Palette.sky),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: sky, width: 2),
+                  borderSide: BorderSide(color: Palette.sky, width: 2),
                 ),
               ),
-              style: GoogleFonts.openSans(fontSize: 16),
+              style: AppTextStyles.body(16),
             ),
           ],
         ),
@@ -269,7 +264,7 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text('CANCEL',
-                style: GoogleFonts.luckiestGuy(fontSize: 14, color: Colors.grey)),
+                style: AppTextStyles.heading(14, color: Colors.grey)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -298,12 +293,12 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: sky,
+              backgroundColor: Palette.sky,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
             ),
             child: Text('SUBMIT',
-                style: GoogleFonts.luckiestGuy(fontSize: 14, color: Colors.white)),
+                style: AppTextStyles.heading(14, color: Colors.white)),
           ),
         ],
       ),
@@ -340,7 +335,7 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        backgroundColor: cream,
+        backgroundColor: Palette.cream,
         title: Row(
           children: [
             const Icon(Icons.lightbulb, color: Colors.amber, size: 28),
@@ -350,7 +345,7 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
               style: GoogleFonts.itim(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: sky,
+                color: Palette.sky,
               ),
             ),
           ],
@@ -379,23 +374,23 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
               width: double.infinity,
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: greenBtn.withValues(alpha: 0.15),
+                color: Palette.success.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: greenBtn, width: 2),
+                border: Border.all(color: Palette.success, width: 2),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.check_circle, color: greenBtn, size: 20),
+                      Icon(Icons.check_circle, color: Palette.success, size: 20),
                       const SizedBox(width: 8),
                       Text(
                         'คำตอบ:',
                         style: GoogleFonts.itim(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
-                          color: greenBtn,
+                          color: Palette.success,
                         ),
                       ),
                     ],
@@ -419,7 +414,7 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
             onPressed: () => Navigator.pop(context),
             child: Text(
               'ปิด',
-              style: GoogleFonts.itim(fontSize: 16, color: sky),
+              style: GoogleFonts.itim(fontSize: 16, color: Palette.sky),
             ),
           ),
         ],
@@ -500,90 +495,12 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
     }
   }
 
-  Widget _buildInfoBadges(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    final localizedCategory =
-        ActivityL10n.localizedCategory(context, widget.activity.category);
-    final localizedDifficulty =
-        ActivityL10n.localizedDifficulty(context, widget.activity.difficulty);
-
-    return Row(
-      children: [
-        _buildBadge(
-          icon: Icons.category_outlined,
-          label: l10n.common_categoryLabel,
-          value: localizedCategory,
-          color: sky,
-        ),
-        const SizedBox(width: 8),
-        _buildBadge(
-          icon: Icons.speed_outlined,
-          label: l10n.common_difficultyLabel,
-          value: localizedDifficulty,
-          color: const Color(0xFFFF9800),
-        ),
-        const SizedBox(width: 8),
-        _buildBadge(
-          icon: Icons.star_outline,
-          label: l10n.common_maxScoreLabel,
-          value: '${widget.activity.maxScore}',
-          color: greenBtn,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBadge({
-    required IconData icon,
-    required String label,
-    required String value,
-    required Color color,
-  }) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withValues(alpha: 0.3), width: 1),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: color, size: 18),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: GoogleFonts.openSans(
-                fontSize: 10,
-                color: color,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 2),
-            Text(
-              value,
-              style: GoogleFonts.openSans(
-                fontSize: 13,
-                color: color,
-                fontWeight: FontWeight.bold,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final elapsedSeconds = _activityStopwatch.elapsed.inSeconds;
 
     return Scaffold(
-      backgroundColor: cream,
+      backgroundColor: Palette.cream,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -596,7 +513,7 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
           widget.activity.name,
           style: GoogleFonts.luckiestGuy(
             fontSize: 24,
-            color: sky,
+            color: Palette.sky,
             letterSpacing: 1.5,
           ),
         ),
@@ -606,7 +523,7 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
               child: Text(
                 'No questions available',
                 style:
-                    GoogleFonts.luckiestGuy(fontSize: 20, color: Colors.grey),
+                    AppTextStyles.heading(20, color: Colors.grey),
               ),
             )
           : Column(
@@ -619,7 +536,7 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Info badges (Category, Difficulty, Max Score) - บนสุด
-                        _buildInfoBadges(context),
+                        InfoBadges(activity: widget.activity),
 
                         const SizedBox(height: 16),
 
@@ -634,10 +551,7 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                             ),
                             child: Text(
                               _formatTime(elapsedSeconds),
-                              style: GoogleFonts.luckiestGuy(
-                                fontSize: 24,
-                                color: sky,
-                              ),
+                              style: AppTextStyles.heading(24, color: Palette.sky),
                             ),
                           ),
                         ),
@@ -655,12 +569,11 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                             ),
                             label: Text(
                               _isTimerRunning ? 'PAUSE' : 'START',
-                              style: GoogleFonts.luckiestGuy(
-                                  fontSize: 20, color: Colors.white),
+                              style: AppTextStyles.heading(20, color: Colors.white),
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor:
-                                  _isTimerRunning ? Colors.orange : greenBtn,
+                                  _isTimerRunning ? Colors.orange : Palette.success,
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 40, vertical: 15),
                               shape: RoundedRectangleBorder(
@@ -675,10 +588,7 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                         // Questions header
                         Text(
                           'QUESTIONS',
-                          style: GoogleFonts.luckiestGuy(
-                            fontSize: 24,
-                            color: sky,
-                          ),
+                          style: AppTextStyles.heading(24, color: Palette.sky),
                         ),
 
                         const SizedBox(height: 10),
@@ -699,9 +609,9 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                           Color statusIconColor;
                           if (status == true) {
                             cardColor = const Color(0xFFE8F5E9);
-                            borderColor = greenBtn;
+                            borderColor = Palette.success;
                             statusIcon = Icons.check_circle;
-                            statusIconColor = greenBtn;
+                            statusIconColor = Palette.success;
                           } else if (status == false) {
                             cardColor = const Color(0xFFFFEBEE);
                             borderColor = Colors.red.shade300;
@@ -709,7 +619,7 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                             statusIconColor = Colors.red.shade400;
                           } else {
                             cardColor = Colors.white;
-                            borderColor = sky.withValues(alpha: 0.3);
+                            borderColor = Palette.sky.withValues(alpha: 0.3);
                             statusIcon = Icons.help_outline;
                             statusIconColor = Colors.grey;
                           }
@@ -736,7 +646,7 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 16, vertical: 10),
                                   decoration: BoxDecoration(
-                                    color: sky,
+                                    color: Palette.sky,
                                     borderRadius: const BorderRadius.only(
                                       topLeft: Radius.circular(14),
                                       topRight: Radius.circular(14),
@@ -749,10 +659,7 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                                       const SizedBox(width: 8),
                                       Text(
                                         'Question ${index + 1}',
-                                        style: GoogleFonts.luckiestGuy(
-                                          fontSize: 16,
-                                          color: Colors.white,
-                                        ),
+                                        style: AppTextStyles.heading(16, color: Colors.white),
                                       ),
                                       const Spacer(),
                                       // Hint button
@@ -780,11 +687,7 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                                   padding: const EdgeInsets.all(14),
                                   child: Text(
                                     question,
-                                    style: GoogleFonts.openSans(
-                                      fontSize: 15,
-                                      color: Colors.black87,
-                                      height: 1.4,
-                                    ),
+                                    style: AppTextStyles.body(15, color: Colors.black87),
                                   ),
                                 ),
                                 // User answer display (if answered)
@@ -797,7 +700,7 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                                       padding: const EdgeInsets.all(10),
                                       decoration: BoxDecoration(
                                         color: status == true
-                                            ? greenBtn.withValues(alpha: 0.1)
+                                            ? Palette.success.withValues(alpha: 0.1)
                                             : Colors.red.withValues(alpha: 0.08),
                                         borderRadius: BorderRadius.circular(10),
                                       ),
@@ -809,11 +712,7 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                                           Expanded(
                                             child: Text(
                                               'Your answer: $userAnswer',
-                                              style: GoogleFonts.openSans(
-                                                fontSize: 13,
-                                                color: statusIconColor,
-                                                fontWeight: FontWeight.w600,
-                                              ),
+                                              style: AppTextStyles.label(13, color: statusIconColor),
                                             ),
                                           ),
                                         ],
@@ -839,12 +738,11 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                                         status == null
                                             ? 'ANSWER'
                                             : 'ANSWER AGAIN',
-                                        style: GoogleFonts.luckiestGuy(
-                                            fontSize: 14),
+                                        style: AppTextStyles.heading(14),
                                       ),
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor:
-                                            status == null ? sky : Colors.grey.shade400,
+                                            status == null ? Palette.sky : Colors.grey.shade400,
                                         foregroundColor: Colors.white,
                                         padding: const EdgeInsets.symmetric(
                                             vertical: 10),
@@ -866,8 +764,7 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                         // Evidence section
                         Text(
                           'EVIDENCE',
-                          style: GoogleFonts.luckiestGuy(
-                              fontSize: 20, color: redText),
+                          style: AppTextStyles.heading(20, color: Palette.error),
                         ),
 
                         const SizedBox(height: 15),
@@ -875,8 +772,7 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                         // Diary
                         Text(
                           'DIARY / NOTES',
-                          style: GoogleFonts.luckiestGuy(
-                              fontSize: 18, color: Colors.black54),
+                          style: AppTextStyles.heading(18, color: Colors.black54),
                         ),
                         const SizedBox(height: 5),
                         Container(
@@ -907,8 +803,7 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                                 children: [
                                   Text(
                                     'IMAGE',
-                                    style: GoogleFonts.luckiestGuy(
-                                        fontSize: 18, color: Colors.black54),
+                                    style: AppTextStyles.heading(18, color: Colors.black54),
                                   ),
                                   const SizedBox(height: 5),
                                   GestureDetector(
@@ -922,7 +817,7 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                                         borderRadius: BorderRadius.circular(20),
                                         border: Border.all(
                                           color: _imagePath != null
-                                              ? greenBtn
+                                              ? Palette.success
                                               : Colors.grey.shade300,
                                           width: 2,
                                         ),
@@ -980,9 +875,7 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                                                 const SizedBox(height: 8),
                                                 Text(
                                                   'Add Image',
-                                                  style: GoogleFonts.openSans(
-                                                      fontSize: 12,
-                                                      color: Colors.grey),
+                                                  style: AppTextStyles.body(12, color: Colors.grey),
                                                 ),
                                               ],
                                             ),
@@ -1000,8 +893,7 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                                 children: [
                                   Text(
                                     'VIDEO',
-                                    style: GoogleFonts.luckiestGuy(
-                                        fontSize: 18, color: Colors.black54),
+                                    style: AppTextStyles.heading(18, color: Colors.black54),
                                   ),
                                   const SizedBox(height: 5),
                                   GestureDetector(
@@ -1015,7 +907,7 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                                         borderRadius: BorderRadius.circular(20),
                                         border: Border.all(
                                           color: _videoPath != null
-                                              ? greenBtn
+                                              ? Palette.success
                                               : Colors.grey.shade300,
                                           width: 2,
                                         ),
@@ -1029,19 +921,13 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                                                         MainAxisAlignment
                                                             .center,
                                                     children: [
-                                                      const Icon(Icons.videocam,
+                                                      Icon(Icons.videocam,
                                                           size: 50,
-                                                          color: greenBtn),
+                                                          color: Palette.success),
                                                       const SizedBox(height: 8),
                                                       Text(
                                                         'Video Added',
-                                                        style: GoogleFonts
-                                                            .openSans(
-                                                          fontSize: 12,
-                                                          color: greenBtn,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
+                                                        style: AppTextStyles.label(12, color: Palette.success),
                                                       ),
                                                     ],
                                                   ),
@@ -1084,9 +970,7 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                                                 const SizedBox(height: 8),
                                                 Text(
                                                   'Add Video',
-                                                  style: GoogleFonts.openSans(
-                                                      fontSize: 12,
-                                                      color: Colors.grey),
+                                                  style: AppTextStyles.body(12, color: Colors.grey),
                                                 ),
                                               ],
                                             ),
@@ -1104,40 +988,11 @@ class _AnalysisActivityScreenState extends State<AnalysisActivityScreen> {
                   ),
                 ),
                 // Sticky FINISH button
-                Container(
-                  padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-                  decoration: BoxDecoration(
-                    color: cream,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.08),
-                        blurRadius: 8,
-                        offset: const Offset(0, -2),
-                      ),
-                    ],
-                  ),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _isSubmitting ? null : _handleSubmit,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: greenBtn,
-                        padding: const EdgeInsets.symmetric(vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                      child: _isSubmitting
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : Text(
-                              'FINISH',
-                              style: GoogleFonts.luckiestGuy(
-                                fontSize: 20,
-                                color: Colors.white,
-                              ),
-                            ),
-                    ),
-                  ),
+                StickyBottomButton(
+                  onPressed: _handleSubmit,
+                  label: 'FINISH',
+                  color: Palette.success,
+                  isLoading: _isSubmitting,
                 ),
               ],
             ),

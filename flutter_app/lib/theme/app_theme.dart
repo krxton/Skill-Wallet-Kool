@@ -1,35 +1,21 @@
 // lib/theme/app_theme.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'palette.dart';
 
 class AppTheme {
-  // 🎨 Brand Palette
-  static const Color cream = Color(0xFFFFF5CD);
-  static const Color yellow = Color(0xFFFFCC00);
-  static const Color lightYellow = Color(0xFFFFCB61);
-  static const Color sky = Color(0xFF77BEF0);
-  static const Color orange = Color(0xFFFF894F);
-  static const Color pink = Color(0xFFEA5B6F);
-  static const Color green = Color(0xFF72BF78);
-  static const Color lightGreen = Color(0xFFA0D683);
-  static const Color pastelGreen = Color(0xFFD3EE98);
-  static const Color lightRed = Color(0xFFFF8282);
-  static const Color red = Color(0xFFFF6363);
-  static const Color blue = Color(0xFF0D92F4);
+  AppTheme._();
 
   static ThemeData light() {
     final base = ThemeData.light();
 
-    // ฟอนต์จาก google_fonts
     final String thaiFallback = GoogleFonts.itim().fontFamily!;
 
-    // เริ่มจาก TextTheme ของ Luckiest Guy (ใช้กับตัวอักษรอังกฤษ)
     TextTheme tt = GoogleFonts.luckiestGuyTextTheme(base.textTheme).apply(
       bodyColor: Colors.black87,
       displayColor: Colors.black87,
     );
 
-    // helper: เติม fallback ไทย (Itim) ให้ทุกสไตล์ โดยไม่ยุ่ง fontFamily เดิม
     TextStyle withThaiFallback(TextStyle? s) => (s ?? const TextStyle()).merge(
           TextStyle(fontFamilyFallback: [thaiFallback]),
         );
@@ -53,16 +39,16 @@ class AppTheme {
     );
 
     return base.copyWith(
-      scaffoldBackgroundColor: cream,
+      scaffoldBackgroundColor: Palette.cream,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: yellow,
-        surface: cream,
+        seedColor: Palette.yellowBright,
+        surface: Palette.cream,
       ),
       textTheme: tt,
       primaryTextTheme: tt,
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: sky,
+          backgroundColor: Palette.sky,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
@@ -75,7 +61,7 @@ class AppTheme {
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: pink,
+          foregroundColor: Palette.pink,
           textStyle: withThaiFallback(
             const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
           ),
@@ -90,13 +76,12 @@ class AppTheme {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(
-            // ✅ ใช้ withValues ตามคำแนะนำของ SDK
             color: Colors.black.withValues(alpha: .08),
           ),
         ),
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: cream,
+        backgroundColor: Palette.cream,
         elevation: 0,
         foregroundColor: Colors.black87,
         centerTitle: true,

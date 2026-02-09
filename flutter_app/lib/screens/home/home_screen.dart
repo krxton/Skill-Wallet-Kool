@@ -3,10 +3,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 
-import '../../routes/app_routes.dart';
-import '../../providers/user_provider.dart';
-import '../../services/activity_service.dart';
 import '../../models/activity.dart';
+import '../../providers/user_provider.dart';
+import '../../routes/app_routes.dart';
+import '../../services/activity_service.dart';
+import '../../theme/palette.dart';
+import '../../utils/youtube_helper.dart';
 
 import '../../widgets/activity_card.dart';
 import '../../widgets/scrollable_activity_list.dart';
@@ -23,9 +25,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   // COLORS
-  static const cream = Color(0xFFFFF5CD);
-  static const sky = Color(0xFF0D92F4);
-  static const deepSky = Color(0xFF7DBEF1);
 
   // Filter states
   String?
@@ -230,7 +229,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.pushNamed(context, AppRoutes.childSetting);
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: sky,
+              backgroundColor: Palette.sky,
             ),
             child: Text(
               'ไปเลือกเด็ก',
@@ -254,7 +253,7 @@ class _HomeScreenState extends State<HomeScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setModalState) => Container(
           decoration: BoxDecoration(
-            color: cream,
+            color: Palette.cream,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
             boxShadow: [
               BoxShadow(
@@ -277,7 +276,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     'FILTER ACTIVITIES',
                     style: GoogleFonts.luckiestGuy(
                       fontSize: 20,
-                      color: sky,
+                      color: Palette.sky,
                     ),
                   ),
                   IconButton(
@@ -315,10 +314,10 @@ class _HomeScreenState extends State<HomeScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
-                        color: isSelected ? sky : Colors.white,
+                        color: isSelected ? Palette.sky : Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: isSelected ? sky : Colors.grey.shade300,
+                          color: isSelected ? Palette.sky : Colors.grey.shade300,
                           width: 2,
                         ),
                       ),
@@ -413,7 +412,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     String? youtubeThumbnailUrl;
     if (hasYouTubeVideo) {
-      final videoId = _extractYouTubeVideoId(activity.videoUrl!);
+      final videoId = YouTubeHelper.extractVideoId(activity.videoUrl!);
       if (videoId != null) {
         youtubeThumbnailUrl =
             'https://img.youtube.com/vi/$videoId/hqdefault.jpg';
@@ -542,7 +541,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: sky,
+                            color: Palette.sky,
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -671,7 +670,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       height: double.infinity,
       width: double.infinity,
-      color: deepSky,
+      color: Palette.sky,
       alignment: Alignment.center,
       child: Text(
         category.isNotEmpty ? category.substring(0, 1) : '?',
@@ -684,28 +683,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  String? _extractYouTubeVideoId(String url) {
-    if (url.isEmpty) return null;
-    final patterns = [
-      RegExp(r'youtube\.com/watch\?v=([a-zA-Z0-9_-]{11})'),
-      RegExp(r'youtu\.be/([a-zA-Z0-9_-]{11})'),
-      RegExp(r'youtube\.com/embed/([a-zA-Z0-9_-]{11})'),
-      RegExp(r'youtube\.com/v/([a-zA-Z0-9_-]{11})'),
-    ];
-    for (var p in patterns) {
-      final m = p.firstMatch(url);
-      if (m != null && m.groupCount >= 1) return m.group(1);
-    }
-    if (url.length == 11 && RegExp(r'^[a-zA-Z0-9_-]{11}$').hasMatch(url)) {
-      return url;
-    }
-    return null;
-  }
-
   Widget _buildHomeBody(BuildContext context) {
     if (_currentChildId == null) {
       return const Center(
-        child: CircularProgressIndicator(color: sky),
+        child: CircularProgressIndicator(color: Palette.sky),
       );
     }
 
@@ -803,7 +784,7 @@ class _HomeScreenState extends State<HomeScreen> {
               fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
               fontSize: 28,
               height: 1.0,
-              color: sky,
+              color: Palette.sky,
             ),
           ),
         const SizedBox(height: 20),
@@ -814,14 +795,14 @@ class _HomeScreenState extends State<HomeScreen> {
           decoration: BoxDecoration(
             color: Colors.grey.shade200,
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: sky, width: 3),
+            border: Border.all(color: Palette.sky, width: 3),
           ),
           child: FutureBuilder<List<Activity>>(
             future: _recommendedActivitiesFuture,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
-                  child: CircularProgressIndicator(color: sky),
+                  child: CircularProgressIndicator(color: Palette.sky),
                 );
               }
               if (snapshot.hasError ||
@@ -870,7 +851,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           height: 8,
                           decoration: BoxDecoration(
                             color: _currentCarouselPage == i
-                                ? sky
+                                ? Palette.sky
                                 : Colors.white.withOpacity(0.5),
                             borderRadius: BorderRadius.circular(4),
                           ),
@@ -962,7 +943,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   fontFamily: GoogleFonts.luckiestGuy().fontFamily,
                   fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
                   fontSize: 16,
-                  color: sky),
+                  color: Palette.sky),
             ),
           ],
         ),
@@ -1002,7 +983,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   fontFamily: GoogleFonts.luckiestGuy().fontFamily,
                   fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
                   fontSize: 16,
-                  color: sky),
+                  color: Palette.sky),
             ),
           ],
         ),
@@ -1039,7 +1020,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final int visibleIndex = _selectedTab == 2 ? 1 : 0;
 
     return Scaffold(
-      backgroundColor: cream,
+      backgroundColor: Palette.cream,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

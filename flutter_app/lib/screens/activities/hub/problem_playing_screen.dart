@@ -2,18 +2,17 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../../routes/app_routes.dart';
+import '../../../theme/palette.dart';
 
-class ProblemPlayingPage extends StatefulWidget {
-  const ProblemPlayingPage({super.key});
+class ProblemPlayingScreen extends StatefulWidget {
+  const ProblemPlayingScreen({super.key});
 
   @override
-  State<ProblemPlayingPage> createState() => _ProblemPlayingPageState();
+  State<ProblemPlayingScreen> createState() => _ProblemPlayingScreenState();
 }
 
-class _ProblemPlayingPageState extends State<ProblemPlayingPage> {
+class _ProblemPlayingScreenState extends State<ProblemPlayingScreen> {
   // 🎨 สีตาม Theme
-  static const cream = Color(0xFFFFF5CD);
-  static const sky = Color(0xFF0D92F4);
   static const blueBtn = Color(0xFFA2D2FF);
   static const greenBtn = Color(0xFF88C273);
   static const redText = Color(0xFFFF8A8A); // สีหัวข้อ Diary/Image
@@ -57,7 +56,7 @@ class _ProblemPlayingPageState extends State<ProblemPlayingPage> {
     final args = ModalRoute.of(context)?.settings.arguments;
 
     return Scaffold(
-      backgroundColor: cream,
+      backgroundColor: Palette.cream,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -70,7 +69,7 @@ class _ProblemPlayingPageState extends State<ProblemPlayingPage> {
           'PROBLEMS SOLVE',
           style: GoogleFonts.luckiestGuy(
             fontSize: 26,
-            color: sky,
+            color: Palette.sky,
             letterSpacing: 1.5,
           ),
         ),
@@ -263,7 +262,7 @@ class _ProblemPlayingPageState extends State<ProblemPlayingPage> {
                       _formatTime(_seconds),
                       style: GoogleFonts.luckiestGuy(
                         fontSize: 24,
-                        color: sky,
+                        color: Palette.sky,
                       ),
                     ),
                   ),

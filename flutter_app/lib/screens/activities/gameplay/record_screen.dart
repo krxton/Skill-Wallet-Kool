@@ -7,10 +7,11 @@ import 'dart:typed_data';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart'; // 👈 ใช้ kIsWeb
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import 'package:skill_wallet_kool/services/activity_service.dart';
+import 'package:skill_wallet_kool/theme/app_text_styles.dart';
+import 'package:skill_wallet_kool/theme/palette.dart';
 
 class RecordScreen extends StatefulWidget {
   const RecordScreen({super.key});
@@ -37,10 +38,6 @@ class _RecordScreenState extends State<RecordScreen> {
   String _tempFilePath = '';
   String _originalText = 'Loading...';
 
-  // UI Colors
-  static const cream = Color(0xFFFFF5CD);
-  static const red = Colors.red;
-  static const green = Color(0xFF77C58C);
   static const greyCard = Color(0xFFEDEFF3);
 
   @override
@@ -375,14 +372,14 @@ class _RecordScreenState extends State<RecordScreen> {
     final bool isReadyToPlay = _hasRecorded && !_isPlaying;
 
     return Scaffold(
-      backgroundColor: cream,
+      backgroundColor: Palette.cream,
       appBar: AppBar(
-        backgroundColor: cream,
+        backgroundColor: Palette.cream,
         leading: const BackButton(color: Colors.black87),
         elevation: 0,
         title: Text(
           'RECORD',
-          style: GoogleFonts.luckiestGuy(color: Colors.black87),
+          style: AppTextStyles.heading(22, color: Colors.black87),
         ),
         centerTitle: true,
       ),
@@ -400,10 +397,7 @@ class _RecordScreenState extends State<RecordScreen> {
               child: Text(
                 displayOriginalText,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.openSans(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: AppTextStyles.body(18, weight: FontWeight.bold),
               ),
             ),
 
@@ -418,29 +412,72 @@ class _RecordScreenState extends State<RecordScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // 🎙 Record / Stop
-                IconButton(
-                  iconSize: 56,
-                  color: recording ? red : Colors.black87,
-                  onPressed: (displayOriginalText.startsWith('Error') ||
+                GestureDetector(
+                  onTap: (displayOriginalText.startsWith('Error') ||
                           displayOriginalText.startsWith('Microphone'))
                       ? null
                       : _toggle,
-                  icon: Icon(
-                    recording ? Icons.stop_circle_outlined : Icons.mic_rounded,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: recording ? Palette.errorStrong : Palette.sky,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: (recording ? Palette.errorStrong : Palette.sky)
+                              .withValues(alpha: 0.4),
+                          blurRadius: recording ? 16 : 8,
+                          spreadRadius: recording ? 2 : 0,
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 200),
+                        child: recording
+                            ? Container(
+                                key: const ValueKey('stop'),
+                                width: 24,
+                                height: 24,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                              )
+                            : const Icon(
+                                Icons.mic_rounded,
+                                key: ValueKey('mic'),
+                                color: Colors.white,
+                                size: 36,
+                              ),
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(width: 24),
+                const SizedBox(width: 32),
                 // ▶ Playback (เฉพาะเมื่อมีไฟล์)
-                IconButton(
-                  iconSize: 56,
-                  color:
-                      isReadyToPlay || _isPlaying ? Colors.blue : Colors.grey,
-                  onPressed:
-                      isReadyToPlay || _isPlaying ? _playRecording : null,
-                  icon: Icon(
-                    _isPlaying
-                        ? Icons.pause_circle_outline
-                        : Icons.play_circle_outline,
+                GestureDetector(
+                  onTap: isReadyToPlay || _isPlaying ? _playRecording : null,
+                  child: Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: isReadyToPlay || _isPlaying
+                          ? Palette.sky
+                          : Colors.grey.shade300,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      _isPlaying
+                          ? Icons.pause_rounded
+                          : Icons.play_arrow_rounded,
+                      color: isReadyToPlay || _isPlaying
+                          ? Colors.white
+                          : Colors.grey,
+                      size: 36,
+                    ),
                   ),
                 ),
               ],
@@ -452,11 +489,11 @@ class _RecordScreenState extends State<RecordScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: green),
+                style: ElevatedButton.styleFrom(backgroundColor: Palette.success),
                 onPressed: (recording || !_hasRecorded) ? null : _finish,
                 child: Text(
                   'FINISH',
-                  style: GoogleFonts.luckiestGuy(color: Colors.white),
+                  style: AppTextStyles.heading(18, color: Colors.white),
                 ),
               ),
             ),

@@ -14,23 +14,22 @@ import '../screens/activities/listing/language_list_screen.dart';
 import '../screens/activities/gameplay/item_intro_screen.dart';
 import '../screens/activities/gameplay/record_screen.dart';
 import '../screens/activities/gameplay/result_screen.dart';
-import '../screens/activities/detail/video_detail_screen.dart';
 import '../models/activity.dart';
+import '../screens/activities/detail/physical_video_screen.dart';
 import '../screens/activities/detail/language_detail_screen.dart';
-import '../screens/activities/detail/physical_activity.dart';
+import '../screens/activities/detail/physical_detail_screen.dart';
 import '../screens/activities/detail/analysis_activity_screen.dart';
 
 // --- Calculation Screens ---
-import '../screens/activities/hub/calculate_page.dart';
-import '../screens/activities/hub/plus_page.dart';
-import '../screens/activities/hub/answer_plus_page.dart';
-import '../screens/activities/hub/problems_solve_page.dart';
-import '../screens/activities/hub/problem_detail_page.dart';
-import '../screens/activities/hub/problem_answer_page.dart';
-import '../screens/activities/hub/problem_playing_page.dart';
+import '../screens/activities/hub/calculate_hub_screen.dart';
+import '../screens/activities/hub/plus_screen.dart';
+import '../screens/activities/hub/answer_plus_screen.dart';
+import '../screens/activities/hub/problems_solve_screen.dart';
+import '../screens/activities/hub/problem_detail_screen.dart';
+import '../screens/activities/hub/problem_answer_screen.dart';
+import '../screens/activities/hub/problem_playing_screen.dart';
 
 // --- Child Management Screens ---
-// ✅ แก้ไข Path ให้ตรงกับที่คุณเก็บไฟล์ (lib/screens/child/)
 import '../screens/child/child_setting_screen.dart';
 import '../screens/child/add_child_screen.dart';
 
@@ -103,7 +102,7 @@ class AppRoutes {
         videoDetail: (context) {
           final activity =
               ModalRoute.of(context)!.settings.arguments as Activity;
-          return VideoDetailScreen(activity: activity);
+          return PhysicalVideoScreen(activity: activity);
         },
         languageDetail: (context) {
           final activity =
@@ -113,7 +112,7 @@ class AppRoutes {
         physicalActivity: (context) {
           final activity =
               ModalRoute.of(context)!.settings.arguments as Activity;
-          return PhysicalActivityScreen(activity: activity);
+          return PhysicalDetailScreen(activity: activity);
         },
         analysisActivity: (context) {
           final activity =
@@ -122,13 +121,13 @@ class AppRoutes {
         },
 
         // --- Calculation Section ---
-        calculateHub: (_) => const CalculatePage(),
-        plusPage: (_) => const PlusPage(),
-        answerPlus: (_) => const AnswerPlusPage(),
-        problemsSolve: (_) => const ProblemsSolvePage(),
-        problemDetail: (_) => const ProblemDetailPage(),
-        problemAnswer: (_) => const ProblemAnswerPage(),
-        problemPlaying: (_) => const ProblemPlayingPage(),
+        calculateHub: (_) => const CalculateHubScreen(),
+        plusPage: (_) => const PlusScreen(),
+        answerPlus: (_) => const AnswerPlusScreen(),
+        problemsSolve: (_) => const ProblemsSolveScreen(),
+        problemDetail: (_) => const ProblemDetailScreen(),
+        problemAnswer: (_) => const ProblemAnswerScreen(),
+        problemPlaying: (_) => const ProblemPlayingScreen(),
 
         // --- Child Management Section ---
         childSetting: (_) => const ChildSettingScreen(),
