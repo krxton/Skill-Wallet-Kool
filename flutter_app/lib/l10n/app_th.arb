@@ -310,5 +310,12 @@
   "profile_deleteSuccess": "ลบกิจกรรมแล้ว",
   "profile_updateSuccess": "อัปเดตกิจกรรมแล้ว",
   "profile_save": "บันทึก",
-  "profile_manage": "จัดการ"
+  "profile_manage": "จัดการ",
+
+  "share_title": "แชร์ผลลัพธ์",
+  "share_asImage": "รูปภาพ",
+  "share_asText": "ข้อความ",
+  "share_greatJob": "ยอดเยี่ยม!",
+  "share_keepTrying": "สู้ต่อไป!",
+  "share_textTemplate": "ฉันได้ {score}/{maxScore} คะแนนจากกิจกรรม \"{activityName}\" ใน Skill Wallet Kool!"
 }

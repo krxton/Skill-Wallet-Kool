@@ -1747,6 +1747,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'MANAGE'**
   String get profile_manage;
+
+  /// No description provided for @share_title.
+  ///
+  /// In en, this message translates to:
+  /// **'SHARE RESULT'**
+  String get share_title;
+
+  /// No description provided for @share_asImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Image'**
+  String get share_asImage;
+
+  /// No description provided for @share_asText.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get share_asText;
+
+  /// No description provided for @share_greatJob.
+  ///
+  /// In en, this message translates to:
+  /// **'GREAT JOB!'**
+  String get share_greatJob;
+
+  /// No description provided for @share_keepTrying.
+  ///
+  /// In en, this message translates to:
+  /// **'KEEP TRYING!'**
+  String get share_keepTrying;
+
+  /// No description provided for @share_textTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'I scored {score}/{maxScore} on \"{activityName}\" in Skill Wallet Kool!'**
+  String share_textTemplate(String activityName, int score, int maxScore);
 }
 
 class _AppLocalizationsDelegate

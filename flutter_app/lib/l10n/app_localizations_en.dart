@@ -872,4 +872,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profile_manage => 'MANAGE';
+
+  @override
+  String get share_title => 'SHARE RESULT';
+
+  @override
+  String get share_asImage => 'Image';
+
+  @override
+  String get share_asText => 'Text';
+
+  @override
+  String get share_greatJob => 'GREAT JOB!';
+
+  @override
+  String get share_keepTrying => 'KEEP TRYING!';
+
+  @override
+  String share_textTemplate(String activityName, int score, int maxScore) {
+    return 'I scored $score/$maxScore on \"$activityName\" in Skill Wallet Kool!';
+  }
 }

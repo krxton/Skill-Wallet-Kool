@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import '../../widgets/share_result_helper.dart';
+import '../../theme/palette.dart';
 
 class PlayingResultDetailScreen extends StatelessWidget {
   final Map<String, dynamic> record;
@@ -97,42 +99,44 @@ class PlayingResultDetailScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: cream,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Row(
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: const Icon(Icons.arrow_back,
-                        size: 35, color: Colors.black87),
-                  ),
-                  const SizedBox(width: 15),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'ผลการเล่น',
-                          style: GoogleFonts.itim(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: skyBlue,
-                          ),
+                  // Header
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => Navigator.pop(context),
+                        child: const Icon(Icons.arrow_back,
+                            size: 35, color: Colors.black87),
+                      ),
+                      const SizedBox(width: 15),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'ผลการเล่น',
+                              style: GoogleFonts.itim(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: skyBlue,
+                              ),
+                            ),
+                            Text(
+                              '${_formatDate(createdAt)} | ครั้งที่ $sessionNumber',
+                              style: GoogleFonts.itim(
+                                  fontSize: 14, color: Colors.grey),
+                            ),
+                          ],
                         ),
-                        Text(
-                          '${_formatDate(createdAt)} | ครั้งที่ $sessionNumber',
-                          style: GoogleFonts.itim(
-                              fontSize: 14, color: Colors.grey),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
               const SizedBox(height: 20),
 
               // ชื่อกิจกรรม
@@ -323,6 +327,43 @@ class PlayingResultDetailScreen extends StatelessWidget {
               const SizedBox(height: 30),
             ],
           ),
+        ),
+            // Floating share button (top-right, always visible)
+            Positioned(
+              right: 16,
+              top: 12,
+              child: GestureDetector(
+                onTap: () {
+                  showShareBottomSheet(
+                    context,
+                    ShareResultData(
+                      activityName: activityName,
+                      score: score,
+                      maxScore: maxScoreInt,
+                      timeSpentSeconds: timespent,
+                      category: category,
+                    ),
+                  );
+                },
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(Icons.share, size: 20, color: Palette.sky),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

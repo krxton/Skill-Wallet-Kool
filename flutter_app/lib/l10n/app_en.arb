@@ -368,5 +368,19 @@
   "profile_deleteSuccess": "Activity deleted",
   "profile_updateSuccess": "Activity updated",
   "profile_save": "SAVE",
-  "profile_manage": "MANAGE"
+  "profile_manage": "MANAGE",
+
+  "share_title": "SHARE RESULT",
+  "share_asImage": "Image",
+  "share_asText": "Text",
+  "share_greatJob": "GREAT JOB!",
+  "share_keepTrying": "KEEP TRYING!",
+  "share_textTemplate": "I scored {score}/{maxScore} on \"{activityName}\" in Skill Wallet Kool!",
+  "@share_textTemplate": {
+    "placeholders": {
+      "activityName": { "type": "String" },
+      "score": { "type": "int" },
+      "maxScore": { "type": "int" }
+    }
+  }
 }

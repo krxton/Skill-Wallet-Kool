@@ -2,10 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-// ignore: unused_import
 import '../../../theme/palette.dart';
 import '../../../routes/app_routes.dart';
 import '../../../models/activity.dart';
+import '../../../widgets/share_result_helper.dart';
 
 class ResultScreen extends StatefulWidget {
   const ResultScreen({super.key});
@@ -58,7 +58,7 @@ class _ResultScreenState extends State<ResultScreen>
     String two(int n) => n.toString().padLeft(2, '0');
     final mm = two(time.inMinutes % 60), ss = two(time.inSeconds % 60);
 
-    final Color scoreColor = totalScore >= 70 ? Palette.green : Palette.red;
+    final Color scoreColor = totalScore >= 70 ? Palette.successAlt : Palette.pink;
 
     return Scaffold(
       backgroundColor: Palette.cream,
@@ -78,6 +78,23 @@ class _ResultScreenState extends State<ResultScreen>
           style: GoogleFonts.luckiestGuy(color: Colors.black87),
         ),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.share, color: Palette.sky),
+            onPressed: () {
+              showShareBottomSheet(
+                context,
+                ShareResultData(
+                  activityName: activityName,
+                  score: scoreEarned,
+                  maxScore: maxScore,
+                  timeSpentSeconds: timeSpentSeconds,
+                  category: activityToReplay?.category,
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(24),
@@ -235,14 +252,4 @@ class _ResultScreenState extends State<ResultScreen>
       ),
     );
   }
-}
-
-// 🎨 Palette
-class Palette {
-  static const cream = Color(0xFFFFF5CD);
-  static const red = Color(0xFFEA5B6F);
-  static const green = Color(0xFF66BB6A);
-  static const greyCard = Color(0xFFEDEFF3);
-  static const deepGrey = Color(0xFF5D5D5D);
-  static const bluePill = Color(0xFF78BDF1);
 }

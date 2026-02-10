@@ -25,18 +25,23 @@ model audit_log_entries {
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model flow_state {
-  id                     String                @id @db.Uuid
-  user_id                String?               @db.Uuid
-  auth_code              String
-  code_challenge_method  code_challenge_method
-  code_challenge         String
+  id                     String                 @id @db.Uuid
+  user_id                String?                @db.Uuid
+  auth_code              String?
+  code_challenge_method  code_challenge_method?
+  code_challenge         String?
   provider_type          String
   provider_access_token  String?
   provider_refresh_token String?
-  created_at             DateTime?             @db.Timestamptz(6)
-  updated_at             DateTime?             @db.Timestamptz(6)
+  created_at             DateTime?              @db.Timestamptz(6)
+  updated_at             DateTime?              @db.Timestamptz(6)
   authentication_method  String
-  auth_code_issued_at    DateTime?             @db.Timestamptz(6)
+  auth_code_issued_at    DateTime?              @db.Timestamptz(6)
+  invite_token           String?
+  referrer               String?
+  oauth_client_state_id  String?                @db.Uuid
+  linking_target_id      String?                @db.Uuid
+  email_optional         Boolean                @default(false)
   saml_relay_states      saml_relay_states[]
 
   @@index([created_at(sort: Desc)])
@@ -170,21 +175,22 @@ model oauth_client_states {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model oauth_clients {
-  id                   String                  @id @db.Uuid
-  client_secret_hash   String?
-  registration_type    oauth_registration_type
-  redirect_uris        String
-  grant_types          String
-  client_name          String?
-  client_uri           String?
-  logo_uri             String?
-  created_at           DateTime                @default(now()) @db.Timestamptz(6)
-  updated_at           DateTime                @default(now()) @db.Timestamptz(6)
-  deleted_at           DateTime?               @db.Timestamptz(6)
-  client_type          oauth_client_type       @default(confidential)
-  oauth_authorizations oauth_authorizations[]
-  oauth_consents       oauth_consents[]
-  sessions             sessions[]
+  id                         String                  @id @db.Uuid
+  client_secret_hash         String?
+  registration_type          oauth_registration_type
+  redirect_uris              String
+  grant_types                String
+  client_name                String?
+  client_uri                 String?
+  logo_uri                   String?
+  created_at                 DateTime                @default(now()) @db.Timestamptz(6)
+  updated_at                 DateTime                @default(now()) @db.Timestamptz(6)
+  deleted_at                 DateTime?               @db.Timestamptz(6)
+  client_type                oauth_client_type       @default(confidential)
+  token_endpoint_auth_method String
+  oauth_authorizations       oauth_authorizations[]
+  oauth_consents             oauth_consents[]
+  sessions                   sessions[]
 
   @@index([deleted_at])
   @@schema("auth")
@@ -405,7 +411,10 @@ model users {
   oauth_consents              oauth_consents[]
   one_time_tokens             one_time_tokens[]
   sessions                    sessions[]
-  parent                      parent[]
+  comments                    comments[]
+  likes                       likes[]
+  parent                      parent?
+  posts                       posts[]
 
   @@index([instance_id])
   @@index([is_anonymous])
@@ -429,7 +438,7 @@ model activity {
   tiktokhtmlcontent    String?
   update_at            DateTime          @db.Timestamptz(6)
   play_count           Decimal?          @db.Decimal
-  is_public            Boolean           @default(true)
+  is_public            Boolean?          @default(true)
   parent               parent            @relation(fields: [parent_id], references: [parent_id], onDelete: NoAction, onUpdate: NoAction)
   activity_record      activity_record[]
 
@@ -442,21 +451,21 @@ model activity_record {
   created_at        DateTime  @default(now()) @db.Timestamptz(6)
   parent_id         String?   @db.Uuid
   child_id          String?   @db.Uuid
-  activity_id       String?   @db.Uuid
   medals_id         String?   @db.Uuid
   point             Decimal?  @db.Decimal
   time_spent        Decimal?  @db.Decimal
   date              DateTime? @db.Timestamptz(6)
-  segment_results   Json?     @db.JsonB
-  evidence          Json?     @db.JsonB
-  activity          activity? @relation(fields: [activity_id], references: [activity_id], onDelete: Cascade, onUpdate: NoAction, map: "activity_record_activity_id_fkey")
+  activity_id       String?   @db.Uuid
+  segment_results   Json?
+  evidence          Json?
   child             child?    @relation(fields: [child_id], references: [child_id], onDelete: NoAction, onUpdate: NoAction, map: "Activity Record_Child_id_fkey")
   medals            medals?   @relation(fields: [medals_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Activity Record_Medals_id_fkey")
   parent            parent?   @relation(fields: [parent_id], references: [parent_id], onDelete: Cascade, map: "Activity Record_Parent_id_fkey")
+  activity          activity? @relation(fields: [activity_id], references: [activity_id], onDelete: Cascade, onUpdate: NoAction)
 
-  @@index([activity_id], map: "activity_record_activity_id_idx")
-  @@index([segment_results], map: "activity_record_segment_results_idx", type: Gin)
-  @@index([evidence], map: "activity_record_evidence_idx", type: Gin)
+  @@index([activity_id])
+  @@index([evidence], type: Gin)
+  @@index([segment_results], type: Gin)
   @@schema("public")
 }
 
@@ -472,6 +481,32 @@ model child {
   parent_and_child parent_and_child[]
   redemption       redemption[]
 
+  @@schema("public")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model comments {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  user_id    String   @db.Uuid
+  post_id    String   @db.Uuid
+  content    String
+  posts      posts    @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users      users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@schema("public")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model likes {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  user_id    String   @db.Uuid
+  post_id    String   @db.Uuid
+  posts      posts    @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users      users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([user_id, post_id])
   @@schema("public")
 }
 
@@ -494,7 +529,7 @@ model parent {
   created_date      DateTime            @default(now()) @db.Timestamptz(6)
   name_surname      String?
   email             String              @unique(map: "Parent_Email_key")
-  user_id           String?             @db.Uuid
+  user_id           String?             @unique(map: "parent_user_id_unique") @db.Uuid
   activity          activity[]
   activity_record   activity_record[]
   users             users?              @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Parent_User_id_fkey")
@@ -526,6 +561,22 @@ model parent_and_medals {
   medals_id        String?  @db.Uuid
   medals           medals?  @relation(fields: [medals_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "Parent and Medals_Medals_id_fkey")
   parent           parent?  @relation(fields: [parent_id], references: [parent_id], onDelete: Cascade, map: "Parent and Medals_Parent_id_fkey")
+
+  @@schema("public")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model posts {
+  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at  DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime?  @default(now()) @db.Timestamptz(6)
+  user_id     String     @db.Uuid
+  image_url   String
+  caption     String?
+  likes_count Int?       @default(0)
+  comments    comments[]
+  likes       likes[]
+  users       users      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@schema("public")
 }
