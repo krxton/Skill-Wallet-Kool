@@ -843,4 +843,33 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get createActivity_creating => 'Creating...';
+
+  @override
+  String get profile_myActivities => 'MY ACTIVITIES';
+
+  @override
+  String get profile_noActivities => 'No activities yet';
+
+  @override
+  String get profile_editActivity => 'Edit Activity';
+
+  @override
+  String get profile_deleteActivity => 'Delete Activity';
+
+  @override
+  String profile_deleteConfirm(String name) {
+    return 'Are you sure you want to delete \"$name\"?';
+  }
+
+  @override
+  String get profile_deleteSuccess => 'Activity deleted';
+
+  @override
+  String get profile_updateSuccess => 'Activity updated';
+
+  @override
+  String get profile_save => 'SAVE';
+
+  @override
+  String get profile_manage => 'MANAGE';
 }

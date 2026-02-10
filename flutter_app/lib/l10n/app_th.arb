@@ -300,5 +300,15 @@
   "createActivity_needQuestions": "กรุณาเพิ่มโจทย์อย่างน้อย 1 ข้อ",
   "createActivity_questionNo": "โจทย์ที่ {index}",
   "createActivity_removeQuestion": "ลบ",
-  "createActivity_creating": "กำลังสร้าง..."
+  "createActivity_creating": "กำลังสร้าง...",
+
+  "profile_myActivities": "กิจกรรมของฉัน",
+  "profile_noActivities": "ยังไม่มีกิจกรรม",
+  "profile_editActivity": "แก้ไขกิจกรรม",
+  "profile_deleteActivity": "ลบกิจกรรม",
+  "profile_deleteConfirm": "คุณแน่ใจหรือไม่ว่าต้องการลบ \"{name}\"?",
+  "profile_deleteSuccess": "ลบกิจกรรมแล้ว",
+  "profile_updateSuccess": "อัปเดตกิจกรรมแล้ว",
+  "profile_save": "บันทึก",
+  "profile_manage": "จัดการ"
 }

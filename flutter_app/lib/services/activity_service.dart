@@ -487,4 +487,49 @@ class ActivityService {
     };
     return _apiService.post('/activities', payload);
   }
+
+  /// ดึงกิจกรรมที่ผู้ปกครองคนนี้สร้าง
+  Future<List<Activity>> fetchMyActivities(String parentId) async {
+    try {
+      final supabase = Supabase.instance.client;
+      final data = await supabase
+          .from('activity')
+          .select()
+          .eq('parent_id', parentId)
+          .order('created_at', ascending: false);
+      return data.map<Activity>((json) => Activity.fromJson(json)).toList();
+    } catch (e) {
+      debugPrint('Error fetching my activities: $e');
+      return [];
+    }
+  }
+
+  /// แก้ไขกิจกรรมผ่าน backend API
+  Future<Map<String, dynamic>> updateActivity({
+    required String activityId,
+    String? name,
+    String? category,
+    String? content,
+    String? difficulty,
+    int? maxScore,
+    String? description,
+    String? videoUrl,
+    List<Map<String, dynamic>>? segments,
+  }) async {
+    final payload = <String, dynamic>{};
+    if (name != null) payload['name'] = name;
+    if (category != null) payload['category'] = category;
+    if (content != null) payload['content'] = content;
+    if (difficulty != null) payload['difficulty'] = difficulty;
+    if (maxScore != null) payload['maxScore'] = maxScore;
+    if (description != null) payload['description'] = description;
+    if (videoUrl != null) payload['videoUrl'] = videoUrl;
+    if (segments != null) payload['segments'] = segments;
+    return _apiService.patch('/activities/$activityId', payload);
+  }
+
+  /// ลบกิจกรรมผ่าน backend API
+  Future<void> deleteActivity(String activityId) async {
+    await _apiService.delete('/activities/$activityId');
+  }
 }

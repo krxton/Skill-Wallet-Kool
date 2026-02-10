@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart'; // ✅ 1. เพิ่ม Supabase
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 
+import '../../models/activity.dart';
 import '../../providers/user_provider.dart';
+import '../../routes/app_routes.dart';
+import '../../services/activity_service.dart';
+import '../../theme/palette.dart';
+import '../../theme/app_text_styles.dart';
+import '../activities/edit_activity_screen.dart';
 import 'settings/setting_screen.dart';
-import '../post/post_detail_screen.dart'; // ✅ 2. Import หน้าดูรายละเอียดโพสต์ (ตรวจสอบ path ให้ถูกต้อง)
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -17,15 +20,31 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  static const cream = Color(0xFFFFF5CD);
-  static const deepGrey = Color(0xFF000000);
+  final ActivityService _activityService = ActivityService();
+  List<Activity> _myActivities = [];
+  bool _loading = true;
+  bool _isEditMode = false;
 
-  // ✅ 3. เพิ่มตัวแปร Stream สำหรับดึงโพสต์แบบ Realtime
-  final _postsStream = Supabase.instance.client
-      .from('posts')
-      .stream(primaryKey: ['id'])
-      .eq('user_id', Supabase.instance.client.auth.currentUser?.id ?? '') // ดึงเฉพาะของ user นี้
-      .order('created_at', ascending: false); // เรียงจากใหม่ไปเก่า
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadActivities());
+  }
+
+  Future<void> _loadActivities() async {
+    final parentId =
+        Provider.of<UserProvider>(context, listen: false).currentParentId;
+    if (parentId == null || parentId.isEmpty) return;
+
+    setState(() => _loading = true);
+    final activities = await _activityService.fetchMyActivities(parentId);
+    if (mounted) {
+      setState(() {
+        _myActivities = activities;
+        _loading = false;
+      });
+    }
+  }
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
@@ -33,25 +52,111 @@ class _ProfileScreenState extends State<ProfileScreen> {
       source: ImageSource.gallery,
       imageQuality: 80,
     );
-
     if (picked != null) {
       final bytes = await picked.readAsBytes();
-
       if (!mounted) return;
-      // ส่งรูปไปเก็บใน Provider เพื่อให้หน้า Setting เอาไปใช้ได้
       context.read<UserProvider>().setProfileImage(bytes);
     }
   }
 
+  /// Translate raw difficulty value to localized string
+  String _translateDifficulty(String raw, AppLocalizations l) {
+    switch (raw) {
+      case 'ง่าย':
+        return l.common_difficultyEasy;
+      case 'กลาง':
+        return l.common_difficultyMedium;
+      case 'ยาก':
+        return l.common_difficultyHard;
+      default:
+        return raw;
+    }
+  }
+
+  // ── Play activity ───────────────────────────────────────
+
+  void _playActivity(Activity activity) {
+    final category = activity.category;
+    String routeName;
+
+    if (category == 'ด้านภาษา' || category == 'LANGUAGE') {
+      routeName = AppRoutes.languageDetail;
+    } else if (category == 'ด้านร่างกาย' && activity.videoUrl != null) {
+      routeName = AppRoutes.videoDetail;
+    } else if (category == 'ด้านวิเคราะห์') {
+      routeName = AppRoutes.analysisActivity;
+    } else {
+      routeName = AppRoutes.itemIntro;
+    }
+
+    Navigator.pushNamed(context, routeName, arguments: activity);
+  }
+
+  // ── Navigate to edit ───────────────────────────────────
+
+  void _openEdit(Activity activity) async {
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => EditActivityScreen(activity: activity),
+      ),
+    );
+    if (result == true) _loadActivities();
+  }
+
+  // ── Delete ─────────────────────────────────────────────
+
+  void _showDeleteDialog(Activity activity) {
+    final l = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.profile_deleteActivity,
+            style: AppTextStyles.heading(18)),
+        content: Text(l.profile_deleteConfirm(activity.name)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l.dialog_cancel),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              try {
+                await _activityService.deleteActivity(activity.id);
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(l.profile_deleteSuccess)),
+                  );
+                  _loadActivities();
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: $e')),
+                  );
+                }
+              }
+            },
+            child: Text(l.dialog_confirmDelete,
+                style: const TextStyle(color: Palette.deleteRed)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ── Build ──────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
-    // ดึงข้อมูลจาก Provider มาเฝ้าดู (Watch)
     final userProvider = context.watch<UserProvider>();
     final parentName = userProvider.currentParentName ?? 'PARENT';
-    final profileImageBytes = userProvider.profileImageBytes; // ดึงรูปภาพ
+    final profileImageBytes = userProvider.profileImageBytes;
+    final l = AppLocalizations.of(context)!;
 
     return Container(
-      color: cream,
+      color: Palette.cream,
       child: SafeArea(
         top: true,
         bottom: false,
@@ -59,7 +164,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const SizedBox(height: 16),
-            // --- ส่วน Header (รูปโปรไฟล์ + ชื่อ + ปุ่ม Setting) ---
+            // ── Header ───────────────────────────────
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: Stack(
@@ -73,13 +178,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: CircleAvatar(
                             radius: 80,
                             backgroundColor: Colors.white,
-                            // ตรวจสอบว่ามีรูปไหม ถ้ามีแสดงรูป ถ้าไม่มีแสดงไอคอน
                             child: profileImageBytes == null
-                                ? const Icon(
-                                    Icons.person,
-                                    size: 80,
-                                    color: Colors.black87,
-                                  )
+                                ? const Icon(Icons.person,
+                                    size: 80, color: Colors.black87)
                                 : ClipOval(
                                     child: Image.memory(
                                       profileImageBytes,
@@ -91,17 +192,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        Text(
-                          parentName,
-                          style: TextStyle(
-                            fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                            fontFamilyFallback: [
-                              GoogleFonts.itim().fontFamily!
-                            ],
-                            fontSize: 24,
-                            color: deepGrey,
-                          ),
-                        ),
+                        Text(parentName,
+                            style: AppTextStyles.heading(24)),
                       ],
                     ),
                   ),
@@ -109,12 +201,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     right: 0,
                     top: 0,
                     child: IconButton(
-                      icon: const Icon(
-                        Icons.settings,
-                        size: 28,
-                      ),
+                      icon: const Icon(Icons.settings, size: 28),
                       onPressed: () {
-                        // กดปุ่มนี้เพื่อไปหน้า Setting
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -127,31 +215,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 32),
-            
-            // --- ส่วนหัวข้อ Grid View ---
+
+            // ── Section header ───────────────────────
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      const Icon(
-                        Icons.grid_view_rounded,
-                        size: 24,
-                      ),
+                      const Icon(Icons.sports_esports, size: 24),
                       const SizedBox(width: 8),
-                      Text(
-                        AppLocalizations.of(context)!.parentprofile_postBtn,
-                        style: TextStyle(
-                            fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                            fontFamilyFallback: [
-                              GoogleFonts.itim().fontFamily!
-                            ],
-                            fontSize: 18,
-                            color: Colors.black),
+                      Expanded(
+                        child: Text(l.profile_myActivities,
+                            style: AppTextStyles.heading(18)),
+                      ),
+                      GestureDetector(
+                        onTap: () =>
+                            setState(() => _isEditMode = !_isEditMode),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: _isEditMode
+                                ? Palette.warning
+                                : Palette.sky,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Text(
+                            l.profile_manage,
+                            style: AppTextStyles.label(12,
+                                color: Colors.white),
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -161,85 +258,145 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
 
-            // ✅ 4. เพิ่ม Expanded เพื่อแสดงรูปจาก Supabase ให้เต็มพื้นที่ที่เหลือ
+            // ── Activity list ────────────────────────
             Expanded(
-              child: StreamBuilder<List<Map<String, dynamic>>>(
-                stream: _postsStream,
-                builder: (context, snapshot) {
-                  // สถานะโหลด
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-
-                  // สถานะ Error หรือ ไม่มีข้อมูล
-                  if (snapshot.hasError) {
-                    return Center(child: Text('Error loading posts'));
-                  }
-                  
-                  final posts = snapshot.data ?? [];
-
-                  if (posts.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.camera_alt_outlined, 
-                               size: 48, color: Colors.grey.withOpacity(0.5)),
-                          const SizedBox(height: 8),
-                          Text(
-                            'No posts yet',
-                            style: GoogleFonts.itim(
-                              color: Colors.grey, 
-                              fontSize: 16
-                            ),
+              child: _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _myActivities.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.sports_esports_outlined,
+                                  size: 48, color: Palette.labelGrey),
+                              const SizedBox(height: 8),
+                              Text(l.profile_noActivities,
+                                  style: AppTextStyles.body(16,
+                                      color: Palette.labelGrey)),
+                            ],
                           ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  // แสดงผลแบบตาราง (Grid)
-                  return GridView.builder(
-                    padding: const EdgeInsets.all(2), // เว้นขอบนิดหน่อย
-                    itemCount: posts.length,
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3, // 3 รูปต่อแถว
-                      crossAxisSpacing: 2,
-                      mainAxisSpacing: 2,
-                      childAspectRatio: 1.0, // สี่เหลี่ยมจัตุรัส
-                    ),
-                    itemBuilder: (context, index) {
-                      final post = posts[index];
-                      return GestureDetector(
-                        onTap: () {
-                          // ✅ 5. กดแล้วไปหน้า PostDetailScreen
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PostDetailScreen(postData: post),
-                            ),
-                          );
-                        },
-                        child: Image.network(
-                          post['image_url'],
-                          fit: BoxFit.cover,
-                          // โหลดรูปไม่ผ่านให้โชว์สีเทา
-                          errorBuilder: (context, error, stack) => 
-                              Container(color: Colors.grey[300]),
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return Container(color: Colors.grey[200]);
-                          },
+                        )
+                      : RefreshIndicator(
+                          onRefresh: _loadActivities,
+                          child: ListView.builder(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 16, vertical: 8),
+                            itemCount: _myActivities.length,
+                            itemBuilder: (context, index) =>
+                                _buildActivityCard(_myActivities[index], l),
+                          ),
                         ),
-                      );
-                    },
-                  );
-                },
-              ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  // ── Activity Card ──────────────────────────────────────
+
+  Widget _buildActivityCard(Activity activity, AppLocalizations l) {
+    final isPhysical = activity.category == 'ด้านร่างกาย';
+    final categoryColor =
+        isPhysical ? Palette.physicalPlaceholder : Palette.blueChip;
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 10),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: _isEditMode
+            ? () => _openEdit(activity)
+            : () => _playActivity(activity),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            children: [
+              // Category icon
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: categoryColor.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  isPhysical ? Icons.directions_run : Icons.psychology,
+                  color: categoryColor,
+                ),
+              ),
+              const SizedBox(width: 12),
+
+              // Name + meta
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(activity.name,
+                        style: AppTextStyles.label(14),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis),
+                    const SizedBox(height: 4),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      children: [
+                        _chipLabel(
+                          isPhysical
+                              ? l.createActivity_physical
+                              : l.createActivity_analysis,
+                          categoryColor,
+                        ),
+                        _chipLabel(
+                          _translateDifficulty(activity.difficulty, l),
+                          Palette.warning,
+                        ),
+                        _chipLabel(
+                          '${activity.maxScore} pt',
+                          Palette.success,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // Edit/delete buttons
+              if (_isEditMode) ...[
+                IconButton(
+                  icon: const Icon(Icons.edit, size: 20,
+                      color: Palette.sky),
+                  onPressed: () => _openEdit(activity),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(
+                      minWidth: 36, minHeight: 36),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, size: 20,
+                      color: Palette.deleteRed),
+                  onPressed: () => _showDeleteDialog(activity),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(
+                      minWidth: 36, minHeight: 36),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _chipLabel(String text, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(text,
+          style:
+              AppTextStyles.body(10, color: color, weight: FontWeight.w600)),
     );
   }
 }

@@ -123,6 +123,52 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> patch(String path, dynamic body) async {
+    final headers = await _getHeaders();
+    final response = await http.patch(
+      Uri.parse('$_baseUrl$path'),
+      headers: headers,
+      body: jsonEncode(body),
+    );
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      if (response.body.isEmpty) return {};
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    } else {
+      String errorMessage = 'Failed to process request: ${response.statusCode}';
+      try {
+        if (response.body.isNotEmpty) {
+          final errorBody = jsonDecode(response.body);
+          if (errorBody is Map && errorBody.containsKey('error')) {
+            errorMessage = errorBody['error'];
+          }
+        }
+      } catch (_) {}
+      throw Exception('API Error (${response.statusCode}): $errorMessage');
+    }
+  }
+
+  Future<void> delete(String path) async {
+    final headers = await _getHeaders();
+    final response = await http.delete(
+      Uri.parse('$_baseUrl$path'),
+      headers: headers,
+    );
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      String errorMessage = 'Failed to delete: ${response.statusCode}';
+      try {
+        if (response.body.isNotEmpty) {
+          final errorBody = jsonDecode(response.body);
+          if (errorBody is Map && errorBody.containsKey('error')) {
+            errorMessage = errorBody['error'];
+          }
+        }
+      } catch (_) {}
+      throw Exception('API Error (${response.statusCode}): $errorMessage');
+    }
+  }
+
   // *************************************************************
   // * 5. เมธอดใหม่สำหรับ ActivityService (แก้ไข Error เก่า) *
   // *************************************************************

@@ -1693,6 +1693,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Creating...'**
   String get createActivity_creating;
+
+  /// No description provided for @profile_myActivities.
+  ///
+  /// In en, this message translates to:
+  /// **'MY ACTIVITIES'**
+  String get profile_myActivities;
+
+  /// No description provided for @profile_noActivities.
+  ///
+  /// In en, this message translates to:
+  /// **'No activities yet'**
+  String get profile_noActivities;
+
+  /// No description provided for @profile_editActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Activity'**
+  String get profile_editActivity;
+
+  /// No description provided for @profile_deleteActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Activity'**
+  String get profile_deleteActivity;
+
+  /// No description provided for @profile_deleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete \"{name}\"?'**
+  String profile_deleteConfirm(String name);
+
+  /// No description provided for @profile_deleteSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity deleted'**
+  String get profile_deleteSuccess;
+
+  /// No description provided for @profile_updateSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity updated'**
+  String get profile_updateSuccess;
+
+  /// No description provided for @profile_save.
+  ///
+  /// In en, this message translates to:
+  /// **'SAVE'**
+  String get profile_save;
+
+  /// No description provided for @profile_manage.
+  ///
+  /// In en, this message translates to:
+  /// **'MANAGE'**
+  String get profile_manage;
 }
 
 class _AppLocalizationsDelegate

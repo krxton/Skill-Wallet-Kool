@@ -353,5 +353,20 @@
     }
   },
   "createActivity_removeQuestion": "Remove",
-  "createActivity_creating": "Creating..."
+  "createActivity_creating": "Creating...",
+
+  "profile_myActivities": "MY ACTIVITIES",
+  "profile_noActivities": "No activities yet",
+  "profile_editActivity": "Edit Activity",
+  "profile_deleteActivity": "Delete Activity",
+  "profile_deleteConfirm": "Are you sure you want to delete \"{name}\"?",
+  "@profile_deleteConfirm": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+  "profile_deleteSuccess": "Activity deleted",
+  "profile_updateSuccess": "Activity updated",
+  "profile_save": "SAVE",
+  "profile_manage": "MANAGE"
 }

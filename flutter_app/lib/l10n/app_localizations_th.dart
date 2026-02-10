@@ -842,4 +842,33 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get createActivity_creating => 'กำลังสร้าง...';
+
+  @override
+  String get profile_myActivities => 'กิจกรรมของฉัน';
+
+  @override
+  String get profile_noActivities => 'ยังไม่มีกิจกรรม';
+
+  @override
+  String get profile_editActivity => 'แก้ไขกิจกรรม';
+
+  @override
+  String get profile_deleteActivity => 'ลบกิจกรรม';
+
+  @override
+  String profile_deleteConfirm(String name) {
+    return 'คุณแน่ใจหรือไม่ว่าต้องการลบ \"$name\"?';
+  }
+
+  @override
+  String get profile_deleteSuccess => 'ลบกิจกรรมแล้ว';
+
+  @override
+  String get profile_updateSuccess => 'อัปเดตกิจกรรมแล้ว';
+
+  @override
+  String get profile_save => 'บันทึก';
+
+  @override
+  String get profile_manage => 'จัดการ';
 }
