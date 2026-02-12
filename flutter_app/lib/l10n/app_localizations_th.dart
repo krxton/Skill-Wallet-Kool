@@ -758,7 +758,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get common_categoryPhysical => 'ด้านร่างกาย';
 
   @override
-  String get common_categoryAnalysis => 'ด้านวิเคราะห์';
+  String get common_categoryCalculate => 'ด้านคำนวณ';
 
   @override
   String get common_difficultyEasy => 'ง่าย';
@@ -779,7 +779,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get createActivity_physical => 'ด้านร่างกาย';
 
   @override
-  String get createActivity_analysis => 'ด้านวิเคราะห์';
+  String get createActivity_calculate => 'ด้านคำนวณ';
 
   @override
   String get createActivity_name => 'ชื่อกิจกรรม';

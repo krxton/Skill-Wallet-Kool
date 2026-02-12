@@ -18,7 +18,7 @@ import '../models/activity.dart';
 import '../screens/activities/detail/physical_video_screen.dart';
 import '../screens/activities/detail/language_detail_screen.dart';
 import '../screens/activities/detail/physical_detail_screen.dart';
-import '../screens/activities/detail/analysis_activity_screen.dart';
+import '../screens/activities/detail/calculate_activity_screen.dart';
 
 // --- Calculation Screens ---
 import '../screens/activities/hub/calculate_hub_screen.dart';
@@ -51,7 +51,7 @@ class AppRoutes {
   static const String videoDetail = '/video-detail';
   static const String languageDetail = '/language-detail';
   static const String physicalActivity = '/physical-activity';
-  static const String analysisActivity = '/analysis-activity';
+  static const String calculateActivity = '/calculate-activity';
 
   // --- Calculation Hub Routes ---
   static const String calculateHub = '/calculate-hub';
@@ -114,10 +114,10 @@ class AppRoutes {
               ModalRoute.of(context)!.settings.arguments as Activity;
           return PhysicalDetailScreen(activity: activity);
         },
-        analysisActivity: (context) {
+        calculateActivity: (context) {
           final activity =
               ModalRoute.of(context)!.settings.arguments as Activity;
-          return AnalysisActivityScreen(activity: activity);
+          return CalculateActivityScreen(activity: activity);
         },
 
         // --- Calculation Section ---

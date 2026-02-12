@@ -16,6 +16,7 @@ import '../../widgets/main_bottom_nav.dart';
 import '../profile/profile_screen.dart';
 import '../activities/create_activity_screen.dart';
 
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -24,11 +25,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  // COLORS
+  final _profileKey = GlobalKey<ProfileScreenState>();
 
   // Filter states
   String?
-      _selectedCategory; // null = ทั้งหมด, 'ด้านภาษา', 'ด้านร่างกาย', 'ด้านวิเคราะห์'
+      _selectedCategory; // null = ทั้งหมด, 'ด้านภาษา', 'ด้านร่างกาย', 'ด้านคำนวณ'
   String? _selectedLevel; // null = ทั้งหมด, 'ง่าย', 'กลาง', 'ยาก'
 
   final ActivityService _activityService = ActivityService();
@@ -304,7 +305,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   {'label': 'ทั้งหมด', 'value': null},
                   {'label': 'ภาษา', 'value': 'ด้านภาษา'},
                   {'label': 'ร่างกาย', 'value': 'ด้านร่างกาย'},
-                  {'label': 'วิเคราะห์', 'value': 'ด้านวิเคราะห์'},
+                  {'label': 'คำนวณ', 'value': 'ด้านคำนวณ'},
                 ].map((cat) {
                   final isSelected = _selectedCategory == cat['value'];
                   return GestureDetector(
@@ -471,8 +472,8 @@ class _HomeScreenState extends State<HomeScreen> {
           routeName = AppRoutes.languageDetail;
         } else if (category == 'ด้านร่างกาย' && activity.videoUrl != null) {
           routeName = AppRoutes.videoDetail;
-        } else if (category == 'ด้านวิเคราะห์') {
-          routeName = AppRoutes.analysisActivity;
+        } else if (category == 'ด้านคำนวณ') {
+          routeName = AppRoutes.calculateActivity;
         } else {
           routeName = AppRoutes.itemIntro;
         }
@@ -607,8 +608,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildPlaceholder(String category) {
-    // ด้านวิเคราะห์ = ใช้รูป Analysis_img
-    if (category == 'ด้านวิเคราะห์') {
+    // ด้านคำนวณ = ใช้รูป Calculate
+    if (category == 'ด้านคำนวณ') {
       return Image.asset(
         'assets/images/Analysis_img.jpg',
         fit: BoxFit.cover,
@@ -1015,7 +1016,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // 0 = Home, 2 = Profile  (1 = + ใช้เปิดหน้าใหม่ด้วย Navigator)
     final pages = <Widget>[
       _buildHomeBody(context),
-      const ProfileScreen(),
+      ProfileScreen(key: _profileKey),
     ];
 
     // ถ้าเลือก tab 2 ให้โชว์ index 1 (Profile) ไม่งั้นใช้ Home
@@ -1047,7 +1048,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   )
                   .then((created) {
-                if (created == true) _loadData();
+                if (created == true) {
+                  _loadData();
+                  _profileKey.currentState?.reloadActivities();
+                }
               });
               return;
             }

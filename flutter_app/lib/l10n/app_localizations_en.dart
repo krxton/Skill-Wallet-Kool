@@ -759,7 +759,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get common_categoryPhysical => 'Physical';
 
   @override
-  String get common_categoryAnalysis => 'Analysis';
+  String get common_categoryCalculate => 'Calculate';
 
   @override
   String get common_difficultyEasy => 'Easy';
@@ -780,7 +780,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createActivity_physical => 'Physical';
 
   @override
-  String get createActivity_analysis => 'Analysis';
+  String get createActivity_calculate => 'Calculate';
 
   @override
   String get createActivity_name => 'Activity Name';

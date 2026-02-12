@@ -1526,11 +1526,11 @@ abstract class AppLocalizations {
   /// **'Physical'**
   String get common_categoryPhysical;
 
-  /// No description provided for @common_categoryAnalysis.
+  /// No description provided for @common_categoryCalculate.
   ///
   /// In en, this message translates to:
-  /// **'Analysis'**
-  String get common_categoryAnalysis;
+  /// **'Calculate'**
+  String get common_categoryCalculate;
 
   /// No description provided for @common_difficultyEasy.
   ///
@@ -1568,11 +1568,11 @@ abstract class AppLocalizations {
   /// **'Physical'**
   String get createActivity_physical;
 
-  /// No description provided for @createActivity_analysis.
+  /// No description provided for @createActivity_calculate.
   ///
   /// In en, this message translates to:
-  /// **'Analysis'**
-  String get createActivity_analysis;
+  /// **'Calculate'**
+  String get createActivity_calculate;
 
   /// No description provided for @createActivity_name.
   ///

@@ -16,10 +16,10 @@ class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<ProfileScreen> createState() => ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class ProfileScreenState extends State<ProfileScreen> {
   final ActivityService _activityService = ActivityService();
   List<Activity> _myActivities = [];
   bool _loading = true;
@@ -30,6 +30,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadActivities());
   }
+
+  /// Public method so HomeScreen can trigger a reload.
+  void reloadActivities() => _loadActivities();
 
   Future<void> _loadActivities() async {
     final parentId =
@@ -83,8 +86,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       routeName = AppRoutes.languageDetail;
     } else if (category == 'ด้านร่างกาย' && activity.videoUrl != null) {
       routeName = AppRoutes.videoDetail;
-    } else if (category == 'ด้านวิเคราะห์') {
-      routeName = AppRoutes.analysisActivity;
+    } else if (category == 'ด้านคำนวณ') {
+      routeName = AppRoutes.calculateActivity;
     } else {
       routeName = AppRoutes.itemIntro;
     }
@@ -344,7 +347,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         _chipLabel(
                           isPhysical
                               ? l.createActivity_physical
-                              : l.createActivity_analysis,
+                              : l.createActivity_calculate,
                           categoryColor,
                         ),
                         _chipLabel(

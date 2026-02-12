@@ -202,10 +202,10 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
                 Expanded(
                   child: _categoryCard(
                     icon: Icons.psychology,
-                    label: l.createActivity_analysis,
+                    label: l.createActivity_calculate,
                     color: Palette.blueChip,
                     onTap: () {
-                      setState(() => _selectedCategory = 'ด้านวิเคราะห์');
+                      setState(() => _selectedCategory = 'ด้านคำนวณ');
                       if (_questions.isEmpty) _addQuestion();
                     },
                   ),
@@ -281,7 +281,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
                   child: Text(
                     _isPhysical
                         ? l.createActivity_physical
-                        : l.createActivity_analysis,
+                        : l.createActivity_calculate,
                     style: AppTextStyles.label(13, color: Colors.white),
                   ),
                 ),

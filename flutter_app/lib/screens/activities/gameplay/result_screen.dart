@@ -189,10 +189,10 @@ class _ResultScreenState extends State<ResultScreen>
                                 AppRoutes.videoDetail,
                                 arguments: activityToReplay,
                               );
-                            } else if (category == 'ด้านวิเคราะห์') {
+                            } else if (category == 'ด้านคำนวณ') {
                               Navigator.pushReplacementNamed(
                                 context,
-                                AppRoutes.analysisActivity,
+                                AppRoutes.calculateActivity,
                                 arguments: activityToReplay,
                               );
                             } else {

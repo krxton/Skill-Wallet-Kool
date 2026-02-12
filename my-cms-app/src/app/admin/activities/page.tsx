@@ -17,6 +17,7 @@ interface Activity {
 export default function ActivitiesPage() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -27,7 +28,7 @@ export default function ActivitiesPage() {
 
   useEffect(() => {
     fetchActivities();
-  }, [page, searchQuery]);
+  }, [page, searchQuery, categoryFilter]);
 
   // Click outside to close menu
   useEffect(() => {
@@ -50,6 +51,7 @@ export default function ActivitiesPage() {
         page: page.toString(),
         limit: '10',
         ...(searchQuery && { search: searchQuery }),
+        ...(categoryFilter && { category: categoryFilter }),
       });
       
       const res = await fetch(`/api/activities?${params}`);
@@ -132,6 +134,20 @@ export default function ActivitiesPage() {
     setOpenMenuId(openMenuId === id ? null : id);
   };
 
+  const getCategoryBadge = (category: string) => {
+    const config: Record<string, { bg: string; text: string; label: string }> = {
+      'ด้านภาษา': { bg: 'bg-yellow--light3', text: 'text-dark', label: 'Language' },
+      'ด้านร่างกาย': { bg: 'bg-green--light6', text: 'text-green--dark', label: 'Physical' },
+      'ด้านคำนวณ': { bg: 'bg-purple--light4', text: 'text-purple--dark', label: 'Calculate' },
+    };
+    const c = config[category] || { bg: 'bg-gray3', text: 'text-secondary--text', label: category };
+    return (
+      <span className={`inline-flex items-center px-2 py-1 rounded-full body-xs-medium whitespace-nowrap ${c.bg} ${c.text}`}>
+        {c.label}
+      </span>
+    );
+  };
+
   if (loading && activities.length === 0) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -161,9 +177,9 @@ export default function ActivitiesPage() {
         </div>
       </div>
 
-      {/* Search */}
-      <div className="mb-6">
-        <div className="relative max-w-md">
+      {/* Search & Filters */}
+      <div className="mb-6 flex flex-wrap gap-4">
+        <div className="relative flex-1 min-w-[250px] max-w-md">
           <Search
             className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary--text"
             size={20}
@@ -176,6 +192,17 @@ export default function ActivitiesPage() {
             className="w-full pl-10 pr-4 py-2 border border-gray6 rounded-lg body-medium-regular focus:outline-none focus:ring-2 focus:ring-purple"
           />
         </div>
+
+        <select
+          value={categoryFilter}
+          onChange={(e) => { setCategoryFilter(e.target.value); setPage(1); }}
+          className="px-4 py-2 border border-gray6 rounded-lg body-medium-regular focus:outline-none focus:ring-2 focus:ring-purple"
+        >
+          <option value="">All Categories</option>
+          <option value="ด้านภาษา">Language</option>
+          <option value="ด้านร่างกาย">Physical</option>
+          <option value="ด้านคำนวณ">Calculate</option>
+        </select>
       </div>
 
       {/* Bulk Actions */}
@@ -192,11 +219,11 @@ export default function ActivitiesPage() {
       )}
 
       {/* Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="w-full">
+      <div className="bg-white rounded-lg shadow overflow-x-auto">
+        <table className="w-full min-w-[800px]">
           <thead className="bg-gray--light1 border-b border-gray4">
             <tr>
-              <th className="w-12 px-4 py-3">
+              <th className="w-10 px-3 py-3">
                 <input
                   type="checkbox"
                   checked={selectedIds.length === activities.length && activities.length > 0}
@@ -204,13 +231,13 @@ export default function ActivitiesPage() {
                   className="rounded"
                 />
               </th>
-              <th className="px-4 py-3 text-left body-small-medium text-secondary--text">No.</th>
+              <th className="w-12 px-3 py-3 text-left body-small-medium text-secondary--text">No.</th>
               <th className="px-4 py-3 text-left body-small-medium text-secondary--text">Activity Title</th>
-              <th className="px-4 py-3 text-left body-small-medium text-secondary--text">Category</th>
+              <th className="w-28 px-4 py-3 text-left body-small-medium text-secondary--text">Category</th>
               <th className="px-4 py-3 text-left body-small-medium text-secondary--text">Description</th>
-              <th className="px-4 py-3 text-left body-small-medium text-secondary--text">Date Created</th>
-              <th className="px-4 py-3 text-left body-small-medium text-secondary--text">Responses</th>
-              <th className="w-12 px-4 py-3"></th>
+              <th className="w-28 px-4 py-3 text-left body-small-medium text-secondary--text whitespace-nowrap">Date Created</th>
+              <th className="w-24 px-4 py-3 text-center body-small-medium text-secondary--text">Responses</th>
+              <th className="w-12 px-3 py-3"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray4">
@@ -238,13 +265,13 @@ export default function ActivitiesPage() {
                   </td>
                   <td className="px-4 py-3 body-medium-regular">{(page - 1) * 10 + index + 1}</td>
                   <td className="px-4 py-3 body-medium-medium">{activity.nameActivity}</td>
-                  <td className="px-4 py-3 body-medium-regular">{activity.category}</td>
-                  <td className="px-4 py-3 body-medium-regular text-secondary--text">
-                    {activity.descriptionActivity?.length > 50
-                      ? `${activity.descriptionActivity.substring(0, 50)}...`
-                      : activity.descriptionActivity || '-'}
+                  <td className="px-4 py-3">
+                    {getCategoryBadge(activity.category)}
                   </td>
-                  <td className="px-4 py-3 body-medium-regular">
+                  <td className="px-4 py-3 body-medium-regular text-secondary--text max-w-[200px] truncate">
+                    {activity.descriptionActivity || '-'}
+                  </td>
+                  <td className="px-4 py-3 body-medium-regular whitespace-nowrap">
                     {new Date(activity.createdAt).toLocaleDateString('en-US', {
                       day: 'numeric',
                       month: 'short',

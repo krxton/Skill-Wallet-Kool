@@ -10,8 +10,8 @@ class ActivityL10n {
         return l10n.common_categoryLanguage;
       case 'ด้านร่างกาย':
         return l10n.common_categoryPhysical;
-      case 'ด้านวิเคราะห์':
-        return l10n.common_categoryAnalysis;
+      case 'ด้านคำนวณ':
+        return l10n.common_categoryCalculate;
       default:
         return rawCategory;
     }

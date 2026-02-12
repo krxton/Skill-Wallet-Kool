@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Mail, Calendar, Users, Activity, Gift, Award, User } from 'lucide-react';
+import { ArrowLeft, Mail, Calendar, Users, Activity, Gift, Award, User, Shield, ShieldCheck } from 'lucide-react';
 
 interface Child {
   id: string;
@@ -39,8 +39,10 @@ interface Redemption {
 
 interface UserDetail {
   id: string;
+  userId?: string;
   fullName: string;
   email: string;
+  role: string;
   status: string;
   verification: string;
   photoUrl?: string;
@@ -56,6 +58,7 @@ export default function UserDetailPage() {
   const router = useRouter();
   const [user, setUser] = useState<UserDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [updatingRole, setUpdatingRole] = useState(false);
 
   useEffect(() => {
     if (params.id) {
@@ -77,6 +80,43 @@ export default function UserDetailPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleRoleChange = async (newRole: string) => {
+    if (!user || user.role === newRole) return;
+    setUpdatingRole(true);
+    try {
+      const res = await fetch(`/api/users/${params.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role: newRole }),
+      });
+      if (res.ok) {
+        setUser({ ...user, role: newRole });
+      } else {
+        const data = await res.json();
+        alert(data.error || 'Failed to update role');
+      }
+    } catch (error) {
+      console.error('Failed to update role:', error);
+      alert('Failed to update role');
+    } finally {
+      setUpdatingRole(false);
+    }
+  };
+
+  const getRoleBadge = (role: string) => {
+    const isAdmin = role === 'admin';
+    return (
+      <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full body-small-medium ${
+        isAdmin
+          ? 'bg-purple--light4 text-purple--dark'
+          : 'bg-gray3 text-secondary--text'
+      }`}>
+        {isAdmin ? <ShieldCheck size={14} /> : <Shield size={14} />}
+        {isAdmin ? 'Admin' : 'User'}
+      </span>
+    );
   };
 
   const getStatusBadge = (status: string) => {
@@ -101,6 +141,20 @@ export default function UserDetailPage() {
           : 'bg-yellow--light3 text-dark'
       }`}>
         {verification}
+      </span>
+    );
+  };
+
+  const getCategoryBadge = (category: string) => {
+    const config: Record<string, { bg: string; text: string; label: string }> = {
+      'ด้านภาษา': { bg: 'bg-yellow--light3', text: 'text-dark', label: 'Language' },
+      'ด้านร่างกาย': { bg: 'bg-green--light6', text: 'text-green--dark', label: 'Physical' },
+      'ด้านคำนวณ': { bg: 'bg-purple--light4', text: 'text-purple--dark', label: 'Calculate' },
+    };
+    const c = config[category] || { bg: 'bg-gray3', text: 'text-secondary--text', label: category };
+    return (
+      <span className={`inline-flex items-center px-2 py-1 rounded-full body-xs-medium whitespace-nowrap ${c.bg} ${c.text}`}>
+        {c.label}
       </span>
     );
   };
@@ -181,9 +235,26 @@ export default function UserDetailPage() {
               <div>
                 <h2 className="heading-h4 mb-2">{user.fullName}</h2>
                 <div className="flex items-center gap-4 mb-3">
+                  {getRoleBadge(user.role)}
                   {getStatusBadge(user.status)}
                   {getVerificationBadge(user.verification)}
                 </div>
+              </div>
+
+              {/* Role Management */}
+              <div className="flex items-center gap-2">
+                <select
+                  value={user.role}
+                  onChange={(e) => handleRoleChange(e.target.value)}
+                  disabled={updatingRole}
+                  className="px-3 py-2 border border-gray4 rounded-lg body-medium-medium bg-white focus:outline-none focus:ring-2 focus:ring-purple--light3 disabled:opacity-50"
+                >
+                  <option value="user">User</option>
+                  <option value="admin">Admin</option>
+                </select>
+                {updatingRole && (
+                  <span className="body-small-regular text-secondary--text">Saving...</span>
+                )}
               </div>
             </div>
 
@@ -312,8 +383,8 @@ export default function UserDetailPage() {
                 {user.recentActivities.map((activity) => (
                   <tr key={activity.id} className="hover:bg-gray--light1">
                     <td className="px-4 py-3 body-medium-medium">{activity.activityName}</td>
-                    <td className="px-4 py-3 body-medium-regular">{activity.category}</td>
-                    <td className="px-4 py-3 body-medium-regular">
+                    <td className="px-4 py-3">{getCategoryBadge(activity.category)}</td>
+                    <td className="px-4 py-3 body-medium-regular whitespace-nowrap">
                       {new Date(activity.dateCompleted).toLocaleDateString('en-US', {
                         day: 'numeric',
                         month: 'short',

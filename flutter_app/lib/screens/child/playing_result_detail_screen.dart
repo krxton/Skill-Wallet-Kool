@@ -94,7 +94,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
 
     // ตรวจสอบ category
     final isLanguageCategory = category == 'ด้านภาษา';
-    final isAnalysisCategory = category == 'ด้านวิเคราะห์';
+    final isAnalysisCategory = category == 'ด้านคำนวณ';
 
     return Scaffold(
       backgroundColor: cream,

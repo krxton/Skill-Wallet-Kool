@@ -35,6 +35,12 @@ export async function GET(
               select: {
                 name_surname: true
               }
+            },
+            activity: {
+              select: {
+                name_activity: true,
+                category: true
+              }
             }
           }
         },
@@ -86,15 +92,13 @@ export async function GET(
     }));
 
     // Transform activity records
-    // ⚠️ ปัญหา: activity_record ไม่มี activity_id ดังนั้นไม่สามารถดึง activity name ได้
-    // ต้องแก้ schema ก่อนตามที่แนะนำไปก่อนหน้านี้
     const recentActivities = parent.activity_record.map((record) => ({
       id: record.ActivityRecord_id,
-      activityName: 'N/A', // ⚠️ ไม่มี relation กับ activity
-      category: 'N/A', // ⚠️ ไม่มี relation กับ activity
+      activityName: record.activity?.name_activity || 'N/A',
+      category: record.activity?.category || 'N/A',
       dateCompleted: record.date?.toISOString() || record.created_at.toISOString(),
       scoreEarned: record.point ? Number(record.point) : 0,
-      status: 'Completed' // TODO: เพิ่มฟิลด์นี้ใน activity_record ถ้าต้องการ
+      status: 'Completed'
     }));
 
     // Transform rewards (medals)
@@ -113,15 +117,19 @@ export async function GET(
       scoreUsed: redemption.point_for_reward ? Number(redemption.point_for_reward) : 0
     }));
 
+    // Extract role from Supabase user metadata
+    const meta = (parent.users?.raw_user_meta_data as Record<string, any>) || {};
+
     // Transform to match frontend interface
     const userDetail = {
       id: parent.parent_id,
+      userId: parent.user_id,
       fullName: parent.name_surname || 'N/A',
       email: parent.email,
-      // ⚠️ ฟิลด์เหล่านี้ไม่มีใน parent table
-      status: 'Active', // TODO: เพิ่มฟิลด์นี้ใน schema
-      verification: 'Verified', // TODO: เพิ่มฟิลด์นี้ใน schema
-      photoUrl: undefined, // TODO: เพิ่มฟิลด์นี้ใน schema
+      role: meta.role || 'user',
+      status: 'Active',
+      verification: 'Verified',
+      photoUrl: undefined,
       createdAt: parent.created_date.toISOString(),
       children,
       recentActivities,
@@ -135,6 +143,56 @@ export async function GET(
     console.error(`GET /api/users/${params.id} error:`, error);
     return NextResponse.json(
       { error: 'Failed to fetch user detail', details: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  try {
+    const params = await context.params;
+    const body = await request.json();
+    const { role } = body;
+
+    if (!role || !['user', 'admin'].includes(role)) {
+      return NextResponse.json(
+        { error: 'Invalid role. Must be "user" or "admin".' },
+        { status: 400 }
+      );
+    }
+
+    // Find parent to get user_id
+    const parent = await prisma.parent.findUnique({
+      where: { parent_id: params.id },
+      select: { user_id: true, users: { select: { raw_user_meta_data: true } } }
+    });
+
+    if (!parent || !parent.user_id) {
+      return NextResponse.json(
+        { error: 'User not found or no linked auth user' },
+        { status: 404 }
+      );
+    }
+
+    // Merge new role into existing metadata
+    const existingMeta = (parent.users?.raw_user_meta_data as Record<string, any>) || {};
+    const updatedMeta = { ...existingMeta, role };
+
+    // Update auth.users raw_user_meta_data
+    await prisma.users.update({
+      where: { id: parent.user_id },
+      data: { raw_user_meta_data: updatedMeta }
+    });
+
+    return NextResponse.json({ success: true, role });
+  } catch (error: any) {
+    const params = await context.params;
+    console.error(`PATCH /api/users/${params.id} error:`, error);
+    return NextResponse.json(
+      { error: 'Failed to update role', details: error.message },
       { status: 500 }
     );
   }

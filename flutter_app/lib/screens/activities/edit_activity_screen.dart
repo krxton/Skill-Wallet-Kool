@@ -119,7 +119,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
                     child: Text(
                       _isPhysical
                           ? l.createActivity_physical
-                          : l.createActivity_analysis,
+                          : l.createActivity_calculate,
                       style: AppTextStyles.label(13, color: Colors.white),
                     ),
                   ),

@@ -67,7 +67,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
       Map<String, int> stats = {
         'ด้านภาษา': 0,
         'ด้านร่างกาย': 0,
-        'ด้านวิเคราะห์': 0,
+        'ด้านคำนวณ': 0,
       };
 
       for (var record in history) {
@@ -433,7 +433,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
               const SizedBox(width: 12),
               _buildStatCard('ด้านร่างกาย', _categoryStats['ด้านร่างกาย'] ?? 0, pinkBtn, icon: Icons.directions_run),
               const SizedBox(width: 12),
-              _buildStatCard('ด้านวิเคราะห์', _categoryStats['ด้านวิเคราะห์'] ?? 0, orangeBtn, imagePath: 'assets/images/Analysis_img.jpg'),
+              _buildStatCard('ด้านคำนวณ', _categoryStats['ด้านคำนวณ'] ?? 0, orangeBtn, imagePath: 'assets/images/Analysis_img.jpg'),
             ],
           ),
         ],
@@ -512,10 +512,10 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
           ),
           const SizedBox(height: 16),
           _buildCategoryButton(
-            "ด้านวิเคราะห์",
+            "ด้านคำนวณ",
             orangeBtn,
-            _categoryStats['ด้านวิเคราะห์'] ?? 0,
-            () => _navigateToHistory('ด้านวิเคราะห์'),
+            _categoryStats['ด้านคำนวณ'] ?? 0,
+            () => _navigateToHistory('ด้านคำนวณ'),
             imagePath: 'assets/images/Analysis_img.jpg',
           ),
         ],

@@ -3,13 +3,14 @@
 
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
-import { Search, MoreVertical, Eye, UserCheck, UserX } from 'lucide-react';
+import { Search, MoreVertical, Eye, UserCheck, UserX, ShieldCheck, Shield } from 'lucide-react';
 import UserProfile from '@/components/UserProfile';
 
 interface User {
   id: string;
   fullName: string;
   email: string;
+  role: string;
   status: string;
   verification: string;
   photoUrl?: string;
@@ -90,6 +91,20 @@ export default function UsersPage() {
     );
   };
 
+  const getRoleBadge = (role: string) => {
+    const isAdmin = role === 'admin';
+    return (
+      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full body-xs-medium ${
+        isAdmin
+          ? 'bg-purple--light4 text-purple--dark'
+          : 'bg-gray3 text-secondary--text'
+      }`}>
+        {isAdmin ? <ShieldCheck size={12} /> : <Shield size={12} />}
+        {isAdmin ? 'Admin' : 'User'}
+      </span>
+    );
+  };
+
   const getVerificationBadge = (verification: string) => {
     const isVerified = verification === 'Verified';
     return (
@@ -142,7 +157,7 @@ export default function UsersPage() {
           />
         </div>
         
-        <select
+        {/* <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
           className="px-4 py-2 border border-gray6 rounded-lg body-medium-regular focus:outline-none focus:ring-2 focus:ring-purple"
@@ -161,23 +176,24 @@ export default function UsersPage() {
           <option value="Verified">Verified</option>
           <option value="Pending">Pending</option>
           <option value="Unverified">Unverified</option>
-        </select>
+        </select> */}
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="w-full">
+      <div className="bg-white rounded-lg shadow overflow-x-auto">
+        <table className="w-full min-w-[900px]">
           <thead className="bg-gray--light1 border-b border-gray4">
             <tr>
-              <th className="px-4 py-3 text-left body-small-medium text-secondary--text">No.</th>
+              <th className="w-12 px-3 py-3 text-left body-small-medium text-secondary--text">No.</th>
               <th className="px-4 py-3 text-left body-small-medium text-secondary--text">Full Name</th>
               <th className="px-4 py-3 text-left body-small-medium text-secondary--text">Email</th>
-              <th className="px-4 py-3 text-left body-small-medium text-secondary--text">Status</th>
-              <th className="px-4 py-3 text-left body-small-medium text-secondary--text">Verification</th>
-              <th className="px-4 py-3 text-left body-small-medium text-secondary--text">Children</th>
-              <th className="px-4 py-3 text-left body-small-medium text-secondary--text">Activities</th>
-              <th className="px-4 py-3 text-left body-small-medium text-secondary--text">Date Created</th>
-              <th className="w-12 px-4 py-3"></th>
+              <th className="w-20 px-3 py-3 text-center body-small-medium text-secondary--text">Role</th>
+              <th className="w-20 px-3 py-3 text-center body-small-medium text-secondary--text">Status</th>
+              <th className="w-24 px-3 py-3 text-center body-small-medium text-secondary--text">Verification</th>
+              <th className="w-16 px-3 py-3 text-center body-small-medium text-secondary--text">Children</th>
+              <th className="w-16 px-3 py-3 text-center body-small-medium text-secondary--text">Activities</th>
+              <th className="w-28 px-3 py-3 text-left body-small-medium text-secondary--text whitespace-nowrap">Date Created</th>
+              <th className="w-12 px-3 py-3"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray4">
@@ -186,19 +202,19 @@ export default function UsersPage() {
                 key={user.id}
                 className="hover:bg-gray--light1"
               >
-                <td className="px-4 py-3 body-medium-regular">
+                <td className="px-3 py-3 body-medium-regular">
                   {(currentPage - 1) * 10 + index + 1}
                 </td>
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 whitespace-nowrap">
                     {user.photoUrl ? (
-                      <img 
-                        src={user.photoUrl} 
+                      <img
+                        src={user.photoUrl}
                         alt={user.fullName}
-                        className="w-8 h-8 rounded-full object-cover"
+                        className="w-8 h-8 rounded-full object-cover flex-shrink-0"
                       />
                     ) : (
-                      <div className="w-8 h-8 rounded-full bg-purple--light4 flex items-center justify-center body-small-medium text-purple">
+                      <div className="w-8 h-8 rounded-full bg-purple--light4 flex items-center justify-center body-small-medium text-purple flex-shrink-0">
                         {user.fullName.charAt(0).toUpperCase()}
                       </div>
                     )}
@@ -206,19 +222,22 @@ export default function UsersPage() {
                   </div>
                 </td>
                 <td className="px-4 py-3 body-medium-regular">{user.email}</td>
-                <td className="px-4 py-3">
+                <td className="px-3 py-3 text-center">
+                  {getRoleBadge(user.role)}
+                </td>
+                <td className="px-3 py-3 text-center">
                   {getStatusBadge(user.status)}
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-3 py-3 text-center">
                   {getVerificationBadge(user.verification)}
                 </td>
-                <td className="px-4 py-3 body-medium-regular text-center">
+                <td className="px-3 py-3 body-medium-regular text-center">
                   {user.childrenCount}
                 </td>
-                <td className="px-4 py-3 body-medium-regular text-center">
+                <td className="px-3 py-3 body-medium-regular text-center">
                   {user.activityRecordCount}
                 </td>
-                <td className="px-4 py-3 body-medium-regular">
+                <td className="px-3 py-3 body-medium-regular whitespace-nowrap">
                   {new Date(user.createdAt).toLocaleDateString('en-US', {
                     day: 'numeric',
                     month: 'short',

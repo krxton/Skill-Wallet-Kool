@@ -55,10 +55,10 @@ export async function GET(request: Request) {
             ActivityRecord_id: true
           }
         },
-        users: { // ถ้ามี users relation
+        users: {
           select: {
-            id: true
-            // เพิ่มฟิลด์อื่นๆ ที่ต้องการ เช่น status, verification, photoUrl
+            id: true,
+            raw_user_meta_data: true
           }
         }
       },
@@ -68,18 +68,21 @@ export async function GET(request: Request) {
     });
 
     // Transform to match frontend interface
-    const users = parents.map((parent) => ({
-      id: parent.parent_id,
-      fullName: parent.name_surname || 'N/A',
-      email: parent.email,
-      // ⚠️ ฟิลด์เหล่านี้ไม่มีใน parent table - ต้องเพิ่มหรือใช้ default value
-      status: 'Active', // TODO: เพิ่มฟิลด์นี้ใน schema
-      verification: 'Verified', // TODO: เพิ่มฟิลด์นี้ใน schema
-      photoUrl: undefined, // TODO: เพิ่มฟิลด์นี้ใน schema
-      createdAt: parent.created_date.toISOString(),
-      childrenCount: parent.parent_and_child.length,
-      activityRecordCount: parent.activity_record.length
-    }));
+    const users = parents.map((parent) => {
+      const meta = (parent.users?.raw_user_meta_data as Record<string, any>) || {};
+      return {
+        id: parent.parent_id,
+        fullName: parent.name_surname || 'N/A',
+        email: parent.email,
+        role: meta.role || 'user',
+        status: 'Active',
+        verification: 'Verified',
+        photoUrl: undefined,
+        createdAt: parent.created_date.toISOString(),
+        childrenCount: parent.parent_and_child.length,
+        activityRecordCount: parent.activity_record.length
+      };
+    });
 
     return NextResponse.json({
       users,

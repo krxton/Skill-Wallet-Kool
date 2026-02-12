@@ -103,7 +103,7 @@ class ActivityService {
   /// 2.2 ดึง Popular Activities (เรียงตามจำนวนรอบการเล่น)
   Future<List<Activity>> fetchPopularActivities(
     String childId, {
-    String? category, // 'ด้านภาษา', 'ด้านร่างกาย', 'ด้านวิเคราะห์'
+    String? category, // 'ด้านภาษา', 'ด้านร่างกาย', 'ด้านคำนวณ'
     String? level, // 'ง่าย', 'กลาง', 'ยาก'
     String? parentId, // สำหรับ filter visibility
   }) async {
@@ -177,7 +177,7 @@ class ActivityService {
   /// 2.3 ดึง New Activities (เรียงตาม createdAt หรือ id)
   Future<List<Activity>> fetchNewActivities(
     String childId, {
-    String? category, // 'ด้านภาษา', 'ด้านร่างกาย', 'ด้านวิเคราะห์'
+    String? category, // 'ด้านภาษา', 'ด้านร่างกาย', 'ด้านคำนวณ'
     String? level, // 'ง่าย', 'กลาง', 'ยาก'
     String? parentId, // สำหรับ filter visibility
   }) async {

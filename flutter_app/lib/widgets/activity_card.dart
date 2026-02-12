@@ -109,10 +109,10 @@ class ActivityCard extends StatelessWidget {
           AppRoutes.videoDetail,
           arguments: activity,
         );
-      } else if (category == 'ด้านวิเคราะห์') {
+      } else if (category == 'ด้านคำนวณ') {
         Navigator.pushNamed(
           context,
-          AppRoutes.analysisActivity,
+          AppRoutes.calculateActivity,
           arguments: activity,
         );
       } else {
@@ -228,8 +228,8 @@ class ActivityCard extends StatelessWidget {
     // กำหนดสีและไอคอนตามประเภทกิจกรรม
     final category = activity.category;
 
-    // ด้านวิเคราะห์ = ใช้รูป Analysis_img
-    if (category == 'ด้านวิเคราะห์') {
+    // ด้านคำนวณ = ใช้รูป Analysis_img
+    if (category == 'ด้านคำนวณ') {
       return SizedBox(
         width: double.infinity,
         height: double.infinity,
