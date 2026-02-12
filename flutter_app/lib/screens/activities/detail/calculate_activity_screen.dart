@@ -429,6 +429,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
             'scoreEarned': response['scoreEarned'] as int? ?? 0,
             'timeSpend': timeSpentSeconds,
             'activityObject': widget.activity,
+            'evidenceImagePath': _imagePath,
           },
         );
       }

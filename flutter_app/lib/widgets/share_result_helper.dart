@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -16,6 +17,7 @@ class ShareResultData {
   final int maxScore;
   final int timeSpentSeconds;
   final String? category;
+  final String? evidenceImagePath;
 
   const ShareResultData({
     required this.activityName,
@@ -23,10 +25,17 @@ class ShareResultData {
     required this.maxScore,
     required this.timeSpentSeconds,
     this.category,
+    this.evidenceImagePath,
   });
 
   double get percentage => maxScore > 0 ? (score / maxScore) * 100 : 0;
   bool get isPassed => percentage >= 70;
+
+  /// Check if evidence image exists on disk
+  bool get hasEvidenceImage =>
+      evidenceImagePath != null &&
+      evidenceImagePath!.isNotEmpty &&
+      File(evidenceImagePath!).existsSync();
 }
 
 /// Shows share bottom sheet with options
@@ -76,23 +85,41 @@ class _ShareBottomSheetState extends State<_ShareBottomSheet> {
     setState(() => _isSharing = true);
 
     try {
-      final boundary = _cardKey.currentContext?.findRenderObject()
-          as RenderRepaintBoundary?;
-      if (boundary == null) return;
+      final d = widget.data;
 
-      final image = await boundary.toImage(pixelRatio: 3.0);
-      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      if (byteData == null) return;
+      if (d.hasEvidenceImage) {
+        // Share actual evidence image file
+        if (!mounted) return;
+        Navigator.pop(context);
 
-      final Uint8List pngBytes = byteData.buffer.asUint8List();
+        await Share.shareXFiles(
+          [XFile(d.evidenceImagePath!)],
+          text: _buildShareText(),
+        );
+      } else {
+        // Fallback: screenshot the preview card
+        final boundary = _cardKey.currentContext?.findRenderObject()
+            as RenderRepaintBoundary?;
+        if (boundary == null) return;
 
-      if (!mounted) return;
-      Navigator.pop(context);
+        final image = await boundary.toImage(pixelRatio: 3.0);
+        final byteData =
+            await image.toByteData(format: ui.ImageByteFormat.png);
+        if (byteData == null) return;
 
-      await Share.shareXFiles(
-        [XFile.fromData(pngBytes, mimeType: 'image/png', name: 'result.png')],
-        text: _buildShareText(),
-      );
+        final Uint8List pngBytes = byteData.buffer.asUint8List();
+
+        if (!mounted) return;
+        Navigator.pop(context);
+
+        await Share.shareXFiles(
+          [
+            XFile.fromData(pngBytes,
+                mimeType: 'image/png', name: 'result.png')
+          ],
+          text: _buildShareText(),
+        );
+      }
     } catch (e) {
       debugPrint('Share image error: $e');
     } finally {
@@ -142,70 +169,124 @@ class _ShareBottomSheetState extends State<_ShareBottomSheet> {
           Text(l.share_title, style: AppTextStyles.heading(20)),
           const SizedBox(height: 16),
 
-          // Preview card (captured as image)
-          RepaintBoundary(
-            key: _cardKey,
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Palette.cream,
-                    scoreColor.withValues(alpha: 0.1),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: scoreColor, width: 2),
-              ),
-              child: Column(
+          // Preview card
+          if (d.hasEvidenceImage)
+            // Show actual evidence image with score overlay
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Stack(
                 children: [
-                  // App branding
-                  Text('Skill Wallet Kool',
-                      style: AppTextStyles.heading(14, color: Palette.sky)),
-                  const SizedBox(height: 12),
-
-                  // Activity name
-                  Text(
-                    d.activityName.toUpperCase(),
-                    textAlign: TextAlign.center,
-                    style: AppTextStyles.heading(16, color: Palette.deepGrey),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
+                  Image.file(
+                    File(d.evidenceImagePath!),
+                    width: double.infinity,
+                    height: 220,
+                    fit: BoxFit.cover,
                   ),
-                  const SizedBox(height: 12),
-
-                  // Score
-                  Text(
-                    '${d.score} / ${d.maxScore}',
-                    style: AppTextStyles.heading(40, color: scoreColor),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    d.isPassed ? l.share_greatJob : l.share_keepTrying,
-                    style: AppTextStyles.heading(16, color: scoreColor),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Time
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.timer_outlined,
-                          size: 16, color: Palette.deepGrey),
-                      const SizedBox(width: 4),
-                      Text(
-                        _formatTime(d.timeSpentSeconds),
-                        style: AppTextStyles.body(13, color: Palette.deepGrey),
+                  // Dark gradient overlay at bottom for readability
+                  Positioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(12, 24, 12, 10),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withValues(alpha: 0.7),
+                          ],
+                        ),
                       ),
-                    ],
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              d.activityName,
+                              style: AppTextStyles.label(13, color: Colors.white),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: scoreColor,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              '${d.score}/${d.maxScore}',
+                              style: AppTextStyles.label(13, color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
+            )
+          else
+            // Fallback: score card (captured as screenshot)
+            RepaintBoundary(
+              key: _cardKey,
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Palette.cream,
+                      scoreColor.withValues(alpha: 0.1),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: scoreColor, width: 2),
+                ),
+                child: Column(
+                  children: [
+                    Text('Skill Wallet Kool',
+                        style: AppTextStyles.heading(14, color: Palette.sky)),
+                    const SizedBox(height: 12),
+                    Text(
+                      d.activityName.toUpperCase(),
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.heading(16, color: Palette.deepGrey),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      '${d.score} / ${d.maxScore}',
+                      style: AppTextStyles.heading(40, color: scoreColor),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      d.isPassed ? l.share_greatJob : l.share_keepTrying,
+                      style: AppTextStyles.heading(16, color: scoreColor),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.timer_outlined,
+                            size: 16, color: Palette.deepGrey),
+                        const SizedBox(width: 4),
+                        Text(
+                          _formatTime(d.timeSpentSeconds),
+                          style:
+                              AppTextStyles.body(13, color: Palette.deepGrey),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
           const SizedBox(height: 20),
 
           // Share options

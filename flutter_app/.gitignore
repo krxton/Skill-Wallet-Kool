@@ -3,6 +3,11 @@
 *.log
 *.pyc
 *.swp
+
+# Signing
+android/key.properties
+**/*.jks
+**/*.keystore
 .DS_Store
 .atom/
 .build/

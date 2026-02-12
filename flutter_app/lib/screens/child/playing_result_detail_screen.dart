@@ -342,6 +342,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
                       maxScore: maxScoreInt,
                       timeSpentSeconds: timespent,
                       category: category,
+                      evidenceImagePath: imagePath,
                     ),
                   );
                 },

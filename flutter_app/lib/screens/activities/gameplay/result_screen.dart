@@ -56,6 +56,9 @@ class _ResultScreenState extends State<ResultScreen>
     final int scoreEarned = (args['scoreEarned'] as int?) ?? 0;
     final int maxScore = activityToReplay?.maxScore ?? 100;
 
+    // รับ evidence image path (จากกิจกรรมร่างกาย/คำนวณ)
+    final String? evidenceImagePath = args['evidenceImagePath'] as String?;
+
     String two(int n) => n.toString().padLeft(2, '0');
     final mm = two(time.inMinutes % 60), ss = two(time.inSeconds % 60);
 
@@ -91,6 +94,7 @@ class _ResultScreenState extends State<ResultScreen>
                   maxScore: maxScore,
                   timeSpentSeconds: timeSpentSeconds,
                   category: activityToReplay?.category,
+                  evidenceImagePath: evidenceImagePath,
                 ),
               );
             },

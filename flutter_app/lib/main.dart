@@ -189,7 +189,7 @@ class _SWKAppState extends State<SWKApp> {
     appRoutes.remove('/'); // ลบ home route ออกเพื่อไม่ให้ซ้ำ
 
     return MaterialApp(
-      title: 'Skill Wallet Kool',
+      title: 'SkillWalletKool',
       locale: _locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
