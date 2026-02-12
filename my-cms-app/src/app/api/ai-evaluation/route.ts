@@ -1,18 +1,42 @@
 // src/app/api/ai-evaluation/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
-import fs from "fs";
-import path from "path";
-import os from "os";
-import { spawnSync } from "child_process";
 
 // ⚠️ CORS Headers: ตรวจสอบ Origin ของ Flutter App
 const corsHeaders = {
-    'Access-Control-Allow-Origin': '*', 
+    'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-requested-with',
     'Access-Control-Max-Age': '86400',
 };
+
+// 🔧 Helper: ทำความสะอาดข้อความสำหรับเปรียบเทียบ
+function cleanText(text: string): string {
+    return text.toLowerCase().replace(/[^\w\s]/g, '').trim();
+}
+
+// 🔧 Helper: คำนวณคะแนนความแม่นยำ
+function calculateAccuracy(recognized: string, expected: string): number {
+    const recognizedWords = cleanText(recognized).split(/\s+/).filter(Boolean);
+    const expectedWords = cleanText(expected).split(/\s+/).filter(Boolean);
+
+    if (expectedWords.length === 0) return 100;
+
+    const expectedCounts: Record<string, number> = {};
+    for (const w of expectedWords) {
+        expectedCounts[w] = (expectedCounts[w] || 0) + 1;
+    }
+
+    let matchCount = 0;
+    for (const w of recognizedWords) {
+        if (expectedCounts[w] && expectedCounts[w] > 0) {
+            matchCount++;
+            expectedCounts[w]--;
+        }
+    }
+
+    return Math.min(Math.floor((matchCount / expectedWords.length) * 100), 100);
+}
 
 /**
  * @swagger
@@ -213,79 +237,61 @@ export async function POST(request: NextRequest) {
         'Access-Control-Allow-Origin': corsHeaders['Access-Control-Allow-Origin'],
     };
 
-    let tmpFilePath: string | null = null;
-    
     try {
         const formData = await request.formData();
         const file = formData.get("file") as File;
         const originalText = formData.get("text")?.toString() || "";
-        const mimeType = file.type || "audio/m4a"; 
 
         if (!file || !originalText) {
             return NextResponse.json({ error: "Missing audio file or original text." }, { status: 400, headers: errorCorsHeaders });
         }
-        
-        // 1. 🟢 เขียนไฟล์เสียงชั่วคราว
-        const buffer = Buffer.from(await file.arrayBuffer());
-        const fileExtension = mimeType.split('/')[1] || 'm4a'; 
-        const fileId = Math.random().toString(36).substring(2, 9);
-        
-        tmpFilePath = path.join(os.tmpdir(), `tmp_audio_${fileId}.${fileExtension}`); 
-        
-        fs.writeFileSync(tmpFilePath, buffer);
 
-        // 2. 🟢 รัน Python script (WHISPER EVAL)
-        const pythonScriptPath = path.join(process.cwd(), "scripts", "whisper_eval.py");
-        const pythonCmd = process.platform === "win32" ? "python" : "python3";
-
-        // 2.1 🟢 เขียน expected text ลงไฟล์ชั่วคราว (แก้ปัญหา argv แตก)
-        const textPath = path.join(os.tmpdir(), `expected_${fileId}.txt`);
-        fs.writeFileSync(textPath, originalText, "utf-8");
-
-        // 2.2 🟢 รัน Python script
-        const result = spawnSync(
-        pythonCmd,
-        [pythonScriptPath, tmpFilePath, textPath],
-        {
-            encoding: "utf-8",
-            env: { ...process.env, PYTHONIOENCODING: "utf-8" },
-        }
-        );
-
-        // 2.3 🟢 ลบไฟล์ข้อความชั่วคราว
-        fs.unlinkSync(textPath);
-
-        // 3. ลบไฟล์ชั่วคราวทันทีหลังการใช้งาน
-        fs.unlinkSync(tmpFilePath);
-        tmpFilePath = null; 
-
-        // 4. ตรวจสอบ Error จาก Python
-        if (result.status !== 0) {
-            console.error("Python stderr:", result.stderr);
-            return NextResponse.json({ error: result.stderr || `Python exited with code ${result.status}` }, { status: 500, headers: errorCorsHeaders });
+        const groqApiKey = process.env.GROQ_API_KEY;
+        if (!groqApiKey) {
+            return NextResponse.json({ error: "GROQ_API_KEY not configured." }, { status: 500, headers: errorCorsHeaders });
         }
 
-        // 5. Parse JSON Output
-        try {
-            const output = JSON.parse(result.stdout.trim()); 
-            
-            // 6. ส่งผลลัพธ์ JSON 200 OK กลับไปยัง Flutter
-            return NextResponse.json(output, { headers: corsHeaders });
+        // 🟢 ส่งไฟล์เสียงไปยัง Groq Whisper API เพื่อ transcribe
+        const groqForm = new FormData();
+        groqForm.append("file", file, file.name || "audio.m4a");
+        groqForm.append("model", "whisper-large-v3");
+        groqForm.append("language", "en");
+        groqForm.append("response_format", "json");
 
-        } catch (err) {
-            console.error('JSON Parsing Error:', err);
+        const groqResponse = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${groqApiKey}`,
+            },
+            body: groqForm,
+        });
+
+        if (!groqResponse.ok) {
+            const errBody = await groqResponse.text();
+            console.error("Groq API Error:", groqResponse.status, errBody);
             return NextResponse.json(
-                { error: "Invalid JSON from whisper_eval.py", raw: result.stdout.substring(0, 500) },
+                { error: `Groq API error (${groqResponse.status}): ${errBody.substring(0, 200)}` },
                 { status: 500, headers: errorCorsHeaders }
             );
         }
+
+        const groqResult = await groqResponse.json();
+        const recognizedText = groqResult.text || "";
+
+        // 🟢 คำนวณคะแนนความแม่นยำ
+        const score = calculateAccuracy(recognizedText, originalText);
+
+        return NextResponse.json(
+            { text: recognizedText, score },
+            { headers: corsHeaders }
+        );
+
     } catch (error: any) {
-        // ⚠️ จัดการ Error ในการจัดการไฟล์
-        if (tmpFilePath && fs.existsSync(tmpFilePath)) {
-             fs.unlinkSync(tmpFilePath);
-        }
         console.error('AI Evaluation Process Error:', error);
-        return NextResponse.json({ error: error.message || "Internal Server Error during AI process." }, { status: 500, headers: errorCorsHeaders });
+        return NextResponse.json(
+            { error: error.message || "Internal Server Error during AI process." },
+            { status: 500, headers: errorCorsHeaders }
+        );
     }
 }
 
