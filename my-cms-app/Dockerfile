@@ -53,26 +53,11 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# ---- Install system dependencies (Prisma + Whisper)
+# ---- Install system dependencies (Prisma)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 \
-    python3-pip \
-    python3-venv \
-    ffmpeg \
     openssl \
     curl \
     && rm -rf /var/lib/apt/lists/*
-
-# ---- Create Python virtual environment
-RUN python3 -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
-
-# ---- Install Python packages
-RUN pip install --no-cache-dir \
-    openai-whisper \
-    youtube-transcript-api \
-    beautifulsoup4 \
-    requests
 
 # ---- Create non-root user
 RUN addgroup --system --gid 1001 nodejs && \
@@ -87,9 +72,6 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder /app/prisma ./prisma
-
-# ---- Copy Python scripts
-COPY --from=builder /app/scripts ./scripts
 
 RUN chown -R nextjs:nodejs /app
 

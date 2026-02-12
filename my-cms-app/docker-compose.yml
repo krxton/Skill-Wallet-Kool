@@ -17,6 +17,7 @@ services:
 
     environment:
       - NODE_ENV=production
+      - WHISPER_MODE=groq
 
     restart: unless-stopped
 

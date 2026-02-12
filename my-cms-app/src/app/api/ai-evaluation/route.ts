@@ -246,40 +246,84 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: "Missing audio file or original text." }, { status: 400, headers: errorCorsHeaders });
         }
 
-        const groqApiKey = process.env.GROQ_API_KEY;
-        if (!groqApiKey) {
-            return NextResponse.json({ error: "GROQ_API_KEY not configured." }, { status: 500, headers: errorCorsHeaders });
+        // 🔀 เลือก mode: "local" = FastAPI Whisper บนเครื่อง, "groq" = Groq Cloud API
+        const whisperMode = process.env.WHISPER_MODE || "groq";
+
+        let recognizedText: string;
+        let score: number;
+
+        if (whisperMode === "local") {
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            // 🏠 LOCAL MODE: ส่งไปยัง FastAPI (whisper_eval.py)
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            const whisperUrl = process.env.WHISPER_LOCAL_URL || "http://localhost:8000";
+
+            const localForm = new FormData();
+            localForm.append("file", file, file.name || "audio.m4a");
+            localForm.append("text", originalText);
+
+            const localResponse = await fetch(`${whisperUrl}/evaluate`, {
+                method: "POST",
+                body: localForm,
+            });
+
+            if (!localResponse.ok) {
+                const errBody = await localResponse.text();
+                console.error("Local Whisper Error:", localResponse.status, errBody);
+                return NextResponse.json(
+                    { error: `Local Whisper error (${localResponse.status}): ${errBody.substring(0, 200)}` },
+                    { status: 500, headers: errorCorsHeaders }
+                );
+            }
+
+            const localResult = await localResponse.json();
+
+            if (localResult.error) {
+                return NextResponse.json(
+                    { error: `Whisper processing error: ${localResult.error}` },
+                    { status: 500, headers: errorCorsHeaders }
+                );
+            }
+
+            recognizedText = localResult.text || "";
+            score = localResult.score ?? 0;
+
+        } else {
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            // ☁️ GROQ MODE: ส่งไปยัง Groq Whisper API (cloud)
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            const groqApiKey = process.env.GROQ_API_KEY;
+            if (!groqApiKey) {
+                return NextResponse.json({ error: "GROQ_API_KEY not configured." }, { status: 500, headers: errorCorsHeaders });
+            }
+
+            const groqForm = new FormData();
+            groqForm.append("file", file, file.name || "audio.m4a");
+            groqForm.append("model", "whisper-large-v3");
+            groqForm.append("language", "en");
+            groqForm.append("response_format", "json");
+
+            const groqResponse = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${groqApiKey}`,
+                },
+                body: groqForm,
+            });
+
+            if (!groqResponse.ok) {
+                const errBody = await groqResponse.text();
+                console.error("Groq API Error:", groqResponse.status, errBody);
+                return NextResponse.json(
+                    { error: `Groq API error (${groqResponse.status}): ${errBody.substring(0, 200)}` },
+                    { status: 500, headers: errorCorsHeaders }
+                );
+            }
+
+            const groqResult = await groqResponse.json();
+            recognizedText = groqResult.text || "";
+            score = calculateAccuracy(recognizedText, originalText);
         }
-
-        // 🟢 ส่งไฟล์เสียงไปยัง Groq Whisper API เพื่อ transcribe
-        const groqForm = new FormData();
-        groqForm.append("file", file, file.name || "audio.m4a");
-        groqForm.append("model", "whisper-large-v3");
-        groqForm.append("language", "en");
-        groqForm.append("response_format", "json");
-
-        const groqResponse = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", {
-            method: "POST",
-            headers: {
-                "Authorization": `Bearer ${groqApiKey}`,
-            },
-            body: groqForm,
-        });
-
-        if (!groqResponse.ok) {
-            const errBody = await groqResponse.text();
-            console.error("Groq API Error:", groqResponse.status, errBody);
-            return NextResponse.json(
-                { error: `Groq API error (${groqResponse.status}): ${errBody.substring(0, 200)}` },
-                { status: 500, headers: errorCorsHeaders }
-            );
-        }
-
-        const groqResult = await groqResponse.json();
-        const recognizedText = groqResult.text || "";
-
-        // 🟢 คำนวณคะแนนความแม่นยำ
-        const score = calculateAccuracy(recognizedText, originalText);
 
         return NextResponse.json(
             { text: recognizedText, score },
