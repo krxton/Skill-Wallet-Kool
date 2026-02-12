@@ -525,16 +525,19 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                         _buildTimerControls(),
                         const SizedBox(height: 20),
 
-                        // ── Questions (only visible in answering phase) ──
-                        if (_phase == _Phase.answering) ...[
+                        // ── Questions (visible during running & answering) ──
+                        if (_phase == _Phase.running ||
+                            _phase == _Phase.answering) ...[
                           Text('QUESTIONS',
                               style: AppTextStyles.heading(
                                   24, color: Palette.sky)),
                           const SizedBox(height: 10),
                           ..._buildQuestionCards(),
                           const SizedBox(height: 30),
+                        ],
 
-                          // Evidence
+                        // ── Evidence (only in answering phase) ──
+                        if (_phase == _Phase.answering) ...[
                           Text('EVIDENCE',
                               style: AppTextStyles.heading(
                                   20, color: Palette.error)),
@@ -546,10 +549,6 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                         // ── Ready phase message ──
                         if (_phase == _Phase.ready)
                           _buildReadyMessage(),
-
-                        // ── Running phase message ──
-                        if (_phase == _Phase.running)
-                          _buildRunningMessage(),
                       ],
                     ),
                   ),
@@ -646,30 +645,6 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
               textAlign: TextAlign.center),
           const SizedBox(height: 4),
           Text('คำถามจะปรากฏหลังจากจบการจับเวลา',
-              style: AppTextStyles.body(13, color: Palette.deepGrey),
-              textAlign: TextAlign.center),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRunningMessage() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Palette.warning.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Palette.warning.withValues(alpha: 0.3)),
-      ),
-      child: Column(
-        children: [
-          Icon(Icons.timer, size: 48, color: Palette.warning),
-          const SizedBox(height: 12),
-          Text('กำลังจับเวลา...',
-              style: AppTextStyles.heading(18, color: Palette.warning)),
-          const SizedBox(height: 4),
-          Text('กด FINISH เมื่อทำกิจกรรมเสร็จ เพื่อตอบคำถาม',
               style: AppTextStyles.body(13, color: Palette.deepGrey),
               textAlign: TextAlign.center),
         ],
@@ -794,18 +769,26 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
               child: SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: () => _showAnswerDialog(index),
+                  onPressed: _phase == _Phase.answering
+                      ? () => _showAnswerDialog(index)
+                      : null,
                   icon: Icon(
                       status == null ? Icons.edit : Icons.refresh,
                       size: 18),
                   label: Text(
-                      status == null ? 'ANSWER' : 'ANSWER AGAIN',
+                      _phase == _Phase.running
+                          ? 'หยุดเวลาก่อนตอบ'
+                          : status == null
+                              ? 'ANSWER'
+                              : 'ANSWER AGAIN',
                       style: AppTextStyles.heading(14)),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: status == null
-                        ? Palette.sky
-                        : Colors.grey.shade400,
+                    backgroundColor: _phase == _Phase.answering
+                        ? (status == null ? Palette.sky : Colors.grey.shade400)
+                        : Colors.grey.shade300,
                     foregroundColor: Colors.white,
+                    disabledBackgroundColor: Colors.grey.shade300,
+                    disabledForegroundColor: Colors.white70,
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),

@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Standalone output for Docker deployment
+  output: 'standalone',
+
   // Suppress workspace root warning
   outputFileTracingRoot: require('path').join(__dirname),
 
