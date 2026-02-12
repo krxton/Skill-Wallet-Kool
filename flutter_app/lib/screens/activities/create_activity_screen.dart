@@ -124,7 +124,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
         category: _selectedCategory!,
         content: _contentCtrl.text.trim(),
         difficulty: _difficulty,
-        isPublic: _isPhysical, // Physical = public, Analysis = private
+        isPublic: false, // User-created = private, admin approves to public
         maxScore: maxScore,
         description: _descCtrl.text.trim().isNotEmpty
             ? _descCtrl.text.trim()

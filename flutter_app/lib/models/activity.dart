@@ -60,28 +60,35 @@ class Activity {
       }
     }
 
-    // 4. สร้าง Activity Object
+    // Helper: รองรับทั้ง snake_case (Supabase direct) และ camelCase (API)
+    T? pick<T>(String snakeKey, String camelKey) {
+      return (json[snakeKey] ?? json[camelKey]) as T?;
+    }
+
+    final rawMaxScore = json['maxscore'] ?? json['maxScore'] ?? 0;
+
     return Activity(
-      id: json['activity_id'] as String,
-      name: json['name_activity'] as String,
+      id: (json['activity_id'] ?? json['activityId'] ?? json['id']) as String,
+      name: (json['name_activity'] ?? json['nameActivity'] ?? json['name']) as String,
       category: json['category'] as String,
       content: json['content'] as String,
-      difficulty: json['level_activity'] as String,
-      maxScore: json['maxscore'] as int,
-      description: json['description_activity'] as String?,
-      videoUrl: json['videourl'] as String?,
+      difficulty: (json['level_activity'] ?? json['difficulty']) as String,
+      maxScore: rawMaxScore is int ? rawMaxScore : int.tryParse(rawMaxScore.toString()) ?? 0,
+      description: pick<String>('description_activity', 'description'),
+      videoUrl: pick<String>('videourl', 'videoUrl'),
       segments: segmentsData,
-      thumbnailUrl: json['thumbnailurl'] as String?,
-      tiktokHtmlContent: json['tiktokhtmlcontent'] as String?,
+      thumbnailUrl: pick<String>('thumbnailurl', 'thumbnailUrl'),
+      tiktokHtmlContent: pick<String>('tiktokhtmlcontent', 'tiktokHtmlContent'),
 
-      // 🆕 Parse DateTime จาก JSON
-      createdAt: json['created_at'] != null
-          ? DateTime.tryParse(json['created_at'] as String)
-          : null,
-      updatedAt: json['update_at'] != null
-          ? DateTime.tryParse(json['update_at'] as String)
-          : null,
+      createdAt: _tryParseDate(json['created_at'] ?? json['createdAt']),
+      updatedAt: _tryParseDate(json['update_at'] ?? json['updatedAt']),
     );
+  }
+
+  static DateTime? _tryParseDate(dynamic value) {
+    if (value == null) return null;
+    if (value is String) return DateTime.tryParse(value);
+    return null;
   }
 
   // ----------------------------------------------------

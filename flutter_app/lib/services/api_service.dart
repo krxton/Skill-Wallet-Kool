@@ -17,8 +17,19 @@ class ApiService {
       'Content-Type': 'application/json',
     };
 
-    // Get Supabase access token if user is logged in
-    final session = _supabase.auth.currentSession;
+    // Get Supabase access token — refresh if expired
+    var session = _supabase.auth.currentSession;
+
+    if (session != null && session.isExpired) {
+      try {
+        final res = await _supabase.auth.refreshSession();
+        session = res.session;
+      } catch (e) {
+        debugPrint('Token refresh failed: $e');
+        session = null;
+      }
+    }
+
     if (session != null) {
       headers['Authorization'] = 'Bearer ${session.accessToken}';
     }

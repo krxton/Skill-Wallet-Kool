@@ -1,100 +1,46 @@
 // lib/services/child_service.dart
-import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter/foundation.dart';
 import '../models/child_model.dart';
 import 'api_service.dart';
-import 'storage_service.dart';
 
 class ChildService {
-  final StorageService _storage = StorageService();
   final ApiService _apiService = ApiService();
-
-  String get apiBaseUrl =>
-      dotenv.env['API_BASE_URL'] ?? 'http://127.0.0.1:3000/api';
 
   // ✅ Get children for current parent
   Future<List<Child>> getChildren() async {
     try {
-      final token = await _storage.getToken();
-      if (token == null) return [];
-
-      final user = await _storage.getUser();
-      if (user == null) return [];
-
-      final url = Uri.parse("$apiBaseUrl/children?parentId=${user.id}");
-
-      final response = await http.get(
-        url,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $token",
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as List;
-        return data
-            .map((json) => Child.fromJson(json as Map<String, dynamic>))
-            .toList();
+      final response = await _apiService.get('/children');
+      List<dynamic> data;
+      if (response is List) {
+        data = response;
+      } else if (response is Map && response.containsKey('data') && response['data'] is List) {
+        data = response['data'];
       } else {
-        print('Get children error: ${response.statusCode}');
         return [];
       }
+      return data
+          .map((json) => Child.fromJson(json as Map<String, dynamic>))
+          .toList();
     } catch (e) {
-      print('Get children exception: $e');
+      debugPrint('Get children exception: $e');
       return [];
     }
   }
 
-  // ✅ Add child
+  // ✅ Add child via API
   Future<Child?> addChild({
     required String fullName,
     DateTime? dob,
   }) async {
     try {
-      final supabase = Supabase.instance.client;
-      final insertedChild =
-          await supabase.rpc('create_child_and_link', params: {
-        'p_name_surname': fullName,
-        'p_birthday': dob?.toIso8601String() ?? '',
-        'p_wallet': 0,
-        'p_relationship': 'Parent & Child'
+      final result = await _apiService.post('/children', {
+        'fullName': fullName,
+        'birthday': dob?.toIso8601String() ?? '',
+        'relationship': 'Parent & Child',
       });
-
-      return Child.fromJson(insertedChild);
-
-      // final token = await _storage.getToken();
-      // if (token == null) return null;
-
-      // final user = await _storage.getUser();
-      // if (user == null) return null;
-
-      // final url = Uri.parse("$apiBaseUrl/children");
-
-      // final response = await http.post(
-      //   url,
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //     "Authorization": "Bearer $token",
-      //   },
-      //   body: jsonEncode({
-      //     'parentId': user.id,
-      //     'fullName': fullName,
-      //     if (dob != null) 'dob': dob.toIso8601String(),
-      //   }),
-      // );
-
-      // if (response.statusCode == 200 || response.statusCode == 201) {
-      //   final data = jsonDecode(response.body) as Map<String, dynamic>;
-      //   return Child.fromJson(data);
-      // } else {
-      //   print('Add child error: ${response.statusCode} - ${response.body}');
-      //   return null;
-      // }
+      return Child.fromJson(result);
     } catch (e) {
-      print('Add child exception: $e');
+      debugPrint('Add child exception: $e');
       return null;
     }
   }
@@ -105,7 +51,6 @@ class ChildService {
     List<Child> addedChildren = [];
 
     for (var childData in childrenData) {
-      // แก้ไข: Parse String เป็น DateTime ถ้าเป็น String, หรือใช้ DateTime โดยตรงถ้าเป็น DateTime
       DateTime? dob;
       final dobData = childData['dob'];
       if (dobData is String) {
@@ -127,92 +72,49 @@ class ChildService {
     return addedChildren;
   }
 
-  // ✅ Update child
+  // ✅ Update child via API
   Future<Child?> updateChild({
     required String childId,
     String? fullName,
     DateTime? dob,
   }) async {
     try {
-      final token = await _storage.getToken();
-      if (token == null) return null;
-
-      final url = Uri.parse("$apiBaseUrl/children/$childId");
-
-      final response = await http.put(
-        url,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $token",
-        },
-        body: jsonEncode({
-          if (fullName != null) 'fullName': fullName,
-          if (dob != null) 'dob': dob.toIso8601String(),
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as Map<String, dynamic>;
-        return Child.fromJson(data);
-      } else {
-        print('Update child error: ${response.statusCode}');
-        return null;
-      }
+      final result = await _apiService.patch('/children/$childId', {
+        if (fullName != null) 'fullName': fullName,
+        if (dob != null) 'birthday': dob.toIso8601String(),
+      });
+      return Child.fromJson(result);
     } catch (e) {
-      print('Update child exception: $e');
+      debugPrint('Update child exception: $e');
       return null;
     }
   }
 
-  // ✅ Delete child
+  // ✅ Delete child via API
   Future<bool> deleteChild(String childId) async {
     try {
-      final token = await _storage.getToken();
-      if (token == null) return false;
-
-      final url = Uri.parse("$apiBaseUrl/children/$childId");
-
-      final response = await http.delete(
-        url,
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer $token",
-        },
-      );
-
-      return response.statusCode == 200 || response.statusCode == 204;
+      await _apiService.delete('/children/$childId');
+      return true;
     } catch (e) {
-      print('Delete child exception: $e');
+      debugPrint('Delete child exception: $e');
       return false;
     }
   }
 
   // =====================================================
-  // ACTIVITY HISTORY (ใช้ตาราง activity_record)
+  // ACTIVITY HISTORY
   // =====================================================
 
   /// ดึงประวัติกิจกรรมของเด็ก
   Future<List<Map<String, dynamic>>> getActivityHistory(String childId) async {
     try {
-      final supabase = Supabase.instance.client;
-
-      // ดึงจาก activity_record table
-      final response = await supabase
-          .from('activity_record')
-          .select('''
-            *,
-            activity:activity_id (
-              name_activity,
-              category,
-              maxscore
-            )
-          ''')
-          .eq('child_id', childId)
-          .order('created_at', ascending: false);
-
-      return List<Map<String, dynamic>>.from(response);
+      final response = await _apiService.get('/children/$childId/activity-history');
+      if (response is List) {
+        return List<Map<String, dynamic>>.from(response);
+      }
+      return [];
     } catch (e) {
-      print('❌ getActivityHistory error: $e');
+      debugPrint('getActivityHistory error: $e');
       return [];
     }
   }
@@ -220,70 +122,31 @@ class ChildService {
   /// ดึงสรุปคะแนนของเด็ก
   Future<Map<String, dynamic>> getChildStats(String childId) async {
     try {
-      final supabase = Supabase.instance.client;
-
-      // ดึงข้อมูลเด็ก
-      final childData = await supabase
-          .from('child')
-          .select('wallet, name_surname')
-          .eq('child_id', childId)
-          .single();
-
-      // ดึงจำนวนกิจกรรมที่ทำ (จาก activity_record)
-      final activityCount = await supabase
-          .from('activity_record')
-          .select('ActivityRecord_id')
-          .eq('child_id', childId);
-
-      // wallet อาจเป็น Decimal ใน Supabase
-      final walletValue = childData['wallet'];
-      int wallet = 0;
-      if (walletValue is int) {
-        wallet = walletValue;
-      } else if (walletValue is double) {
-        wallet = walletValue.toInt();
-      } else if (walletValue != null) {
-        wallet = int.tryParse(walletValue.toString()) ?? 0;
+      final result = await _apiService.get('/children/$childId/stats');
+      if (result is Map<String, dynamic>) {
+        return result;
       }
-
-      return {
-        'wallet': wallet,
-        'name': childData['name_surname'] ?? '',
-        'totalActivities': (activityCount as List).length,
-      };
+      return {'wallet': 0, 'name': '', 'totalActivities': 0};
     } catch (e) {
-      print('❌ getChildStats error: $e');
+      debugPrint('getChildStats error: $e');
       return {'wallet': 0, 'name': '', 'totalActivities': 0};
     }
   }
 
   // =====================================================
-  // MEDALS/REWARDS MANAGEMENT (ใช้ตาราง medals + parent_and_medals)
+  // MEDALS/REWARDS MANAGEMENT
   // =====================================================
 
   /// ดึง medals ที่ผู้ปกครองสร้าง
   Future<List<Map<String, dynamic>>> getMedals(String parentId) async {
     try {
-      final supabase = Supabase.instance.client;
-
-      // ดึง medals ผ่าน parent_and_medals
-      final response = await supabase
-          .from('parent_and_medals')
-          .select('''
-            *,
-            medals:medals_id (
-              id,
-              name_medals,
-              point_medals,
-              created_at
-            )
-          ''')
-          .eq('parent_id', parentId)
-          .order('created_at', ascending: false);
-
-      return List<Map<String, dynamic>>.from(response);
+      final response = await _apiService.get('/medals');
+      if (response is List) {
+        return List<Map<String, dynamic>>.from(response);
+      }
+      return [];
     } catch (e) {
-      print('❌ getMedals error: $e');
+      debugPrint('getMedals error: $e');
       return [];
     }
   }
@@ -293,22 +156,17 @@ class ChildService {
     return getMedals(parentId);
   }
 
-  /// เพิ่ม medal ใหม่ (ใช้ RPC function เพื่อ bypass RLS)
+  /// เพิ่ม medal ใหม่ผ่าน API
   Future<Map<String, dynamic>?> addMedal({
     required String parentId,
     required String name,
     required int cost,
   }) async {
     try {
-      final supabase = Supabase.instance.client;
-
-      // ใช้ RPC function ที่มี SECURITY DEFINER เพื่อ bypass RLS
-      final result = await supabase.rpc('create_medal_and_link', params: {
-        'p_name_medals': name,
-        'p_point_medals': cost,
+      final result = await _apiService.post('/medals', {
+        'name': name,
+        'cost': cost,
       });
-
-      print('✅ RPC create_medal_and_link result: $result');
 
       if (result != null && result['id'] != null) {
         return {
@@ -319,15 +177,7 @@ class ChildService {
       }
       return result;
     } catch (e) {
-      print('❌ addMedal error: $e');
-
-      // ตรวจสอบประเภท error
-      final errorMsg = e.toString();
-      if (errorMsg.contains('function') && errorMsg.contains('does not exist')) {
-        print('⚠️ RPC function create_medal_and_link does not exist in Supabase.');
-        print('📝 กรุณาสร้าง function นี้ใน Supabase SQL Editor');
-      }
-
+      debugPrint('addMedal error: $e');
       return null;
     }
   }
@@ -357,7 +207,7 @@ class ChildService {
       });
       return result['success'] == true;
     } catch (e) {
-      print('❌ updateMedal error: $e');
+      debugPrint('updateMedal error: $e');
       return false;
     }
   }
@@ -370,7 +220,7 @@ class ChildService {
       });
       return result['success'] == true;
     } catch (e) {
-      print('❌ deleteMedal error: $e');
+      debugPrint('deleteMedal error: $e');
       return false;
     }
   }
@@ -380,7 +230,7 @@ class ChildService {
     return deleteMedal(rewardId);
   }
 
-  /// แลก medal (ผ่าน backend API เพื่อความถูกต้อง)
+  /// แลก medal (ผ่าน backend API)
   Future<Map<String, dynamic>> redeemMedal({
     required String childId,
     required String medalsId,
@@ -403,7 +253,7 @@ class ChildService {
         'message': result['message'] ?? 'แลกของรางวัลสำเร็จ!',
       };
     } catch (e) {
-      print('❌ redeemMedal error: $e');
+      debugPrint('redeemMedal error: $e');
       return {
         'success': false,
         'error': 'เกิดข้อผิดพลาด: $e',
@@ -427,31 +277,21 @@ class ChildService {
     );
   }
 
-  /// ดึงประวัติการแลก (จาก redemption table)
+  /// ดึงประวัติการแลก
   Future<List<Map<String, dynamic>>> getRedemptionHistory(String childId) async {
     try {
-      final supabase = Supabase.instance.client;
-
-      final response = await supabase
-          .from('redemption')
-          .select('''
-            *,
-            medals:medals_id (
-              name_medals,
-              point_medals
-            )
-          ''')
-          .eq('child_id', childId)
-          .order('created_at', ascending: false);
-
-      return List<Map<String, dynamic>>.from(response);
+      final response = await _apiService.get('/children/$childId/redemptions');
+      if (response is List) {
+        return List<Map<String, dynamic>>.from(response);
+      }
+      return [];
     } catch (e) {
-      print('❌ getRedemptionHistory error: $e');
+      debugPrint('getRedemptionHistory error: $e');
       return [];
     }
   }
 
-  /// ปรับ wallet ของเด็ก (บวก/ลบ) สำหรับ behavior assessment (ผ่าน backend API)
+  /// ปรับ wallet ของเด็ก (บวก/ลบ) ผ่าน backend API
   Future<Map<String, dynamic>> adjustWallet({
     required String childId,
     required int delta,
@@ -470,7 +310,7 @@ class ChildService {
             : int.tryParse(newWallet.toString()) ?? 0,
       };
     } catch (e) {
-      print('❌ adjustWallet error: $e');
+      debugPrint('adjustWallet error: $e');
       return {'success': false, 'error': e.toString()};
     }
   }
@@ -478,13 +318,11 @@ class ChildService {
   /// ดึงประวัติคะแนน (ได้และใช้)
   Future<List<Map<String, dynamic>>> getPointHistory(String childId) async {
     try {
-      // รวมประวัติกิจกรรม (ได้คะแนน) และประวัติแลกของ (ใช้คะแนน)
       final activities = await getActivityHistory(childId);
       final redemptions = await getRedemptionHistory(childId);
 
       List<Map<String, dynamic>> history = [];
 
-      // เพิ่มประวัติกิจกรรม
       for (var activity in activities) {
         final point = activity['point'];
         int pointValue = 0;
@@ -505,7 +343,6 @@ class ChildService {
         });
       }
 
-      // เพิ่มประวัติแลกของ
       for (var redemption in redemptions) {
         final cost = redemption['point_for_reward'];
         int costValue = 0;
@@ -527,13 +364,12 @@ class ChildService {
         });
       }
 
-      // เรียงตามวันที่
       history.sort((a, b) =>
           (b['date'] as String).compareTo(a['date'] as String));
 
       return history;
     } catch (e) {
-      print('❌ getPointHistory error: $e');
+      debugPrint('getPointHistory error: $e');
       return [];
     }
   }

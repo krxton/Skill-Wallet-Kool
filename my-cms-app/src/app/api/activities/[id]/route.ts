@@ -109,7 +109,8 @@ export async function PATCH(
     if (body.description !== undefined) updateData.description_activity = body.description;
     if (body.videoUrl !== undefined) updateData.videourl = body.videoUrl;
     if (body.thumbnailUrl !== undefined) updateData.thumbnailurl = body.thumbnailUrl;
-    
+    if (body.isPublic !== undefined) updateData.is_public = body.isPublic;
+
     // Handle segments separately
     if (body.segments !== undefined) {
       updateData.segments = typeof body.segments === 'string'
@@ -138,6 +139,7 @@ export async function PATCH(
       content: activity.content,
       segments: safeJsonSerialize(activity.segments),
       playCount: activity.play_count ? Number(activity.play_count) : 0,
+      isPublic: activity.is_public,
       parentId: activity.parent_id,
       createdAt: activity.created_at.toISOString(),
       updatedAt: activity.update_at.toISOString(),

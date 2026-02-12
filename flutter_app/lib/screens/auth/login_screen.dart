@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import 'package:skill_wallet_kool/providers/user_provider.dart';
 import 'package:skill_wallet_kool/routes/app_routes.dart';
+import 'package:skill_wallet_kool/services/api_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../providers/auth_provider.dart';
 
@@ -256,46 +257,29 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  // ========== Helper: Sync User Data (ใหม่) ==========
+  // ========== Helper: Sync User Data via API ==========
   Future<void> _syncUserData({
     required String userId,
     required String? email,
     required String? fullName,
   }) async {
-    final supabase = Supabase.instance.client;
-
     final String nameToSave = fullName ?? email?.split('@')[0] ?? 'User';
 
     try {
-      // ตรวจสอบว่ามีข้อมูลอยู่แล้วหรือไม่
-      final existingParent = await supabase
-          .from('parent')
-          .select()
-          .eq('user_id', userId)
-          .maybeSingle();
+      final apiService = ApiService();
+      final result = await apiService.post('/parents/sync', {
+        'email': email,
+        'fullName': nameToSave,
+      });
 
-      if (existingParent == null) {
-        // Insert new user
-        await supabase.from('parent').insert({
-          'user_id': userId,
-          'email': email,
-          'name_surname': nameToSave,
-        });
-        debugPrint('✅ New user created: $nameToSave');
-      } else {
-        // Update existing user
-        await supabase.from('parent').update({
-          'name_surname': nameToSave,
-        }).eq('user_id', userId);
-        debugPrint('✅ User data updated: $nameToSave');
-      }
+      final parentName = result['parent']?['nameSurname'] ?? nameToSave;
+      debugPrint('✅ User synced via API: $parentName');
 
       // Update Provider
       if (mounted) {
         final userProvider = context.read<UserProvider>();
-        userProvider.setParentName(nameToSave);
+        userProvider.setParentName(parentName);
 
-        // 🆕 ดึงข้อมูล children เพื่อตั้งค่า childId
         await userProvider.fetchChildrenData();
       }
     } catch (e) {

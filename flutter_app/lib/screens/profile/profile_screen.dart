@@ -13,7 +13,9 @@ import '../activities/edit_activity_screen.dart';
 import 'settings/setting_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final VoidCallback? onActivityChanged;
+
+  const ProfileScreen({super.key, this.onActivityChanged});
 
   @override
   State<ProfileScreen> createState() => ProfileScreenState();
@@ -104,7 +106,10 @@ class ProfileScreenState extends State<ProfileScreen> {
         builder: (_) => EditActivityScreen(activity: activity),
       ),
     );
-    if (result == true) _loadActivities();
+    if (result == true) {
+      _loadActivities();
+      widget.onActivityChanged?.call();
+    }
   }
 
   // ── Delete ─────────────────────────────────────────────
@@ -132,6 +137,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                     SnackBar(content: Text(l.profile_deleteSuccess)),
                   );
                   _loadActivities();
+                  widget.onActivityChanged?.call();
                 }
               } catch (e) {
                 if (mounted) {

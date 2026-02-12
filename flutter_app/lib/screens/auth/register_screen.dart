@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import 'package:skill_wallet_kool/providers/user_provider.dart';
+import 'package:skill_wallet_kool/services/api_service.dart';
 import 'package:skill_wallet_kool/services/auth_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -249,34 +250,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
     }
   }
 
-  // ========== Helper: บันทึกข้อมูล User (ใหม่) ==========
+  // ========== Helper: Sync User Data via API ==========
   Future<void> _saveUserToDatabase({
     required String userId,
     required String? email,
     required String? fullName,
   }) async {
-    final supabase = Supabase.instance.client;
-
-    // เตรียมชื่อ
     final String nameToSave = fullName ?? email?.split('@')[0] ?? 'User';
 
     try {
-      // บันทึกข้อมูลลงตาราง parent
-      await supabase.from('parent').upsert({
-        'user_id': userId,
+      final apiService = ApiService();
+      final result = await apiService.post('/parents/sync', {
         'email': email,
-        'name_surname': nameToSave,
+        'fullName': nameToSave,
       });
 
-      // อัปเดตข้อมูลใน Provider
-      if (mounted) {
-        context.read<UserProvider>().setParentName(nameToSave);
-      }
+      final parentName = result['parent']?['nameSurname'] ?? nameToSave;
+      debugPrint('✅ User synced via API: $parentName');
 
-      debugPrint('✅ User saved to database: $nameToSave');
+      if (mounted) {
+        context.read<UserProvider>().setParentName(parentName);
+      }
     } catch (e) {
       debugPrint('❌ Error saving user to database: $e');
-      // ไม่ throw error เพราะ user ยังสามารถใช้งานต่อได้
     }
   }
 

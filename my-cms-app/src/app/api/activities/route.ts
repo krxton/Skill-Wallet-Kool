@@ -30,6 +30,13 @@ export async function GET(request: Request) {
     const limit = parseInt(searchParams.get('limit') || '10');
     const skip = (page - 1) * limit;
 
+    // New params for Flutter
+    const sortBy = searchParams.get('sortBy'); // 'play_count' | 'created_at'
+    const sortOrder = searchParams.get('sortOrder') || 'desc'; // 'asc' | 'desc'
+    const parentId = searchParams.get('parentId'); // visibility filter
+    const ownedBy = searchParams.get('ownedBy'); // show only this parent's activities
+    const level = searchParams.get('level'); // filter by level_activity
+
     // Build where clause
     const where: any = {};
 
@@ -44,9 +51,33 @@ export async function GET(request: Request) {
       where.category = category;
     }
 
+    // Level filter
+    if (level) {
+      where.level_activity = level;
+    }
+
+    // Visibility: ownedBy takes priority, then parentId filter
+    if (ownedBy) {
+      // Show only activities created by this parent
+      where.parent_id = ownedBy;
+    } else if (parentId) {
+      // Show public OR owned by this parent
+      where.OR = [
+        { is_public: true },
+        { parent_id: parentId },
+      ];
+    } else {
+      // No parent context = only public
+      // (skip for admin CMS - when no parentId, show all)
+    }
+
     // Get total count
     const totalCount = await prisma.activity.count({ where });
     const totalPages = Math.ceil(totalCount / limit);
+
+    // Determine sort
+    const orderByField = sortBy === 'play_count' ? 'play_count' : 'created_at';
+    const orderByDir = sortOrder === 'asc' ? 'asc' : 'desc';
 
     // Get activities
     const activities = await prisma.activity.findMany({
@@ -64,6 +95,7 @@ export async function GET(request: Request) {
         segments: true,
         videourl: true,
         thumbnailurl: true,
+        tiktokhtmlcontent: true,
         play_count: true,
         created_at: true,
         update_at: true,
@@ -71,7 +103,7 @@ export async function GET(request: Request) {
         is_public: true,
       },
       orderBy: {
-        created_at: 'desc'
+        [orderByField]: orderByDir
       }
     });
 
@@ -96,6 +128,7 @@ export async function GET(request: Request) {
           description: activity.description_activity || '',
           videoUrl: activity.videourl || '',
           thumbnailUrl: activity.thumbnailurl || '',
+          tiktokHtmlContent: activity.tiktokhtmlcontent || '',
           segments: safeJsonSerialize(activity.segments), // ✅ จัดการ JSON field
           playCount: activity.play_count ? Number(activity.play_count) : 0,
           parentId: activity.parent_id,
@@ -120,6 +153,7 @@ export async function GET(request: Request) {
           description: activity.description_activity || '',
           videoUrl: activity.videourl || '',
           thumbnailUrl: activity.thumbnailurl || '',
+          tiktokHtmlContent: activity.tiktokhtmlcontent || '',
           segments: null,
           playCount: 0,
           parentId: activity.parent_id,

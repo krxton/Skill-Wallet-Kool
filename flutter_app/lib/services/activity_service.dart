@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../models/activity.dart';
 import 'api_service.dart';
@@ -37,39 +36,73 @@ class SegmentResult {
 
 class ActivityService {
   final ApiService _apiService = ApiService();
-  static const String _oEmbedEndpoint = 'https://www.tiktok.com/oembed?url=';
   String get API_BASE_URL =>
       dotenv.env['API_BASE_URL'] ?? 'http://127.0.0.1:3000/api';
+
   // ----------------------------------------------------
   // 1. HELPER FUNCTIONS
   // ----------------------------------------------------
-  // 1.1 Helper Function: ดึง OEmbed Data จาก TikTok API
+  // 1.1 Helper: ดึง OEmbed Data ผ่าน Backend proxy
   Future<Map<String, dynamic>> _fetchTikTokOEmbedData(String videoUrl) async {
-    final cleanUrl = videoUrl.split('?').first;
-    final oEmbedUrl = Uri.parse(
-        '${ActivityService._oEmbedEndpoint}$cleanUrl&maxwidth=600&maxheight=800');
-    final response = await http.get(oEmbedUrl);
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body) as Map<String, dynamic>;
-    } else {
-      debugPrint('TikTok OEmbed Error: ${response.statusCode}');
-      throw Exception('Failed to load TikTok OEmbed data.');
-    }
+    final result = await _apiService.post('/tiktok-oembed', {
+      'videoUrl': videoUrl,
+    });
+    return result;
   }
 
-  // 1.2 Helper Function: ดึง Activity ทั้งหมดจาก Backend
-  Future<List<Activity>> _fetchAllActivities() async {
-    try {
-      final List<dynamic> responseList = await _apiService.getArray(
-        path: '/activities',
-        queryParameters: {},
-      );
-      return responseList
-          .map((json) => Activity.fromJson(json as Map<String, dynamic>))
-          .toList();
-    } catch (e) {
-      throw Exception('Failed to load ALL activities from backend: $e');
+  // 1.2 Helper: ดึง activities จาก API พร้อม query params
+  Future<List<Activity>> _fetchActivitiesFromApi({
+    String? sortBy,
+    String? sortOrder,
+    String? category,
+    String? level,
+    String? parentId,
+    String? ownedBy,
+    int limit = 100,
+  }) async {
+    final params = <String, dynamic>{
+      'limit': limit.toString(),
+    };
+    if (sortBy != null) params['sortBy'] = sortBy;
+    if (sortOrder != null) params['sortOrder'] = sortOrder;
+    if (category != null && category.isNotEmpty) params['category'] = category;
+    if (level != null && level.isNotEmpty) params['level'] = level;
+    if (parentId != null && parentId.isNotEmpty) params['parentId'] = parentId;
+    if (ownedBy != null && ownedBy.isNotEmpty) params['ownedBy'] = ownedBy;
+
+    final List<dynamic> responseList = await _apiService.getArray(
+      path: '/activities',
+      queryParameters: params,
+    );
+    return responseList
+        .map((json) => Activity.fromJson(json as Map<String, dynamic>))
+        .toList();
+  }
+
+  // 1.3 Helper: เสริม TikTok oEmbed ให้ activity ที่มี video
+  Future<Activity> _enrichWithOEmbed(Activity activity) async {
+    if (activity.videoUrl == null || activity.category != 'ด้านร่างกาย') {
+      return activity;
     }
+    // ถ้า API ส่ง tiktokHtmlContent มาแล้ว ไม่ต้อง fetch ซ้ำ
+    if (activity.tiktokHtmlContent != null &&
+        activity.tiktokHtmlContent!.isNotEmpty) {
+      return activity;
+    }
+    try {
+      final oEmbedData = await _fetchTikTokOEmbedData(activity.videoUrl!);
+      final String? thumbnailUrl = oEmbedData['thumbnailUrl'] as String?;
+      final String? htmlContent = oEmbedData['html'] as String?;
+      if (htmlContent != null && htmlContent.isNotEmpty) {
+        final json = activity.toJson();
+        json['thumbnailurl'] = thumbnailUrl ?? '';
+        json['tiktokhtmlcontent'] = htmlContent;
+        return Activity.fromJson(json);
+      }
+    } catch (e) {
+      debugPrint('OEmbed failed for ${activity.name}: $e');
+    }
+    return activity;
   }
 
   // ----------------------------------------------------
@@ -78,20 +111,15 @@ class ActivityService {
   /// 2.1 ดึง Physical Activity Clip (สำหรับส่วน CLIP VDO หลัก)
   Future<Activity?> fetchPhysicalActivityClip(String childId) async {
     try {
-      final allActivities = await _fetchAllActivities();
-      // กรองข้อมูลใน Flutter: หา 'ด้านร่างกาย' ที่มี videoUrl
-      final physicalActivity = allActivities.firstWhereOrNull(
-        (a) => a.category == 'ด้านร่างกาย' && a.videoUrl != null,
+      final activities = await _fetchActivitiesFromApi(
+        category: 'ด้านร่างกาย',
+        limit: 20,
       );
-      if (physicalActivity != null && physicalActivity.videoUrl != null) {
-        // เรียก OEmbed API
-        final oEmbedData =
-            await _fetchTikTokOEmbedData(physicalActivity.videoUrl!);
-        // ผสานข้อมูล
-        final Map<String, dynamic> activityJson = physicalActivity.toJson();
-        activityJson['thumbnailurl'] = oEmbedData['thumbnail_url'];
-        activityJson['tiktokhtmlcontent'] = oEmbedData['html'];
-        return Activity.fromJson(activityJson);
+      final physicalActivity = activities.firstWhereOrNull(
+        (a) => a.videoUrl != null && a.videoUrl!.isNotEmpty,
+      );
+      if (physicalActivity != null) {
+        return await _enrichWithOEmbed(physicalActivity);
       }
       return null;
     } catch (e) {
@@ -103,144 +131,48 @@ class ActivityService {
   /// 2.2 ดึง Popular Activities (เรียงตามจำนวนรอบการเล่น)
   Future<List<Activity>> fetchPopularActivities(
     String childId, {
-    String? category, // 'ด้านภาษา', 'ด้านร่างกาย', 'ด้านคำนวณ'
-    String? level, // 'ง่าย', 'กลาง', 'ยาก'
-    String? parentId, // สำหรับ filter visibility
+    String? category,
+    String? level,
+    String? parentId,
   }) async {
     try {
-      final supabase = Supabase.instance.client;
-      var query = supabase.from('activity').select();
-
-      // Visibility: is_public=true OR parent_id=currentParent
-      if (parentId != null && parentId.isNotEmpty) {
-        query = query.or('is_public.eq.true,parent_id.eq.$parentId');
-      } else {
-        query = query.eq('is_public', true);
-      }
-
-      // กรองตาม category ถ้ามี
-      if (category != null && category.isNotEmpty) {
-        query = query.eq('category', category);
-      }
-
-      // กรองตาม level ถ้ามี
-      if (level != null && level.isNotEmpty) {
-        query = query.eq('level_activity', level);
-      }
-
-      final activityData = await query.order('play_count', ascending: false);
-      final activities = activityData.map<Activity>((json) => Activity.fromJson(json)).toList();
-
-      // ✅ ประมวลผล TikTok OEmbed สำหรับกิจกรรมที่มี Video
-      final List<Future<Activity>> processedActivitiesFutures =
-          activities.map((activity) async {
-        // TikTok (ด้านร่างกาย)
-        if (activity.videoUrl != null &&
-            activity.category == 'ด้านร่างกาย') {
-          try {
-            debugPrint('🎬 Fetching TikTok OEmbed for: ${activity.name}');
-            final oEmbedData = await _fetchTikTokOEmbedData(activity.videoUrl!);
-
-            // ✅ Null-safe: ตรวจสอบว่ามีข้อมูลครบก่อน
-            final String? thumbnailUrl = oEmbedData['thumbnail_url'] as String?;
-            final String? htmlContent = oEmbedData['html'] as String?;
-
-            debugPrint('  - thumbnail: ${thumbnailUrl != null ? 'OK' : 'NULL'}');
-            debugPrint('  - html: ${htmlContent != null ? 'OK (${htmlContent.length} chars)' : 'NULL'}');
-
-            // ถ้ามีข้อมูล html ให้ผสานเข้า activity
-            if (htmlContent != null && htmlContent.isNotEmpty) {
-              final Map<String, dynamic> activityJson = activity.toJson();
-              activityJson['thumbnailurl'] = thumbnailUrl ?? '';
-              activityJson['tiktokhtmlcontent'] = htmlContent;
-              debugPrint('✅ OEmbed success for ${activity.name}');
-              return Activity.fromJson(activityJson);
-            } else {
-              debugPrint('⚠️ OEmbed returned null/empty html for ${activity.name}');
-            }
-          } catch (e) {
-            debugPrint('❌ OEmbed failed for ${activity.name}: $e');
-          }
-        }
-        return activity;
-      }).toList();
-
-      final List<Activity> processedActivities =
-          await Future.wait(processedActivitiesFutures);
-      return processedActivities;
+      final activities = await _fetchActivitiesFromApi(
+        sortBy: 'play_count',
+        sortOrder: 'desc',
+        category: category,
+        level: level,
+        parentId: parentId,
+      );
+      // Enrich activities with TikTok oEmbed if needed
+      final enriched = await Future.wait(
+        activities.map((a) => _enrichWithOEmbed(a)),
+      );
+      return enriched;
     } catch (e) {
       debugPrint('Error fetching popular activities: $e');
       return [];
     }
   }
 
-  /// 2.3 ดึง New Activities (เรียงตาม createdAt หรือ id)
+  /// 2.3 ดึง New Activities (เรียงตาม created_at)
   Future<List<Activity>> fetchNewActivities(
     String childId, {
-    String? category, // 'ด้านภาษา', 'ด้านร่างกาย', 'ด้านคำนวณ'
-    String? level, // 'ง่าย', 'กลาง', 'ยาก'
-    String? parentId, // สำหรับ filter visibility
+    String? category,
+    String? level,
+    String? parentId,
   }) async {
     try {
-      final supabase = Supabase.instance.client;
-      var query = supabase.from('activity').select();
-
-      // Visibility: is_public=true OR parent_id=currentParent
-      if (parentId != null && parentId.isNotEmpty) {
-        query = query.or('is_public.eq.true,parent_id.eq.$parentId');
-      } else {
-        query = query.eq('is_public', true);
-      }
-
-      // กรองตาม category ถ้ามี
-      if (category != null && category.isNotEmpty) {
-        query = query.eq('category', category);
-      }
-
-      // กรองตาม level ถ้ามี
-      if (level != null && level.isNotEmpty) {
-        query = query.eq('level_activity', level);
-      }
-
-      final activityData = await query.order('created_at', ascending: false);
-      final activities = activityData.map<Activity>((json) => Activity.fromJson(json)).toList();
-
-      // ✅ ประมวลผล TikTok OEmbed สำหรับกิจกรรมที่มี Video
-      final List<Future<Activity>> processedActivitiesFutures =
-          activities.map((activity) async {
-        if (activity.videoUrl != null &&
-            activity.category == 'ด้านร่างกาย') {
-          try {
-            debugPrint('🎬 Fetching TikTok OEmbed for: ${activity.name}');
-            final oEmbedData = await _fetchTikTokOEmbedData(activity.videoUrl!);
-
-            // ✅ Null-safe: ตรวจสอบว่ามีข้อมูลครบก่อน
-            final String? thumbnailUrl = oEmbedData['thumbnail_url'] as String?;
-            final String? htmlContent = oEmbedData['html'] as String?;
-
-            debugPrint('  - thumbnail: ${thumbnailUrl != null ? 'OK' : 'NULL'}');
-            debugPrint('  - html: ${htmlContent != null ? 'OK (${htmlContent.length} chars)' : 'NULL'}');
-
-            // ถ้ามีข้อมูล html ให้ผสานเข้า activity
-            if (htmlContent != null && htmlContent.isNotEmpty) {
-              final Map<String, dynamic> activityJson = activity.toJson();
-              activityJson['thumbnailurl'] = thumbnailUrl ?? '';
-              activityJson['tiktokhtmlcontent'] = htmlContent;
-              debugPrint('✅ OEmbed success for ${activity.name}');
-              return Activity.fromJson(activityJson);
-            } else {
-              debugPrint('⚠️ OEmbed returned null/empty html for ${activity.name}');
-            }
-          } catch (e) {
-            debugPrint('❌ OEmbed failed for ${activity.name}: $e');
-          }
-        }
-        return activity;
-      }).toList();
-
-      final List<Activity> processedActivities =
-          await Future.wait(processedActivitiesFutures);
-      return processedActivities;
+      final activities = await _fetchActivitiesFromApi(
+        sortBy: 'created_at',
+        sortOrder: 'desc',
+        category: category,
+        level: level,
+        parentId: parentId,
+      );
+      final enriched = await Future.wait(
+        activities.map((a) => _enrichWithOEmbed(a)),
+      );
+      return enriched;
     } catch (e) {
       debugPrint('Error fetching new activities: $e');
       return [];
@@ -250,63 +182,25 @@ class ActivityService {
   // ----------------------------------------------------
   // 2.4 ดึง Language Activities (ตามหัวข้อและระดับ)
   // ----------------------------------------------------
-  /// ดึง Language Activities กรองตาม topic และ level
   Future<List<Activity>> fetchLanguageActivities({
-    String? topic, // 'LISTENING AND SPEAKING' หรือ 'FILL IN THE BLANKS'
-    String? level, // 'ง่าย', 'กลาง', 'ยาก'
+    String? topic,
+    String? level,
   }) async {
     try {
-      final supabase = Supabase.instance.client;
-
-      // เริ่มต้น query ด้วย category = 'ด้านภาษา'
-      var query = supabase
-          .from('activity')
-          .select()
-          .eq('category', 'ด้านภาษา');
-
-      // กรองตาม level ถ้ามี
-      if (level != null) {
-        query = query.eq('level_activity', level);
-      }
-
-      final activities = await query;
-
-      debugPrint('📚 Language Activities Found: ${activities.length}');
-      if (activities.isNotEmpty) {
-        debugPrint('📋 Sample Activity: ${activities.first}');
-      }
-
-      return activities
-          .map<Activity>((json) => Activity.fromJson(json))
-          .toList();
+      final activities = await _fetchActivitiesFromApi(
+        category: 'ด้านภาษา',
+        level: level,
+      );
+      debugPrint('Language Activities Found: ${activities.length}');
+      return activities;
     } catch (e) {
-      debugPrint('❌ Error fetching language activities: $e');
+      debugPrint('Error fetching language activities: $e');
       return [];
     }
   }
 
   // ----------------------------------------------------
-  // 3. OTHER SERVICES
-  // ----------------------------------------------------
-  /// 3.1 ดึง HTML iframe สำหรับเล่นวิดีโอจาก Backend
-  Future<String?> fetchVideoIframeHtml(String videoUrl) async {
-    try {
-      final path = '/get-direct-url?url=${Uri.encodeComponent(videoUrl)}';
-      final response = await _apiService.get(path);
-      if (response is Map<String, dynamic> &&
-          response.containsKey('iframeHtml')) {
-        return response['iframeHtml'] as String?;
-      }
-      debugPrint('Iframe HTML Fetch Error: Unexpected response format.');
-      return null;
-    } catch (e) {
-      debugPrint('Error fetching iframe HTML from Backend: $e');
-      return null;
-    }
-  }
-
-  // ----------------------------------------------------
-  // 4. AI EVALUATION AND QUEST COMPLETION
+  // 3. AI EVALUATION AND QUEST COMPLETION
   // ----------------------------------------------------
   /// 4.1 ส่งไฟล์เสียงไปประเมิน AI
   Future<Map<String, dynamic>> evaluateAudio({
@@ -491,13 +385,11 @@ class ActivityService {
   /// ดึงกิจกรรมที่ผู้ปกครองคนนี้สร้าง
   Future<List<Activity>> fetchMyActivities(String parentId) async {
     try {
-      final supabase = Supabase.instance.client;
-      final data = await supabase
-          .from('activity')
-          .select()
-          .eq('parent_id', parentId)
-          .order('created_at', ascending: false);
-      return data.map<Activity>((json) => Activity.fromJson(json)).toList();
+      return await _fetchActivitiesFromApi(
+        ownedBy: parentId,
+        sortBy: 'created_at',
+        sortOrder: 'desc',
+      );
     } catch (e) {
       debugPrint('Error fetching my activities: $e');
       return [];

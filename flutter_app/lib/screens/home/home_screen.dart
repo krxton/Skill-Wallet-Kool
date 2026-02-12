@@ -60,6 +60,9 @@ class _HomeScreenState extends State<HomeScreen> {
   // bottom nav: 0 = home, 1 = plus, 2 = profile
   int _selectedTab = 0;
 
+  // dirty flag — จะ reload home เฉพาะเมื่อมีการเปลี่ยนแปลง activity
+  bool _homeNeedsRefresh = false;
+
   @override
   void initState() {
     super.initState();
@@ -1016,7 +1019,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // 0 = Home, 2 = Profile  (1 = + ใช้เปิดหน้าใหม่ด้วย Navigator)
     final pages = <Widget>[
       _buildHomeBody(context),
-      ProfileScreen(key: _profileKey),
+      ProfileScreen(key: _profileKey, onActivityChanged: () => _homeNeedsRefresh = true),
     ];
 
     // ถ้าเลือก tab 2 ให้โชว์ index 1 (Profile) ไม่งั้นใช้ Home
@@ -1055,7 +1058,12 @@ class _HomeScreenState extends State<HomeScreen> {
               });
               return;
             }
-            // แอบโหลด suggest ใหม่ตอนออกจาก home tab
+            // กลับมา home tab → โหลดใหม่เฉพาะเมื่อมีการเปลี่ยนแปลง
+            if (i == 0 && _selectedTab != 0 && _homeNeedsRefresh) {
+              _homeNeedsRefresh = false;
+              _loadData();
+            }
+            // ออกจาก home tab → แอบโหลด suggest ใหม่
             if (_selectedTab == 0 && i != 0) _refreshSuggestedOnly();
             setState(() => _selectedTab = i);
           },

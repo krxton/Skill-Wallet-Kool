@@ -9,6 +9,7 @@ import 'routes/app_routes.dart';
 import 'theme/app_theme.dart';
 import 'providers/user_provider.dart';
 import 'providers/auth_provider.dart';
+import 'services/api_service.dart';
 import 'services/deep_link_service.dart';
 import 'services/storage_service.dart';
 import 'services/mock_auth_service.dart';
@@ -30,8 +31,8 @@ Future<void> main() async {
   print('🔧 API_BASE_URL: ${dotenv.env['API_BASE_URL']}');
 
   await Supabase.initialize(
-    url: 'https://wgrfsbmbakfprfjmiidl.supabase.co',
-    anonKey: 'sb_publishable_pIHQQYxRzUP9z5Uxpr5Kag_ljYp0fmW',
+    url: dotenv.env['SUPABASE_URL']!,
+    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
   );
 
   // 🔧 Developer Mode Check
@@ -112,33 +113,22 @@ class _SWKAppState extends State<SWKApp> {
     }
   }
 
-  // ✅ ดึงชื่อผู้ปกครองและ children จาก Supabase แล้วตั้งใน UserProvider
+  // ✅ ดึงชื่อผู้ปกครองจาก API แล้วตั้งใน UserProvider
   Future<void> _populateParentNameFromSupabase() async {
     if (!mounted) return;
 
     try {
-      // Get UserProvider reference before any async operations
       final userProvider = Provider.of<UserProvider>(context, listen: false);
-      final supabase = Supabase.instance.client;
-      String? parentName;
 
-      try {
-        final row =
-            await supabase.from('parent').select('name_surname').maybeSingle();
+      final apiService = ApiService();
+      final result = await apiService.get('/parents/me');
 
-        if (row != null && row['name_surname'] is String) {
-          parentName = row['name_surname'] as String;
-        }
-      } catch (e) {
-        // ถ้าตาราง users ไม่มีหรือ schema ต่างไป ให้ข้าม
-        print('ℹ️ users table lookup skipped: $e');
-      }
+      final parentName = result['nameSurname'] as String?;
 
       if (parentName != null && parentName.isNotEmpty) {
         userProvider.setParentName(parentName);
         print('👤 Parent name set: $parentName');
 
-        // 🆕 ดึงข้อมูล children เพื่อตั้งค่า childId
         await userProvider.fetchChildrenData();
       }
     } catch (e) {

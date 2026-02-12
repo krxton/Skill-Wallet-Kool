@@ -1,9 +1,11 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../services/api_service.dart';
 
 class UserProvider extends ChangeNotifier {
   final _supabase = Supabase.instance.client;
+  final _apiService = ApiService();
 
   // ==========================================
   // 1. ส่วนข้อมูล ID (Child/Parent ID)
@@ -82,215 +84,128 @@ class UserProvider extends ChangeNotifier {
   }
 
   // ==========================================
-  // 3. ฟังก์ชันจัดการข้อมูลใน Database (Supabase)
+  // 3. ฟังก์ชันจัดการข้อมูลผ่าน API
   // ==========================================
   Future<void> fetchParentData() async {
     try {
-      final userId = _supabase.auth.currentUser?.id;
-
-      if (userId != null) {
-        final data = await _supabase
-            .from('parent')
-            .select('name_surname, parent_id')
-            .eq('user_id', userId)
-            .maybeSingle();
-
-        if (data != null) {
-          _currentParentName = data['name_surname'] ?? '';
-          _currentParentId = data['parent_id']?.toString();
-          notifyListeners();
-        }
-      }
+      final result = await _apiService.get('/parents/me');
+      _currentParentName = result['nameSurname'] ?? '';
+      _currentParentId = result['parentId']?.toString();
+      notifyListeners();
     } catch (e) {
       debugPrint('fetchParentData error: $e');
     }
   }
 
-  /// 3.1 ดึงข้อมูล Children จาก Database
+  /// 3.1 ดึงข้อมูล Children จาก API
   Future<void> fetchChildrenData() async {
     try {
-      final userId = _supabase.auth.currentUser?.id;
-
-      if (userId != null) {
-        // ดึง parent_id ก่อน
-        final parentData = await _supabase
-            .from('parent')
-            .select('parent_id')
-            .eq('user_id', userId)
-            .maybeSingle();
-
-        if (parentData != null) {
-          final parentId = parentData['parent_id'];
-          _currentParentId = parentId?.toString();
-
-          // ดึง children ของ parent นี้
-          final childrenResponse = await _supabase
-              .from('parent_and_child')
-              .select('child_id, relationship, child!inner(child_id, name_surname, wallet, birthday)')
-              .eq('parent_id', parentId);
-
-          if (childrenResponse.isNotEmpty) {
-            _children = List<Map<String, dynamic>>.from(childrenResponse);
-
-            // ตั้งค่า currentChildId เฉพาะเมื่อยังไม่ได้เลือก หรือเลือกไว้แล้วแต่ไม่มีในรายการ
-            final currentStillExists = _currentChildId != null &&
-                _children.any((c) => c['child']?['child_id'] == _currentChildId);
-
-            if (!currentStillExists && _children.isNotEmpty && _children[0]['child'] != null) {
-              _currentChildId = _children[0]['child']['child_id'];
-              debugPrint('✅ Child ID set to first child: $_currentChildId');
-            } else if (currentStillExists) {
-              debugPrint('✅ Keeping current selected child: $_currentChildId');
-            }
-
-            notifyListeners();
-          } else {
-            _children = [];
-            debugPrint('⚠️ No children found for parent: $parentId');
-          }
+      // ดึง parent info ก่อน (เพื่อได้ parentId)
+      if (_currentParentId == null) {
+        try {
+          final parentResult = await _apiService.get('/parents/me');
+          _currentParentId = parentResult['parentId']?.toString();
+        } catch (_) {
+          // ยังไม่ได้ login ให้ข้าม
+          return;
         }
       }
+
+      // ดึง children จาก API
+      final response = await _apiService.get('/children');
+
+      List<Map<String, dynamic>> childrenList;
+      if (response is List) {
+        childrenList = List<Map<String, dynamic>>.from(response);
+      } else if (response is Map && response.containsKey('data') && response['data'] is List) {
+        childrenList = List<Map<String, dynamic>>.from(response['data']);
+      } else {
+        childrenList = [];
+      }
+
+      if (childrenList.isNotEmpty) {
+        _children = childrenList;
+
+        final currentStillExists = _currentChildId != null &&
+            _children.any((c) => c['child']?['child_id'] == _currentChildId);
+
+        if (!currentStillExists && _children.isNotEmpty && _children[0]['child'] != null) {
+          _currentChildId = _children[0]['child']['child_id'];
+          debugPrint('Child ID set to first child: $_currentChildId');
+        }
+
+        notifyListeners();
+      } else {
+        _children = [];
+        debugPrint('No children found');
+      }
     } catch (e) {
-      debugPrint('❌ fetchChildrenData error: $e');
+      debugPrint('fetchChildrenData error: $e');
     }
   }
 
-  /// 3.2 เพิ่มเด็กใหม่ (ใช้ RPC function เพื่อ bypass RLS)
+  /// 3.2 เพิ่มเด็กใหม่ผ่าน API
   Future<bool> addChild({
     required String name,
     required DateTime birthday,
     String? relationship,
   }) async {
     try {
-      final userId = _supabase.auth.currentUser?.id;
-
-      if (userId == null) {
-        debugPrint('❌ Add child failed: No authenticated user');
-        return false;
-      }
-
-      // ใช้ RPC function ที่มี SECURITY DEFINER เพื่อ bypass RLS
-      final result = await _supabase.rpc('create_child_and_link', params: {
-        'p_name_surname': name,
-        'p_birthday': birthday.toIso8601String(),
-        'p_wallet': 0,
-        'p_relationship': relationship ?? 'พ่อ/แม่',
+      await _apiService.post('/children', {
+        'fullName': name,
+        'birthday': birthday.toIso8601String(),
+        'relationship': relationship ?? 'พ่อ/แม่',
       });
 
-      debugPrint('✅ RPC create_child_and_link result: $result');
-
-      // Refresh children list
       await fetchChildrenData();
-
-      debugPrint('✅ Child added successfully');
+      debugPrint('Child added successfully');
       return true;
     } catch (e) {
-      debugPrint('❌ addChild error: $e');
-
-      // ตรวจสอบประเภท error
-      final errorMsg = e.toString();
-      if (errorMsg.contains('row-level security policy')) {
-        debugPrint('⚠️ RLS policy blocking insert. Need to update RLS policies in Supabase.');
-      } else if (errorMsg.contains('function') && errorMsg.contains('does not exist')) {
-        debugPrint('⚠️ RPC function create_child_and_link does not exist in Supabase.');
-        debugPrint('📝 กรุณาสร้าง function นี้ใน Supabase SQL Editor:');
-        debugPrint('''
-CREATE OR REPLACE FUNCTION create_child_and_link(
-  p_name_surname TEXT,
-  p_birthday TEXT,
-  p_wallet INTEGER DEFAULT 0,
-  p_relationship TEXT DEFAULT 'พ่อ/แม่'
-)
-RETURNS JSON
-LANGUAGE plpgsql
-SECURITY DEFINER
-AS \$\$
-DECLARE
-  v_child_id UUID;
-  v_parent_id UUID;
-BEGIN
-  -- Get parent_id from current user
-  SELECT parent_id INTO v_parent_id
-  FROM parent
-  WHERE user_id = auth.uid();
-
-  IF v_parent_id IS NULL THEN
-    RAISE EXCEPTION 'Parent not found for current user';
-  END IF;
-
-  -- Insert child
-  INSERT INTO child (name_surname, birthday, wallet)
-  VALUES (p_name_surname, p_birthday::DATE, p_wallet)
-  RETURNING child_id INTO v_child_id;
-
-  -- Link parent and child
-  INSERT INTO parent_and_child (parent_id, child_id, relationship)
-  VALUES (v_parent_id, v_child_id, p_relationship);
-
-  RETURN json_build_object('child_id', v_child_id, 'success', true);
-END;
-\$\$;
-        ''');
-      }
-
+      debugPrint('addChild error: $e');
       return false;
     }
   }
 
-  /// 3.3 แก้ไขข้อมูลเด็ก
+  /// 3.3 แก้ไขข้อมูลเด็กผ่าน API
   Future<bool> updateChild({
     required String childId,
     String? name,
     DateTime? birthday,
   }) async {
     try {
-      final Map<String, dynamic> updates = {};
-      if (name != null) updates['name_surname'] = name;
-      if (birthday != null) updates['birthday'] = birthday.toIso8601String();
+      final body = <String, dynamic>{};
+      if (name != null) body['fullName'] = name;
+      if (birthday != null) body['birthday'] = birthday.toIso8601String();
 
-      if (updates.isEmpty) {
-        debugPrint('⚠️ No updates provided');
+      if (body.isEmpty) {
+        debugPrint('No updates provided');
         return false;
       }
 
-      await _supabase.from('child').update(updates).eq('child_id', childId);
-
-      // Refresh children list
+      await _apiService.patch('/children/$childId', body);
       await fetchChildrenData();
-
-      debugPrint('✅ Child updated successfully: $childId');
+      debugPrint('Child updated successfully: $childId');
       return true;
     } catch (e) {
-      debugPrint('❌ updateChild error: $e');
+      debugPrint('updateChild error: $e');
       return false;
     }
   }
 
-  /// 3.4 ลบเด็ก
+  /// 3.4 ลบเด็กผ่าน API
   Future<bool> deleteChild(String childId) async {
     try {
-      // 1. ลบจาก parent_and_child table ก่อน (foreign key constraint)
-      await _supabase
-          .from('parent_and_child')
-          .delete()
-          .eq('child_id', childId)
-          .eq('parent_id', _currentParentId!);
+      await _apiService.delete('/children/$childId');
 
-      // 2. ลบจาก child table
-      await _supabase.from('child').delete().eq('child_id', childId);
-
-      // 3. ถ้าลบเด็กที่กำลังเลือกอยู่ ให้เคลียร์ currentChildId
       if (_currentChildId == childId) {
         _currentChildId = null;
       }
 
-      // 4. Refresh children list
       await fetchChildrenData();
-
-      debugPrint('✅ Child deleted successfully: $childId');
+      debugPrint('Child deleted successfully: $childId');
       return true;
     } catch (e) {
-      debugPrint('❌ deleteChild error: $e');
+      debugPrint('deleteChild error: $e');
       return false;
     }
   }
@@ -304,16 +219,9 @@ END;
 
   Future<bool> updateParentName(String name) async {
     try {
-      final userId = _supabase.auth.currentUser?.id;
-
-      if (userId == null) {
-        debugPrint('Update failed: No authenticated user found.');
-        return false;
-      }
-
-      await _supabase
-          .from('parent')
-          .update({'name_surname': name}).eq('user_id', userId);
+      await _apiService.post('/parents/sync', {
+        'fullName': name,
+      });
 
       _currentParentName = name;
       notifyListeners();

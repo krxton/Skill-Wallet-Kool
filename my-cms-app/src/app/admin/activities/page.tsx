@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
-import { Plus, Search, MoreVertical, Edit, Trash2 } from 'lucide-react';
+import { Plus, Search, MoreVertical, Edit, Trash2, Globe, Lock } from 'lucide-react';
 import UserProfile from '@/components/UserProfile';
 
 interface Activity {
@@ -12,6 +12,7 @@ interface Activity {
   descriptionActivity: string;
   createdAt: string;
   responses: number;
+  isPublic: boolean;
 }
 
 export default function ActivitiesPage() {
@@ -122,6 +123,32 @@ export default function ActivitiesPage() {
       fetchActivities();
     } catch (error) {
       console.error('Failed to delete activities:', error);
+    }
+  };
+
+  const handleTogglePublic = async (id: string, currentValue: boolean) => {
+    const action = currentValue ? 'private' : 'public';
+    if (!confirm(`Change this activity to ${action}?`)) return;
+
+    try {
+      const res = await fetch(`/api/activities/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isPublic: !currentValue }),
+      });
+
+      if (res.ok) {
+        setActivities(prev =>
+          prev.map(a =>
+            a.activityId === id ? { ...a, isPublic: !currentValue } : a
+          )
+        );
+      } else {
+        alert('Failed to update visibility');
+      }
+    } catch (error) {
+      console.error('Failed to toggle public:', error);
+      alert('Failed to update visibility');
     }
   };
 
@@ -237,13 +264,14 @@ export default function ActivitiesPage() {
               <th className="px-4 py-3 text-left body-small-medium text-secondary--text">Description</th>
               <th className="w-28 px-4 py-3 text-left body-small-medium text-secondary--text whitespace-nowrap">Date Created</th>
               <th className="w-24 px-4 py-3 text-center body-small-medium text-secondary--text">Responses</th>
+              <th className="w-24 px-4 py-3 text-center body-small-medium text-secondary--text">Public</th>
               <th className="w-12 px-3 py-3"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray4">
             {activities.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center body-medium-regular text-secondary--text">
+                <td colSpan={9} className="px-4 py-8 text-center body-medium-regular text-secondary--text">
                   No activities found
                 </td>
               </tr>
@@ -280,6 +308,20 @@ export default function ActivitiesPage() {
                   </td>
                   <td className="px-4 py-3 body-medium-regular text-center">
                     {activity.responses || '-'}
+                  </td>
+                  <td className="px-4 py-3 text-center">
+                    <button
+                      onClick={() => handleTogglePublic(activity.activityId, activity.isPublic)}
+                      className={`inline-flex items-center gap-1 px-2 py-1 rounded-full body-xs-medium transition-colors ${
+                        activity.isPublic
+                          ? 'bg-green--light6 text-green--dark hover:bg-green--light5'
+                          : 'bg-gray3 text-secondary--text hover:bg-gray4'
+                      }`}
+                      title={activity.isPublic ? 'Click to make private' : 'Click to make public'}
+                    >
+                      {activity.isPublic ? <Globe size={14} /> : <Lock size={14} />}
+                      {activity.isPublic ? 'Public' : 'Private'}
+                    </button>
                   </td>
                   <td className="px-4 py-3">
                     <div className="relative" ref={openMenuId === activity.activityId ? menuRef : null}>
