@@ -50,7 +50,7 @@ interface EditFormProps {
 const CATEGORIES = [
     'ด้านภาษา',
     'ด้านร่างกาย',
-    'ด้านวิเคราะห์',
+    'ด้านคำนวณ',
     'อื่นๆ',
 ];
 
@@ -310,7 +310,7 @@ export default function EditForm({ id }: EditFormProps) {
         setIsSubmitting(true);
         
         // *** แก้ไข: ใช้ localScore แทน formData.maxScore สำหรับกิจกรรม Analytical ***
-        const isAnalytical = formData.category === 'ด้านวิเคราะห์';
+        const isAnalytical = formData.category === 'ด้านคำนวณ';
         
         const payload = {
             ...formData,
@@ -432,7 +432,7 @@ export default function EditForm({ id }: EditFormProps) {
     
     // ตรวจสอบประเภทกิจกรรมสำหรับการแสดงผลแบบมีเงื่อนไข
     const isLanguageActivity = formData.category === 'ด้านภาษา';
-    const isAnalyticalActivity = formData.category === 'ด้านวิเคราะห์';
+    const isAnalyticalActivity = formData.category === 'ด้านคำนวณ';
     const isVideoActivity = isLanguageActivity || formData.category === 'ด้านร่างกาย';
     
     return (

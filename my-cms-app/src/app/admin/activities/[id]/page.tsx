@@ -93,7 +93,7 @@ export default function ActivityDetailPage() {
             setLanguageSegments(parsedSegments || []);
             setLanguageHistory([parsedSegments || []]);
             setLanguageHistoryIndex(0);
-          } else if (data.category === 'ด้านวิเคราะห์') {
+          } else if (data.category === 'ด้านคำนวณ') {
             setAnalysisSegments(parsedSegments || []);
             setAnalysisHistory([parsedSegments || []]);
             setAnalysisHistoryIndex(0);
@@ -293,7 +293,7 @@ export default function ActivityDetailPage() {
 
       if (activity?.category === 'ด้านภาษา') {
         segmentsToSave = languageSegments;
-      } else if (activity?.category === 'ด้านวิเคราะห์') {
+      } else if (activity?.category === 'ด้านคำนวณ') {
         segmentsToSave = analysisSegments;
         // คำนวณ maxScore จาก segments
         maxScoreToSave = analysisSegments.reduce((sum, q) => sum + q.score, 0);
@@ -709,7 +709,7 @@ export default function ActivityDetailPage() {
       )}
 
       {/* Analysis Segments Editor */}
-      {activity?.category === 'ด้านวิเคราะห์' && isEditing && (
+      {activity?.category === 'ด้านคำนวณ' && isEditing && (
         <div className="bg-white rounded-lg shadow p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="heading-h5">คำถาม (Questions)</h3>

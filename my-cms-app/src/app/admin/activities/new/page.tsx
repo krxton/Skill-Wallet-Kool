@@ -270,7 +270,7 @@ export default function NewActivityPage() {
 
   // Distribute scores evenly when maxScore changes (Analytical only)
   const handleMaxScoreChange = (newMaxScore: number) => {
-    if (selectedCategory === 'ด้านวิเคราะห์' && questions.length > 0) {
+    if (selectedCategory === 'ด้านคำนวณ' && questions.length > 0) {
       const scorePerQuestion = Math.floor(newMaxScore / questions.length);
       const remainder = newMaxScore % questions.length;
       
@@ -311,12 +311,12 @@ export default function NewActivityPage() {
     }
 
     // Content validation for Physical and Analytical
-    if ((selectedCategory === 'ด้านร่างกาย' || selectedCategory === 'ด้านวิเคราะห์') && !formData.content.trim()) {
+    if ((selectedCategory === 'ด้านร่างกาย' || selectedCategory === 'ด้านคำนวณ') && !formData.content.trim()) {
       alert(selectedCategory === 'ด้านร่างกาย' ? 'Please enter how to play instructions' : 'Please enter additional instructions');
       return;
     }
 
-    if (selectedCategory === 'ด้านวิเคราะห์' && questions.length === 0) {
+    if (selectedCategory === 'ด้านคำนวณ' && questions.length === 0) {
       alert('Please add at least one question');
       return;
     }
@@ -333,14 +333,14 @@ export default function NewActivityPage() {
       let segments = null;
       if (selectedCategory === 'ด้านภาษา') {
         segments = formData.segments;
-      } else if (selectedCategory === 'ด้านวิเคราะห์') {
+      } else if (selectedCategory === 'ด้านคำนวณ') {
         segments = questions;
       }
 
       const dataToSubmit = {
         ...formData,
         segments,
-        videoUrl: selectedCategory === 'ด้านวิเคราะห์' ? '' : formData.videoUrl
+        videoUrl: selectedCategory === 'ด้านคำนวณ' ? '' : formData.videoUrl
       };
 
       const response = await fetch('/api/activities', {
@@ -475,14 +475,14 @@ export default function NewActivityPage() {
 
           <button
             type="button"
-            onClick={() => handleCategorySelect('ด้านวิเคราะห์')}
+            onClick={() => handleCategorySelect('ด้านคำนวณ')}
             className={`p-6 border-2 rounded-lg transition-all ${
-              selectedCategory === 'ด้านวิเคราะห์'
+              selectedCategory === 'ด้านคำนวณ'
                 ? 'border-purple bg-purple--light5'
                 : 'border-gray6 hover:border-purple--light3'
             }`}
           >
-            <div className="body-large-semibold mb-2">ด้านวิเคราะห์</div>
+            <div className="body-large-semibold mb-2">ด้านคำนวณ</div>
             <div className="body-small-regular text-secondary--text">
               Questions and answers
             </div>
@@ -595,7 +595,7 @@ export default function NewActivityPage() {
           </div>
 
           {/* Content/Instructions - Physical & Analytical */}
-          {(selectedCategory === 'ด้านร่างกาย' || selectedCategory === 'ด้านวิเคราะห์') && (
+          {(selectedCategory === 'ด้านร่างกาย' || selectedCategory === 'ด้านคำนวณ') && (
             <div className="bg-white rounded-lg shadow p-6 space-y-4">
               <label className="body-large-semibold text-gray-800">
                 {selectedCategory === 'ด้านร่างกาย' ? 'วิธีเล่น / How to Play' : 'คำแนะนำเพิ่มเติม / Additional Instructions'} <span className="text-red">*</span>
@@ -655,7 +655,7 @@ export default function NewActivityPage() {
                   required
                   className="w-full px-4 py-2 border border-gray6 rounded-lg body-medium-regular focus:outline-none focus:ring-2 focus:ring-purple"
                   />
-                  {selectedCategory === 'ด้านวิเคราะห์' && questions.length > 0 && (
+                  {selectedCategory === 'ด้านคำนวณ' && questions.length > 0 && (
                     <p className="body-xs-regular text-secondary--text mb-2">
                       Changing this will distribute points evenly across all questions
                     </p>
@@ -683,7 +683,7 @@ export default function NewActivityPage() {
           )}
 
           {/* Questions Editor - Analytical only */}
-          {selectedCategory === 'ด้านวิเคราะห์' && (
+          {selectedCategory === 'ด้านคำนวณ' && (
             <div className="bg-white rounded-lg shadow p-6 space-y-4">
               <div className="flex items-center justify-between">
                 <div>
