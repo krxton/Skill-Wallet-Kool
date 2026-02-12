@@ -892,4 +892,349 @@ class AppLocalizationsEn extends AppLocalizations {
   String share_textTemplate(String activityName, int score, int maxScore) {
     return 'I scored $score/$maxScore on \"$activityName\" in Skill Wallet Kool!';
   }
+
+  @override
+  String get common_loginFailed => 'Login failed. Please try again.';
+
+  @override
+  String common_errorGeneric(String msg) {
+    return 'Error: $msg';
+  }
+
+  @override
+  String get common_processing => 'Processing...';
+
+  @override
+  String get common_retry => 'Retry';
+
+  @override
+  String get common_cancel => 'Cancel';
+
+  @override
+  String get common_close => 'Close';
+
+  @override
+  String get calculate_restartTitle => 'Restart?';
+
+  @override
+  String get calculate_restartMsg => 'Time and answers will be reset';
+
+  @override
+  String get calculate_restartBtn => 'Restart';
+
+  @override
+  String calculate_solutionTitle(int index) {
+    return 'Answer #$index';
+  }
+
+  @override
+  String get calculate_questionLabel => 'Question:';
+
+  @override
+  String get calculate_answerLabel => 'Answer:';
+
+  @override
+  String get calculate_pressStart => 'Press START button to begin timing';
+
+  @override
+  String get calculate_questionsAfterTimer =>
+      'Questions will appear after timing completes';
+
+  @override
+  String calculate_failedPickFile(String error) {
+    return 'Failed to pick file: $error';
+  }
+
+  @override
+  String get calculate_childIdNotFound =>
+      'Child ID not found. Please login again.';
+
+  @override
+  String calculate_errorCompleting(String error) {
+    return 'Error completing activity: $error';
+  }
+
+  @override
+  String get itemintro_videoLoading => 'Please wait. Video is loading...';
+
+  @override
+  String get itemintro_timingIncomplete =>
+      'Timing data for this sentence is incomplete';
+
+  @override
+  String itemintro_videoPlayError(String error) {
+    return 'Cannot play video: $error';
+  }
+
+  @override
+  String get itemintro_micPermission => 'Please allow microphone access';
+
+  @override
+  String itemintro_recordStartError(String error) {
+    return 'Cannot start recording: $error';
+  }
+
+  @override
+  String get itemintro_recordTooShort =>
+      'Recording too short. Please try again';
+
+  @override
+  String itemintro_evalResult(int score, String text) {
+    return 'Evaluation result: $score% - \"$text\"';
+  }
+
+  @override
+  String itemintro_questError(String error) {
+    return 'Error completing quest: $error';
+  }
+
+  @override
+  String get itemintro_playbackFailed => 'Failed to play back recording.';
+
+  @override
+  String get record_micDenied => 'Microphone permission denied.';
+
+  @override
+  String get record_recordingFailed => 'Recording failed.';
+
+  @override
+  String get record_playbackFailed => 'Failed to play audio.';
+
+  @override
+  String get record_noValidAudio => 'Error: No valid audio recorded.';
+
+  @override
+  String record_aiError(String error) {
+    return 'AI Error: $error';
+  }
+
+  @override
+  String get medals_noActivityHistory => 'No activity history';
+
+  @override
+  String get medals_noHistory => 'No history';
+
+  @override
+  String get post_noComments => 'No comments yet. Be the first!';
+
+  @override
+  String get namesetting_saveFailed => 'Cannot save name. Please try again.';
+
+  @override
+  String get activityCard_selectChild => 'Please select a child';
+
+  @override
+  String get activityCard_selectChildMsg =>
+      'You must select a child before playing activities';
+
+  @override
+  String get activityCard_goSelect => 'Go select child';
+
+  @override
+  String get childsetting_addSuccess => 'Child added successfully';
+
+  @override
+  String get childsetting_deleteSuccess => 'Child deleted successfully';
+
+  @override
+  String get childsetting_selectSuccess => 'Child selected successfully';
+
+  @override
+  String get childsetting_noChildren => 'No children in system';
+
+  @override
+  String get childsetting_addChild => 'Add child';
+
+  @override
+  String get childsetting_active => 'ACTIVE';
+
+  @override
+  String get childsetting_select => 'SELECT';
+
+  @override
+  String get common_selectSource => 'Select Source';
+
+  @override
+  String get common_camera => 'Camera';
+
+  @override
+  String get common_gallery => 'Gallery';
+
+  @override
+  String get common_ok => 'OK';
+
+  @override
+  String get common_submit => 'SUBMIT';
+
+  @override
+  String get common_addImage => 'Add Image';
+
+  @override
+  String get common_addVideo => 'Add Video';
+
+  @override
+  String get common_videoAdded => 'Video Added';
+
+  @override
+  String get common_image => 'IMAGE';
+
+  @override
+  String get common_video => 'VIDEO';
+
+  @override
+  String get common_howToPlay => 'HOW TO PLAY';
+
+  @override
+  String get common_questions => 'QUESTIONS';
+
+  @override
+  String get common_evidence => 'EVIDENCE';
+
+  @override
+  String get common_finish => 'FINISH';
+
+  @override
+  String get common_start => 'START';
+
+  @override
+  String get common_restart => 'RESTART';
+
+  @override
+  String get common_done => 'done';
+
+  @override
+  String get common_submitting => 'Submitting...';
+
+  @override
+  String get common_score => 'Score';
+
+  @override
+  String get calculate_noAnswer => 'No answer available';
+
+  @override
+  String get calculate_answer => 'ANSWER';
+
+  @override
+  String get calculate_answerAgain => 'ANSWER AGAIN';
+
+  @override
+  String get calculate_stopBeforeAnswer => 'Stop timer before answering';
+
+  @override
+  String calculate_yourAnswer(String answer) {
+    return 'Your answer: $answer';
+  }
+
+  @override
+  String get calculate_typeAnswer => 'Type your answer...';
+
+  @override
+  String get calculate_diaryNotes => 'DIARY / NOTES';
+
+  @override
+  String get calculate_writeNotes => 'Write your notes here...';
+
+  @override
+  String get calculate_noQuestions => 'No questions available';
+
+  @override
+  String get record_title => 'RECORD';
+
+  @override
+  String itemintro_segmentOf(int current, int total) {
+    return 'Segment $current of $total';
+  }
+
+  @override
+  String get itemintro_speak => 'SPEAK';
+
+  @override
+  String get itemintro_point => 'POINT';
+
+  @override
+  String get itemintro_completed => 'COMPLETED';
+
+  @override
+  String get itemintro_pausePlayback => 'PAUSE PLAYBACK...';
+
+  @override
+  String get itemintro_listenRecording => 'LISTEN TO YOUR RECORDING';
+
+  @override
+  String get itemintro_recordToPlayback => 'Record to enable playback';
+
+  @override
+  String get videodetail_previewNotAvailable => 'Video Preview Not Available';
+
+  @override
+  String get videodetail_openInBrowser => 'Open in Browser to Watch';
+
+  @override
+  String get videodetail_openTiktok => 'OPEN TIKTOK';
+
+  @override
+  String get videodetail_noVideoUrl => 'No video URL available';
+
+  @override
+  String get languagehub_appTitle => 'KRATON';
+
+  @override
+  String get languagehub_fillInBlanksTitle => 'FILL IN THE BLANKS';
+
+  @override
+  String get problemplaying_title => 'PROBLEMS SOLVE';
+
+  @override
+  String get problemplaying_resultsTitle => 'PLAYING RESULTS';
+
+  @override
+  String get problemplaying_medalsLabel => 'MEDALS';
+
+  @override
+  String get problemplaying_diaryLabel => 'DIARY';
+
+  @override
+  String get problemplaying_diaryHint => 'Write something...';
+
+  @override
+  String get problemplaying_imageLabel => 'IMAGE';
+
+  @override
+  String get problemplaying_timeLabel => 'TIME';
+
+  @override
+  String get problemplaying_answerBtn => 'ANSWER';
+
+  @override
+  String get result_resultTitle => 'RESULT';
+
+  @override
+  String get result_totalScoreTitle => 'TOTAL SCORE';
+
+  @override
+  String get result_keepTryingTitle => 'KEEP TRYING!';
+
+  @override
+  String get result_timeSpentPrefix => 'TIME SPENT: ';
+
+  @override
+  String get result_playAgainBtn => 'PLAY AGAIN';
+
+  @override
+  String get plus_title => 'PLUS +';
+
+  @override
+  String get plus_questionTitle => 'QUESTION';
+
+  @override
+  String get plus_startBtn => 'START';
+
+  @override
+  String get answerplus_title => 'ANSWER PLUS +';
+
+  @override
+  String get answerplus_questionLabel => 'QUESTION';
+
+  @override
+  String get answerplus_answerLabel => 'ANSWER';
 }

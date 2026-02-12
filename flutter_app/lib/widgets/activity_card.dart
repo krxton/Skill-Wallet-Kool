@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_localizations.dart';
 import '../models/activity.dart';
 import '../providers/user_provider.dart';
 import '../routes/app_routes.dart';
@@ -43,6 +44,7 @@ class ActivityCard extends StatelessWidget {
         category == 'ด้านร่างกาย' && activity.videoUrl != null;
 
     void showSelectChildDialog() {
+      final l10n = AppLocalizations.of(context)!;
       showDialog(
         context: context,
         builder: (dialogContext) => AlertDialog(
@@ -54,20 +56,20 @@ class ActivityCard extends StatelessWidget {
                   color: Colors.orange, size: 28),
               const SizedBox(width: 8),
               Text(
-                'กรุณาเลือกเด็ก',
+                l10n.activityCard_selectChild,
                 style: AppTextStyles.heading(20),
               ),
             ],
           ),
           content: Text(
-            'คุณต้องเลือกเด็กก่อนจึงจะสามารถเล่นกิจกรรมได้',
+            l10n.activityCard_selectChildMsg,
             style: AppTextStyles.body(16),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
               child: Text(
-                'ปิด',
+                l10n.common_close,
                 style: AppTextStyles.body(14, color: Colors.grey),
               ),
             ),
@@ -80,7 +82,7 @@ class ActivityCard extends StatelessWidget {
                 backgroundColor: Palette.sky,
               ),
               child: Text(
-                'ไปเลือกเด็ก',
+                l10n.activityCard_goSelect,
                 style: AppTextStyles.body(14, color: Colors.white),
               ),
             ),
@@ -168,7 +170,7 @@ class ActivityCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    'Score: ${activity.maxScore}',
+                    '${AppLocalizations.of(context)!.common_score}: ${activity.maxScore}',
                     style: TextStyle(
                       fontSize: 9,
                       color: Colors.grey.shade600,

@@ -290,12 +290,12 @@ class _ManageChildScreenState extends State<ManageChildScreen> {
                       color: Colors.transparent,
                       child: InkWell(
                         onTap: () {
-                          // ส่งคะแนนไปหน้า Medals
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => MedalsRedemptionScreen(
                                 childId: widget.childId,
+                                childName: _currentName,
                                 score: widget.score,
                               ),
                             ),

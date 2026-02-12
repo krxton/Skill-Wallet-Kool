@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/intl.dart'; 
 
@@ -125,7 +126,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('Post Details', style: GoogleFonts.luckiestGuy(color: Colors.black)),
+        title: Text(AppLocalizations.of(context)!.parentprofile_postBtn, style: GoogleFonts.luckiestGuy(color: Colors.black)),
       ),
       body: Column(
         children: [
@@ -180,7 +181,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           ),
                         const SizedBox(height: 20),
                         const Divider(),
-                        Text('Comments', style: GoogleFonts.luckiestGuy(fontSize: 18)),
+                        Text(AppLocalizations.of(context)!.notificationsetting_commentBtn, style: GoogleFonts.luckiestGuy(fontSize: 18)),
                       ],
                     ),
                   ),
@@ -200,7 +201,7 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       if (comments.isEmpty) {
                         return Padding(
                           padding: const EdgeInsets.all(16.0),
-                          child: Text('ยังไม่มีความคิดเห็น เป็นคนแรกเลย!', style: GoogleFonts.itim(color: Colors.grey)),
+                          child: Text(AppLocalizations.of(context)!.post_noComments, style: GoogleFonts.itim(color: Colors.grey)),
                         );
                       }
                       return ListView.builder(

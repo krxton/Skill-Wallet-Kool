@@ -15,6 +15,7 @@ import '../../../providers/user_provider.dart';
 import '../../../services/activity_service.dart';
 import '../../../models/activity.dart';
 import '../../../routes/app_routes.dart';
+import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 
 /// Helper แยกเฉพาะไว้แปลง URL -> YouTube ID
 /// (ตั้งชื่อว่า YoutubeUrlHelper เพื่อไม่ให้ชนกับ widget YoutubePlayer ของ package)
@@ -226,7 +227,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
     if (!_isPlayerReady) {
       debugPrint('❌ Play Section: Player not ready yet');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('โปรดรอสักครู่ วิดีโอกำลังโหลด...')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.itemintro_videoLoading)),
       );
       return;
     }
@@ -243,7 +244,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
     if (start == null || end == null) {
       debugPrint('❌ Play Section: Missing start/end time in segment data');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('ข้อมูลเวลาของประโยคนี้ไม่ครบถ้วน')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.itemintro_timingIncomplete)),
       );
       return;
     }
@@ -266,7 +267,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
       debugPrint('❌ Play Section Error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ไม่สามารถเล่นวิดีโอได้: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.itemintro_videoPlayError(e.toString()))),
         );
       }
     }
@@ -289,7 +290,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
       debugPrint('Self-Playback Error: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to play back recording.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.itemintro_playbackFailed)),
       );
       setState(() => _isPlaybackPlaying = false);
     }
@@ -317,7 +318,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
     if (!hasPermission) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('กรุณาอนุญาตการใช้ไมโครโฟน')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.itemintro_micPermission)),
         );
       }
       return;
@@ -367,7 +368,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
       debugPrint('❌ Recording start error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ไม่สามารถเริ่มอัดเสียงได้: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.itemintro_recordStartError(e.toString()))),
         );
       }
     }
@@ -387,7 +388,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
       debugPrint('⚠️ Recording too short: ${_recordingDuration.inSeconds}s');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('การอัดเสียงสั้นเกินไป กรุณาลองใหม่')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.itemintro_recordTooShort)),
         );
         setState(() => state = 'idle');
       }
@@ -403,7 +404,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text('กำลังประมวลผล...'),
+              Text(AppLocalizations.of(context)!.common_processing),
               const SizedBox(height: 10),
               const Center(child: CircularProgressIndicator()),
               const SizedBox(height: 10),
@@ -479,7 +480,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
         // แสดง feedback
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('ผลการประเมิน: $score% - "$recognizedText"'),
+            content: Text(AppLocalizations.of(context)!.itemintro_evalResult(score, recognizedText)),
             backgroundColor: score >= 70 ? Colors.green : Colors.orange,
             duration: const Duration(seconds: 3),
           ),
@@ -612,7 +613,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error completing quest: ${e.toString()}')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.itemintro_questError(e.toString()))),
       );
     }
   }
@@ -652,30 +653,17 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
 
     final hasVideo = _ytController != null && _youtubeVideoId.isNotEmpty;
 
-    if (hasVideo) {
-      return yp.YoutubePlayerScaffold(
-        controller: _ytController!,
-        aspectRatio: 16 / 9,
-        builder: (context, player) {
-          return _buildScaffold(
-            context,
-            titleStyle: titleStyle,
-            videoWidget: player,
-          );
-        },
-      );
-    }
-
-    // กรณีไม่มีวิดีโอ (หรือ videoUrl ว่าง) ก็แสดง Scaffold ปกติ
     return _buildScaffold(
       context,
       titleStyle: titleStyle,
-      videoWidget: Center(
-        child: Text(
-          'Video not available',
-          style: GoogleFonts.luckiestGuy(color: Colors.white),
-        ),
-      ),
+      videoWidget: hasVideo
+          ? yp.YoutubePlayer(controller: _ytController!)
+          : Center(
+              child: Text(
+                AppLocalizations.of(context)!.itemintro_Videonotavailable,
+                style: GoogleFonts.luckiestGuy(color: Colors.white),
+              ),
+            ),
     );
   }
 
@@ -737,7 +725,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    'Segment $current of $totalSegments',
+                    AppLocalizations.of(context)!.itemintro_segmentOf(current, totalSegments),
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,
@@ -759,24 +747,12 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
               _statusCard(currentSegmentResult),
               const SizedBox(height: 20),
 
-              // หน้าปัจจุบัน
-              Center(
-                child: Text(
-                  '$current / $totalSegments',
-                  style: GoogleFonts.luckiestGuy(
-                    fontSize: 16,
-                    color: deepGrey,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 10),
-
               // ปุ่มล่าง (Navigation)
               Row(
                 children: [
                   Expanded(
                     child: _bottomBtn(
-                      label: '< PREVIOUS',
+                      label: AppLocalizations.of(context)!.itemintro_previous,
                       bg: prevGrey,
                       fg: deepGrey,
                       onTap: current > 1
@@ -796,15 +772,28 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(14),
                     ),
-                    child: Text(
-                      '$completedSegmentsCount/$totalSegments',
-                      style: GoogleFonts.luckiestGuy(fontSize: 16),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '$completedSegmentsCount/$totalSegments',
+                          style: GoogleFonts.luckiestGuy(fontSize: 14),
+                        ),
+                        Text(
+                          AppLocalizations.of(context)!.common_done,
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: deepGrey,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: _bottomBtn(
-                      label: current == totalSegments ? 'FINISH >' : 'NEXT >',
+                      label: current == totalSegments ? AppLocalizations.of(context)!.itemintro_finish : AppLocalizations.of(context)!.itemintro_next,
                       bg: nextBlue,
                       fg: Colors.white,
                       onTap: () {
@@ -900,7 +889,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                 ),
               ] else
                 Text(
-                  'RECORD',
+                  AppLocalizations.of(context)!.itemintro_record,
                   style: GoogleFonts.luckiestGuy(
                     color: Colors.white,
                     fontSize: 14,
@@ -925,14 +914,14 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'SPEAK: ${text.toUpperCase()}',
+            '${AppLocalizations.of(context)!.itemintro_speak}: ${text.toUpperCase()}',
             style: GoogleFonts.luckiestGuy(fontSize: 15, color: deepGrey),
           ),
           const SizedBox(height: 10),
           Row(
             children: [
               _pillButton(
-                'PLAY SECTION',
+                AppLocalizations.of(context)!.itemintro_playsection,
                 bluePill,
                 onTap: _isPlayerReady && _rawSegments.isNotEmpty
                     ? _playSection
@@ -947,14 +936,14 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'POINT: ${score ?? 0}%',
+                '${AppLocalizations.of(context)!.itemintro_point}: ${score ?? 0}%',
                 style: GoogleFonts.luckiestGuy(
                   fontSize: 13,
                   color: deepGrey,
                 ),
               ),
               Text(
-                'COMPLETED: $completedSegmentsCount/$totalSegments',
+                '${AppLocalizations.of(context)!.itemintro_completed}: $completedSegmentsCount/$totalSegments',
                 style: GoogleFonts.luckiestGuy(
                   fontSize: 13,
                   color: deepGrey,
@@ -1035,8 +1024,8 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                       const SizedBox(width: 8),
                       Text(
                         _isPlaybackPlaying
-                            ? 'PAUSE PLAYBACK...'
-                            : 'LISTEN TO YOUR RECORDING',
+                            ? AppLocalizations.of(context)!.itemintro_pausePlayback
+                            : AppLocalizations.of(context)!.itemintro_listenRecording,
                         style: GoogleFonts.luckiestGuy(
                           fontSize: 13,
                           color: deepGrey,
@@ -1057,7 +1046,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                   )
                 : Center(
                     child: Text(
-                      'Record to enable playback',
+                      AppLocalizations.of(context)!.itemintro_recordToPlayback,
                       style: GoogleFonts.openSans(
                         fontSize: 12,
                         color: deepGrey.withOpacity(0.5),

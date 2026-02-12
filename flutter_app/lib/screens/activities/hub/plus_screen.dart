@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../theme/palette.dart';
 
@@ -39,7 +40,7 @@ class PlusScreen extends StatelessWidget {
         ),
         centerTitle: true,
         title: Text(
-          'PLUS +',
+          AppLocalizations.of(context)!.plus_title,
           style: GoogleFonts.luckiestGuy(
             fontSize: 32,
             color: Palette.sky,
@@ -54,7 +55,7 @@ class PlusScreen extends StatelessWidget {
             alignment: Alignment.centerLeft,
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
             child: Text(
-              'QUESTION',
+              AppLocalizations.of(context)!.plus_questionTitle,
               style: GoogleFonts.luckiestGuy(
                 fontSize: 24,
                 color: const Color(0xFF8ECDF7), // สีฟ้าอ่อนตามรูป
@@ -111,7 +112,7 @@ class PlusScreen extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          'START',
+                          AppLocalizations.of(context)!.plus_startBtn,
                           style: GoogleFonts.luckiestGuy(
                             fontSize: 20,
                             color: Colors.white,
@@ -135,7 +136,7 @@ class PlusScreen extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          'CAST TO TV',
+                          AppLocalizations.of(context)!.plus_castToTvBtn,
                           style: GoogleFonts.luckiestGuy(
                             fontSize: 18,
                             color: Colors.white,

@@ -16,6 +16,7 @@ import '../../../theme/app_text_styles.dart';
 import '../../../theme/palette.dart';
 import '../../../widgets/info_badges.dart';
 import '../../../widgets/sticky_bottom_button.dart';
+import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 
 /// Activity phases
 enum _Phase { ready, running, answering }
@@ -122,13 +123,13 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('เริ่มใหม่?', style: AppTextStyles.heading(18)),
-        content: Text('เวลาและคำตอบจะถูกรีเซ็ต',
+        title: Text(AppLocalizations.of(context)!.calculate_restartTitle, style: AppTextStyles.heading(18)),
+        content: Text(AppLocalizations.of(context)!.calculate_restartMsg,
             style: AppTextStyles.body(14)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('ยกเลิก', style: AppTextStyles.body(14)),
+            child: Text(AppLocalizations.of(context)!.common_cancel, style: AppTextStyles.body(14)),
           ),
           TextButton(
             onPressed: () {
@@ -145,7 +146,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                 }
               });
             },
-            child: Text('เริ่มใหม่',
+            child: Text(AppLocalizations.of(context)!.calculate_restartBtn,
                 style: AppTextStyles.body(14, color: Palette.pink)),
           ),
         ],
@@ -186,7 +187,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to pick file: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.calculate_failedPickFile(e.toString()))),
         );
       }
     }
@@ -196,18 +197,18 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
     return await showDialog<ImageSource>(
           context: context,
           builder: (context) => AlertDialog(
-            title: Text('Select Source', style: AppTextStyles.heading(18)),
+            title: Text(AppLocalizations.of(context)!.common_selectSource, style: AppTextStyles.heading(18)),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 ListTile(
                   leading: Icon(Icons.camera_alt, color: Palette.success),
-                  title: Text('Camera', style: AppTextStyles.body(14)),
+                  title: Text(AppLocalizations.of(context)!.common_camera, style: AppTextStyles.body(14)),
                   onTap: () => Navigator.pop(context, ImageSource.camera),
                 ),
                 ListTile(
                   leading: Icon(Icons.photo_library, color: Palette.lightBlue),
-                  title: Text('Gallery', style: AppTextStyles.body(14)),
+                  title: Text(AppLocalizations.of(context)!.common_gallery, style: AppTextStyles.body(14)),
                   onTap: () => Navigator.pop(context, ImageSource.gallery),
                 ),
               ],
@@ -238,7 +239,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
           children: [
             Icon(Icons.edit_note, color: Palette.sky, size: 28),
             const SizedBox(width: 10),
-            Text('Answer #${index + 1}',
+            Text(AppLocalizations.of(context)!.calculate_solutionTitle(index + 1),
                 style: AppTextStyles.heading(20, color: Palette.sky)),
           ],
         ),
@@ -247,7 +248,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
           keyboardType: TextInputType.text,
           autofocus: true,
           decoration: InputDecoration(
-            hintText: 'Type your answer...',
+            hintText: AppLocalizations.of(context)!.calculate_typeAnswer,
             hintStyle: AppTextStyles.body(14, color: Colors.grey),
             filled: true,
             fillColor: Colors.white,
@@ -265,7 +266,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('CANCEL',
+            child: Text(AppLocalizations.of(context)!.common_cancel,
                 style: AppTextStyles.heading(14, color: Colors.grey)),
           ),
           ElevatedButton(
@@ -293,7 +294,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12)),
             ),
-            child: Text('SUBMIT',
+            child: Text(AppLocalizations.of(context)!.common_submit,
                 style: AppTextStyles.heading(14, color: Colors.white)),
           ),
         ],
@@ -303,7 +304,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
 
   void _showAnswerHint(int index) {
     final segment = _segments[index];
-    final answer = segment['answer']?.toString() ?? 'ไม่มีเฉลย';
+    final answer = segment['answer']?.toString() ?? AppLocalizations.of(context)!.calculate_noAnswer;
     final question = segment['question']?.toString() ??
         segment['text']?.toString() ??
         'คำถามข้อ ${index + 1}';
@@ -317,7 +318,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
           children: [
             const Icon(Icons.lightbulb, color: Colors.amber, size: 28),
             const SizedBox(width: 10),
-            Text('เฉลยข้อ ${index + 1}',
+            Text(AppLocalizations.of(context)!.calculate_solutionTitle(index + 1),
                 style: GoogleFonts.itim(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -328,7 +329,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('คำถาม:',
+            Text(AppLocalizations.of(context)!.calculate_questionLabel,
                 style: GoogleFonts.itim(
                     fontSize: 14, color: Colors.grey.shade600)),
             const SizedBox(height: 4),
@@ -352,7 +353,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                       Icon(Icons.check_circle,
                           color: Palette.success, size: 20),
                       const SizedBox(width: 8),
-                      Text('คำตอบ:',
+                      Text(AppLocalizations.of(context)!.calculate_answerLabel,
                           style: GoogleFonts.itim(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -374,7 +375,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child:
-                Text('ปิด', style: GoogleFonts.itim(fontSize: 16, color: Palette.sky)),
+                Text(AppLocalizations.of(context)!.common_close, style: GoogleFonts.itim(fontSize: 16, color: Palette.sky)),
           ),
         ],
       ),
@@ -389,7 +390,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
     if (childId == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Child ID not found. Please login again.')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.calculate_childIdNotFound)),
         );
       }
       return;
@@ -434,7 +435,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error completing activity: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.calculate_errorCompleting(e.toString()))),
         );
       }
     } finally {
@@ -469,7 +470,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
       ),
       body: _segments.isEmpty
           ? Center(
-              child: Text('No questions available',
+              child: Text(AppLocalizations.of(context)!.calculate_noQuestions,
                   style: AppTextStyles.heading(20, color: Colors.grey)),
             )
           : Column(
@@ -486,7 +487,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
 
                         // ── Content / Instructions ──
                         if (widget.activity.content.isNotEmpty) ...[
-                          Text('HOW TO PLAY',
+                          Text(AppLocalizations.of(context)!.common_howToPlay,
                               style: AppTextStyles.heading(
                                   18, color: Palette.deepGrey)),
                           const SizedBox(height: 8),
@@ -528,7 +529,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                         // ── Questions (visible during running & answering) ──
                         if (_phase == _Phase.running ||
                             _phase == _Phase.answering) ...[
-                          Text('QUESTIONS',
+                          Text(AppLocalizations.of(context)!.common_questions,
                               style: AppTextStyles.heading(
                                   24, color: Palette.sky)),
                           const SizedBox(height: 10),
@@ -538,7 +539,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
 
                         // ── Evidence (only in answering phase) ──
                         if (_phase == _Phase.answering) ...[
-                          Text('EVIDENCE',
+                          Text(AppLocalizations.of(context)!.common_evidence,
                               style: AppTextStyles.heading(
                                   20, color: Palette.error)),
                           const SizedBox(height: 15),
@@ -557,7 +558,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                 if (_phase == _Phase.answering)
                   StickyBottomButton(
                     onPressed: _handleSubmit,
-                    label: 'FINISH',
+                    label: AppLocalizations.of(context)!.common_finish,
                     color: Palette.success,
                     isLoading: _isSubmitting,
                   ),
@@ -575,7 +576,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
           child: ElevatedButton.icon(
             onPressed: _startTimer,
             icon: const Icon(Icons.play_arrow, color: Colors.white),
-            label: Text('START',
+            label: Text(AppLocalizations.of(context)!.common_start,
                 style: AppTextStyles.heading(20, color: Colors.white)),
             style: ElevatedButton.styleFrom(
               backgroundColor: Palette.success,
@@ -593,7 +594,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
             ElevatedButton.icon(
               onPressed: _resetTimer,
               icon: const Icon(Icons.refresh, color: Colors.white),
-              label: Text('RESTART',
+              label: Text(AppLocalizations.of(context)!.common_restart,
                   style: AppTextStyles.heading(16, color: Colors.white)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Palette.warning,
@@ -607,7 +608,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
             ElevatedButton.icon(
               onPressed: _finishTimer,
               icon: const Icon(Icons.stop, color: Colors.white),
-              label: Text('FINISH',
+              label: Text(AppLocalizations.of(context)!.common_finish,
                   style: AppTextStyles.heading(16, color: Colors.white)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Palette.pink,
@@ -640,11 +641,11 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
         children: [
           Icon(Icons.play_circle_outline, size: 48, color: Palette.sky),
           const SizedBox(height: 12),
-          Text('กดปุ่ม START เพื่อเริ่มจับเวลา',
+          Text(AppLocalizations.of(context)!.calculate_pressStart,
               style: AppTextStyles.body(16, color: Palette.sky),
               textAlign: TextAlign.center),
           const SizedBox(height: 4),
-          Text('คำถามจะปรากฏหลังจากจบการจับเวลา',
+          Text(AppLocalizations.of(context)!.calculate_questionsAfterTimer,
               style: AppTextStyles.body(13, color: Palette.deepGrey),
               textAlign: TextAlign.center),
         ],
@@ -659,7 +660,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
       final segment = _segments[index];
       final question = segment['question']?.toString() ??
           segment['text']?.toString() ??
-          'Question ${index + 1}';
+          AppLocalizations.of(context)!.calculate_solutionTitle(index + 1);
       final status = _answerStatus[index];
       final userAnswer = _userAnswers[index];
 
@@ -715,7 +716,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                 children: [
                   Icon(statusIcon, color: Colors.white, size: 20),
                   const SizedBox(width: 8),
-                  Text('Question ${index + 1}',
+                  Text(AppLocalizations.of(context)!.calculate_solutionTitle(index + 1),
                       style:
                           AppTextStyles.heading(16, color: Colors.white)),
                   const Spacer(),
@@ -756,7 +757,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                       Icon(statusIcon, color: statusIconColor, size: 18),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: Text('Your answer: $userAnswer',
+                        child: Text(AppLocalizations.of(context)!.calculate_yourAnswer(userAnswer),
                             style: AppTextStyles.label(13,
                                 color: statusIconColor)),
                       ),
@@ -777,10 +778,10 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                       size: 18),
                   label: Text(
                       _phase == _Phase.running
-                          ? 'หยุดเวลาก่อนตอบ'
+                          ? AppLocalizations.of(context)!.calculate_stopBeforeAnswer
                           : status == null
-                              ? 'ANSWER'
-                              : 'ANSWER AGAIN',
+                              ? AppLocalizations.of(context)!.calculate_answer
+                              : AppLocalizations.of(context)!.calculate_answerAgain,
                       style: AppTextStyles.heading(14)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _phase == _Phase.answering
@@ -808,7 +809,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('DIARY / NOTES',
+        Text(AppLocalizations.of(context)!.calculate_diaryNotes,
             style: AppTextStyles.heading(18, color: Colors.black54)),
         const SizedBox(height: 5),
         Container(
@@ -820,10 +821,10 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
           child: TextField(
             controller: _descriptionController,
             maxLines: null,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               border: InputBorder.none,
-              contentPadding: EdgeInsets.all(16),
-              hintText: 'Write your notes here...',
+              contentPadding: const EdgeInsets.all(16),
+              hintText: AppLocalizations.of(context)!.calculate_writeNotes,
             ),
           ),
         ),
@@ -843,7 +844,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('IMAGE', style: AppTextStyles.heading(18, color: Colors.black54)),
+        Text(AppLocalizations.of(context)!.common_image, style: AppTextStyles.heading(18, color: Colors.black54)),
         const SizedBox(height: 5),
         GestureDetector(
           onTap: () => _handleMediaSelection(isVideo: false),
@@ -898,7 +899,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                       const Icon(Icons.add_photo_alternate,
                           size: 40, color: Colors.grey),
                       const SizedBox(height: 8),
-                      Text('Add Image',
+                      Text(AppLocalizations.of(context)!.common_addImage,
                           style: AppTextStyles.body(12, color: Colors.grey)),
                     ],
                   ),
@@ -912,7 +913,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('VIDEO', style: AppTextStyles.heading(18, color: Colors.black54)),
+        Text(AppLocalizations.of(context)!.common_video, style: AppTextStyles.heading(18, color: Colors.black54)),
         const SizedBox(height: 5),
         GestureDetector(
           onTap: () => _handleMediaSelection(isVideo: true),
@@ -939,7 +940,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                             Icon(Icons.videocam,
                                 size: 50, color: Palette.success),
                             const SizedBox(height: 8),
-                            Text('Video Added',
+                            Text(AppLocalizations.of(context)!.common_videoAdded,
                                 style: AppTextStyles.label(12,
                                     color: Palette.success)),
                           ],
@@ -971,7 +972,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                       const Icon(Icons.add_circle_outline,
                           size: 40, color: Colors.grey),
                       const SizedBox(height: 8),
-                      Text('Add Video',
+                      Text(AppLocalizations.of(context)!.common_addVideo,
                           style: AppTextStyles.body(12, color: Colors.grey)),
                     ],
                   ),

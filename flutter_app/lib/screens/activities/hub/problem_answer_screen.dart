@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../theme/palette.dart';
 
 class ProblemAnswerScreen extends StatelessWidget {
@@ -32,7 +33,7 @@ class ProblemAnswerScreen extends StatelessWidget {
         ),
         centerTitle: true,
         title: Text(
-          'ANSWER',
+          AppLocalizations.of(context)!.problemanswer_title,
           style: GoogleFonts.luckiestGuy(
             fontSize: 28,
             color: Palette.sky,

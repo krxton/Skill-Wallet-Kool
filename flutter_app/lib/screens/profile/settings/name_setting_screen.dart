@@ -48,8 +48,8 @@ class _NameSettingScreenState extends State<NameSettingScreen> {
       Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('ไม่สามารถบันทึกชื่อได้ ลองใหม่อีกครั้ง'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.namesetting_saveFailed),
           backgroundColor: Colors.red,
         ),
       );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../theme/palette.dart';
 
@@ -33,7 +34,7 @@ class ProblemDetailScreen extends StatelessWidget {
         ),
         centerTitle: true,
         title: Text(
-          'PROBLEMS SOLVE',
+          AppLocalizations.of(context)!.problemdetail_title,
           style: GoogleFonts.luckiestGuy(
             fontSize: 26,
             color: Palette.sky,
@@ -95,7 +96,7 @@ class ProblemDetailScreen extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      'START',
+                      AppLocalizations.of(context)!.common_start,
                       style: GoogleFonts.luckiestGuy(
                         fontSize: 20,
                         color: Colors.white,
@@ -119,7 +120,7 @@ class ProblemDetailScreen extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      'CAST TO TV',
+                      AppLocalizations.of(context)!.problemdetail_castToTvBtn,
                       style: GoogleFonts.luckiestGuy(
                         fontSize: 18,
                         color: Colors.white,
@@ -150,7 +151,7 @@ class ProblemDetailScreen extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  'ANSWER',
+                  AppLocalizations.of(context)!.problemdetail_answerBtn,
                   style: GoogleFonts.luckiestGuy(
                     fontSize: 20,
                     color: Colors.white,

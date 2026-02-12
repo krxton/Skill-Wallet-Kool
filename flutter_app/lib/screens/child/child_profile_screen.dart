@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import '../../providers/user_provider.dart';
 import '../../services/child_service.dart';
 import 'activity_history_screen.dart';
@@ -107,7 +108,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
       debugPrint("Error picking image: $e");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.common_errorGeneric(e.toString()))),
         );
       }
     }

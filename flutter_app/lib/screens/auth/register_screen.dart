@@ -165,7 +165,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       setState(() => _isLoading = false);
       debugPrint('Facebook Sign-In error: $e');
       if (mounted) {
-        _toast('เกิดข้อผิดพลาด: ${e.toString()}');
+        _toast(AppLocalizations.of(context)!.common_errorGeneric(e.toString()));
       }
     }
   }
@@ -180,7 +180,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       setState(() => _isLoading = false);
       debugPrint('Google Sign-In error: $e');
       if (mounted) {
-        _toast('เกิดข้อผิดพลาด: ${e.toString()}');
+        _toast(AppLocalizations.of(context)!.common_errorGeneric(e.toString()));
       }
     }
   }

@@ -69,7 +69,7 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'เพิ่มเด็กสำเร็จ',
+              AppLocalizations.of(context)!.childsetting_addSuccess,
               style: TextStyle(
                 fontFamily: GoogleFonts.itim().fontFamily,
               ),
@@ -113,7 +113,7 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'ลบเด็กสำเร็จ',
+              AppLocalizations.of(context)!.childsetting_deleteSuccess,
               style: TextStyle(
                 fontFamily: GoogleFonts.itim().fontFamily,
               ),
@@ -123,25 +123,10 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
       }
     } else if (result is Map && result['newName'] != null) {
       // กรณีได้รับ Map กลับมา = มีการแก้ไขข้อมูล
-      final success = await userProvider.updateChild(
+      await userProvider.updateChild(
         childId: childId,
         name: result['newName'] as String,
       );
-
-      if (!mounted) return;
-
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'แก้ไขข้อมูลสำเร็จ',
-              style: TextStyle(
-                fontFamily: GoogleFonts.itim().fontFamily,
-              ),
-            ),
-          ),
-        );
-      }
     }
   }
 
@@ -154,7 +139,7 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'เลือกเด็กสำเร็จ',
+            AppLocalizations.of(context)!.childsetting_selectSuccess,
             style: TextStyle(
               fontFamily: GoogleFonts.itim().fontFamily,
             ),
@@ -215,7 +200,7 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                   Icon(Icons.child_care, size: 80, color: Colors.grey.shade400),
                   const SizedBox(height: 16),
                   Text(
-                    'ยังไม่มีเด็กในระบบ',
+                    AppLocalizations.of(context)!.childsetting_noChildren,
                     style: TextStyle(
                       fontFamily: GoogleFonts.itim().fontFamily,
                       fontSize: 18,
@@ -227,7 +212,7 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                     onPressed: _addNewChild,
                     icon: const Icon(Icons.add),
                     label: Text(
-                      'เพิ่มเด็ก',
+                      AppLocalizations.of(context)!.childsetting_addChild,
                       style: TextStyle(
                         fontFamily: GoogleFonts.itim().fontFamily,
                       ),
@@ -316,7 +301,7 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Text(
-                                        'ACTIVE',
+                                        AppLocalizations.of(context)!.childsetting_active,
                                         style: TextStyle(
                                           fontFamily: GoogleFonts.luckiestGuy().fontFamily,
                                           fontSize: 10,
@@ -363,7 +348,7 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                                   ),
                                 ),
                                 child: Text(
-                                  'SELECT',
+                                  AppLocalizations.of(context)!.childsetting_select,
                                   style: TextStyle(
                                     fontFamily: GoogleFonts.luckiestGuy().fontFamily,
                                     fontFamilyFallback: [

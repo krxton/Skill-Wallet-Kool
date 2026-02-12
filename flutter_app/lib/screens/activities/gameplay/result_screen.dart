@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../theme/palette.dart';
 import '../../../routes/app_routes.dart';
 import '../../../models/activity.dart';
@@ -44,7 +45,7 @@ class _ResultScreenState extends State<ResultScreen>
 
     final int totalScore = (args['totalScore'] as int?) ?? 0;
     final String activityName =
-        (args['activityName'] as String?) ?? 'ACTIVITY COMPLETED';
+        (args['activityName'] as String?) ?? AppLocalizations.of(context)!.result_activityCompletedDefault;
     final int timeSpentSeconds = (args['timeSpend'] as int?) ?? 0;
     final Duration time = Duration(seconds: timeSpentSeconds);
 
@@ -74,7 +75,7 @@ class _ResultScreenState extends State<ResultScreen>
         ),
         elevation: 0,
         title: Text(
-          'RESULT',
+          AppLocalizations.of(context)!.result_resultTitle,
           style: GoogleFonts.luckiestGuy(color: Colors.black87),
         ),
         centerTitle: true,
@@ -124,7 +125,7 @@ class _ResultScreenState extends State<ResultScreen>
                 child: Column(
                   children: [
                     Text(
-                      'TOTAL SCORE',
+                      AppLocalizations.of(context)!.result_totalScoreTitle,
                       style: GoogleFonts.luckiestGuy(
                           fontSize: 18, color: Palette.deepGrey),
                     ),
@@ -135,7 +136,7 @@ class _ResultScreenState extends State<ResultScreen>
                           fontSize: 72, color: scoreColor),
                     ),
                     Text(
-                      totalScore >= 70 ? 'GREAT JOB!' : 'KEEP TRYING!',
+                      totalScore >= 70 ? AppLocalizations.of(context)!.result_greatJobTitle : AppLocalizations.of(context)!.result_keepTryingTitle,
                       style: GoogleFonts.luckiestGuy(
                           fontSize: 24, color: scoreColor),
                     ),
@@ -150,7 +151,7 @@ class _ResultScreenState extends State<ResultScreen>
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'TIME SPENT: ',
+                  AppLocalizations.of(context)!.result_timeSpentPrefix,
                   style: GoogleFonts.openSans(
                       fontWeight: FontWeight.w700, fontSize: 16),
                 ),
@@ -211,7 +212,7 @@ class _ResultScreenState extends State<ResultScreen>
                           borderRadius: BorderRadius.circular(15)),
                     ),
                     child: Text(
-                      'PLAY AGAIN',
+                      AppLocalizations.of(context)!.result_playAgainBtn,
                       style: GoogleFonts.luckiestGuy(
                           fontSize: 20, color: Colors.white),
                     ),
@@ -238,7 +239,7 @@ class _ResultScreenState extends State<ResultScreen>
                           borderRadius: BorderRadius.circular(15)),
                     ),
                     child: Text(
-                      'BACK TO ACTIVITIES',
+                      AppLocalizations.of(context)!.result_backToActivitiesBtn,
                       style: GoogleFonts.luckiestGuy(
                           fontSize: 20, color: Colors.white),
                     ),

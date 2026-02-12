@@ -1783,6 +1783,642 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'I scored {score}/{maxScore} on \"{activityName}\" in Skill Wallet Kool!'**
   String share_textTemplate(String activityName, int score, int maxScore);
+
+  /// No description provided for @common_loginFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Login failed. Please try again.'**
+  String get common_loginFailed;
+
+  /// No description provided for @common_errorGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {msg}'**
+  String common_errorGeneric(String msg);
+
+  /// No description provided for @common_processing.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing...'**
+  String get common_processing;
+
+  /// No description provided for @common_retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get common_retry;
+
+  /// No description provided for @common_cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get common_cancel;
+
+  /// No description provided for @common_close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get common_close;
+
+  /// No description provided for @calculate_restartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart?'**
+  String get calculate_restartTitle;
+
+  /// No description provided for @calculate_restartMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Time and answers will be reset'**
+  String get calculate_restartMsg;
+
+  /// No description provided for @calculate_restartBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Restart'**
+  String get calculate_restartBtn;
+
+  /// No description provided for @calculate_solutionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer #{index}'**
+  String calculate_solutionTitle(int index);
+
+  /// No description provided for @calculate_questionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Question:'**
+  String get calculate_questionLabel;
+
+  /// No description provided for @calculate_answerLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer:'**
+  String get calculate_answerLabel;
+
+  /// No description provided for @calculate_pressStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Press START button to begin timing'**
+  String get calculate_pressStart;
+
+  /// No description provided for @calculate_questionsAfterTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions will appear after timing completes'**
+  String get calculate_questionsAfterTimer;
+
+  /// No description provided for @calculate_failedPickFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to pick file: {error}'**
+  String calculate_failedPickFile(String error);
+
+  /// No description provided for @calculate_childIdNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Child ID not found. Please login again.'**
+  String get calculate_childIdNotFound;
+
+  /// No description provided for @calculate_errorCompleting.
+  ///
+  /// In en, this message translates to:
+  /// **'Error completing activity: {error}'**
+  String calculate_errorCompleting(String error);
+
+  /// No description provided for @itemintro_videoLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Please wait. Video is loading...'**
+  String get itemintro_videoLoading;
+
+  /// No description provided for @itemintro_timingIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Timing data for this sentence is incomplete'**
+  String get itemintro_timingIncomplete;
+
+  /// No description provided for @itemintro_videoPlayError.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot play video: {error}'**
+  String itemintro_videoPlayError(String error);
+
+  /// No description provided for @itemintro_micPermission.
+  ///
+  /// In en, this message translates to:
+  /// **'Please allow microphone access'**
+  String get itemintro_micPermission;
+
+  /// No description provided for @itemintro_recordStartError.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot start recording: {error}'**
+  String itemintro_recordStartError(String error);
+
+  /// No description provided for @itemintro_recordTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording too short. Please try again'**
+  String get itemintro_recordTooShort;
+
+  /// No description provided for @itemintro_evalResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Evaluation result: {score}% - \"{text}\"'**
+  String itemintro_evalResult(int score, String text);
+
+  /// No description provided for @itemintro_questError.
+  ///
+  /// In en, this message translates to:
+  /// **'Error completing quest: {error}'**
+  String itemintro_questError(String error);
+
+  /// No description provided for @itemintro_playbackFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to play back recording.'**
+  String get itemintro_playbackFailed;
+
+  /// No description provided for @record_micDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Microphone permission denied.'**
+  String get record_micDenied;
+
+  /// No description provided for @record_recordingFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording failed.'**
+  String get record_recordingFailed;
+
+  /// No description provided for @record_playbackFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to play audio.'**
+  String get record_playbackFailed;
+
+  /// No description provided for @record_noValidAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: No valid audio recorded.'**
+  String get record_noValidAudio;
+
+  /// No description provided for @record_aiError.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Error: {error}'**
+  String record_aiError(String error);
+
+  /// No description provided for @medals_noActivityHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity history'**
+  String get medals_noActivityHistory;
+
+  /// No description provided for @medals_noHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'No history'**
+  String get medals_noHistory;
+
+  /// No description provided for @post_noComments.
+  ///
+  /// In en, this message translates to:
+  /// **'No comments yet. Be the first!'**
+  String get post_noComments;
+
+  /// No description provided for @namesetting_saveFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot save name. Please try again.'**
+  String get namesetting_saveFailed;
+
+  /// No description provided for @activityCard_selectChild.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a child'**
+  String get activityCard_selectChild;
+
+  /// No description provided for @activityCard_selectChildMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'You must select a child before playing activities'**
+  String get activityCard_selectChildMsg;
+
+  /// No description provided for @activityCard_goSelect.
+  ///
+  /// In en, this message translates to:
+  /// **'Go select child'**
+  String get activityCard_goSelect;
+
+  /// No description provided for @childsetting_addSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Child added successfully'**
+  String get childsetting_addSuccess;
+
+  /// No description provided for @childsetting_deleteSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Child deleted successfully'**
+  String get childsetting_deleteSuccess;
+
+  /// No description provided for @childsetting_selectSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Child selected successfully'**
+  String get childsetting_selectSuccess;
+
+  /// No description provided for @childsetting_noChildren.
+  ///
+  /// In en, this message translates to:
+  /// **'No children in system'**
+  String get childsetting_noChildren;
+
+  /// No description provided for @childsetting_addChild.
+  ///
+  /// In en, this message translates to:
+  /// **'Add child'**
+  String get childsetting_addChild;
+
+  /// No description provided for @childsetting_active.
+  ///
+  /// In en, this message translates to:
+  /// **'ACTIVE'**
+  String get childsetting_active;
+
+  /// No description provided for @childsetting_select.
+  ///
+  /// In en, this message translates to:
+  /// **'SELECT'**
+  String get childsetting_select;
+
+  /// No description provided for @common_selectSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Source'**
+  String get common_selectSource;
+
+  /// No description provided for @common_camera.
+  ///
+  /// In en, this message translates to:
+  /// **'Camera'**
+  String get common_camera;
+
+  /// No description provided for @common_gallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Gallery'**
+  String get common_gallery;
+
+  /// No description provided for @common_ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get common_ok;
+
+  /// No description provided for @common_submit.
+  ///
+  /// In en, this message translates to:
+  /// **'SUBMIT'**
+  String get common_submit;
+
+  /// No description provided for @common_addImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Image'**
+  String get common_addImage;
+
+  /// No description provided for @common_addVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Video'**
+  String get common_addVideo;
+
+  /// No description provided for @common_videoAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Video Added'**
+  String get common_videoAdded;
+
+  /// No description provided for @common_image.
+  ///
+  /// In en, this message translates to:
+  /// **'IMAGE'**
+  String get common_image;
+
+  /// No description provided for @common_video.
+  ///
+  /// In en, this message translates to:
+  /// **'VIDEO'**
+  String get common_video;
+
+  /// No description provided for @common_howToPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'HOW TO PLAY'**
+  String get common_howToPlay;
+
+  /// No description provided for @common_questions.
+  ///
+  /// In en, this message translates to:
+  /// **'QUESTIONS'**
+  String get common_questions;
+
+  /// No description provided for @common_evidence.
+  ///
+  /// In en, this message translates to:
+  /// **'EVIDENCE'**
+  String get common_evidence;
+
+  /// No description provided for @common_finish.
+  ///
+  /// In en, this message translates to:
+  /// **'FINISH'**
+  String get common_finish;
+
+  /// No description provided for @common_start.
+  ///
+  /// In en, this message translates to:
+  /// **'START'**
+  String get common_start;
+
+  /// No description provided for @common_restart.
+  ///
+  /// In en, this message translates to:
+  /// **'RESTART'**
+  String get common_restart;
+
+  /// No description provided for @common_done.
+  ///
+  /// In en, this message translates to:
+  /// **'done'**
+  String get common_done;
+
+  /// No description provided for @common_submitting.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitting...'**
+  String get common_submitting;
+
+  /// No description provided for @common_score.
+  ///
+  /// In en, this message translates to:
+  /// **'Score'**
+  String get common_score;
+
+  /// No description provided for @calculate_noAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'No answer available'**
+  String get calculate_noAnswer;
+
+  /// No description provided for @calculate_answer.
+  ///
+  /// In en, this message translates to:
+  /// **'ANSWER'**
+  String get calculate_answer;
+
+  /// No description provided for @calculate_answerAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'ANSWER AGAIN'**
+  String get calculate_answerAgain;
+
+  /// No description provided for @calculate_stopBeforeAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop timer before answering'**
+  String get calculate_stopBeforeAnswer;
+
+  /// No description provided for @calculate_yourAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answer: {answer}'**
+  String calculate_yourAnswer(String answer);
+
+  /// No description provided for @calculate_typeAnswer.
+  ///
+  /// In en, this message translates to:
+  /// **'Type your answer...'**
+  String get calculate_typeAnswer;
+
+  /// No description provided for @calculate_diaryNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'DIARY / NOTES'**
+  String get calculate_diaryNotes;
+
+  /// No description provided for @calculate_writeNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'Write your notes here...'**
+  String get calculate_writeNotes;
+
+  /// No description provided for @calculate_noQuestions.
+  ///
+  /// In en, this message translates to:
+  /// **'No questions available'**
+  String get calculate_noQuestions;
+
+  /// No description provided for @record_title.
+  ///
+  /// In en, this message translates to:
+  /// **'RECORD'**
+  String get record_title;
+
+  /// No description provided for @itemintro_segmentOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Segment {current} of {total}'**
+  String itemintro_segmentOf(int current, int total);
+
+  /// No description provided for @itemintro_speak.
+  ///
+  /// In en, this message translates to:
+  /// **'SPEAK'**
+  String get itemintro_speak;
+
+  /// No description provided for @itemintro_point.
+  ///
+  /// In en, this message translates to:
+  /// **'POINT'**
+  String get itemintro_point;
+
+  /// No description provided for @itemintro_completed.
+  ///
+  /// In en, this message translates to:
+  /// **'COMPLETED'**
+  String get itemintro_completed;
+
+  /// No description provided for @itemintro_pausePlayback.
+  ///
+  /// In en, this message translates to:
+  /// **'PAUSE PLAYBACK...'**
+  String get itemintro_pausePlayback;
+
+  /// No description provided for @itemintro_listenRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'LISTEN TO YOUR RECORDING'**
+  String get itemintro_listenRecording;
+
+  /// No description provided for @itemintro_recordToPlayback.
+  ///
+  /// In en, this message translates to:
+  /// **'Record to enable playback'**
+  String get itemintro_recordToPlayback;
+
+  /// No description provided for @videodetail_previewNotAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Video Preview Not Available'**
+  String get videodetail_previewNotAvailable;
+
+  /// No description provided for @videodetail_openInBrowser.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in Browser to Watch'**
+  String get videodetail_openInBrowser;
+
+  /// No description provided for @videodetail_openTiktok.
+  ///
+  /// In en, this message translates to:
+  /// **'OPEN TIKTOK'**
+  String get videodetail_openTiktok;
+
+  /// No description provided for @videodetail_noVideoUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'No video URL available'**
+  String get videodetail_noVideoUrl;
+
+  /// No description provided for @languagehub_appTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'KRATON'**
+  String get languagehub_appTitle;
+
+  /// No description provided for @languagehub_fillInBlanksTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'FILL IN THE BLANKS'**
+  String get languagehub_fillInBlanksTitle;
+
+  /// No description provided for @problemplaying_title.
+  ///
+  /// In en, this message translates to:
+  /// **'PROBLEMS SOLVE'**
+  String get problemplaying_title;
+
+  /// No description provided for @problemplaying_resultsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'PLAYING RESULTS'**
+  String get problemplaying_resultsTitle;
+
+  /// No description provided for @problemplaying_medalsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'MEDALS'**
+  String get problemplaying_medalsLabel;
+
+  /// No description provided for @problemplaying_diaryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'DIARY'**
+  String get problemplaying_diaryLabel;
+
+  /// No description provided for @problemplaying_diaryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Write something...'**
+  String get problemplaying_diaryHint;
+
+  /// No description provided for @problemplaying_imageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'IMAGE'**
+  String get problemplaying_imageLabel;
+
+  /// No description provided for @problemplaying_timeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'TIME'**
+  String get problemplaying_timeLabel;
+
+  /// No description provided for @problemplaying_answerBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'ANSWER'**
+  String get problemplaying_answerBtn;
+
+  /// No description provided for @result_resultTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'RESULT'**
+  String get result_resultTitle;
+
+  /// No description provided for @result_totalScoreTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'TOTAL SCORE'**
+  String get result_totalScoreTitle;
+
+  /// No description provided for @result_keepTryingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'KEEP TRYING!'**
+  String get result_keepTryingTitle;
+
+  /// No description provided for @result_timeSpentPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'TIME SPENT: '**
+  String get result_timeSpentPrefix;
+
+  /// No description provided for @result_playAgainBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'PLAY AGAIN'**
+  String get result_playAgainBtn;
+
+  /// No description provided for @plus_title.
+  ///
+  /// In en, this message translates to:
+  /// **'PLUS +'**
+  String get plus_title;
+
+  /// No description provided for @plus_questionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'QUESTION'**
+  String get plus_questionTitle;
+
+  /// No description provided for @plus_startBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'START'**
+  String get plus_startBtn;
+
+  /// No description provided for @answerplus_title.
+  ///
+  /// In en, this message translates to:
+  /// **'ANSWER PLUS +'**
+  String get answerplus_title;
+
+  /// No description provided for @answerplus_questionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'QUESTION'**
+  String get answerplus_questionLabel;
+
+  /// No description provided for @answerplus_answerLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'ANSWER'**
+  String get answerplus_answerLabel;
 }
 
 class _AppLocalizationsDelegate

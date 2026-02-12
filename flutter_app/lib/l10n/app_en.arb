@@ -382,5 +382,187 @@
       "score": { "type": "int" },
       "maxScore": { "type": "int" }
     }
-  }
+  },
+
+  "common_loginFailed": "Login failed. Please try again.",
+  "common_errorGeneric": "Error: {msg}",
+  "@common_errorGeneric": {
+    "placeholders": {
+      "msg": { "type": "String" }
+    }
+  },
+  "common_processing": "Processing...",
+  "common_retry": "Retry",
+  "common_cancel": "Cancel",
+  "common_close": "Close",
+
+  "calculate_restartTitle": "Restart?",
+  "calculate_restartMsg": "Time and answers will be reset",
+  "calculate_restartBtn": "Restart",
+  "calculate_solutionTitle": "Answer #{index}",
+  "@calculate_solutionTitle": {
+    "placeholders": {
+      "index": { "type": "int" }
+    }
+  },
+  "calculate_questionLabel": "Question:",
+  "calculate_answerLabel": "Answer:",
+  "calculate_pressStart": "Press START button to begin timing",
+  "calculate_questionsAfterTimer": "Questions will appear after timing completes",
+  "calculate_failedPickFile": "Failed to pick file: {error}",
+  "@calculate_failedPickFile": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "calculate_childIdNotFound": "Child ID not found. Please login again.",
+  "calculate_errorCompleting": "Error completing activity: {error}",
+  "@calculate_errorCompleting": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+
+  "itemintro_videoLoading": "Please wait. Video is loading...",
+  "itemintro_timingIncomplete": "Timing data for this sentence is incomplete",
+  "itemintro_videoPlayError": "Cannot play video: {error}",
+  "@itemintro_videoPlayError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "itemintro_micPermission": "Please allow microphone access",
+  "itemintro_recordStartError": "Cannot start recording: {error}",
+  "@itemintro_recordStartError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "itemintro_recordTooShort": "Recording too short. Please try again",
+  "itemintro_evalResult": "Evaluation result: {score}% - \"{text}\"",
+  "@itemintro_evalResult": {
+    "placeholders": {
+      "score": { "type": "int" },
+      "text": { "type": "String" }
+    }
+  },
+  "itemintro_questError": "Error completing quest: {error}",
+  "@itemintro_questError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "itemintro_playbackFailed": "Failed to play back recording.",
+
+  "record_micDenied": "Microphone permission denied.",
+  "record_recordingFailed": "Recording failed.",
+  "record_playbackFailed": "Failed to play audio.",
+  "record_noValidAudio": "Error: No valid audio recorded.",
+  "record_aiError": "AI Error: {error}",
+  "@record_aiError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+
+  "medals_noActivityHistory": "No activity history",
+  "medals_noHistory": "No history",
+
+  "post_noComments": "No comments yet. Be the first!",
+
+  "namesetting_saveFailed": "Cannot save name. Please try again.",
+
+  "activityCard_selectChild": "Please select a child",
+  "activityCard_selectChildMsg": "You must select a child before playing activities",
+  "activityCard_goSelect": "Go select child",
+
+  "childsetting_addSuccess": "Child added successfully",
+  "childsetting_deleteSuccess": "Child deleted successfully",
+  "childsetting_selectSuccess": "Child selected successfully",
+  "childsetting_noChildren": "No children in system",
+  "childsetting_addChild": "Add child",
+  "childsetting_active": "ACTIVE",
+  "childsetting_select": "SELECT",
+
+  "common_selectSource": "Select Source",
+  "common_camera": "Camera",
+  "common_gallery": "Gallery",
+  "common_ok": "OK",
+  "common_submit": "SUBMIT",
+  "common_addImage": "Add Image",
+  "common_addVideo": "Add Video",
+  "common_videoAdded": "Video Added",
+  "common_image": "IMAGE",
+  "common_video": "VIDEO",
+  "common_howToPlay": "HOW TO PLAY",
+  "common_questions": "QUESTIONS",
+  "common_evidence": "EVIDENCE",
+  "common_finish": "FINISH",
+  "common_start": "START",
+  "common_restart": "RESTART",
+  "common_done": "done",
+  "common_submitting": "Submitting...",
+  "common_score": "Score",
+
+  "calculate_noAnswer": "No answer available",
+  "calculate_answer": "ANSWER",
+  "calculate_answerAgain": "ANSWER AGAIN",
+  "calculate_stopBeforeAnswer": "Stop timer before answering",
+  "calculate_yourAnswer": "Your answer: {answer}",
+  "@calculate_yourAnswer": {
+    "placeholders": {
+      "answer": { "type": "String" }
+    }
+  },
+  "calculate_typeAnswer": "Type your answer...",
+  "calculate_diaryNotes": "DIARY / NOTES",
+  "calculate_writeNotes": "Write your notes here...",
+  "calculate_noQuestions": "No questions available",
+
+  "record_title": "RECORD",
+
+  "itemintro_segmentOf": "Segment {current} of {total}",
+  "@itemintro_segmentOf": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "itemintro_speak": "SPEAK",
+  "itemintro_point": "POINT",
+  "itemintro_completed": "COMPLETED",
+  "itemintro_pausePlayback": "PAUSE PLAYBACK...",
+  "itemintro_listenRecording": "LISTEN TO YOUR RECORDING",
+  "itemintro_recordToPlayback": "Record to enable playback",
+
+  "videodetail_previewNotAvailable": "Video Preview Not Available",
+  "videodetail_openInBrowser": "Open in Browser to Watch",
+  "videodetail_openTiktok": "OPEN TIKTOK",
+  "videodetail_noVideoUrl": "No video URL available",
+
+  "languagehub_appTitle": "KRATON",
+  "languagehub_fillInBlanksTitle": "FILL IN THE BLANKS",
+
+  "problemplaying_title": "PROBLEMS SOLVE",
+  "problemplaying_resultsTitle": "PLAYING RESULTS",
+  "problemplaying_medalsLabel": "MEDALS",
+  "problemplaying_diaryLabel": "DIARY",
+  "problemplaying_diaryHint": "Write something...",
+  "problemplaying_imageLabel": "IMAGE",
+  "problemplaying_timeLabel": "TIME",
+  "problemplaying_answerBtn": "ANSWER",
+
+  "result_resultTitle": "RESULT",
+  "result_totalScoreTitle": "TOTAL SCORE",
+  "result_keepTryingTitle": "KEEP TRYING!",
+  "result_timeSpentPrefix": "TIME SPENT: ",
+  "result_playAgainBtn": "PLAY AGAIN",
+
+  "plus_title": "PLUS +",
+  "plus_questionTitle": "QUESTION",
+  "plus_startBtn": "START",
+
+  "answerplus_title": "ANSWER PLUS +",
+  "answerplus_questionLabel": "QUESTION",
+  "answerplus_answerLabel": "ANSWER"
 }

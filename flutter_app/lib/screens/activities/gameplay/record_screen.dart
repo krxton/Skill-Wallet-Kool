@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart'; // 👈 ใช้ kIsWeb
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
+import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import 'package:skill_wallet_kool/services/activity_service.dart';
 import 'package:skill_wallet_kool/theme/app_text_styles.dart';
 import 'package:skill_wallet_kool/theme/palette.dart';
@@ -88,7 +89,7 @@ class _RecordScreenState extends State<RecordScreen> {
       setState(() => _originalText = 'Microphone permission denied.');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Microphone permission denied.')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.record_micDenied)),
         );
       }
     }
@@ -172,7 +173,7 @@ class _RecordScreenState extends State<RecordScreen> {
         debugPrint('Recording Start Error: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Recording failed.')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.record_recordingFailed)),
           );
         }
         setState(() => recording = false);
@@ -203,7 +204,7 @@ class _RecordScreenState extends State<RecordScreen> {
       debugPrint('Playback Error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to play audio.')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.record_playbackFailed)),
         );
       }
       setState(() => _isPlaying = false);
@@ -223,7 +224,7 @@ class _RecordScreenState extends State<RecordScreen> {
       if (_webAudioBytes == null || _webAudioBytes!.lengthInBytes < 1000) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Error: No valid audio recorded.')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.record_noValidAudio)),
           );
         }
         return;
@@ -233,7 +234,7 @@ class _RecordScreenState extends State<RecordScreen> {
       if (!await audioFile.exists() || await audioFile.length() < 1000) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Error: No valid audio recorded.')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.record_noValidAudio)),
           );
         }
         return;
@@ -244,13 +245,13 @@ class _RecordScreenState extends State<RecordScreen> {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (_) => const AlertDialog(
+        builder: (_) => AlertDialog(
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('กำลังประมวลผล...'),
-              SizedBox(height: 10),
-              Center(child: CircularProgressIndicator()),
+              Text(AppLocalizations.of(context)!.common_processing),
+              const SizedBox(height: 10),
+              const Center(child: CircularProgressIndicator()),
             ],
           ),
         ),
@@ -295,7 +296,7 @@ class _RecordScreenState extends State<RecordScreen> {
       if (mounted) {
         Navigator.pop(context); // ปิด dialog
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('AI Error: ${e.toString()}')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.record_aiError(e.toString()))),
         );
         Navigator.pop(context, {
           'score': 0,
@@ -378,7 +379,7 @@ class _RecordScreenState extends State<RecordScreen> {
         leading: const BackButton(color: Colors.black87),
         elevation: 0,
         title: Text(
-          'RECORD',
+          AppLocalizations.of(context)!.record_title,
           style: AppTextStyles.heading(22, color: Colors.black87),
         ),
         centerTitle: true,
@@ -492,7 +493,7 @@ class _RecordScreenState extends State<RecordScreen> {
                 style: ElevatedButton.styleFrom(backgroundColor: Palette.success),
                 onPressed: (recording || !_hasRecorded) ? null : _finish,
                 child: Text(
-                  'FINISH',
+                  AppLocalizations.of(context)!.common_finish,
                   style: AppTextStyles.heading(18, color: Colors.white),
                 ),
               ),

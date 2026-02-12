@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../theme/palette.dart';
 
@@ -66,7 +67,7 @@ class _ProblemPlayingScreenState extends State<ProblemPlayingScreen> {
         ),
         centerTitle: true,
         title: Text(
-          'PROBLEMS SOLVE',
+          AppLocalizations.of(context)!.problemplaying_title,
           style: GoogleFonts.luckiestGuy(
             fontSize: 26,
             color: Palette.sky,
@@ -127,7 +128,7 @@ class _ProblemPlayingScreenState extends State<ProblemPlayingScreen> {
                     ),
                   ),
                   child: Text(
-                    'ANSWER',
+                    AppLocalizations.of(context)!.problemplaying_answerBtn,
                     style: GoogleFonts.luckiestGuy(
                       fontSize: 16,
                       color: Colors.white,
@@ -140,7 +141,7 @@ class _ProblemPlayingScreenState extends State<ProblemPlayingScreen> {
             const SizedBox(height: 20),
 
             Text(
-              'PLAYING RESULTS',
+              AppLocalizations.of(context)!.problemplaying_resultsTitle,
               style: GoogleFonts.luckiestGuy(
                 fontSize: 20,
                 color: Colors.black54,
@@ -155,7 +156,7 @@ class _ProblemPlayingScreenState extends State<ProblemPlayingScreen> {
                 const Icon(Icons.emoji_events, color: Colors.orange, size: 30),
                 const SizedBox(width: 8),
                 Text(
-                  'MEDALS',
+                  AppLocalizations.of(context)!.problemplaying_medalsLabel,
                   style: GoogleFonts.luckiestGuy(
                     fontSize: 20,
                     color: Colors.orange,
@@ -196,7 +197,7 @@ class _ProblemPlayingScreenState extends State<ProblemPlayingScreen> {
 
             // DIARY Input
             Text(
-              'DIARY',
+              AppLocalizations.of(context)!.problemplaying_diaryLabel,
               style: GoogleFonts.luckiestGuy(fontSize: 20, color: redText),
             ),
             const SizedBox(height: 5),
@@ -206,12 +207,12 @@ class _ProblemPlayingScreenState extends State<ProblemPlayingScreen> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const TextField(
+              child: TextField(
                 maxLines: null,
                 decoration: InputDecoration(
                   border: InputBorder.none,
-                  contentPadding: EdgeInsets.all(16),
-                  hintText: 'Write something...',
+                  contentPadding: const EdgeInsets.all(16),
+                  hintText: AppLocalizations.of(context)!.problemplaying_diaryHint,
                 ),
               ),
             ),
@@ -220,7 +221,7 @@ class _ProblemPlayingScreenState extends State<ProblemPlayingScreen> {
 
             // IMAGE Input
             Text(
-              'IMAGE',
+              AppLocalizations.of(context)!.problemplaying_imageLabel,
               style: GoogleFonts.luckiestGuy(fontSize: 20, color: redText),
             ),
             const SizedBox(height: 5),
@@ -246,7 +247,7 @@ class _ProblemPlayingScreenState extends State<ProblemPlayingScreen> {
               child: Column(
                 children: [
                   Text(
-                    'TIME',
+                    AppLocalizations.of(context)!.problemplaying_timeLabel,
                     style:
                         GoogleFonts.luckiestGuy(fontSize: 20, color: redText),
                   ),
@@ -289,7 +290,7 @@ class _ProblemPlayingScreenState extends State<ProblemPlayingScreen> {
                       ),
                     ),
                     child: Text(
-                      'FINISH',
+                      AppLocalizations.of(context)!.problemplaying_finishBtn,
                       style: GoogleFonts.luckiestGuy(
                         fontSize: 20,
                         color: Colors.white,

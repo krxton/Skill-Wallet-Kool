@@ -143,10 +143,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get setting_settingBtn => 'การตั้งค่า';
 
   @override
-  String get setting_personalBtn => 'PERSONAL INFORMATION';
+  String get setting_personalBtn => 'ข้อมูลส่วนตัว';
 
   @override
-  String get setting_generalBtn => 'GENERAL';
+  String get setting_generalBtn => 'ทั่วไป';
 
   @override
   String get setting_profileBtn => 'โปรไฟล์';
@@ -891,4 +891,350 @@ class AppLocalizationsTh extends AppLocalizations {
   String share_textTemplate(String activityName, int score, int maxScore) {
     return 'ฉันได้ $score/$maxScore คะแนนจากกิจกรรม \"$activityName\" ใน Skill Wallet Kool!';
   }
+
+  @override
+  String get common_loginFailed => 'เข้าสู่ระบบไม่สำเร็จ กรุณาลองอีกครั้ง';
+
+  @override
+  String common_errorGeneric(String msg) {
+    return 'ข้อผิดพลาด: $msg';
+  }
+
+  @override
+  String get common_processing => 'กำลังดำเนินการ...';
+
+  @override
+  String get common_retry => 'ลองอีกครั้ง';
+
+  @override
+  String get common_cancel => 'ยกเลิก';
+
+  @override
+  String get common_close => 'ปิด';
+
+  @override
+  String get calculate_restartTitle => 'เริ่มใหม่?';
+
+  @override
+  String get calculate_restartMsg => 'เวลาและคำตอบจะถูกรีเซ็ต';
+
+  @override
+  String get calculate_restartBtn => 'เริ่มใหม่';
+
+  @override
+  String calculate_solutionTitle(int index) {
+    return 'ข้อที่ #$index';
+  }
+
+  @override
+  String get calculate_questionLabel => 'โจทย์:';
+
+  @override
+  String get calculate_answerLabel => 'คำตอบ:';
+
+  @override
+  String get calculate_pressStart => 'กดปุ่มเริ่มเพื่อจับเวลา';
+
+  @override
+  String get calculate_questionsAfterTimer => 'โจทย์จะแสดงหลังจากจับเวลาเสร็จ';
+
+  @override
+  String calculate_failedPickFile(String error) {
+    return 'เลือกไฟล์ไม่สำเร็จ: $error';
+  }
+
+  @override
+  String get calculate_childIdNotFound =>
+      'ไม่พบรหัสเด็ก กรุณาเข้าสู่ระบบอีกครั้ง';
+
+  @override
+  String calculate_errorCompleting(String error) {
+    return 'เกิดข้อผิดพลาดในการทำกิจกรรม: $error';
+  }
+
+  @override
+  String get itemintro_videoLoading => 'กรุณารอสักครู่ กำลังโหลดวิดีโอ...';
+
+  @override
+  String get itemintro_timingIncomplete =>
+      'ข้อมูลเวลาสำหรับประโยคนี้ไม่สมบูรณ์';
+
+  @override
+  String itemintro_videoPlayError(String error) {
+    return 'ไม่สามารถเล่นวิดีโอได้: $error';
+  }
+
+  @override
+  String get itemintro_micPermission => 'กรุณาอนุญาตการเข้าถึงไมโครโฟน';
+
+  @override
+  String itemintro_recordStartError(String error) {
+    return 'ไม่สามารถเริ่มบันทึกเสียงได้: $error';
+  }
+
+  @override
+  String get itemintro_recordTooShort =>
+      'บันทึกเสียงสั้นเกินไป กรุณาลองอีกครั้ง';
+
+  @override
+  String itemintro_evalResult(int score, String text) {
+    return 'ผลการประเมิน: $score% - \"$text\"';
+  }
+
+  @override
+  String itemintro_questError(String error) {
+    return 'เกิดข้อผิดพลาดในการทำกิจกรรม: $error';
+  }
+
+  @override
+  String get itemintro_playbackFailed => 'ไม่สามารถเล่นเสียงที่บันทึกได้';
+
+  @override
+  String get record_micDenied => 'ไม่ได้รับอนุญาตให้ใช้ไมโครโฟน';
+
+  @override
+  String get record_recordingFailed => 'การบันทึกเสียงล้มเหลว';
+
+  @override
+  String get record_playbackFailed => 'ไม่สามารถเล่นเสียงได้';
+
+  @override
+  String get record_noValidAudio => 'ข้อผิดพลาด: ไม่มีเสียงที่บันทึกไว้';
+
+  @override
+  String record_aiError(String error) {
+    return 'ข้อผิดพลาด AI: $error';
+  }
+
+  @override
+  String get medals_noActivityHistory => 'ไม่มีประวัติกิจกรรม';
+
+  @override
+  String get medals_noHistory => 'ไม่มีประวัติ';
+
+  @override
+  String get post_noComments => 'ยังไม่มีความคิดเห็น เป็นคนแรกเลย!';
+
+  @override
+  String get namesetting_saveFailed =>
+      'ไม่สามารถบันทึกชื่อได้ กรุณาลองอีกครั้ง';
+
+  @override
+  String get activityCard_selectChild => 'กรุณาเลือกเด็ก';
+
+  @override
+  String get activityCard_selectChildMsg =>
+      'คุณต้องเลือกเด็กก่อนจึงจะสามารถเล่นกิจกรรมได้';
+
+  @override
+  String get activityCard_goSelect => 'ไปเลือกเด็ก';
+
+  @override
+  String get childsetting_addSuccess => 'เพิ่มเด็กสำเร็จ';
+
+  @override
+  String get childsetting_deleteSuccess => 'ลบเด็กสำเร็จ';
+
+  @override
+  String get childsetting_selectSuccess => 'เลือกเด็กสำเร็จ';
+
+  @override
+  String get childsetting_noChildren => 'ยังไม่มีเด็กในระบบ';
+
+  @override
+  String get childsetting_addChild => 'เพิ่มเด็ก';
+
+  @override
+  String get childsetting_active => 'กำลังใช้งาน';
+
+  @override
+  String get childsetting_select => 'เลือก';
+
+  @override
+  String get common_selectSource => 'เลือกแหล่ง';
+
+  @override
+  String get common_camera => 'กล้อง';
+
+  @override
+  String get common_gallery => 'แกลเลอรี';
+
+  @override
+  String get common_ok => 'ตกลง';
+
+  @override
+  String get common_submit => 'ส่ง';
+
+  @override
+  String get common_addImage => 'เพิ่มรูป';
+
+  @override
+  String get common_addVideo => 'เพิ่มวิดีโอ';
+
+  @override
+  String get common_videoAdded => 'เพิ่มวิดีโอแล้ว';
+
+  @override
+  String get common_image => 'รูปภาพ';
+
+  @override
+  String get common_video => 'วิดีโอ';
+
+  @override
+  String get common_howToPlay => 'วิธีเล่น';
+
+  @override
+  String get common_questions => 'คำถาม';
+
+  @override
+  String get common_evidence => 'หลักฐาน';
+
+  @override
+  String get common_finish => 'เสร็จสิ้น';
+
+  @override
+  String get common_start => 'เริ่ม';
+
+  @override
+  String get common_restart => 'เริ่มใหม่';
+
+  @override
+  String get common_done => 'เสร็จ';
+
+  @override
+  String get common_submitting => 'กำลังส่งข้อมูล...';
+
+  @override
+  String get common_score => 'คะแนน';
+
+  @override
+  String get calculate_noAnswer => 'ไม่มีเฉลย';
+
+  @override
+  String get calculate_answer => 'ตอบ';
+
+  @override
+  String get calculate_answerAgain => 'ตอบอีกครั้ง';
+
+  @override
+  String get calculate_stopBeforeAnswer => 'หยุดเวลาก่อนตอบ';
+
+  @override
+  String calculate_yourAnswer(String answer) {
+    return 'คำตอบของคุณ: $answer';
+  }
+
+  @override
+  String get calculate_typeAnswer => 'พิมพ์คำตอบ...';
+
+  @override
+  String get calculate_diaryNotes => 'บันทึก / โน้ต';
+
+  @override
+  String get calculate_writeNotes => 'เขียนบันทึกที่นี่...';
+
+  @override
+  String get calculate_noQuestions => 'ไม่มีคำถาม';
+
+  @override
+  String get record_title => 'บันทึกเสียง';
+
+  @override
+  String itemintro_segmentOf(int current, int total) {
+    return 'ข้อ $current จาก $total';
+  }
+
+  @override
+  String get itemintro_speak => 'พูด';
+
+  @override
+  String get itemintro_point => 'คะแนน';
+
+  @override
+  String get itemintro_completed => 'เสร็จแล้ว';
+
+  @override
+  String get itemintro_pausePlayback => 'หยุดเล่น...';
+
+  @override
+  String get itemintro_listenRecording => 'ฟังเสียงที่บันทึก';
+
+  @override
+  String get itemintro_recordToPlayback => 'กดบันทึกเสียงเพื่อฟังเสียงของคุณ';
+
+  @override
+  String get videodetail_previewNotAvailable =>
+      'ไม่สามารถแสดงตัวอย่างวิดีโอได้';
+
+  @override
+  String get videodetail_openInBrowser => 'เปิดในเบราว์เซอร์เพื่อรับชม';
+
+  @override
+  String get videodetail_openTiktok => 'เปิด TIKTOK';
+
+  @override
+  String get videodetail_noVideoUrl => 'ไม่มีลิงก์วิดีโอ';
+
+  @override
+  String get languagehub_appTitle => 'กระท่อน';
+
+  @override
+  String get languagehub_fillInBlanksTitle => 'เติมคำในช่องว่าง';
+
+  @override
+  String get problemplaying_title => 'โจทย์ปัญหา';
+
+  @override
+  String get problemplaying_resultsTitle => 'ผลการเล่น';
+
+  @override
+  String get problemplaying_medalsLabel => 'เหรียญรางวัล';
+
+  @override
+  String get problemplaying_diaryLabel => 'บันทึก';
+
+  @override
+  String get problemplaying_diaryHint => 'เขียนบันทึก...';
+
+  @override
+  String get problemplaying_imageLabel => 'รูปภาพ';
+
+  @override
+  String get problemplaying_timeLabel => 'เวลา';
+
+  @override
+  String get problemplaying_answerBtn => 'ดูเฉลย';
+
+  @override
+  String get result_resultTitle => 'ผลลัพธ์';
+
+  @override
+  String get result_totalScoreTitle => 'คะแนนรวม';
+
+  @override
+  String get result_keepTryingTitle => 'สู้ต่อไป!';
+
+  @override
+  String get result_timeSpentPrefix => 'เวลาที่ใช้: ';
+
+  @override
+  String get result_playAgainBtn => 'เล่นอีกครั้ง';
+
+  @override
+  String get plus_title => 'บวก +';
+
+  @override
+  String get plus_questionTitle => 'โจทย์';
+
+  @override
+  String get plus_startBtn => 'เริ่ม';
+
+  @override
+  String get answerplus_title => 'เฉลย บวก +';
+
+  @override
+  String get answerplus_questionLabel => 'โจทย์';
+
+  @override
+  String get answerplus_answerLabel => 'เฉลย';
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../theme/palette.dart';
 import '../../../widgets/ui.dart';
 import '../../../routes/app_routes.dart';
@@ -19,7 +20,7 @@ class LanguageHubScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('KRATON', style: luckiestH(20)),
+        title: Text(AppLocalizations.of(context)!.languagehub_appTitle, style: luckiestH(20)),
         centerTitle: true,
       ),
       body: ListView(
@@ -31,12 +32,12 @@ class LanguageHubScreen extends StatelessWidget {
             children: [
               const Icon(Icons.school_outlined, size: 18),
               const SizedBox(width: 8),
-              Text('LANGUAGE TRAINING',
+              Text(AppLocalizations.of(context)!.languagehub_trainingTitle,
                   style: GoogleFonts.luckiestGuy(fontSize: 16)),
             ],
           ),
           const SizedBox(height: 18),
-          Text('LISTENING AND SPEAKING',
+          Text(AppLocalizations.of(context)!.languagehub_listeningSpeakingTitle,
               style: luckiestH(18, color: Palette.sky)),
           const SizedBox(height: 12),
           Wrap(
@@ -44,21 +45,21 @@ class LanguageHubScreen extends StatelessWidget {
             runSpacing: 10,
             children: [
               PillButton(
-                label: 'EASY',
+                label: AppLocalizations.of(context)!.languagehub_easyBtn,
                 bg: Palette.successAlt,
                 fg: Colors.white,
                 onTap: () =>
                     _openList(context, 'LISTENING AND SPEAKING', 'EASY'),
               ),
               PillButton(
-                label: 'MEDIUM',
+                label: AppLocalizations.of(context)!.languagehub_mediumBtn,
                 bg: Palette.yellow,
                 fg: Colors.black,
                 onTap: () =>
                     _openList(context, 'LISTENING AND SPEAKING', 'MEDIUM'),
               ),
               PillButton(
-                label: 'DIFFICULT',
+                label: AppLocalizations.of(context)!.languagehub_difficultBtn,
                 bg: Palette.pink,
                 fg: Colors.white,
                 onTap: () =>
@@ -67,26 +68,26 @@ class LanguageHubScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 24),
-          Text('FILL IN THE BLANKS', style: luckiestH(18, color: Palette.sky)),
+          Text(AppLocalizations.of(context)!.languagehub_fillInBlanksTitle, style: luckiestH(18, color: Palette.sky)),
           const SizedBox(height: 12),
           Wrap(
             spacing: 12,
             runSpacing: 10,
             children: [
               PillButton(
-                label: 'EASY',
+                label: AppLocalizations.of(context)!.languagehub_easyBtn,
                 bg: Palette.successAlt,
                 fg: Colors.white,
                 onTap: () => _openList(context, 'FILL IN THE BLANKS', 'EASY'),
               ),
               PillButton(
-                label: 'MEDIUM',
+                label: AppLocalizations.of(context)!.languagehub_mediumBtn,
                 bg: Palette.yellow,
                 fg: Colors.black,
                 onTap: () => _openList(context, 'FILL IN THE BLANKS', 'MEDIUM'),
               ),
               PillButton(
-                label: 'DIFFICULT',
+                label: AppLocalizations.of(context)!.languagehub_difficultBtn,
                 bg: Palette.pink,
                 fg: Colors.white,
                 onTap: () => _openList(context, 'FILL IN THE BLANKS', 'DIFFICULT'),
@@ -117,14 +118,14 @@ class _SearchBar extends StatelessWidget {
         borderRadius: BorderRadius.circular(22),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 14),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.menu_rounded, size: 18),
-          SizedBox(width: 10),
+          const Icon(Icons.menu_rounded, size: 18),
+          const SizedBox(width: 10),
           Expanded(
               child:
-                  Text('search...', style: TextStyle(color: Colors.black54))),
-          Icon(Icons.search, size: 20),
+                  Text(AppLocalizations.of(context)!.languagehub_searchHint, style: const TextStyle(color: Colors.black54))),
+          const Icon(Icons.search, size: 20),
         ],
       ),
     );

@@ -13,6 +13,7 @@ import '../../../routes/app_routes.dart';
 import '../../../services/activity_service.dart';
 import '../../../theme/app_text_styles.dart';
 import '../../../theme/palette.dart';
+import '../../../l10n/app_localizations.dart';
 
 class PhysicalDetailScreen extends StatefulWidget {
   final Activity activity;
@@ -128,7 +129,7 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Failed to pick file: $e')));
+            .showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.calculate_failedPickFile(e.toString()))));
       }
     }
   }
@@ -138,18 +139,18 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
     return await showDialog<ImageSource>(
           context: context,
           builder: (context) => AlertDialog(
-            title: Text('Select Source', style: AppTextStyles.heading(18)),
+            title: Text(AppLocalizations.of(context)!.common_selectSource, style: AppTextStyles.heading(18)),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 ListTile(
                   leading: Icon(Icons.camera_alt, color: Palette.success),
-                  title: Text('Camera', style: AppTextStyles.body(14)),
+                  title: Text(AppLocalizations.of(context)!.common_camera, style: AppTextStyles.body(14)),
                   onTap: () => Navigator.pop(context, ImageSource.camera),
                 ),
                 ListTile(
                   leading: const Icon(Icons.photo_library, color: Colors.blue),
-                  title: Text('Gallery', style: AppTextStyles.body(14)),
+                  title: Text(AppLocalizations.of(context)!.common_gallery, style: AppTextStyles.body(14)),
                   onTap: () => Navigator.pop(context, ImageSource.gallery),
                 ),
               ],
@@ -167,8 +168,8 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
 
     if (!isEvidenceAttached) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Please attach video or image evidence.')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(AppLocalizations.of(context)!.physical_snackNoEvidence)));
       }
       return;
     }
@@ -176,7 +177,7 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(
-                'Please set a valid score (1 to ${widget.activity.maxScore}).')));
+                AppLocalizations.of(context)!.physical_snackInvalidScore(widget.activity.maxScore))));
       }
       return;
     }
@@ -223,10 +224,10 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
         showDialog(
             context: context,
             builder: (context) => AlertDialog(
-                  title: Text('Submission Complete!',
+                  title: Text(AppLocalizations.of(context)!.physical_dialogSubmitTitle,
                       style: AppTextStyles.heading(18)),
                   content: Text(
-                      'Your evidence has been submitted for approval.',
+                      AppLocalizations.of(context)!.physical_dialogSubmitContent,
                       style: AppTextStyles.body(14)),
                   actions: [
                     TextButton(
@@ -234,7 +235,7 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
                           context,
                           AppRoutes.home,
                           (route) => route.isFirst), // 🆕 กลับไปหน้า Home
-                      child: Text('OK',
+                      child: Text(AppLocalizations.of(context)!.common_ok,
                           style: AppTextStyles.heading(16, color: Palette.sky)),
                     ),
                   ],
@@ -243,7 +244,7 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Submission Error: ${e.toString()}')));
+            SnackBar(content: Text(AppLocalizations.of(context)!.physical_snackSubmitError(e.toString()))));
       }
     } finally {
       setState(() => _isSubmitting = false);
@@ -339,13 +340,13 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Enter Score', style: AppTextStyles.heading(18)),
+        title: Text(AppLocalizations.of(context)!.physical_dialogEnterScoreTitle, style: AppTextStyles.heading(18)),
         content: TextField(
           controller: _scoreController,
           keyboardType: TextInputType.number,
           autofocus: true,
           decoration: InputDecoration(
-            hintText: 'Enter score (1-${widget.activity.maxScore})',
+            hintText: AppLocalizations.of(context)!.physical_dialogEnterScoreHint(widget.activity.maxScore),
             border: const OutlineInputBorder(),
           ),
           onSubmitted: (value) {
@@ -357,7 +358,7 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child:
-                Text('Cancel', style: AppTextStyles.body(14, color: Colors.grey)),
+                Text(AppLocalizations.of(context)!.common_cancel, style: AppTextStyles.body(14, color: Colors.grey)),
           ),
           TextButton(
             onPressed: () {
@@ -365,7 +366,7 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
               Navigator.pop(context);
             },
             child:
-                Text('OK', style: AppTextStyles.heading(16, color: Palette.success)),
+                Text(AppLocalizations.of(context)!.common_ok, style: AppTextStyles.heading(16, color: Palette.success)),
           ),
         ],
       ),
@@ -385,7 +386,7 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text(
-                'Please enter a valid score (0-${widget.activity.maxScore})')),
+                AppLocalizations.of(context)!.physical_snackInvalidInput(widget.activity.maxScore))),
       );
     }
   }
@@ -449,7 +450,7 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
                   color: Colors.white,
                 ),
                 label: Text(
-                  _isPlaying ? 'STOP' : 'START',
+                  _isPlaying ? AppLocalizations.of(context)!.physical_stopBtn : AppLocalizations.of(context)!.physical_startBtn,
                   style: AppTextStyles.heading(20, color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
@@ -466,7 +467,7 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
             const SizedBox(height: 20),
 
             // 3. SCORE CONTROL
-            Text('MEDALS / SCORE',
+            Text(AppLocalizations.of(context)!.physical_medalsScoreLabel,
                 style:
                     AppTextStyles.heading(18, color: Palette.pink)),
             _buildScoreControl(),
@@ -474,7 +475,7 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
             const SizedBox(height: 20),
 
             // 4. DIARY (Notes)
-            Text('DIARY',
+            Text(AppLocalizations.of(context)!.physical_diaryLabel,
                 style:
                     AppTextStyles.heading(18, color: Palette.pink)),
             Container(
@@ -483,10 +484,10 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
                   color: Colors.white, borderRadius: BorderRadius.circular(10)),
               child: TextField(
                 controller: _descriptionController, // 🆕 ผูก Controller
-                decoration: const InputDecoration(
-                    hintText: 'Enter notes here...',
+                decoration: InputDecoration(
+                    hintText: AppLocalizations.of(context)!.physical_diaryHint,
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.all(10)),
+                    contentPadding: const EdgeInsets.all(10)),
                 maxLines: null,
                 expands: true,
               ),
@@ -501,7 +502,7 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'IMAGE',
+                        AppLocalizations.of(context)!.common_image,
                         style: AppTextStyles.heading(18, color: Colors.black54),
                       ),
                       const SizedBox(height: 5),
@@ -564,7 +565,7 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
                                         size: 40, color: Colors.grey),
                                     const SizedBox(height: 8),
                                     Text(
-                                      'Add Image',
+                                      AppLocalizations.of(context)!.common_addImage,
                                       style: AppTextStyles.body(12, color: Colors.grey),
                                     ),
                                   ],
@@ -582,7 +583,7 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'VIDEO',
+                        AppLocalizations.of(context)!.common_video,
                         style: AppTextStyles.heading(18, color: Colors.black54),
                       ),
                       const SizedBox(height: 5),
@@ -613,7 +614,7 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
                                               size: 50, color: Palette.success),
                                           const SizedBox(height: 8),
                                           Text(
-                                            'Video Added',
+                                            AppLocalizations.of(context)!.common_videoAdded,
                                             style: AppTextStyles.label(12, color: Palette.success),
                                           ),
                                         ],
@@ -649,7 +650,7 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
                                         size: 40, color: Colors.grey),
                                     const SizedBox(height: 8),
                                     Text(
-                                      'Add Video',
+                                      AppLocalizations.of(context)!.common_addVideo,
                                       style: AppTextStyles.body(12, color: Colors.grey),
                                     ),
                                   ],
@@ -671,7 +672,7 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
                 onPressed:
                     isEvidenceAttached && !_isSubmitting ? _handleSubmit : null,
                 style: ElevatedButton.styleFrom(backgroundColor: Palette.success),
-                child: Text(_isSubmitting ? 'Submitting...' : 'FINISH',
+                child: Text(_isSubmitting ? AppLocalizations.of(context)!.common_submitting : AppLocalizations.of(context)!.common_finish,
                     style: AppTextStyles.heading(24, color: Colors.white)),
               ),
             ),

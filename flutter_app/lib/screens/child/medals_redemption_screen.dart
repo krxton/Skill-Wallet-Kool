@@ -10,11 +10,13 @@ import '../../theme/palette.dart';
 
 class MedalsRedemptionScreen extends StatefulWidget {
   final String? childId;
+  final String? childName;
   final int score;
 
   const MedalsRedemptionScreen({
     super.key,
     this.childId,
+    this.childName,
     required this.score,
   });
 
@@ -974,7 +976,15 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
       ),
       body: Column(
         children: [
-          const SizedBox(height: 10),
+          // Child name
+          if (widget.childName != null && widget.childName!.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 4, bottom: 6),
+              child: Text(
+                widget.childName!,
+                style: AppTextStyles.heading(20),
+              ),
+            ),
 
           // Score section
           Padding(
@@ -1162,7 +1172,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                       Icon(Icons.sports_esports,
                           size: 60, color: Colors.grey.shade400),
                       const SizedBox(height: 16),
-                      Text('ยังไม่มีประวัติกิจกรรม',
+                      Text(AppLocalizations.of(context)!.medals_noActivityHistory,
                           style: AppTextStyles.heading(16, color: Colors.grey)),
                     ],
                   ),
@@ -1438,7 +1448,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                       Icon(Icons.history,
                           size: 60, color: Colors.grey.shade400),
                       const SizedBox(height: 16),
-                      Text('ยังไม่มีประวัติ',
+                      Text(AppLocalizations.of(context)!.medals_noHistory,
                           style: AppTextStyles.heading(16, color: Colors.grey)),
                     ],
                   ),

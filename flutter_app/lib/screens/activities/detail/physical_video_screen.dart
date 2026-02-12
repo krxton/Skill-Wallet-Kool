@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../models/activity.dart';
 import '../../../routes/app_routes.dart';
 import '../../../theme/palette.dart';
@@ -119,13 +120,13 @@ class PhysicalVideoScreen extends StatelessWidget {
                                   return false;
                                 },
                               )
-                            : _buildVideoPlaceholder(videoUrl),
+                            : _buildVideoPlaceholder(context, videoUrl),
                       ),
                     ),
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    'ACTIVITY NAME:',
+                    AppLocalizations.of(context)!.videodetail_activityNameLabel,
                     style: AppTextStyles.heading(18, color: Palette.sky),
                   ),
                   const SizedBox(height: 8),
@@ -144,7 +145,7 @@ class PhysicalVideoScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    'HOW TO PLAY / INSTRUCTIONS:',
+                    AppLocalizations.of(context)!.videodetail_howToPlayLabel,
                     style: AppTextStyles.heading(18, color: Palette.sky),
                   ),
                   const SizedBox(height: 8),
@@ -192,7 +193,7 @@ class PhysicalVideoScreen extends StatelessWidget {
                       );
                     },
                     icon: const Icon(Icons.play_arrow),
-                    label: Text('START',
+                    label: Text(AppLocalizations.of(context)!.common_start,
                         style: AppTextStyles.heading(20, color: Colors.white)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Palette.sky,
@@ -208,7 +209,7 @@ class PhysicalVideoScreen extends StatelessWidget {
                       // TODO: Implement Add to Diary/Favorite Logic
                     },
                     icon: const Icon(Icons.add_circle_outline),
-                    label: Text('ADD',
+                    label: Text(AppLocalizations.of(context)!.videodetail_addBtn,
                         style: AppTextStyles.heading(20, color: Palette.deepGrey)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.grey.shade400,
@@ -225,7 +226,7 @@ class PhysicalVideoScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildVideoPlaceholder(String videoUrl) {
+  Widget _buildVideoPlaceholder(BuildContext context, String videoUrl) {
     return Container(
       color: Palette.deepGrey,
       alignment: Alignment.center,
@@ -237,14 +238,14 @@ class PhysicalVideoScreen extends StatelessWidget {
               size: 60, color: Colors.white.withValues(alpha: 0.7)),
           const SizedBox(height: 16),
           Text(
-            'Video Preview Not Available',
+            AppLocalizations.of(context)!.videodetail_previewNotAvailable,
             style: AppTextStyles.heading(16, color: Colors.white),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
           if (videoUrl.isNotEmpty) ...[
             Text(
-              'Open in Browser to Watch',
+              AppLocalizations.of(context)!.videodetail_openInBrowser,
               style: GoogleFonts.openSans(color: Colors.white70, fontSize: 12),
             ),
             const SizedBox(height: 16),
@@ -256,7 +257,7 @@ class PhysicalVideoScreen extends StatelessWidget {
                 }
               },
               icon: const Icon(Icons.open_in_browser, size: 18),
-              label: Text('OPEN TIKTOK',
+              label: Text(AppLocalizations.of(context)!.videodetail_openTiktok,
                   style: AppTextStyles.heading(14)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
@@ -267,7 +268,7 @@ class PhysicalVideoScreen extends StatelessWidget {
             ),
           ] else
             Text(
-              'No video URL available',
+              AppLocalizations.of(context)!.videodetail_noVideoUrl,
               style: GoogleFonts.openSans(color: Colors.white70, fontSize: 12),
             ),
         ],
