@@ -33,7 +33,8 @@ class PhysicalVideoScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Palette.cream,
       appBar: AppBar(
-        title: Text(name, style: AppTextStyles.heading(22, color: Colors.black)),
+        title:
+            Text(name, style: AppTextStyles.heading(22, color: Colors.black)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
@@ -71,8 +72,8 @@ class PhysicalVideoScreen extends StatelessWidget {
                                   allowsBackForwardNavigationGestures: false,
                                   allowsLinkPreview: false,
                                   isFraudulentWebsiteWarningEnabled: false,
-                                  mixedContentMode:
-                                      MixedContentMode.MIXED_CONTENT_ALWAYS_ALLOW,
+                                  mixedContentMode: MixedContentMode
+                                      .MIXED_CONTENT_ALWAYS_ALLOW,
                                   userAgent:
                                       'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148',
                                 ),
@@ -148,17 +149,31 @@ class PhysicalVideoScreen extends StatelessWidget {
                     AppLocalizations.of(context)!.videodetail_howToPlayLabel,
                     style: AppTextStyles.heading(18, color: Palette.sky),
                   ),
-                  const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: Palette.sky, width: 1),
                     ),
-                    child: Text(
-                      content,
-                      style: AppTextStyles.body(15),
+                    child: ExpansionTile(
+                      tilePadding: const EdgeInsets.symmetric(horizontal: 12),
+                      childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                      iconColor: Palette.sky,
+                      collapsedIconColor: Palette.sky,
+
+                      // ใช้ข้อความเล็กแทน เช่น View details
+                      title: Text(
+                        "",
+                        style:
+                            AppTextStyles.body(14).copyWith(color: Palette.sky),
+                      ),
+
+                      children: [
+                        Text(
+                          content,
+                          style: AppTextStyles.body(15),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -209,8 +224,10 @@ class PhysicalVideoScreen extends StatelessWidget {
                       // TODO: Implement Add to Diary/Favorite Logic
                     },
                     icon: const Icon(Icons.add_circle_outline),
-                    label: Text(AppLocalizations.of(context)!.videodetail_addBtn,
-                        style: AppTextStyles.heading(20, color: Palette.deepGrey)),
+                    label: Text(
+                        AppLocalizations.of(context)!.videodetail_addBtn,
+                        style:
+                            AppTextStyles.heading(20, color: Palette.deepGrey)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.grey.shade400,
                       foregroundColor: Palette.deepGrey,
