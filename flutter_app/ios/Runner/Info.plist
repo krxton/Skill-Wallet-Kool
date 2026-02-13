@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Flutter App</string>
+	<string>SkillWalletKool</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -57,11 +57,11 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>NSPhotoLibraryUsageDescription</key>
-		<string>แอปต้องการเข้าถึงรูปภาพเพื่อเลือกรูปโปรไฟล์หรือโพสต์รูป</string>
+	<string>แอปต้องการเข้าถึงรูปภาพเพื่อเลือกรูปโปรไฟล์หรือโพสต์รูป</string>
 	<key>NSCameraUsageDescription</key>
-		<string>แอปต้องการเข้าถึงกล้องเพื่อถ่ายรูป</string>
+	<string>แอปต้องการเข้าถึงกล้องเพื่อถ่ายรูป</string>
 	<key>NSMicrophoneUsageDescription</key>
-		<string>แอปต้องการเข้าถึงไมโครโฟนสำหรับวิดีโอ</string>
+	<string>แอปต้องการเข้าถึงไมโครโฟนสำหรับวิดีโอ</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>

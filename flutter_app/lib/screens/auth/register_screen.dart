@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import 'package:skill_wallet_kool/providers/user_provider.dart';
@@ -116,36 +118,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
   // ========== Facebook Sign-In (เพิ่มใหม่) ==========
   Future<void> _handleFacebookSignIn() async {
     setState(() => _isLoading = true);
-
-    try {
-      final authProvider = context.read<AuthProvider>();
-
-      // เรียกใช้ Facebook Sign-In จาก AuthProvider
-      final success = await authProvider.signInWithFacebook();
-
-      if (!success) {
-        setState(() => _isLoading = false);
-        if (mounted) {
-          _toast('การเข้าสู่ระบบด้วย Facebook ล้มเหลว');
-        }
-        return;
-      }
-
-      // รอ callback จาก deep link (ถ้ามี)
-      await Future.delayed(const Duration(seconds: 1));
-
-      // ดึงข้อมูล user จาก Supabase
-      final supabase = Supabase.instance.client;
-      final user = supabase.auth.currentUser;
-
-      if (user != null) {
-        // บันทึกข้อมูลลง parent table
+    final supabase = Supabase.instance.client;
+    await supabase.auth.signInWithOAuth(
+    OAuthProvider.facebook,
+    redirectTo: kIsWeb ? null : 'my.scheme://my-host', // Optionally set the redirect link to bring back the user via deeplink.
+    authScreenLaunchMode:
+        kIsWeb ? LaunchMode.platformDefault : LaunchMode.externalApplication, // Launch the auth screen in a new webview on mobile.
+  );    
+      final user = response.user;
+        if (user != null) {
+        // บันทึกข้อมูลลง database
         await _saveUserToDatabase(
           userId: user.id,
           email: user.email,
-          fullName: user.userMetadata?['full_name'] ??
-              user.userMetadata?['name'] ??
-              user.email?.split('@')[0],
+          fullName: fullName,
         );
 
         // ไปขั้นตอนถัดไป
@@ -155,21 +141,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
             _isLoading = false;
           });
         }
-      } else {
-        setState(() => _isLoading = false);
-        if (mounted) {
-          _toast('ไม่พบข้อมูลผู้ใช้');
-        }
       }
-    } catch (e) {
-      setState(() => _isLoading = false);
-      debugPrint('Facebook Sign-In error: $e');
-      if (mounted) {
-        _toast(AppLocalizations.of(context)!.common_errorGeneric(e.toString()));
-      }
-    }
+    
+  
   }
-
   // ========== Google Sign-In (ปรับปรุง) ==========
   Future<void> _handleGoogleSignIn() async {
     setState(() => _isLoading = true);
