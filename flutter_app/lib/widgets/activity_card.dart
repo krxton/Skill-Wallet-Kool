@@ -16,7 +16,6 @@ class ActivityCard extends StatelessWidget {
 
   final Activity activity;
 
-
   @override
   Widget build(BuildContext context) {
     final category = activity.category.toUpperCase();
@@ -307,5 +306,4 @@ class ActivityCard extends StatelessWidget {
       ),
     );
   }
-
 }

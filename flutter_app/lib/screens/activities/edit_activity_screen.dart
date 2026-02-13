@@ -78,8 +78,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
   }
 
   void _showSnack(String msg) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
   @override
@@ -108,8 +107,8 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
                 children: [
                   // Category badge
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: _isPhysical
                           ? Palette.physicalPlaceholder
@@ -177,9 +176,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
                         borderRadius: BorderRadius.circular(12)),
                   ),
                   child: Text(
-                    _isSubmitting
-                        ? l.createActivity_creating
-                        : l.profile_save,
+                    _isSubmitting ? l.createActivity_creating : l.profile_save,
                     style: AppTextStyles.heading(18, color: Colors.white),
                   ),
                 ),

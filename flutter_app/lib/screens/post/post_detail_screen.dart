@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:intl/intl.dart'; 
+import 'package:intl/intl.dart';
 
 class PostDetailScreen extends StatefulWidget {
   final Map<String, dynamic> postData; // รับข้อมูลโพสต์เข้ามา
@@ -16,7 +16,7 @@ class PostDetailScreen extends StatefulWidget {
 class _PostDetailScreenState extends State<PostDetailScreen> {
   final _supabase = Supabase.instance.client;
   final TextEditingController _commentController = TextEditingController();
-  
+
   // State variables
   bool _isLiked = false;
   int _likeCount = 0;
@@ -74,9 +74,15 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
 
     try {
       if (_isLiked) {
-        await _supabase.from('likes').insert({'user_id': userId, 'post_id': postId});
+        await _supabase
+            .from('likes')
+            .insert({'user_id': userId, 'post_id': postId});
       } else {
-        await _supabase.from('likes').delete().eq('user_id', userId).eq('post_id', postId);
+        await _supabase
+            .from('likes')
+            .delete()
+            .eq('user_id', userId)
+            .eq('post_id', postId);
       }
     } catch (e) {
       // ถ้า Error ให้ Revert state กลับ
@@ -103,7 +109,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
       });
       // ไม่ต้อง setState เพราะเราใช้ StreamBuilder ดึงข้อมูล Realtime ด้านล่าง
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Error: $e')));
     }
   }
 
@@ -126,7 +133,8 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(AppLocalizations.of(context)!.parentprofile_postBtn, style: GoogleFonts.luckiestGuy(color: Colors.black)),
+        title: Text(AppLocalizations.of(context)!.parentprofile_postBtn,
+            style: GoogleFonts.luckiestGuy(color: Colors.black)),
       ),
       body: Column(
         children: [
@@ -156,14 +164,19 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                             IconButton(
                               onPressed: _toggleLike,
                               icon: Icon(
-                                _isLiked ? Icons.favorite : Icons.favorite_border,
-                                color: _isLiked ? const Color(0xFFEA5B6F) : Colors.grey,
+                                _isLiked
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color: _isLiked
+                                    ? const Color(0xFFEA5B6F)
+                                    : Colors.grey,
                                 size: 30,
                               ),
                             ),
                             Text(
                               '$_likeCount Likes',
-                              style: GoogleFonts.itim(fontSize: 16, fontWeight: FontWeight.bold),
+                              style: GoogleFonts.itim(
+                                  fontSize: 16, fontWeight: FontWeight.bold),
                             ),
                             const Spacer(),
                             Text(
@@ -181,7 +194,10 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                           ),
                         const SizedBox(height: 20),
                         const Divider(),
-                        Text(AppLocalizations.of(context)!.notificationsetting_commentBtn, style: GoogleFonts.luckiestGuy(fontSize: 18)),
+                        Text(
+                            AppLocalizations.of(context)!
+                                .notificationsetting_commentBtn,
+                            style: GoogleFonts.luckiestGuy(fontSize: 18)),
                       ],
                     ),
                   ),
@@ -201,11 +217,14 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                       if (comments.isEmpty) {
                         return Padding(
                           padding: const EdgeInsets.all(16.0),
-                          child: Text(AppLocalizations.of(context)!.post_noComments, style: GoogleFonts.itim(color: Colors.grey)),
+                          child: Text(
+                              AppLocalizations.of(context)!.post_noComments,
+                              style: GoogleFonts.itim(color: Colors.grey)),
                         );
                       }
                       return ListView.builder(
-                        shrinkWrap: true, // สำคัญเมื่ออยู่ใน SingleChildScrollView
+                        shrinkWrap:
+                            true, // สำคัญเมื่ออยู่ใน SingleChildScrollView
                         physics: const NeverScrollableScrollPhysics(),
                         itemCount: comments.length,
                         itemBuilder: (context, index) {
@@ -215,25 +234,32 @@ class _PostDetailScreenState extends State<PostDetailScreen> {
                               backgroundColor: Color(0xFF0D92F4), // Sky color
                               child: Icon(Icons.person, color: Colors.white),
                             ),
-                            title: Text(comment['content'], style: GoogleFonts.itim()),
+                            title: Text(comment['content'],
+                                style: GoogleFonts.itim()),
                             // ถ้าอยากโชว์ชื่อคนคอมเมนต์ ต้องทำ Join Table หรือเก็บชื่อใน comment (แบบง่าย)
                           );
                         },
                       );
                     },
                   ),
-                  const SizedBox(height: 80), // เผื่อพื้นที่ให้ช่องพิมพ์ด้านล่าง
+                  const SizedBox(
+                      height: 80), // เผื่อพื้นที่ให้ช่องพิมพ์ด้านล่าง
                 ],
               ),
             ),
           ),
-          
+
           // --- ช่องพิมพ์คอมเมนต์ (ติดด้านล่าง) ---
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               color: Colors.white,
-              boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4, offset: const Offset(0, -2))],
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 4,
+                    offset: const Offset(0, -2))
+              ],
             ),
             child: SafeArea(
               child: Row(

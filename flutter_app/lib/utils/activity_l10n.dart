@@ -17,7 +17,8 @@ class ActivityL10n {
     }
   }
 
-  static String localizedDifficulty(BuildContext context, String rawDifficulty) {
+  static String localizedDifficulty(
+      BuildContext context, String rawDifficulty) {
     final l10n = AppLocalizations.of(context)!;
     switch (rawDifficulty) {
       case 'ง่าย':

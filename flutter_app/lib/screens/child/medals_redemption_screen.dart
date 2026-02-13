@@ -128,7 +128,8 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
           backgroundColor: Palette.cream,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          insetPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          insetPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
             child: Column(
@@ -154,8 +155,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                     final color = AgreementHelper.colorFor(type);
                     return Expanded(
                       child: GestureDetector(
-                        onTap: () =>
-                            setDialogState(() => selectedType = type),
+                        onTap: () => setDialogState(() => selectedType = type),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
                           margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -166,8 +166,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                                 : Colors.white,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color:
-                                  isSelected ? color : Colors.grey.shade300,
+                              color: isSelected ? color : Colors.grey.shade300,
                               width: isSelected ? 2 : 1,
                             ),
                           ),
@@ -179,8 +178,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                               const SizedBox(height: 6),
                               Text(
                                 _localizedTypeLabel(type),
-                                style:
-                                    AppTextStyles.label(11, color: color),
+                                style: AppTextStyles.label(11, color: color),
                                 textAlign: TextAlign.center,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -238,8 +236,8 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                       hintStyle: AppTextStyles.body(16, color: Colors.grey),
                       filled: true,
                       fillColor: Colors.white,
-                      prefixIcon: const Icon(Icons.timer_outlined,
-                          color: Palette.sky),
+                      prefixIcon:
+                          const Icon(Icons.timer_outlined, color: Palette.sky),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15),
                         borderSide: BorderSide.none,
@@ -257,8 +255,8 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                       child: TextButton(
                         onPressed: () => Navigator.pop(dialogContext),
                         child: Text(loc.medalredemption_cancelBtn,
-                            style: AppTextStyles.heading(18,
-                                color: Colors.grey)),
+                            style:
+                                AppTextStyles.heading(18, color: Colors.grey)),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -273,10 +271,8 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                         onPressed: () async {
                           if (nameController.text.isNotEmpty &&
                               costController.text.isNotEmpty) {
-                            final userProvider =
-                                context.read<UserProvider>();
-                            final parentId =
-                                userProvider.currentParentId;
+                            final userProvider = context.read<UserProvider>();
+                            final parentId = userProvider.currentParentId;
 
                             Navigator.pop(dialogContext);
 
@@ -294,16 +290,15 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                               await _childService.addReward(
                                 parentId: parentId,
                                 name: encodedName,
-                                cost:
-                                    int.tryParse(costController.text) ?? 0,
+                                cost: int.tryParse(costController.text) ?? 0,
                               );
                               if (mounted) await _loadData();
                             }
                           }
                         },
                         child: Text(loc.medalredemption_addBtn,
-                            style: AppTextStyles.heading(18,
-                                color: Colors.white)),
+                            style:
+                                AppTextStyles.heading(18, color: Colors.white)),
                       ),
                     ),
                   ],
@@ -367,8 +362,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                     final c = AgreementHelper.colorFor(t);
                     return Expanded(
                       child: GestureDetector(
-                        onTap: () =>
-                            setDialogState(() => selectedType = t),
+                        onTap: () => setDialogState(() => selectedType = t),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
                           margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -379,8 +373,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                                 : Colors.white,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color:
-                                  isSelected ? c : Colors.grey.shade300,
+                              color: isSelected ? c : Colors.grey.shade300,
                               width: isSelected ? 2 : 1,
                             ),
                           ),
@@ -450,8 +443,8 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                       hintStyle: AppTextStyles.body(16, color: Colors.grey),
                       filled: true,
                       fillColor: Colors.white,
-                      prefixIcon: const Icon(Icons.timer_outlined,
-                          color: Palette.sky),
+                      prefixIcon:
+                          const Icon(Icons.timer_outlined, color: Palette.sky),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15),
                         borderSide: BorderSide.none,
@@ -469,8 +462,8 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                       child: TextButton(
                         onPressed: () => Navigator.pop(dialogContext),
                         child: Text(loc.medalredemption_cancelBtn,
-                            style: AppTextStyles.heading(18,
-                                color: Colors.grey)),
+                            style:
+                                AppTextStyles.heading(18, color: Colors.grey)),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -487,8 +480,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                               costController.text.isNotEmpty) {
                             Navigator.pop(dialogContext);
 
-                            final dur =
-                                int.tryParse(durationController.text);
+                            final dur = int.tryParse(durationController.text);
                             final encodedName = AgreementHelper.encode(
                               selectedType,
                               nameController.text.toUpperCase(),
@@ -507,8 +499,8 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                           }
                         },
                         child: Text(loc.namesetting_saveBtn,
-                            style: AppTextStyles.heading(18,
-                                color: Colors.white)),
+                            style:
+                                AppTextStyles.heading(18, color: Colors.white)),
                       ),
                     ),
                   ],
@@ -698,7 +690,8 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
       // For TIME type: start session timer (Flow C)
       if (type == AgreementType.time) {
         final duration = AgreementHelper.parseDuration(rawName);
-        _startSession(name: name, type: type!, cost: cost, durationMinutes: duration);
+        _startSession(
+            name: name, type: type!, cost: cost, durationMinutes: duration);
       } else {
         _showSuccessDialog(name);
       }
@@ -972,7 +965,8 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
-        title: Text(title, style: AppTextStyles.heading(26, color: Palette.sky)),
+        title:
+            Text(title, style: AppTextStyles.heading(26, color: Palette.sky)),
       ),
       body: Column(
         children: [
@@ -1024,8 +1018,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
             height: 85,
             decoration: const BoxDecoration(
               color: Color(0xFFF2C46F),
-              border:
-                  Border(top: BorderSide(color: Colors.black12, width: 1)),
+              border: Border(top: BorderSide(color: Colors.black12, width: 1)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -1098,7 +1091,9 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                   child: ElevatedButton.icon(
                     onPressed: _toggleTimer,
                     icon: Icon(
-                      _sessionPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
+                      _sessionPaused
+                          ? Icons.play_arrow_rounded
+                          : Icons.pause_rounded,
                       color: Colors.white,
                       size: 28,
                     ),
@@ -1109,7 +1104,8 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                       style: AppTextStyles.heading(20, color: Colors.white),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: _sessionPaused ? Palette.successAlt : Palette.warning,
+                      backgroundColor:
+                          _sessionPaused ? Palette.successAlt : Palette.warning,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16)),
@@ -1127,11 +1123,13 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                     icon: const Icon(Icons.stop_rounded, size: 24),
                     label: Text(
                       loc.agreement_endSession,
-                      style: AppTextStyles.heading(18, color: Palette.errorStrong),
+                      style:
+                          AppTextStyles.heading(18, color: Palette.errorStrong),
                     ),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: Palette.errorStrong,
-                      side: const BorderSide(color: Palette.errorStrong, width: 2),
+                      side: const BorderSide(
+                          color: Palette.errorStrong, width: 2),
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16)),
@@ -1150,8 +1148,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
 
   Widget _buildActivitiesPage(AppLocalizations loc) {
     if (_isLoading) {
-      return const Center(
-          child: CircularProgressIndicator(color: Palette.sky));
+      return const Center(child: CircularProgressIndicator(color: Palette.sky));
     }
 
     return Column(
@@ -1172,7 +1169,9 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                       Icon(Icons.sports_esports,
                           size: 60, color: Colors.grey.shade400),
                       const SizedBox(height: 16),
-                      Text(AppLocalizations.of(context)!.medals_noActivityHistory,
+                      Text(
+                          AppLocalizations.of(context)!
+                              .medals_noActivityHistory,
                           style: AppTextStyles.heading(16, color: Colors.grey)),
                     ],
                   ),
@@ -1192,8 +1191,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                     } else if (pointValue is double) {
                       scoreEarned = pointValue.toInt();
                     } else if (pointValue != null) {
-                      scoreEarned =
-                          int.tryParse(pointValue.toString()) ?? 0;
+                      scoreEarned = int.tryParse(pointValue.toString()) ?? 0;
                     }
                     return Container(
                       margin: const EdgeInsets.only(bottom: 14),
@@ -1375,8 +1373,8 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                                 if (type != null)
                                   Text(
                                     _localizedTypeLabel(type),
-                                    style: AppTextStyles.label(11,
-                                        color: color),
+                                    style:
+                                        AppTextStyles.label(11, color: color),
                                   ),
                               ],
                             ),
@@ -1386,8 +1384,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                             IconButton(
                               icon: const Icon(Icons.edit_rounded,
                                   color: Palette.sky, size: 22),
-                              onPressed: () =>
-                                  _showEditAgreementDialog(item),
+                              onPressed: () => _showEditAgreementDialog(item),
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),
                             ),
@@ -1396,8 +1393,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                             IconButton(
                               icon: const Icon(Icons.delete_rounded,
                                   color: Palette.errorStrong, size: 22),
-                              onPressed: () =>
-                                  _showDeleteAgreementDialog(item),
+                              onPressed: () => _showDeleteAgreementDialog(item),
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),
                             ),
@@ -1406,9 +1402,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 6),
                               decoration: BoxDecoration(
-                                color: canAfford
-                                    ? color
-                                    : Colors.grey.shade300,
+                                color: canAfford ? color : Colors.grey.shade300,
                                 borderRadius: BorderRadius.circular(15),
                               ),
                               child: Text(
@@ -1569,8 +1563,8 @@ class _BehaviorButton extends StatelessWidget {
       child: ElevatedButton.icon(
         onPressed: onTap,
         icon: Icon(icon, color: Colors.white, size: 28),
-        label: Text(label,
-            style: AppTextStyles.heading(16, color: Colors.white)),
+        label:
+            Text(label, style: AppTextStyles.heading(16, color: Colors.white)),
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
           padding: const EdgeInsets.symmetric(vertical: 14),

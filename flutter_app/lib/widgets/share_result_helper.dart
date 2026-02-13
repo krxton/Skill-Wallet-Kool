@@ -103,8 +103,7 @@ class _ShareBottomSheetState extends State<_ShareBottomSheet> {
         if (boundary == null) return;
 
         final image = await boundary.toImage(pixelRatio: 3.0);
-        final byteData =
-            await image.toByteData(format: ui.ImageByteFormat.png);
+        final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
         if (byteData == null) return;
 
         final Uint8List pngBytes = byteData.buffer.asUint8List();
@@ -113,10 +112,7 @@ class _ShareBottomSheetState extends State<_ShareBottomSheet> {
         Navigator.pop(context);
 
         await Share.shareXFiles(
-          [
-            XFile.fromData(pngBytes,
-                mimeType: 'image/png', name: 'result.png')
-          ],
+          [XFile.fromData(pngBytes, mimeType: 'image/png', name: 'result.png')],
           text: _buildShareText(),
         );
       }
@@ -204,7 +200,8 @@ class _ShareBottomSheetState extends State<_ShareBottomSheet> {
                           Expanded(
                             child: Text(
                               d.activityName,
-                              style: AppTextStyles.label(13, color: Colors.white),
+                              style:
+                                  AppTextStyles.label(13, color: Colors.white),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -218,7 +215,8 @@ class _ShareBottomSheetState extends State<_ShareBottomSheet> {
                             ),
                             child: Text(
                               '${d.score}/${d.maxScore}',
-                              style: AppTextStyles.label(13, color: Colors.white),
+                              style:
+                                  AppTextStyles.label(13, color: Colors.white),
                             ),
                           ),
                         ],

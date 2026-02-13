@@ -123,13 +123,15 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.calculate_restartTitle, style: AppTextStyles.heading(18)),
+        title: Text(AppLocalizations.of(context)!.calculate_restartTitle,
+            style: AppTextStyles.heading(18)),
         content: Text(AppLocalizations.of(context)!.calculate_restartMsg,
             style: AppTextStyles.body(14)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(AppLocalizations.of(context)!.common_cancel, style: AppTextStyles.body(14)),
+            child: Text(AppLocalizations.of(context)!.common_cancel,
+                style: AppTextStyles.body(14)),
           ),
           TextButton(
             onPressed: () {
@@ -187,7 +189,9 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.calculate_failedPickFile(e.toString()))),
+          SnackBar(
+              content: Text(AppLocalizations.of(context)!
+                  .calculate_failedPickFile(e.toString()))),
         );
       }
     }
@@ -197,18 +201,21 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
     return await showDialog<ImageSource>(
           context: context,
           builder: (context) => AlertDialog(
-            title: Text(AppLocalizations.of(context)!.common_selectSource, style: AppTextStyles.heading(18)),
+            title: Text(AppLocalizations.of(context)!.common_selectSource,
+                style: AppTextStyles.heading(18)),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 ListTile(
                   leading: Icon(Icons.camera_alt, color: Palette.success),
-                  title: Text(AppLocalizations.of(context)!.common_camera, style: AppTextStyles.body(14)),
+                  title: Text(AppLocalizations.of(context)!.common_camera,
+                      style: AppTextStyles.body(14)),
                   onTap: () => Navigator.pop(context, ImageSource.camera),
                 ),
                 ListTile(
                   leading: Icon(Icons.photo_library, color: Palette.lightBlue),
-                  title: Text(AppLocalizations.of(context)!.common_gallery, style: AppTextStyles.body(14)),
+                  title: Text(AppLocalizations.of(context)!.common_gallery,
+                      style: AppTextStyles.body(14)),
                   onTap: () => Navigator.pop(context, ImageSource.gallery),
                 ),
               ],
@@ -239,7 +246,9 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
           children: [
             Icon(Icons.edit_note, color: Palette.sky, size: 28),
             const SizedBox(width: 10),
-            Text(AppLocalizations.of(context)!.calculate_solutionTitle(index + 1),
+            Text(
+                AppLocalizations.of(context)!
+                    .calculate_solutionTitle(index + 1),
                 style: AppTextStyles.heading(20, color: Palette.sky)),
           ],
         ),
@@ -304,7 +313,8 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
 
   void _showAnswerHint(int index) {
     final segment = _segments[index];
-    final answer = segment['answer']?.toString() ?? AppLocalizations.of(context)!.calculate_noAnswer;
+    final answer = segment['answer']?.toString() ??
+        AppLocalizations.of(context)!.calculate_noAnswer;
     final question = segment['question']?.toString() ??
         segment['text']?.toString() ??
         'คำถามข้อ ${index + 1}';
@@ -318,7 +328,9 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
           children: [
             const Icon(Icons.lightbulb, color: Colors.amber, size: 28),
             const SizedBox(width: 10),
-            Text(AppLocalizations.of(context)!.calculate_solutionTitle(index + 1),
+            Text(
+                AppLocalizations.of(context)!
+                    .calculate_solutionTitle(index + 1),
                 style: GoogleFonts.itim(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -334,8 +346,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                     fontSize: 14, color: Colors.grey.shade600)),
             const SizedBox(height: 4),
             Text(question,
-                style:
-                    GoogleFonts.itim(fontSize: 16, color: Colors.black87)),
+                style: GoogleFonts.itim(fontSize: 16, color: Colors.black87)),
             const SizedBox(height: 16),
             Container(
               width: double.infinity,
@@ -374,8 +385,8 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child:
-                Text(AppLocalizations.of(context)!.common_close, style: GoogleFonts.itim(fontSize: 16, color: Palette.sky)),
+            child: Text(AppLocalizations.of(context)!.common_close,
+                style: GoogleFonts.itim(fontSize: 16, color: Palette.sky)),
           ),
         ],
       ),
@@ -390,7 +401,9 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
     if (childId == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.calculate_childIdNotFound)),
+          SnackBar(
+              content: Text(
+                  AppLocalizations.of(context)!.calculate_childIdNotFound)),
         );
       }
       return;
@@ -436,7 +449,9 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.calculate_errorCompleting(e.toString()))),
+          SnackBar(
+              content: Text(AppLocalizations.of(context)!
+                  .calculate_errorCompleting(e.toString()))),
         );
       }
     } finally {
@@ -489,8 +504,8 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                         // ── Content / Instructions ──
                         if (widget.activity.content.isNotEmpty) ...[
                           Text(AppLocalizations.of(context)!.common_howToPlay,
-                              style: AppTextStyles.heading(
-                                  18, color: Palette.deepGrey)),
+                              style: AppTextStyles.heading(18,
+                                  color: Palette.deepGrey)),
                           const SizedBox(height: 8),
                           Container(
                             width: double.infinity,
@@ -516,8 +531,8 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                             ),
                             child: Text(
                               _formatTime(elapsedSeconds),
-                              style: AppTextStyles.heading(
-                                  24, color: Palette.sky),
+                              style:
+                                  AppTextStyles.heading(24, color: Palette.sky),
                             ),
                           ),
                         ),
@@ -531,8 +546,8 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                         if (_phase == _Phase.running ||
                             _phase == _Phase.answering) ...[
                           Text(AppLocalizations.of(context)!.common_questions,
-                              style: AppTextStyles.heading(
-                                  24, color: Palette.sky)),
+                              style: AppTextStyles.heading(24,
+                                  color: Palette.sky)),
                           const SizedBox(height: 10),
                           ..._buildQuestionCards(),
                           const SizedBox(height: 30),
@@ -541,16 +556,15 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                         // ── Evidence (only in answering phase) ──
                         if (_phase == _Phase.answering) ...[
                           Text(AppLocalizations.of(context)!.common_evidence,
-                              style: AppTextStyles.heading(
-                                  20, color: Palette.error)),
+                              style: AppTextStyles.heading(20,
+                                  color: Palette.error)),
                           const SizedBox(height: 15),
                           _buildEvidenceSection(),
                           const SizedBox(height: 20),
                         ],
 
                         // ── Ready phase message ──
-                        if (_phase == _Phase.ready)
-                          _buildReadyMessage(),
+                        if (_phase == _Phase.ready) _buildReadyMessage(),
                       ],
                     ),
                   ),
@@ -704,8 +718,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
                 color: Palette.sky,
                 borderRadius: const BorderRadius.only(
@@ -717,9 +730,10 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                 children: [
                   Icon(statusIcon, color: Colors.white, size: 20),
                   const SizedBox(width: 8),
-                  Text(AppLocalizations.of(context)!.calculate_solutionTitle(index + 1),
-                      style:
-                          AppTextStyles.heading(16, color: Colors.white)),
+                  Text(
+                      AppLocalizations.of(context)!
+                          .calculate_solutionTitle(index + 1),
+                      style: AppTextStyles.heading(16, color: Colors.white)),
                   const Spacer(),
                   GestureDetector(
                     onTap: () => _showAnswerHint(index),
@@ -758,7 +772,9 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                       Icon(statusIcon, color: statusIconColor, size: 18),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: Text(AppLocalizations.of(context)!.calculate_yourAnswer(userAnswer),
+                        child: Text(
+                            AppLocalizations.of(context)!
+                                .calculate_yourAnswer(userAnswer),
                             style: AppTextStyles.label(13,
                                 color: statusIconColor)),
                       ),
@@ -774,15 +790,16 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                   onPressed: _phase == _Phase.answering
                       ? () => _showAnswerDialog(index)
                       : null,
-                  icon: Icon(
-                      status == null ? Icons.edit : Icons.refresh,
+                  icon: Icon(status == null ? Icons.edit : Icons.refresh,
                       size: 18),
                   label: Text(
                       _phase == _Phase.running
-                          ? AppLocalizations.of(context)!.calculate_stopBeforeAnswer
+                          ? AppLocalizations.of(context)!
+                              .calculate_stopBeforeAnswer
                           : status == null
                               ? AppLocalizations.of(context)!.calculate_answer
-                              : AppLocalizations.of(context)!.calculate_answerAgain,
+                              : AppLocalizations.of(context)!
+                                  .calculate_answerAgain,
                       style: AppTextStyles.heading(14)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: _phase == _Phase.answering
@@ -845,7 +862,8 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(AppLocalizations.of(context)!.common_image, style: AppTextStyles.heading(18, color: Colors.black54)),
+        Text(AppLocalizations.of(context)!.common_image,
+            style: AppTextStyles.heading(18, color: Colors.black54)),
         const SizedBox(height: 5),
         GestureDetector(
           onTap: () => _handleMediaSelection(isVideo: false),
@@ -856,9 +874,8 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: _imagePath != null
-                    ? Palette.success
-                    : Colors.grey.shade300,
+                color:
+                    _imagePath != null ? Palette.success : Colors.grey.shade300,
                 width: 2,
               ),
             ),
@@ -870,8 +887,8 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                         child: SizedBox(
                           width: double.infinity,
                           height: double.infinity,
-                          child: Image.file(File(_imagePath!),
-                              fit: BoxFit.cover),
+                          child:
+                              Image.file(File(_imagePath!), fit: BoxFit.cover),
                         ),
                       ),
                       Positioned(
@@ -879,13 +896,11 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                         right: 4,
                         child: Container(
                           decoration: const BoxDecoration(
-                              color: Colors.black54,
-                              shape: BoxShape.circle),
+                              color: Colors.black54, shape: BoxShape.circle),
                           child: IconButton(
                             icon: const Icon(Icons.close,
                                 color: Colors.white, size: 16),
-                            onPressed: () =>
-                                setState(() => _imagePath = null),
+                            onPressed: () => setState(() => _imagePath = null),
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(
                                 minWidth: 28, minHeight: 28),
@@ -914,7 +929,8 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(AppLocalizations.of(context)!.common_video, style: AppTextStyles.heading(18, color: Colors.black54)),
+        Text(AppLocalizations.of(context)!.common_video,
+            style: AppTextStyles.heading(18, color: Colors.black54)),
         const SizedBox(height: 5),
         GestureDetector(
           onTap: () => _handleMediaSelection(isVideo: true),
@@ -925,9 +941,8 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: _videoPath != null
-                    ? Palette.success
-                    : Colors.grey.shade300,
+                color:
+                    _videoPath != null ? Palette.success : Colors.grey.shade300,
                 width: 2,
               ),
             ),
@@ -941,7 +956,8 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                             Icon(Icons.videocam,
                                 size: 50, color: Palette.success),
                             const SizedBox(height: 8),
-                            Text(AppLocalizations.of(context)!.common_videoAdded,
+                            Text(
+                                AppLocalizations.of(context)!.common_videoAdded,
                                 style: AppTextStyles.label(12,
                                     color: Palette.success)),
                           ],
@@ -952,13 +968,11 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                         right: 4,
                         child: Container(
                           decoration: const BoxDecoration(
-                              color: Colors.black54,
-                              shape: BoxShape.circle),
+                              color: Colors.black54, shape: BoxShape.circle),
                           child: IconButton(
                             icon: const Icon(Icons.close,
                                 color: Colors.white, size: 16),
-                            onPressed: () =>
-                                setState(() => _videoPath = null),
+                            onPressed: () => setState(() => _videoPath = null),
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(
                                 minWidth: 28, minHeight: 28),

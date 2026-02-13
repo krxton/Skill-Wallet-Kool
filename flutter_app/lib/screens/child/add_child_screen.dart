@@ -24,7 +24,8 @@ class _AddChildScreenState extends State<AddChildScreen> {
   Future<void> _selectBirthday() async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: _selectedBirthday ?? DateTime.now().subtract(const Duration(days: 365 * 5)),
+      initialDate: _selectedBirthday ??
+          DateTime.now().subtract(const Duration(days: 365 * 5)),
       firstDate: DateTime(2000),
       lastDate: DateTime.now(),
       builder: (context, child) {
@@ -44,7 +45,8 @@ class _AddChildScreenState extends State<AddChildScreen> {
     if (picked != null) {
       setState(() {
         _selectedBirthday = picked;
-        _birthDayController.text = '${picked.day}/${picked.month}/${picked.year}';
+        _birthDayController.text =
+            '${picked.day}/${picked.month}/${picked.year}';
       });
     }
   }
@@ -142,13 +144,15 @@ class _AddChildScreenState extends State<AddChildScreen> {
                     controller: _birthDayController,
                     decoration: InputDecoration(
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 20),
                       hintText: 'เลือกวันเกิด',
                       hintStyle: TextStyle(
                         fontFamily: GoogleFonts.itim().fontFamily,
                         color: Colors.grey,
                       ),
-                      suffixIcon: const Icon(Icons.calendar_today, color: Colors.grey),
+                      suffixIcon:
+                          const Icon(Icons.calendar_today, color: Colors.grey),
                     ),
                   ),
                 ),

@@ -128,8 +128,9 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.calculate_failedPickFile(e.toString()))));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(AppLocalizations.of(context)!
+                .calculate_failedPickFile(e.toString()))));
       }
     }
   }
@@ -139,18 +140,21 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
     return await showDialog<ImageSource>(
           context: context,
           builder: (context) => AlertDialog(
-            title: Text(AppLocalizations.of(context)!.common_selectSource, style: AppTextStyles.heading(18)),
+            title: Text(AppLocalizations.of(context)!.common_selectSource,
+                style: AppTextStyles.heading(18)),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 ListTile(
                   leading: Icon(Icons.camera_alt, color: Palette.success),
-                  title: Text(AppLocalizations.of(context)!.common_camera, style: AppTextStyles.body(14)),
+                  title: Text(AppLocalizations.of(context)!.common_camera,
+                      style: AppTextStyles.body(14)),
                   onTap: () => Navigator.pop(context, ImageSource.camera),
                 ),
                 ListTile(
                   leading: const Icon(Icons.photo_library, color: Colors.blue),
-                  title: Text(AppLocalizations.of(context)!.common_gallery, style: AppTextStyles.body(14)),
+                  title: Text(AppLocalizations.of(context)!.common_gallery,
+                      style: AppTextStyles.body(14)),
                   onTap: () => Navigator.pop(context, ImageSource.gallery),
                 ),
               ],
@@ -169,15 +173,16 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
     if (!isEvidenceAttached) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(AppLocalizations.of(context)!.physical_snackNoEvidence)));
+            content:
+                Text(AppLocalizations.of(context)!.physical_snackNoEvidence)));
       }
       return;
     }
     if (_parentScore <= 0 || _parentScore > widget.activity.maxScore) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(
-                AppLocalizations.of(context)!.physical_snackInvalidScore(widget.activity.maxScore))));
+            content: Text(AppLocalizations.of(context)!
+                .physical_snackInvalidScore(widget.activity.maxScore))));
       }
       return;
     }
@@ -224,10 +229,12 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
         showDialog(
             context: context,
             builder: (context) => AlertDialog(
-                  title: Text(AppLocalizations.of(context)!.physical_dialogSubmitTitle,
+                  title: Text(
+                      AppLocalizations.of(context)!.physical_dialogSubmitTitle,
                       style: AppTextStyles.heading(18)),
                   content: Text(
-                      AppLocalizations.of(context)!.physical_dialogSubmitContent,
+                      AppLocalizations.of(context)!
+                          .physical_dialogSubmitContent,
                       style: AppTextStyles.body(14)),
                   actions: [
                     TextButton(
@@ -243,8 +250,9 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(AppLocalizations.of(context)!.physical_snackSubmitError(e.toString()))));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(AppLocalizations.of(context)!
+                .physical_snackSubmitError(e.toString()))));
       }
     } finally {
       setState(() => _isSubmitting = false);
@@ -268,8 +276,7 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
         return Image.file(File(path), fit: BoxFit.cover);
       }
       // สำหรับวิดีโอ (แสดงไอคอน)
-      return Center(
-          child: Icon(icon, size: 50, color: Palette.sky));
+      return Center(child: Icon(icon, size: 50, color: Palette.sky));
     }
     // ignore: deprecated_member_use
     return Icon(Icons.add, size: 50, color: Palette.deepGrey.withOpacity(0.5));
@@ -340,13 +347,16 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.physical_dialogEnterScoreTitle, style: AppTextStyles.heading(18)),
+        title: Text(
+            AppLocalizations.of(context)!.physical_dialogEnterScoreTitle,
+            style: AppTextStyles.heading(18)),
         content: TextField(
           controller: _scoreController,
           keyboardType: TextInputType.number,
           autofocus: true,
           decoration: InputDecoration(
-            hintText: AppLocalizations.of(context)!.physical_dialogEnterScoreHint(widget.activity.maxScore),
+            hintText: AppLocalizations.of(context)!
+                .physical_dialogEnterScoreHint(widget.activity.maxScore),
             border: const OutlineInputBorder(),
           ),
           onSubmitted: (value) {
@@ -357,16 +367,16 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child:
-                Text(AppLocalizations.of(context)!.common_cancel, style: AppTextStyles.body(14, color: Colors.grey)),
+            child: Text(AppLocalizations.of(context)!.common_cancel,
+                style: AppTextStyles.body(14, color: Colors.grey)),
           ),
           TextButton(
             onPressed: () {
               _updateScoreFromInput(_scoreController.text);
               Navigator.pop(context);
             },
-            child:
-                Text(AppLocalizations.of(context)!.common_ok, style: AppTextStyles.heading(16, color: Palette.success)),
+            child: Text(AppLocalizations.of(context)!.common_ok,
+                style: AppTextStyles.heading(16, color: Palette.success)),
           ),
         ],
       ),
@@ -385,8 +395,8 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(
-                AppLocalizations.of(context)!.physical_snackInvalidInput(widget.activity.maxScore))),
+            content: Text(AppLocalizations.of(context)!
+                .physical_snackInvalidInput(widget.activity.maxScore))),
       );
     }
   }
@@ -450,7 +460,9 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
                   color: Colors.white,
                 ),
                 label: Text(
-                  _isPlaying ? AppLocalizations.of(context)!.physical_stopBtn : AppLocalizations.of(context)!.physical_startBtn,
+                  _isPlaying
+                      ? AppLocalizations.of(context)!.physical_stopBtn
+                      : AppLocalizations.of(context)!.physical_startBtn,
                   style: AppTextStyles.heading(20, color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
@@ -468,16 +480,14 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
 
             // 3. SCORE CONTROL
             Text(AppLocalizations.of(context)!.physical_medalsScoreLabel,
-                style:
-                    AppTextStyles.heading(18, color: Palette.pink)),
+                style: AppTextStyles.heading(18, color: Palette.pink)),
             _buildScoreControl(),
 
             const SizedBox(height: 20),
 
             // 4. DIARY (Notes)
             Text(AppLocalizations.of(context)!.physical_diaryLabel,
-                style:
-                    AppTextStyles.heading(18, color: Palette.pink)),
+                style: AppTextStyles.heading(18, color: Palette.pink)),
             Container(
               height: 100,
               decoration: BoxDecoration(
@@ -565,8 +575,10 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
                                         size: 40, color: Colors.grey),
                                     const SizedBox(height: 8),
                                     Text(
-                                      AppLocalizations.of(context)!.common_addImage,
-                                      style: AppTextStyles.body(12, color: Colors.grey),
+                                      AppLocalizations.of(context)!
+                                          .common_addImage,
+                                      style: AppTextStyles.body(12,
+                                          color: Colors.grey),
                                     ),
                                   ],
                                 ),
@@ -614,8 +626,10 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
                                               size: 50, color: Palette.success),
                                           const SizedBox(height: 8),
                                           Text(
-                                            AppLocalizations.of(context)!.common_videoAdded,
-                                            style: AppTextStyles.label(12, color: Palette.success),
+                                            AppLocalizations.of(context)!
+                                                .common_videoAdded,
+                                            style: AppTextStyles.label(12,
+                                                color: Palette.success),
                                           ),
                                         ],
                                       ),
@@ -650,8 +664,10 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
                                         size: 40, color: Colors.grey),
                                     const SizedBox(height: 8),
                                     Text(
-                                      AppLocalizations.of(context)!.common_addVideo,
-                                      style: AppTextStyles.body(12, color: Colors.grey),
+                                      AppLocalizations.of(context)!
+                                          .common_addVideo,
+                                      style: AppTextStyles.body(12,
+                                          color: Colors.grey),
                                     ),
                                   ],
                                 ),
@@ -671,8 +687,12 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
               child: ElevatedButton(
                 onPressed:
                     isEvidenceAttached && !_isSubmitting ? _handleSubmit : null,
-                style: ElevatedButton.styleFrom(backgroundColor: Palette.success),
-                child: Text(_isSubmitting ? AppLocalizations.of(context)!.common_submitting : AppLocalizations.of(context)!.common_finish,
+                style:
+                    ElevatedButton.styleFrom(backgroundColor: Palette.success),
+                child: Text(
+                    _isSubmitting
+                        ? AppLocalizations.of(context)!.common_submitting
+                        : AppLocalizations.of(context)!.common_finish,
                     style: AppTextStyles.heading(24, color: Colors.white)),
               ),
             ),

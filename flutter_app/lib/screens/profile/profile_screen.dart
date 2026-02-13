@@ -119,8 +119,7 @@ class ProfileScreenState extends State<ProfileScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(l.profile_deleteActivity,
-            style: AppTextStyles.heading(18)),
+        title: Text(l.profile_deleteActivity, style: AppTextStyles.heading(18)),
         content: Text(l.profile_deleteConfirm(activity.name)),
         actions: [
           TextButton(
@@ -201,8 +200,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        Text(parentName,
-                            style: AppTextStyles.heading(24)),
+                        Text(parentName, style: AppTextStyles.heading(24)),
                       ],
                     ),
                   ),
@@ -241,21 +239,17 @@ class ProfileScreenState extends State<ProfileScreen> {
                             style: AppTextStyles.heading(18)),
                       ),
                       GestureDetector(
-                        onTap: () =>
-                            setState(() => _isEditMode = !_isEditMode),
+                        onTap: () => setState(() => _isEditMode = !_isEditMode),
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: _isEditMode
-                                ? Palette.warning
-                                : Palette.sky,
+                            color: _isEditMode ? Palette.warning : Palette.sky,
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Text(
                             l.profile_manage,
-                            style: AppTextStyles.label(12,
-                                color: Colors.white),
+                            style: AppTextStyles.label(12, color: Colors.white),
                           ),
                         ),
                       ),
@@ -373,20 +367,19 @@ class ProfileScreenState extends State<ProfileScreen> {
               // Edit/delete buttons
               if (_isEditMode) ...[
                 IconButton(
-                  icon: const Icon(Icons.edit, size: 20,
-                      color: Palette.sky),
+                  icon: const Icon(Icons.edit, size: 20, color: Palette.sky),
                   onPressed: () => _openEdit(activity),
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(
-                      minWidth: 36, minHeight: 36),
+                  constraints:
+                      const BoxConstraints(minWidth: 36, minHeight: 36),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete_outline, size: 20,
-                      color: Palette.deleteRed),
+                  icon: const Icon(Icons.delete_outline,
+                      size: 20, color: Palette.deleteRed),
                   onPressed: () => _showDeleteDialog(activity),
                   padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(
-                      minWidth: 36, minHeight: 36),
+                  constraints:
+                      const BoxConstraints(minWidth: 36, minHeight: 36),
                 ),
               ],
             ],
@@ -404,8 +397,7 @@ class ProfileScreenState extends State<ProfileScreen> {
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(text,
-          style:
-              AppTextStyles.body(10, color: color, weight: FontWeight.w600)),
+          style: AppTextStyles.body(10, color: color, weight: FontWeight.w600)),
     );
   }
 }

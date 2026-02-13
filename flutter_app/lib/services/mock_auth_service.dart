@@ -46,7 +46,8 @@ class MockAuthService {
         print('✅ Mock user data created in database');
       } catch (e) {
         print('⚠️ Could not create mock user in database: $e');
-        print('ℹ️ You may need to manually insert this user or skip database operations');
+        print(
+            'ℹ️ You may need to manually insert this user or skip database operations');
       }
     } catch (e) {
       print('❌ Error creating mock session: $e');

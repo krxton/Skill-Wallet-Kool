@@ -16,7 +16,6 @@ import '../../widgets/main_bottom_nav.dart';
 import '../profile/profile_screen.dart';
 import '../activities/create_activity_screen.dart';
 
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -126,8 +125,8 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<List<Activity>> _fetchRecommendedActivities(String childId) async {
     try {
       // 1. ดึงกิจกรรมทั้งหมด
-      final allActivities =
-          await _activityService.fetchPopularActivities(childId, parentId: _currentParentId);
+      final allActivities = await _activityService
+          .fetchPopularActivities(childId, parentId: _currentParentId);
 
       if (allActivities.isEmpty) return [];
 
@@ -171,7 +170,8 @@ class _HomeScreenState extends State<HomeScreen> {
       return recommended;
     } catch (e) {
       debugPrint('❌ Error fetching recommended activities: $e');
-      final all = await _activityService.fetchPopularActivities(childId, parentId: _currentParentId);
+      final all = await _activityService.fetchPopularActivities(childId,
+          parentId: _currentParentId);
       all.shuffle();
       return all.take(5).toList();
     }
@@ -323,7 +323,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: isSelected ? Palette.sky : Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: isSelected ? Palette.sky : Colors.grey.shade300,
+                          color:
+                              isSelected ? Palette.sky : Colors.grey.shade300,
                           width: 2,
                         ),
                       ),
@@ -487,125 +488,125 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       child: ClipRRect(
         borderRadius: BorderRadius.circular(21),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              if (thumbnailUrl != null && hasYouTubeVideo)
-                // YouTube thumbnail 4:3 มีแถบดำ → ขยาย 1.3x ตัดแถบดำ
-                Transform.scale(
-                  scale: 1.3,
-                  child: Image.network(
-                    thumbnailUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return _buildPlaceholder(activity.category);
-                    },
-                  ),
-                )
-              else if (thumbnailUrl != null)
-                Image.network(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (thumbnailUrl != null && hasYouTubeVideo)
+              // YouTube thumbnail 4:3 มีแถบดำ → ขยาย 1.3x ตัดแถบดำ
+              Transform.scale(
+                scale: 1.3,
+                child: Image.network(
                   thumbnailUrl,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return _buildPlaceholder(activity.category);
                   },
-                )
-              else
-                _buildPlaceholder(activity.category),
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      Colors.black.withOpacity(0.7),
-                    ],
-                  ),
+                ),
+              )
+            else if (thumbnailUrl != null)
+              Image.network(
+                thumbnailUrl,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return _buildPlaceholder(activity.category);
+                },
+              )
+            else
+              _buildPlaceholder(activity.category),
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withOpacity(0.7),
+                  ],
                 ),
               ),
-              Positioned(
-                bottom: 16,
-                left: 16,
-                right: 16,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      activity.name,
-                      style: GoogleFonts.luckiestGuy(
-                        fontSize: 20,
-                        color: Colors.white,
-                      ).copyWith(fontFamilyFallback: _thaiFallback),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Palette.sky,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            activity.category,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+            ),
+            Positioned(
+              bottom: 16,
+              left: 16,
+              right: 16,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    activity.name,
+                    style: GoogleFonts.luckiestGuy(
+                      fontSize: 20,
+                      color: Colors.white,
+                    ).copyWith(fontFamilyFallback: _thaiFallback),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Palette.sky,
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Score: ${activity.maxScore}',
+                        child: Text(
+                          activity.category,
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.white,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      ],
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Score: ${activity.maxScore}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Positioned(
+              top: 16,
+              right: 16,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 26, 170, 136),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.local_fire_department,
+                      size: 16,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'SUGGESTED',
+                      style: GoogleFonts.luckiestGuy(
+                        fontSize: 12,
+                        color: Colors.white,
+                      ).copyWith(fontFamilyFallback: _thaiFallback),
                     ),
                   ],
                 ),
               ),
-              Positioned(
-                top: 16,
-                right: 16,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 26, 170, 136),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.local_fire_department,
-                        size: 16,
-                        color: Colors.white,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        'SUGGESTED',
-                        style: GoogleFonts.luckiestGuy(
-                          fontSize: 12,
-                          color: Colors.white,
-                        ).copyWith(fontFamilyFallback: _thaiFallback),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1019,7 +1020,8 @@ class _HomeScreenState extends State<HomeScreen> {
     // 0 = Home, 2 = Profile  (1 = + ใช้เปิดหน้าใหม่ด้วย Navigator)
     final pages = <Widget>[
       _buildHomeBody(context),
-      ProfileScreen(key: _profileKey, onActivityChanged: () => _homeNeedsRefresh = true),
+      ProfileScreen(
+          key: _profileKey, onActivityChanged: () => _homeNeedsRefresh = true),
     ];
 
     // ถ้าเลือก tab 2 ให้โชว์ index 1 (Profile) ไม่งั้นใช้ Home
@@ -1045,11 +1047,11 @@ class _HomeScreenState extends State<HomeScreen> {
             if (i == 1) {
               Navigator.of(context)
                   .push<bool>(
-                    MaterialPageRoute(
-                      builder: (context) => const CreateActivityScreen(),
-                      fullscreenDialog: true,
-                    ),
-                  )
+                MaterialPageRoute(
+                  builder: (context) => const CreateActivityScreen(),
+                  fullscreenDialog: true,
+                ),
+              )
                   .then((created) {
                 if (created == true) {
                   _loadData();

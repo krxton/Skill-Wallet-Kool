@@ -62,7 +62,8 @@ class _LanguageDetailScreenState extends State<LanguageDetailScreen> {
         controller: _ytController!,
         aspectRatio: 16 / 9,
         builder: (context, player) {
-          return _buildScaffold(context, name, description, videoWidget: player);
+          return _buildScaffold(context, name, description,
+              videoWidget: player);
         },
       );
     }

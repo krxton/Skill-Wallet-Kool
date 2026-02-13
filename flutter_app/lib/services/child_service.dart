@@ -13,7 +13,9 @@ class ChildService {
       List<dynamic> data;
       if (response is List) {
         data = response;
-      } else if (response is Map && response.containsKey('data') && response['data'] is List) {
+      } else if (response is Map &&
+          response.containsKey('data') &&
+          response['data'] is List) {
         data = response['data'];
       } else {
         return [];
@@ -108,7 +110,8 @@ class ChildService {
   /// ดึงประวัติกิจกรรมของเด็ก
   Future<List<Map<String, dynamic>>> getActivityHistory(String childId) async {
     try {
-      final response = await _apiService.get('/children/$childId/activity-history');
+      final response =
+          await _apiService.get('/children/$childId/activity-history');
       if (response is List) {
         return List<Map<String, dynamic>>.from(response);
       }
@@ -278,7 +281,8 @@ class ChildService {
   }
 
   /// ดึงประวัติการแลก
-  Future<List<Map<String, dynamic>>> getRedemptionHistory(String childId) async {
+  Future<List<Map<String, dynamic>>> getRedemptionHistory(
+      String childId) async {
     try {
       final response = await _apiService.get('/children/$childId/redemptions');
       if (response is List) {
@@ -364,8 +368,8 @@ class ChildService {
         });
       }
 
-      history.sort((a, b) =>
-          (b['date'] as String).compareTo(a['date'] as String));
+      history
+          .sort((a, b) => (b['date'] as String).compareTo(a['date'] as String));
 
       return history;
     } catch (e) {

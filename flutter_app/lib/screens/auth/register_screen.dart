@@ -11,8 +11,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/child_service.dart';
 import '../../routes/app_routes.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
-
+// import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key, this.initialStep = 0});
@@ -120,48 +119,47 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _handleFacebookSignIn() async {
     setState(() => _isLoading = true);
 
-     try {
-    final LoginResult result = await FacebookAuth.instance.login(
-      permissions: ['public_profile', 'email'],
-    );
+    try {
+      // final LoginResult result = await FacebookAuth.instance.login(
+      //   permissions: ['public_profile', 'email'],
+      // );
 
-    if (result.status == LoginStatus.success) {
-      final accessToken = result.accessToken!.tokenString;
+      // if (result.status == LoginStatus.success) {
+      //   final accessToken = result.accessToken!.tokenString;
 
-      final response = await Supabase.instance.client.auth.signInWithIdToken(
-        provider: OAuthProvider.facebook,
-        idToken: accessToken,
-      );
-      final user = response.user;
-            if (user != null) {
-        // บันทึกข้อมูลลง database
-        await _saveUserToDatabase(
-          userId: user.id,
-          email: user.email,
-          fullName: "parent",
-        );
+      //   final response = await Supabase.instance.client.auth.signInWithIdToken(
+      //     provider: OAuthProvider.facebook,
+      //     idToken: accessToken,
+      //   );
+      //   final user = response.user;
+      //         if (user != null) {
+      //     // บันทึกข้อมูลลง database
+      //     await _saveUserToDatabase(
+      //       userId: user.id,
+      //       email: user.email,
+      //       fullName: "parent",
+      //     );
 
-        // ไปขั้นตอนถัดไป
-        if (mounted) {
-          setState(() {
-            step = 1;
-            _isLoading = false;
-          });
-        }
-      }
+      //     // ไปขั้นตอนถัดไป
+      //     if (mounted) {
+      //       setState(() {
+      //         step = 1;
+      //         _isLoading = false;
+      //       });
+      //     }
+      //   }
 
-      // Authentication successful
-    } else {
-      // Handle login cancellation or failure
-      throw Exception('Facebook login failed: ${result.status}');
+      //   // Authentication successful
+      // } else {
+      //   // Handle login cancellation or failure
+      //   throw Exception('Facebook login failed: ${result.status}');
+      // }
+    } catch (e) {
+      // Handle errors
+      throw Exception('Facebook authentication error: ${e.toString()}');
     }
-  } catch (e) {
-    // Handle errors
-    throw Exception('Facebook authentication error: ${e.toString()}');
   }
-    
-  
-  }
+
   // ========== Google Sign-In (ปรับปรุง) ==========
   Future<void> _handleGoogleSignIn() async {
     setState(() => _isLoading = true);

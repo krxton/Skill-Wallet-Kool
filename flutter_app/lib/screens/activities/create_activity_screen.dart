@@ -126,9 +126,8 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
         difficulty: _difficulty,
         isPublic: false, // User-created = private, admin approves to public
         maxScore: maxScore,
-        description: _descCtrl.text.trim().isNotEmpty
-            ? _descCtrl.text.trim()
-            : null,
+        description:
+            _descCtrl.text.trim().isNotEmpty ? _descCtrl.text.trim() : null,
         videoUrl: _isPhysical && _videoUrlCtrl.text.trim().isNotEmpty
             ? _videoUrlCtrl.text.trim()
             : null,
@@ -147,8 +146,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
   }
 
   void _showSnack(String msg) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(msg)));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
   // ── Build ──────────────────────────────────────────────
@@ -169,9 +167,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: _selectedCategory == null
-          ? _buildCategoryPicker(l)
-          : _buildForm(l),
+      body: _selectedCategory == null ? _buildCategoryPicker(l) : _buildForm(l),
     );
   }
 
@@ -194,8 +190,8 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
                     icon: Icons.directions_run,
                     label: l.createActivity_physical,
                     color: Palette.physicalPlaceholder,
-                    onTap: () => setState(
-                        () => _selectedCategory = 'ด้านร่างกาย'),
+                    onTap: () =>
+                        setState(() => _selectedCategory = 'ด้านร่างกาย'),
                   ),
                 ),
                 const SizedBox(width: 16),
