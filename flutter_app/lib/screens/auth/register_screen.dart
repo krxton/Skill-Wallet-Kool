@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:http/http.dart';
 import 'package:provider/provider.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import 'package:skill_wallet_kool/providers/user_provider.dart';
@@ -12,6 +11,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/child_service.dart';
 import '../../routes/app_routes.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key, this.initialStep = 0});
@@ -118,20 +119,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
   // ========== Facebook Sign-In (เพิ่มใหม่) ==========
   Future<void> _handleFacebookSignIn() async {
     setState(() => _isLoading = true);
-    final supabase = Supabase.instance.client;
-    await supabase.auth.signInWithOAuth(
-    OAuthProvider.facebook,
-    redirectTo: kIsWeb ? null : 'my.scheme://my-host', // Optionally set the redirect link to bring back the user via deeplink.
-    authScreenLaunchMode:
-        kIsWeb ? LaunchMode.platformDefault : LaunchMode.externalApplication, // Launch the auth screen in a new webview on mobile.
-  );    
+
+     try {
+    final LoginResult result = await FacebookAuth.instance.login(
+      permissions: ['public_profile', 'email'],
+    );
+
+    if (result.status == LoginStatus.success) {
+      final accessToken = result.accessToken!.tokenString;
+
+      final response = await Supabase.instance.client.auth.signInWithIdToken(
+        provider: OAuthProvider.facebook,
+        idToken: accessToken,
+      );
       final user = response.user;
-        if (user != null) {
+            if (user != null) {
         // บันทึกข้อมูลลง database
         await _saveUserToDatabase(
           userId: user.id,
           email: user.email,
-          fullName: fullName,
+          fullName: "parent",
         );
 
         // ไปขั้นตอนถัดไป
@@ -142,6 +149,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
           });
         }
       }
+
+      // Authentication successful
+    } else {
+      // Handle login cancellation or failure
+      throw Exception('Facebook login failed: ${result.status}');
+    }
+  } catch (e) {
+    // Handle errors
+    throw Exception('Facebook authentication error: ${e.toString()}');
+  }
     
   
   }
