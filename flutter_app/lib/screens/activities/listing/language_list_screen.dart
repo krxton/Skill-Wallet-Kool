@@ -64,7 +64,8 @@ class _LanguageListScreenState extends State<LanguageListScreen> {
       });
 
       // Debug: แสดงข้อมูลที่ได้
-      print('📚 Loaded ${activities.length} activities for ${args.topic} ($level)');
+      print(
+          '📚 Loaded ${activities.length} activities for ${args.topic} ($level)');
       if (activities.isNotEmpty) {
         print('📋 First activity: ${activities.first.name}');
       }

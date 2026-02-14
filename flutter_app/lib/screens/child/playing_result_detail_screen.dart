@@ -70,7 +70,8 @@ class PlayingResultDetailScreen extends StatelessWidget {
     }
 
     final createdAt = record['created_at'] as String?;
-    final activityName = record['activity']?['name_activity'] as String? ?? 'กิจกรรม';
+    final activityName =
+        record['activity']?['name_activity'] as String? ?? 'กิจกรรม';
     final category = record['activity']?['category'] as String? ?? '';
     final maxScore = record['activity']?['maxscore'];
     int maxScoreInt = 0;
@@ -137,197 +138,199 @@ class PlayingResultDetailScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-              const SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
-              // ชื่อกิจกรรม
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: skyBlue.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(15),
-                  border: Border.all(color: skyBlue, width: 2),
-                ),
-                child: Text(
-                  activityName,
-                  style: GoogleFonts.itim(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: skyBlue,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              const SizedBox(height: 25),
-
-              // 1. Medals Section
-              Row(
-                children: [
-                  const Icon(Icons.emoji_events,
-                      color: Colors.orange, size: 35),
-                  const SizedBox(width: 10),
-                  Text(
-                    'คะแนนที่ได้',
-                    style: GoogleFonts.itim(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.orange,
-                    ),
-                  ),
-                  const Spacer(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.orange, width: 2),
-                    ),
-                    child: Text(
-                      maxScoreInt > 0 ? '$score/$maxScoreInt' : '$score',
-                      style: GoogleFonts.luckiestGuy(
-                          fontSize: 24, color: Colors.black87),
-                    ),
-                  )
-                ],
-              ),
-              const SizedBox(height: 25),
-
-              // ==================== Content by Category ====================
-
-              // สำหรับ Language: แสดง segments แทน diary/evidence
-              if (isLanguageCategory) ...[
-                _buildLanguageSegmentsSection(),
-                const SizedBox(height: 25),
-              ]
-              // สำหรับ Physical และอื่นๆ: แสดง diary, image, video ตามปกติ
-              else ...[
-                // 2. Diary Section
-                Text(
-                  'บันทึก',
-                  style: GoogleFonts.itim(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: redText,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    diary.isNotEmpty ? diary : 'ไม่มีบันทึก',
-                    style: GoogleFonts.itim(
-                      fontSize: 16,
-                      color: diary.isNotEmpty ? Colors.black87 : Colors.grey,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 25),
-
-                // 3. Image Section
-                Text(
-                  'รูปภาพ',
-                  style: GoogleFonts.itim(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: redText,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  width: double.infinity,
-                  height: 200,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: _buildImageWidget(imagePath),
-                ),
-                const SizedBox(height: 25),
-
-                // 4. Video Section (if exists)
-                if (videoPath != null && videoPath.isNotEmpty) ...[
-                  Text(
-                    'วิดีโอ',
-                    style: GoogleFonts.itim(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: redText,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
+                  // ชื่อกิจกรรม
                   Container(
                     width: double.infinity,
-                    height: 100,
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade200,
-                      borderRadius: BorderRadius.circular(20),
+                      color: skyBlue.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border.all(color: skyBlue, width: 2),
                     ),
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.videocam, size: 40, color: Colors.grey),
-                          const SizedBox(height: 8),
-                          Text(
-                            'มีวิดีโอแนบ',
-                            style: GoogleFonts.itim(
-                              fontSize: 14,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
+                    child: Text(
+                      activityName,
+                      style: GoogleFonts.itim(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: skyBlue,
                       ),
+                      textAlign: TextAlign.center,
                     ),
                   ),
                   const SizedBox(height: 25),
-                ],
-              ],
 
-              // สำหรับ Analysis: เพิ่มส่วนผลการตอบคำถามท้ายสุด
-              if (isAnalysisCategory) ...[
-                _buildAnalysisQuestionsSection(),
-                const SizedBox(height: 25),
-              ],
+                  // 1. Medals Section
+                  Row(
+                    children: [
+                      const Icon(Icons.emoji_events,
+                          color: Colors.orange, size: 35),
+                      const SizedBox(width: 10),
+                      Text(
+                        'คะแนนที่ได้',
+                        style: GoogleFonts.itim(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange,
+                        ),
+                      ),
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: Colors.orange, width: 2),
+                        ),
+                        child: Text(
+                          maxScoreInt > 0 ? '$score/$maxScoreInt' : '$score',
+                          style: GoogleFonts.luckiestGuy(
+                              fontSize: 24, color: Colors.black87),
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 25),
 
-              // 5. Time Section
-              Center(
-                child: Column(
-                  children: [
+                  // ==================== Content by Category ====================
+
+                  // สำหรับ Language: แสดง segments แทน diary/evidence
+                  if (isLanguageCategory) ...[
+                    _buildLanguageSegmentsSection(),
+                    const SizedBox(height: 25),
+                  ]
+                  // สำหรับ Physical และอื่นๆ: แสดง diary, image, video ตามปกติ
+                  else ...[
+                    // 2. Diary Section
                     Text(
-                      'เวลาที่ใช้',
+                      'บันทึก',
                       style: GoogleFonts.itim(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: redText,
                       ),
                     ),
-                    const SizedBox(height: 5),
+                    const SizedBox(height: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 30, vertical: 10),
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(30),
+                        borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        _formatTime(timespent),
-                        style: GoogleFonts.luckiestGuy(
-                            fontSize: 24, color: skyBlue),
+                        diary.isNotEmpty ? diary : 'ไม่มีบันทึก',
+                        style: GoogleFonts.itim(
+                          fontSize: 16,
+                          color:
+                              diary.isNotEmpty ? Colors.black87 : Colors.grey,
+                        ),
                       ),
                     ),
+                    const SizedBox(height: 25),
+
+                    // 3. Image Section
+                    Text(
+                      'รูปภาพ',
+                      style: GoogleFonts.itim(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: redText,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      width: double.infinity,
+                      height: 200,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: _buildImageWidget(imagePath),
+                    ),
+                    const SizedBox(height: 25),
+
+                    // 4. Video Section (if exists)
+                    if (videoPath != null && videoPath.isNotEmpty) ...[
+                      Text(
+                        'วิดีโอ',
+                        style: GoogleFonts.itim(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: redText,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        width: double.infinity,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade200,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.videocam,
+                                  size: 40, color: Colors.grey),
+                              const SizedBox(height: 8),
+                              Text(
+                                'มีวิดีโอแนบ',
+                                style: GoogleFonts.itim(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 25),
+                    ],
                   ],
-                ),
+
+                  // สำหรับ Analysis: เพิ่มส่วนผลการตอบคำถามท้ายสุด
+                  if (isAnalysisCategory) ...[
+                    _buildAnalysisQuestionsSection(),
+                    const SizedBox(height: 25),
+                  ],
+
+                  // 5. Time Section
+                  Center(
+                    child: Column(
+                      children: [
+                        Text(
+                          'เวลาที่ใช้',
+                          style: GoogleFonts.itim(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: redText,
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 30, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: Text(
+                            _formatTime(timespent),
+                            style: GoogleFonts.luckiestGuy(
+                                fontSize: 24, color: skyBlue),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                ],
               ),
-              const SizedBox(height: 30),
-            ],
-          ),
-        ),
+            ),
             // Floating share button (top-right, always visible)
             Positioned(
               right: 16,
@@ -392,7 +395,8 @@ class PlayingResultDetailScreen extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.image_not_supported, size: 50, color: Colors.grey.shade400),
+          Icon(Icons.image_not_supported,
+              size: 50, color: Colors.grey.shade400),
           const SizedBox(height: 8),
           Text(
             'ไม่มีรูปภาพ',
@@ -485,7 +489,8 @@ class PlayingResultDetailScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
                   color: skyBlue,
                   borderRadius: BorderRadius.circular(12),
@@ -500,7 +505,8 @@ class PlayingResultDetailScreen extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
                   color: accuracyColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
@@ -551,7 +557,8 @@ class PlayingResultDetailScreen extends StatelessWidget {
             style: GoogleFonts.itim(
               fontSize: 16,
               color: recognizedText.isNotEmpty ? Colors.black87 : Colors.grey,
-              fontStyle: recognizedText.isEmpty ? FontStyle.italic : FontStyle.normal,
+              fontStyle:
+                  recognizedText.isEmpty ? FontStyle.italic : FontStyle.normal,
             ),
           ),
         ],
@@ -633,7 +640,9 @@ class PlayingResultDetailScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: isCorrect ? greenColor.withValues(alpha: 0.1) : redText.withValues(alpha: 0.1),
+        color: isCorrect
+            ? greenColor.withValues(alpha: 0.1)
+            : redText.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: isCorrect ? greenColor : redText,

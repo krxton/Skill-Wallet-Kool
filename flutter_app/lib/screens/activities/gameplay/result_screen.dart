@@ -44,8 +44,8 @@ class _ResultScreenState extends State<ResultScreen>
             {};
 
     final int totalScore = (args['totalScore'] as int?) ?? 0;
-    final String activityName =
-        (args['activityName'] as String?) ?? AppLocalizations.of(context)!.result_activityCompletedDefault;
+    final String activityName = (args['activityName'] as String?) ??
+        AppLocalizations.of(context)!.result_activityCompletedDefault;
     final int timeSpentSeconds = (args['timeSpend'] as int?) ?? 0;
     final Duration time = Duration(seconds: timeSpentSeconds);
 
@@ -62,7 +62,8 @@ class _ResultScreenState extends State<ResultScreen>
     String two(int n) => n.toString().padLeft(2, '0');
     final mm = two(time.inMinutes % 60), ss = two(time.inSeconds % 60);
 
-    final Color scoreColor = totalScore >= 70 ? Palette.successAlt : Palette.pink;
+    final Color scoreColor =
+        totalScore >= 70 ? Palette.successAlt : Palette.pink;
 
     return Scaffold(
       backgroundColor: Palette.cream,
@@ -140,7 +141,10 @@ class _ResultScreenState extends State<ResultScreen>
                           fontSize: 72, color: scoreColor),
                     ),
                     Text(
-                      totalScore >= 70 ? AppLocalizations.of(context)!.result_greatJobTitle : AppLocalizations.of(context)!.result_keepTryingTitle,
+                      totalScore >= 70
+                          ? AppLocalizations.of(context)!.result_greatJobTitle
+                          : AppLocalizations.of(context)!
+                              .result_keepTryingTitle,
                       style: GoogleFonts.luckiestGuy(
                           fontSize: 24, color: scoreColor),
                     ),
@@ -180,15 +184,18 @@ class _ResultScreenState extends State<ResultScreen>
                     onPressed: activityToReplay != null
                         ? () {
                             // 🚀 นำทางไปหน้าที่เหมาะสมตาม category
-                            final category = activityToReplay.category.toUpperCase();
+                            final category =
+                                activityToReplay.category.toUpperCase();
 
-                            if (category == 'ด้านภาษา' || category == 'LANGUAGE') {
+                            if (category == 'ด้านภาษา' ||
+                                category == 'LANGUAGE') {
                               Navigator.pushReplacementNamed(
                                 context,
                                 AppRoutes.itemIntro,
                                 arguments: activityToReplay,
                               );
-                            } else if (category == 'ด้านร่างกาย' && activityToReplay.videoUrl != null) {
+                            } else if (category == 'ด้านร่างกาย' &&
+                                activityToReplay.videoUrl != null) {
                               Navigator.pushReplacementNamed(
                                 context,
                                 AppRoutes.videoDetail,

@@ -117,7 +117,9 @@ class UserProvider extends ChangeNotifier {
       List<Map<String, dynamic>> childrenList;
       if (response is List) {
         childrenList = List<Map<String, dynamic>>.from(response);
-      } else if (response is Map && response.containsKey('data') && response['data'] is List) {
+      } else if (response is Map &&
+          response.containsKey('data') &&
+          response['data'] is List) {
         childrenList = List<Map<String, dynamic>>.from(response['data']);
       } else {
         childrenList = [];
@@ -129,7 +131,9 @@ class UserProvider extends ChangeNotifier {
         final currentStillExists = _currentChildId != null &&
             _children.any((c) => c['child']?['child_id'] == _currentChildId);
 
-        if (!currentStillExists && _children.isNotEmpty && _children[0]['child'] != null) {
+        if (!currentStillExists &&
+            _children.isNotEmpty &&
+            _children[0]['child'] != null) {
           _currentChildId = _children[0]['child']['child_id'];
           debugPrint('Child ID set to first child: $_currentChildId');
         }

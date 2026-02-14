@@ -244,9 +244,7 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                 decoration: BoxDecoration(
                   color: isSelected ? const Color(0xFFE3F2FD) : Colors.white,
                   borderRadius: BorderRadius.circular(25),
-                  border: isSelected
-                      ? Border.all(color: sky, width: 3)
-                      : null,
+                  border: isSelected ? Border.all(color: sky, width: 3) : null,
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.05),
@@ -264,7 +262,9 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                           radius: 35,
                           backgroundColor: Colors.grey.shade200,
                           child: Text(
-                            childName.isNotEmpty ? childName[0].toUpperCase() : '?',
+                            childName.isNotEmpty
+                                ? childName[0].toUpperCase()
+                                : '?',
                             style: TextStyle(
                               fontFamily: GoogleFonts.luckiestGuy().fontFamily,
                               fontSize: 28,
@@ -283,7 +283,8 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                                     child: Text(
                                       childName,
                                       style: TextStyle(
-                                        fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                                        fontFamily: GoogleFonts.luckiestGuy()
+                                            .fontFamily,
                                         fontFamilyFallback: [
                                           GoogleFonts.itim().fontFamily!
                                         ],
@@ -295,15 +296,18 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                                   ),
                                   if (isSelected)
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 4),
                                       decoration: BoxDecoration(
                                         color: greenIcon,
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Text(
-                                        AppLocalizations.of(context)!.childsetting_active,
+                                        AppLocalizations.of(context)!
+                                            .childsetting_active,
                                         style: TextStyle(
-                                          fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                                          fontFamily: GoogleFonts.luckiestGuy()
+                                              .fontFamily,
                                           fontSize: 10,
                                           color: Colors.white,
                                         ),
@@ -315,7 +319,8 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                               Text(
                                 '${AppLocalizations.of(context)!.childsetting_scoreBtn} : $childWallet',
                                 style: TextStyle(
-                                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                                  fontFamily:
+                                      GoogleFonts.luckiestGuy().fontFamily,
                                   fontFamilyFallback: [
                                     GoogleFonts.itim().fontFamily!
                                   ],
@@ -348,9 +353,11 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                                   ),
                                 ),
                                 child: Text(
-                                  AppLocalizations.of(context)!.childsetting_select,
+                                  AppLocalizations.of(context)!
+                                      .childsetting_select,
                                   style: TextStyle(
-                                    fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                                    fontFamily:
+                                        GoogleFonts.luckiestGuy().fontFamily,
                                     fontFamilyFallback: [
                                       GoogleFonts.itim().fontFamily!
                                     ],
@@ -372,7 +379,8 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => ChildProfileScreen(
-                                      childId: childId, // ส่ง childId เพื่อให้แสดงข้อมูลเด็กคนที่ถูกต้อง
+                                      childId:
+                                          childId, // ส่ง childId เพื่อให้แสดงข้อมูลเด็กคนที่ถูกต้อง
                                       name: childName,
                                       imageUrl: '',
                                       points: childWallet,
@@ -381,8 +389,8 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                                 );
                               },
                               style: OutlinedButton.styleFrom(
-                                side:
-                                    const BorderSide(color: Colors.black, width: 2),
+                                side: const BorderSide(
+                                    color: Colors.black, width: 2),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(15),
                                 ),
@@ -391,7 +399,8 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                                 AppLocalizations.of(context)!
                                     .childsetting_viewprofileBtn,
                                 style: TextStyle(
-                                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                                  fontFamily:
+                                      GoogleFonts.luckiestGuy().fontFamily,
                                   fontFamilyFallback: [
                                     GoogleFonts.itim().fontFamily!
                                   ],
@@ -411,8 +420,8 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                             child: OutlinedButton(
                               onPressed: () => _manageChild(childData),
                               style: OutlinedButton.styleFrom(
-                                side:
-                                    const BorderSide(color: Colors.black, width: 2),
+                                side: const BorderSide(
+                                    color: Colors.black, width: 2),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(15),
                                 ),
@@ -421,7 +430,8 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                                 AppLocalizations.of(context)!
                                     .childsetting_manageBtn,
                                 style: TextStyle(
-                                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                                  fontFamily:
+                                      GoogleFonts.luckiestGuy().fontFamily,
                                   fontFamilyFallback: [
                                     GoogleFonts.itim().fontFamily!
                                   ],

@@ -89,7 +89,8 @@ class _RecordScreenState extends State<RecordScreen> {
       setState(() => _originalText = 'Microphone permission denied.');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.record_micDenied)),
+          SnackBar(
+              content: Text(AppLocalizations.of(context)!.record_micDenied)),
         );
       }
     }
@@ -173,7 +174,9 @@ class _RecordScreenState extends State<RecordScreen> {
         debugPrint('Recording Start Error: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(AppLocalizations.of(context)!.record_recordingFailed)),
+            SnackBar(
+                content:
+                    Text(AppLocalizations.of(context)!.record_recordingFailed)),
           );
         }
         setState(() => recording = false);
@@ -204,7 +207,9 @@ class _RecordScreenState extends State<RecordScreen> {
       debugPrint('Playback Error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.record_playbackFailed)),
+          SnackBar(
+              content:
+                  Text(AppLocalizations.of(context)!.record_playbackFailed)),
         );
       }
       setState(() => _isPlaying = false);
@@ -224,7 +229,9 @@ class _RecordScreenState extends State<RecordScreen> {
       if (_webAudioBytes == null || _webAudioBytes!.lengthInBytes < 1000) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(AppLocalizations.of(context)!.record_noValidAudio)),
+            SnackBar(
+                content:
+                    Text(AppLocalizations.of(context)!.record_noValidAudio)),
           );
         }
         return;
@@ -234,7 +241,9 @@ class _RecordScreenState extends State<RecordScreen> {
       if (!await audioFile.exists() || await audioFile.length() < 1000) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(AppLocalizations.of(context)!.record_noValidAudio)),
+            SnackBar(
+                content:
+                    Text(AppLocalizations.of(context)!.record_noValidAudio)),
           );
         }
         return;
@@ -296,7 +305,9 @@ class _RecordScreenState extends State<RecordScreen> {
       if (mounted) {
         Navigator.pop(context); // ปิด dialog
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.record_aiError(e.toString()))),
+          SnackBar(
+              content: Text(
+                  AppLocalizations.of(context)!.record_aiError(e.toString()))),
         );
         Navigator.pop(context, {
           'score': 0,
@@ -490,7 +501,8 @@ class _RecordScreenState extends State<RecordScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Palette.success),
+                style:
+                    ElevatedButton.styleFrom(backgroundColor: Palette.success),
                 onPressed: (recording || !_hasRecorded) ? null : _finish,
                 child: Text(
                   AppLocalizations.of(context)!.common_finish,

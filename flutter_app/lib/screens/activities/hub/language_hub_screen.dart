@@ -20,7 +20,8 @@ class LanguageHubScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(AppLocalizations.of(context)!.languagehub_appTitle, style: luckiestH(20)),
+        title: Text(AppLocalizations.of(context)!.languagehub_appTitle,
+            style: luckiestH(20)),
         centerTitle: true,
       ),
       body: ListView(
@@ -68,7 +69,8 @@ class LanguageHubScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 24),
-          Text(AppLocalizations.of(context)!.languagehub_fillInBlanksTitle, style: luckiestH(18, color: Palette.sky)),
+          Text(AppLocalizations.of(context)!.languagehub_fillInBlanksTitle,
+              style: luckiestH(18, color: Palette.sky)),
           const SizedBox(height: 12),
           Wrap(
             spacing: 12,
@@ -90,7 +92,8 @@ class LanguageHubScreen extends StatelessWidget {
                 label: AppLocalizations.of(context)!.languagehub_difficultBtn,
                 bg: Palette.pink,
                 fg: Colors.white,
-                onTap: () => _openList(context, 'FILL IN THE BLANKS', 'DIFFICULT'),
+                onTap: () =>
+                    _openList(context, 'FILL IN THE BLANKS', 'DIFFICULT'),
               ),
             ],
           ),
@@ -123,8 +126,8 @@ class _SearchBar extends StatelessWidget {
           const Icon(Icons.menu_rounded, size: 18),
           const SizedBox(width: 10),
           Expanded(
-              child:
-                  Text(AppLocalizations.of(context)!.languagehub_searchHint, style: const TextStyle(color: Colors.black54))),
+              child: Text(AppLocalizations.of(context)!.languagehub_searchHint,
+                  style: const TextStyle(color: Colors.black54))),
           const Icon(Icons.search, size: 20),
         ],
       ),

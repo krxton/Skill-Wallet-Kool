@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -10,6 +11,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import '../../providers/auth_provider.dart';
 import '../../services/child_service.dart';
 import '../../routes/app_routes.dart';
+// import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key, this.initialStep = 0});
@@ -118,55 +120,43 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final authProvider = context.read<AuthProvider>();
+      // final LoginResult result = await FacebookAuth.instance.login(
+      //   permissions: ['public_profile', 'email'],
+      // );
 
-      // เรียกใช้ Facebook Sign-In จาก AuthProvider
-      final success = await authProvider.signInWithFacebook();
+      // if (result.status == LoginStatus.success) {
+      //   final accessToken = result.accessToken!.tokenString;
 
-      if (!success) {
-        setState(() => _isLoading = false);
-        if (mounted) {
-          _toast('การเข้าสู่ระบบด้วย Facebook ล้มเหลว');
-        }
-        return;
-      }
+      //   final response = await Supabase.instance.client.auth.signInWithIdToken(
+      //     provider: OAuthProvider.facebook,
+      //     idToken: accessToken,
+      //   );
+      //   final user = response.user;
+      //         if (user != null) {
+      //     // บันทึกข้อมูลลง database
+      //     await _saveUserToDatabase(
+      //       userId: user.id,
+      //       email: user.email,
+      //       fullName: "parent",
+      //     );
 
-      // รอ callback จาก deep link (ถ้ามี)
-      await Future.delayed(const Duration(seconds: 1));
+      //     // ไปขั้นตอนถัดไป
+      //     if (mounted) {
+      //       setState(() {
+      //         step = 1;
+      //         _isLoading = false;
+      //       });
+      //     }
+      //   }
 
-      // ดึงข้อมูล user จาก Supabase
-      final supabase = Supabase.instance.client;
-      final user = supabase.auth.currentUser;
-
-      if (user != null) {
-        // บันทึกข้อมูลลง parent table
-        await _saveUserToDatabase(
-          userId: user.id,
-          email: user.email,
-          fullName: user.userMetadata?['full_name'] ??
-              user.userMetadata?['name'] ??
-              user.email?.split('@')[0],
-        );
-
-        // ไปขั้นตอนถัดไป
-        if (mounted) {
-          setState(() {
-            step = 1;
-            _isLoading = false;
-          });
-        }
-      } else {
-        setState(() => _isLoading = false);
-        if (mounted) {
-          _toast('ไม่พบข้อมูลผู้ใช้');
-        }
-      }
+      //   // Authentication successful
+      // } else {
+      //   // Handle login cancellation or failure
+      //   throw Exception('Facebook login failed: ${result.status}');
+      // }
     } catch (e) {
-      setState(() => _isLoading = false);
-      debugPrint('Facebook Sign-In error: $e');
-      if (mounted) {
-        _toast(AppLocalizations.of(context)!.common_errorGeneric(e.toString()));
-      }
+      // Handle errors
+      throw Exception('Facebook authentication error: ${e.toString()}');
     }
   }
 

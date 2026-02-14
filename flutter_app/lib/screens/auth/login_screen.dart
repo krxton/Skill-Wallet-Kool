@@ -165,7 +165,8 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() => _isLoading = false);
       debugPrint('❌ Facebook Sign-In error: $e');
       if (mounted) {
-        _showMessage(AppLocalizations.of(context)!.common_errorGeneric(e.toString()));
+        _showMessage(
+            AppLocalizations.of(context)!.common_errorGeneric(e.toString()));
       }
     }
   }
@@ -180,7 +181,8 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() => _isLoading = false);
       debugPrint('❌ Google Sign-In error: $e');
       if (mounted) {
-        _showMessage(AppLocalizations.of(context)!.common_errorGeneric(e.toString()));
+        _showMessage(
+            AppLocalizations.of(context)!.common_errorGeneric(e.toString()));
       }
     }
   }

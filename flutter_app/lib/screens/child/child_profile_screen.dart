@@ -108,7 +108,9 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
       debugPrint("Error picking image: $e");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.common_errorGeneric(e.toString()))),
+          SnackBar(
+              content: Text(AppLocalizations.of(context)!
+                  .common_errorGeneric(e.toString()))),
         );
       }
     }
@@ -118,7 +120,8 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
   Widget build(BuildContext context) {
     // Get real data from Provider
     final userProvider = context.watch<UserProvider>();
-    final childName = widget.name ?? userProvider.currentChildName ?? 'ไม่ระบุชื่อ';
+    final childName =
+        widget.name ?? userProvider.currentChildName ?? 'ไม่ระบุชื่อ';
     final childWallet = widget.points ?? userProvider.currentChildWallet;
     final imageUrl = widget.imageUrl ?? '';
 
@@ -132,12 +135,14 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Center(
               child: GestureDetector(
-                onTap: () => Navigator.popUntil(context, (route) => route.isFirst),
+                onTap: () =>
+                    Navigator.popUntil(context, (route) => route.isFirst),
                 child: Container(
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
-                    color: const Color.fromARGB(255, 249, 216, 98), // yolk color - selected
+                    color: const Color.fromARGB(
+                        255, 249, 216, 98), // yolk color - selected
                     borderRadius: BorderRadius.circular(18),
                   ),
                   child: const Icon(
@@ -175,7 +180,8 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: Colors.grey.shade300,
-                                  border: Border.all(color: Colors.white, width: 6),
+                                  border:
+                                      Border.all(color: Colors.white, width: 6),
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black.withOpacity(0.15),
@@ -197,7 +203,8 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
                                     color: Colors.white,
                                     shape: BoxShape.circle,
                                     boxShadow: [
-                                      BoxShadow(color: Colors.black12, blurRadius: 4)
+                                      BoxShadow(
+                                          color: Colors.black12, blurRadius: 4)
                                     ],
                                   ),
                                   child: const Icon(Icons.camera_alt,
@@ -230,8 +237,8 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
                             'assets/icons/medal.png',
                             width: 50,
                             height: 50,
-                            errorBuilder: (_, __, ___) =>
-                                const Icon(Icons.star, color: Colors.amber, size: 40),
+                            errorBuilder: (_, __, ___) => const Icon(Icons.star,
+                                color: Colors.amber, size: 40),
                           ),
                           const SizedBox(width: 10),
                           Text(
@@ -254,7 +261,8 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
                               index: 0, assetPath: 'assets/icons/gallery.png'),
                           const SizedBox(width: 60),
                           _buildTabIcon(
-                              index: 1, assetPath: 'assets/icons/finish-line.png'),
+                              index: 1,
+                              assetPath: 'assets/icons/finish-line.png'),
                         ],
                       ),
 
@@ -270,7 +278,9 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
                       const SizedBox(height: 20),
 
                       // --- 5. Content Area ---
-                      _selectedTab == 0 ? _buildStatsView() : _buildCategoryListView(),
+                      _selectedTab == 0
+                          ? _buildStatsView()
+                          : _buildCategoryListView(),
 
                       const SizedBox(height: 40),
                     ],
@@ -329,7 +339,8 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
         height: 70,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
-          color: isSelected ? Colors.white.withOpacity(0.5) : Colors.transparent,
+          color:
+              isSelected ? Colors.white.withOpacity(0.5) : Colors.transparent,
           border: isSelected ? Border.all(color: Colors.white, width: 2) : null,
         ),
         padding: const EdgeInsets.all(10),
@@ -430,11 +441,17 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
           // Category breakdown
           Row(
             children: [
-              _buildStatCard('ด้านภาษา', _categoryStats['ด้านภาษา'] ?? 0, yellowBtn, icon: Icons.abc),
+              _buildStatCard(
+                  'ด้านภาษา', _categoryStats['ด้านภาษา'] ?? 0, yellowBtn,
+                  icon: Icons.abc),
               const SizedBox(width: 12),
-              _buildStatCard('ด้านร่างกาย', _categoryStats['ด้านร่างกาย'] ?? 0, pinkBtn, icon: Icons.directions_run),
+              _buildStatCard(
+                  'ด้านร่างกาย', _categoryStats['ด้านร่างกาย'] ?? 0, pinkBtn,
+                  icon: Icons.directions_run),
               const SizedBox(width: 12),
-              _buildStatCard('ด้านคำนวณ', _categoryStats['ด้านคำนวณ'] ?? 0, orangeBtn, imagePath: 'assets/images/Analysis_img.jpg'),
+              _buildStatCard(
+                  'ด้านคำนวณ', _categoryStats['ด้านคำนวณ'] ?? 0, orangeBtn,
+                  imagePath: 'assets/images/Analysis_img.jpg'),
             ],
           ),
         ],
@@ -442,7 +459,8 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
     );
   }
 
-  Widget _buildStatCard(String title, int count, Color color, {IconData? icon, String? imagePath}) {
+  Widget _buildStatCard(String title, int count, Color color,
+      {IconData? icon, String? imagePath}) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -462,7 +480,8 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
             if (imagePath != null)
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.asset(imagePath, width: 32, height: 32, fit: BoxFit.cover),
+                child: Image.asset(imagePath,
+                    width: 32, height: 32, fit: BoxFit.cover),
               )
             else
               Icon(icon, size: 28, color: Colors.black87),
@@ -575,7 +594,8 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
               ),
               child: imagePath != null
                   ? ClipOval(
-                      child: Image.asset(imagePath, width: 50, height: 50, fit: BoxFit.cover),
+                      child: Image.asset(imagePath,
+                          width: 50, height: 50, fit: BoxFit.cover),
                     )
                   : Icon(icon, color: Colors.black87, size: 30),
             ),

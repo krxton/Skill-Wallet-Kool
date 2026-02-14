@@ -5,7 +5,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-
 class CreatePostScreen extends StatefulWidget {
   const CreatePostScreen({super.key});
 
@@ -63,11 +62,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
     try {
       // 1. Upload รูป
-      final String fileName = '${user.id}/${DateTime.now().millisecondsSinceEpoch}.jpg';
+      final String fileName =
+          '${user.id}/${DateTime.now().millisecondsSinceEpoch}.jpg';
       await supabase.storage.from('posts').upload(fileName, _imageFile!);
 
       // 2. ขอ Public URL
-      final String imageUrl = supabase.storage.from('posts').getPublicUrl(fileName);
+      final String imageUrl =
+          supabase.storage.from('posts').getPublicUrl(fileName);
 
       // 3. บันทึกข้อมูล
       await supabase.from('posts').insert({
@@ -172,10 +173,14 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                                 const SizedBox(height: 10),
                                 Text(
                                   // "Tap to select a picture"
-                                  AppLocalizations.of(context)!.createpost_picksomepicture,
+                                  AppLocalizations.of(context)!
+                                      .createpost_picksomepicture,
                                   style: TextStyle(
-                                    fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                                    fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                                    fontFamily:
+                                        GoogleFonts.luckiestGuy().fontFamily,
+                                    fontFamilyFallback: [
+                                      GoogleFonts.itim().fontFamily!
+                                    ],
                                     fontSize: 16, // คงค่าเดิม
                                     color: Colors.grey[600], // คงค่าเดิม
                                   ),
@@ -197,7 +202,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                           AppLocalizations.of(context)!.createpost_changepic,
                           style: TextStyle(
                             fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                            fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                            fontFamilyFallback: [
+                              GoogleFonts.itim().fontFamily!
+                            ],
                             color: sky, // คงค่าเดิม
                           ),
                         ),
@@ -223,17 +230,23 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                             maxLines: 5,
                             decoration: InputDecoration(
                               // "Write a caption..."
-                              hintText: AppLocalizations.of(context)!.createpost_writecaption,
+                              hintText: AppLocalizations.of(context)!
+                                  .createpost_writecaption,
                               hintStyle: TextStyle(
-                                fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                                fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                                fontFamily:
+                                    GoogleFonts.luckiestGuy().fontFamily,
+                                fontFamilyFallback: [
+                                  GoogleFonts.itim().fontFamily!
+                                ],
                                 color: Colors.black38, // คงค่าเดิม
                               ),
                               border: InputBorder.none,
                             ),
                             style: TextStyle(
                               fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                              fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                              fontFamilyFallback: [
+                                GoogleFonts.itim().fontFamily!
+                              ],
                               fontSize: 16, // คงค่าเดิม
                             ),
                           ),

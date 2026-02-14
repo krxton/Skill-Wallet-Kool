@@ -65,7 +65,8 @@ class _ActivityHistoryScreenState extends State<ActivityHistoryScreen> {
             // ใช้ yyyy-MM-dd เป็น key (sort ง่าย)
             final sortKey = DateFormat('yyyy-MM-dd').format(date);
             // เก็บ display format แยก
-            final displayDate = DateFormat('dd MMM yyyy').format(date).toUpperCase();
+            final displayDate =
+                DateFormat('dd MMM yyyy').format(date).toUpperCase();
 
             dateKeyToDisplay[sortKey] = displayDate;
             grouped.putIfAbsent(sortKey, () => []);
@@ -89,7 +90,8 @@ class _ActivityHistoryScreenState extends State<ActivityHistoryScreen> {
         _isLoading = false;
       });
 
-      debugPrint('📊 Loaded ${filteredHistory.length} records for ${widget.gameName}');
+      debugPrint(
+          '📊 Loaded ${filteredHistory.length} records for ${widget.gameName}');
       debugPrint('📊 Grouped into ${_groupedByDate.length} dates');
     } catch (e) {
       debugPrint('❌ Error loading activity history: $e');
@@ -139,7 +141,8 @@ class _ActivityHistoryScreenState extends State<ActivityHistoryScreen> {
             // Date List
             Expanded(
               child: _isLoading
-                  ? const Center(child: CircularProgressIndicator(color: skyBlue))
+                  ? const Center(
+                      child: CircularProgressIndicator(color: skyBlue))
                   : _groupedByDate.isEmpty
                       ? _buildEmptyState()
                       : RefreshIndicator(
@@ -148,7 +151,8 @@ class _ActivityHistoryScreenState extends State<ActivityHistoryScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 24),
                             itemCount: _groupedByDate.length,
                             itemBuilder: (context, index) {
-                              final dateKey = _groupedByDate.keys.elementAt(index);
+                              final dateKey =
+                                  _groupedByDate.keys.elementAt(index);
                               final records = _groupedByDate[dateKey]!;
 
                               return GestureDetector(
@@ -166,7 +170,8 @@ class _ActivityHistoryScreenState extends State<ActivityHistoryScreen> {
                                 child: Container(
                                   margin: const EdgeInsets.only(bottom: 15),
                                   height: 70,
-                                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(20),
@@ -179,11 +184,13 @@ class _ActivityHistoryScreenState extends State<ActivityHistoryScreen> {
                                     ],
                                   ),
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Row(
                                         children: [
-                                          const Icon(Icons.calendar_today, color: pinkNum),
+                                          const Icon(Icons.calendar_today,
+                                              color: pinkNum),
                                           const SizedBox(width: 15),
                                           Text(
                                             dateKey,
@@ -201,7 +208,8 @@ class _ActivityHistoryScreenState extends State<ActivityHistoryScreen> {
                                             horizontal: 12, vertical: 6),
                                         decoration: BoxDecoration(
                                           color: cardBlue,
-                                          borderRadius: BorderRadius.circular(15),
+                                          borderRadius:
+                                              BorderRadius.circular(15),
                                         ),
                                         child: Text(
                                           '${records.length} ครั้ง',

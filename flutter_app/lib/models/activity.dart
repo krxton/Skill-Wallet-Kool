@@ -69,17 +69,19 @@ class Activity {
 
     return Activity(
       id: (json['activity_id'] ?? json['activityId'] ?? json['id']) as String,
-      name: (json['name_activity'] ?? json['nameActivity'] ?? json['name']) as String,
+      name: (json['name_activity'] ?? json['nameActivity'] ?? json['name'])
+          as String,
       category: json['category'] as String,
       content: json['content'] as String,
       difficulty: (json['level_activity'] ?? json['difficulty']) as String,
-      maxScore: rawMaxScore is int ? rawMaxScore : int.tryParse(rawMaxScore.toString()) ?? 0,
+      maxScore: rawMaxScore is int
+          ? rawMaxScore
+          : int.tryParse(rawMaxScore.toString()) ?? 0,
       description: pick<String>('description_activity', 'description'),
       videoUrl: pick<String>('videourl', 'videoUrl'),
       segments: segmentsData,
       thumbnailUrl: pick<String>('thumbnailurl', 'thumbnailUrl'),
       tiktokHtmlContent: pick<String>('tiktokhtmlcontent', 'tiktokHtmlContent'),
-
       createdAt: _tryParseDate(json['created_at'] ?? json['createdAt']),
       updatedAt: _tryParseDate(json['update_at'] ?? json['updatedAt']),
     );
@@ -107,7 +109,7 @@ class Activity {
       'description_activity': description,
       'videourl': videoUrl,
       'segments': segments,
-      'thumbnailurl': thumbnailUrl,          // ✅ snake_case
+      'thumbnailurl': thumbnailUrl, // ✅ snake_case
       'tiktokhtmlcontent': tiktokHtmlContent, // ✅ snake_case
 
       // 🆕 แปลง DateTime เป็น ISO8601 String

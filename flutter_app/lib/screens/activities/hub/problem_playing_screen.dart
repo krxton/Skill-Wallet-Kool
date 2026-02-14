@@ -212,7 +212,8 @@ class _ProblemPlayingScreenState extends State<ProblemPlayingScreen> {
                 decoration: InputDecoration(
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.all(16),
-                  hintText: AppLocalizations.of(context)!.problemplaying_diaryHint,
+                  hintText:
+                      AppLocalizations.of(context)!.problemplaying_diaryHint,
                 ),
               ),
             ),

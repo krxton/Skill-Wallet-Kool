@@ -77,7 +77,8 @@ class DailyActivityScreen extends StatelessWidget {
                   ? Center(
                       child: Text(
                         'ไม่มีข้อมูล',
-                        style: GoogleFonts.itim(fontSize: 18, color: Colors.grey),
+                        style:
+                            GoogleFonts.itim(fontSize: 18, color: Colors.grey),
                       ),
                     )
                   : ListView.builder(
@@ -96,7 +97,9 @@ class DailyActivityScreen extends StatelessWidget {
                           score = int.tryParse(pointRaw.toString()) ?? 0;
                         }
                         final createdAt = record['created_at'] as String?;
-                        final activityName = record['activity']?['name_activity'] as String? ?? 'กิจกรรม';
+                        final activityName =
+                            record['activity']?['name_activity'] as String? ??
+                                'กิจกรรม';
 
                         return GestureDetector(
                           onTap: () {
@@ -141,7 +144,8 @@ class DailyActivityScreen extends StatelessWidget {
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         // ชื่อกิจกรรม
                                         Text(
@@ -163,7 +167,8 @@ class DailyActivityScreen extends StatelessWidget {
                                             Row(
                                               children: [
                                                 const Icon(Icons.access_time,
-                                                    color: Colors.white70, size: 16),
+                                                    color: Colors.white70,
+                                                    size: 16),
                                                 const SizedBox(width: 4),
                                                 Text(
                                                   _formatTime(createdAt),
@@ -177,12 +182,15 @@ class DailyActivityScreen extends StatelessWidget {
                                             Row(
                                               children: [
                                                 const Icon(Icons.emoji_events,
-                                                    color: Colors.yellow, size: 20),
+                                                    color: Colors.yellow,
+                                                    size: 20),
                                                 const SizedBox(width: 5),
                                                 Text(
                                                   '$score',
-                                                  style: GoogleFonts.luckiestGuy(
-                                                      fontSize: 18, color: Colors.white),
+                                                  style:
+                                                      GoogleFonts.luckiestGuy(
+                                                          fontSize: 18,
+                                                          color: Colors.white),
                                                 ),
                                               ],
                                             ),

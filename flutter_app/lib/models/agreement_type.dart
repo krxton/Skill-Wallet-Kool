@@ -25,7 +25,8 @@ class AgreementHelper {
   /// Encode type + name into DB string.
   /// For TIME type with duration: `[TIME:30]เล่นเกม`
   /// For others: `[ITEM]ไอศกรีม`
-  static String encode(AgreementType type, String name, {int? durationMinutes}) {
+  static String encode(AgreementType type, String name,
+      {int? durationMinutes}) {
     final tag = _prefixMap[type];
     if (type == AgreementType.time && durationMinutes != null) {
       return '[$tag:$durationMinutes]$name';
