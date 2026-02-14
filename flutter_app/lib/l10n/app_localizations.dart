@@ -2222,6 +2222,42 @@ abstract class AppLocalizations {
   /// **'No questions available'**
   String get calculate_noQuestions;
 
+  /// No description provided for @calculate_confirmFinishTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish?'**
+  String get calculate_confirmFinishTitle;
+
+  /// No description provided for @calculate_confirmFinishMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to finish? You cannot restart the timer.'**
+  String get calculate_confirmFinishMsg;
+
+  /// No description provided for @calculate_descriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'DESCRIPTION'**
+  String get calculate_descriptionLabel;
+
+  /// No description provided for @calculate_solutionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Solution:'**
+  String get calculate_solutionLabel;
+
+  /// No description provided for @calculate_correct.
+  ///
+  /// In en, this message translates to:
+  /// **'CORRECT'**
+  String get calculate_correct;
+
+  /// No description provided for @calculate_incorrect.
+  ///
+  /// In en, this message translates to:
+  /// **'INCORRECT'**
+  String get calculate_incorrect;
+
   /// No description provided for @record_title.
   ///
   /// In en, this message translates to:

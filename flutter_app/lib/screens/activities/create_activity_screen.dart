@@ -93,7 +93,11 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
 
     final parentId =
         Provider.of<UserProvider>(context, listen: false).currentParentId;
-    if (parentId == null || parentId.isEmpty) return;
+    if (parentId == null || parentId.isEmpty) {
+      _showSnack(l.createActivity_error);
+      debugPrint('CreateActivity: parentId is null/empty — cannot create');
+      return;
+    }
 
     setState(() => _isSubmitting = true);
 

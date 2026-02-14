@@ -26,19 +26,15 @@ class ActivityCard extends StatelessWidget {
         activity.tiktokHtmlContent != null &&
         activity.thumbnailUrl != null;
 
-    final bool hasYouTubeVideo =
-        (category == 'ด้านภาษา' || category == 'LANGUAGE') &&
-            activity.videoUrl != null &&
-            activity.videoUrl!.contains('youtube');
-
     String? youtubeThumbnailUrl;
-    if (hasYouTubeVideo) {
+    if ((category == 'ด้านภาษา' || category == 'LANGUAGE') &&
+        activity.videoUrl != null) {
       final videoId = YouTubeHelper.extractVideoId(activity.videoUrl!);
       if (videoId != null) {
-        youtubeThumbnailUrl =
-            'https://img.youtube.com/vi/$videoId/hqdefault.jpg';
+        youtubeThumbnailUrl = YouTubeHelper.thumbnailUrl(videoId);
       }
     }
+    final bool hasYouTubeVideo = youtubeThumbnailUrl != null;
 
     final bool shouldGoToVideoDetail =
         category == 'ด้านร่างกาย' && activity.videoUrl != null;

@@ -695,60 +695,77 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
         centerTitle: true,
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // 🎥 Video Player
-              Container(
-                height: 250,
-                decoration: BoxDecoration(
-                  color: Colors.black,
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(18),
-                  child: videoWidget,
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              // Caption segment
-              Center(
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.25),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    AppLocalizations.of(context)!.itemintro_segmentOf(current, totalSegments),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14,
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // 🎥 Video Player
+                    Container(
+                      height: 250,
+                      decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(18),
+                        child: videoWidget,
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 8),
+
+                    // Caption segment
+                    Center(
+                      child: Container(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.25),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(
+                          AppLocalizations.of(context)!.itemintro_segmentOf(current, totalSegments),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+
+                    // การ์ดเนื้อหา (Segment Controls)
+                    _contentCard(
+                      text: currentText,
+                      score: currentSegmentResult.maxScore,
+                    ),
+                    const SizedBox(height: 10),
+
+                    // การ์ดสถานะ
+                    _statusCard(currentSegmentResult),
+                  ],
                 ),
               ),
-              const SizedBox(height: 14),
-
-              // การ์ดเนื้อหา (Segment Controls)
-              _contentCard(
-                text: currentText,
-                score: currentSegmentResult.maxScore,
+            ),
+            // Sticky bottom navigation
+            Container(
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+              decoration: BoxDecoration(
+                color: cream,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 8,
+                    offset: const Offset(0, -2),
+                  ),
+                ],
               ),
-              const SizedBox(height: 10),
-
-              // การ์ดสถานะ
-              _statusCard(currentSegmentResult),
-              const SizedBox(height: 20),
-
-              // ปุ่มล่าง (Navigation)
-              Row(
+              child: Row(
                 children: [
                   Expanded(
                     child: _bottomBtn(
@@ -800,7 +817,6 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                         if (current < totalSegments) {
                           setState(() {
                             current++;
-                            // ตรวจสอบ segment ใหม่ว่ามี score หรือยัง
                             final newSegmentResult =
                                 _segmentResults[current - 1];
                             state = newSegmentResult.maxScore > 0
@@ -809,8 +825,6 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                           });
                           debugPrint(
                               '➡️ Moved to segment $current/${totalSegments}');
-                          debugPrint('   Text: ${_getCurrentSegmentText()}');
-                          debugPrint('   State: $state');
                         } else {
                           _handleFinishQuest();
                         }
@@ -819,8 +833,8 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                   ),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

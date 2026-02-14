@@ -404,6 +404,12 @@
   "calculate_diaryNotes": "บันทึก / โน้ต",
   "calculate_writeNotes": "เขียนบันทึกที่นี่...",
   "calculate_noQuestions": "ไม่มีคำถาม",
+  "calculate_confirmFinishTitle": "หยุดจับเวลา?",
+  "calculate_confirmFinishMsg": "คุณแน่ใจหรือไม่ว่าต้องการหยุด? ไม่สามารถเริ่มจับเวลาใหม่ได้",
+  "calculate_descriptionLabel": "คำอธิบาย",
+  "calculate_solutionLabel": "วิธีทำ:",
+  "calculate_correct": "ถูก",
+  "calculate_incorrect": "ผิด",
 
   "record_title": "บันทึกเสียง",
 

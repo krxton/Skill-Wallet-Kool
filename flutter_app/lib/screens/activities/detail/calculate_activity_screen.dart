@@ -55,7 +55,6 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
   final List<SegmentResult> _segmentResults = [];
   List<dynamic> _segments = [];
   final Map<int, int> _originalScores = {};
-  final Map<int, String?> _userAnswers = {};
   final Map<int, bool?> _answerStatus = {};
 
   bool _isSubmitting = false;
@@ -114,9 +113,33 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
   }
 
   void _finishTimer() {
-    _activityStopwatch.stop();
-    _uiUpdateTimer?.cancel();
-    setState(() => _phase = _Phase.answering);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.calculate_confirmFinishTitle,
+            style: AppTextStyles.heading(18)),
+        content: Text(
+            AppLocalizations.of(context)!.calculate_confirmFinishMsg,
+            style: AppTextStyles.body(14)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(AppLocalizations.of(context)!.common_cancel,
+                style: AppTextStyles.body(14)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _activityStopwatch.stop();
+              _uiUpdateTimer?.cancel();
+              setState(() => _phase = _Phase.answering);
+            },
+            child: Text(AppLocalizations.of(context)!.common_finish,
+                style: AppTextStyles.body(14, color: Palette.pink)),
+          ),
+        ],
+      ),
+    );
   }
 
   void _resetTimer() {
@@ -139,7 +162,6 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
               _activityStopwatch.reset();
               setState(() {
                 _phase = _Phase.ready;
-                _userAnswers.clear();
                 _answerStatus.clear();
                 for (int i = 0; i < _segmentResults.length; i++) {
                   _segmentResults[i].maxScore = 0;
@@ -218,169 +240,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
         ImageSource.gallery;
   }
 
-  // ── Answers ────────────────────────────────────────────
 
-  List<int> _extractNumbers(String text) {
-    final matches = RegExp(r'\d+').allMatches(text);
-    return matches.map((m) => int.parse(m.group(0)!)).toList();
-  }
-
-  void _showAnswerDialog(int index) {
-    final segment = _segments[index];
-    final solutionAnswer = segment['answer']?.toString() ?? '';
-    final controller = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        backgroundColor: Palette.cream,
-        title: Row(
-          children: [
-            Icon(Icons.edit_note, color: Palette.sky, size: 28),
-            const SizedBox(width: 10),
-            Text(AppLocalizations.of(context)!.calculate_solutionTitle(index + 1),
-                style: AppTextStyles.heading(20, color: Palette.sky)),
-          ],
-        ),
-        content: TextField(
-          controller: controller,
-          keyboardType: TextInputType.text,
-          autofocus: true,
-          decoration: InputDecoration(
-            hintText: AppLocalizations.of(context)!.calculate_typeAnswer,
-            hintStyle: AppTextStyles.body(14, color: Colors.grey),
-            filled: true,
-            fillColor: Colors.white,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Palette.sky),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Palette.sky, width: 2),
-            ),
-          ),
-          style: AppTextStyles.body(16),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(AppLocalizations.of(context)!.common_cancel,
-                style: AppTextStyles.heading(14, color: Colors.grey)),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              final userInput = controller.text.trim();
-              if (userInput.isEmpty) return;
-              Navigator.pop(ctx);
-
-              final userNumbers = _extractNumbers(userInput);
-              final solutionNumbers = _extractNumbers(solutionAnswer);
-
-              final isCorrect = userNumbers.isNotEmpty &&
-                  solutionNumbers.isNotEmpty &&
-                  userNumbers.join(',') == solutionNumbers.join(',');
-
-              setState(() {
-                _userAnswers[index] = userInput;
-                _answerStatus[index] = isCorrect;
-                _segmentResults[index].maxScore =
-                    isCorrect ? (_originalScores[index] ?? 100) : 0;
-              });
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Palette.sky,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
-            ),
-            child: Text(AppLocalizations.of(context)!.common_submit,
-                style: AppTextStyles.heading(14, color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showAnswerHint(int index) {
-    final segment = _segments[index];
-    final answer = segment['answer']?.toString() ?? AppLocalizations.of(context)!.calculate_noAnswer;
-    final question = segment['question']?.toString() ??
-        segment['text']?.toString() ??
-        'คำถามข้อ ${index + 1}';
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        backgroundColor: Palette.cream,
-        title: Row(
-          children: [
-            const Icon(Icons.lightbulb, color: Colors.amber, size: 28),
-            const SizedBox(width: 10),
-            Text(AppLocalizations.of(context)!.calculate_solutionTitle(index + 1),
-                style: GoogleFonts.itim(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Palette.sky)),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(AppLocalizations.of(context)!.calculate_questionLabel,
-                style: GoogleFonts.itim(
-                    fontSize: 14, color: Colors.grey.shade600)),
-            const SizedBox(height: 4),
-            Text(question,
-                style:
-                    GoogleFonts.itim(fontSize: 16, color: Colors.black87)),
-            const SizedBox(height: 16),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Palette.success.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Palette.success, width: 2),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.check_circle,
-                          color: Palette.success, size: 20),
-                      const SizedBox(width: 8),
-                      Text(AppLocalizations.of(context)!.calculate_answerLabel,
-                          style: GoogleFonts.itim(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Palette.success)),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(answer,
-                      style: GoogleFonts.itim(
-                          fontSize: 16,
-                          color: Colors.black87,
-                          fontWeight: FontWeight.w500)),
-                ],
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child:
-                Text(AppLocalizations.of(context)!.common_close, style: GoogleFonts.itim(fontSize: 16, color: Palette.sky)),
-          ),
-        ],
-      ),
-    );
-  }
 
   // ── Submit ─────────────────────────────────────────────
 
@@ -488,7 +348,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
 
                         // ── Content / Instructions ──
                         if (widget.activity.content.isNotEmpty) ...[
-                          Text(AppLocalizations.of(context)!.common_howToPlay,
+                          Text(AppLocalizations.of(context)!.calculate_descriptionLabel,
                               style: AppTextStyles.heading(
                                   18, color: Palette.deepGrey)),
                           const SizedBox(height: 8),
@@ -662,28 +522,25 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
       final question = segment['question']?.toString() ??
           segment['text']?.toString() ??
           AppLocalizations.of(context)!.calculate_solutionTitle(index + 1);
+      final answer = segment['answer']?.toString() ?? '';
+      final solution = segment['solution']?.toString() ?? '';
       final status = _answerStatus[index];
-      final userAnswer = _userAnswers[index];
 
       Color cardColor;
       Color borderColor;
       IconData statusIcon;
-      Color statusIconColor;
       if (status == true) {
         cardColor = const Color(0xFFE8F5E9);
         borderColor = Palette.success;
         statusIcon = Icons.check_circle;
-        statusIconColor = Palette.success;
       } else if (status == false) {
         cardColor = const Color(0xFFFFEBEE);
         borderColor = Colors.red.shade300;
         statusIcon = Icons.cancel;
-        statusIconColor = Colors.red.shade400;
       } else {
         cardColor = Colors.white;
         borderColor = Palette.sky.withValues(alpha: 0.3);
         statusIcon = Icons.help_outline;
-        statusIconColor = Colors.grey;
       }
 
       return Container(
@@ -703,6 +560,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Header
             Container(
               padding:
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -720,84 +578,139 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                   Text(AppLocalizations.of(context)!.calculate_solutionTitle(index + 1),
                       style:
                           AppTextStyles.heading(16, color: Colors.white)),
-                  const Spacer(),
-                  GestureDetector(
-                    onTap: () => _showAnswerHint(index),
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.9),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.lightbulb_outline,
-                          color: Colors.amber, size: 18),
-                    ),
-                  ),
                 ],
               ),
             ),
+
+            // Question text
             Padding(
               padding: const EdgeInsets.all(14),
               child: Text(question,
                   style: AppTextStyles.body(15, color: Colors.black87)),
             ),
-            if (userAnswer != null)
+
+            // Answering phase: show answer + solution + correct/incorrect buttons
+            if (_phase == _Phase.answering) ...[
+              // Answer box
+              if (answer.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Palette.success.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: Palette.success),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(Icons.check_circle,
+                                color: Palette.success, size: 18),
+                            const SizedBox(width: 6),
+                            Text(AppLocalizations.of(context)!.calculate_answerLabel,
+                                style: AppTextStyles.label(13,
+                                    color: Palette.success)),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(answer, style: AppTextStyles.body(15)),
+                      ],
+                    ),
+                  ),
+                ),
+
+              // Solution box
+              if (solution.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Palette.sky.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.lightbulb,
+                                color: Colors.amber, size: 18),
+                            const SizedBox(width: 6),
+                            Text(AppLocalizations.of(context)!.calculate_solutionLabel,
+                                style: AppTextStyles.label(13,
+                                    color: Palette.sky)),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(solution, style: AppTextStyles.body(14)),
+                      ],
+                    ),
+                  ),
+                ),
+
+              // Correct / Incorrect buttons
               Padding(
-                padding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: status == true
-                        ? Palette.success.withValues(alpha: 0.1)
-                        : Colors.red.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(statusIcon, color: statusIconColor, size: 18),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(AppLocalizations.of(context)!.calculate_yourAnswer(userAnswer),
-                            style: AppTextStyles.label(13,
-                                color: statusIconColor)),
+                padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            _answerStatus[index] = true;
+                            _segmentResults[index].maxScore =
+                                _originalScores[index] ?? 100;
+                          });
+                        },
+                        icon: const Icon(Icons.check, size: 20),
+                        label: Text(
+                            AppLocalizations.of(context)!.calculate_correct,
+                            style: AppTextStyles.heading(14)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: status == true
+                              ? Palette.success
+                              : Palette.success.withValues(alpha: 0.3),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
                       ),
-                    ],
-                  ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            _answerStatus[index] = false;
+                            _segmentResults[index].maxScore = 0;
+                          });
+                        },
+                        icon: const Icon(Icons.close, size: 20),
+                        label: Text(
+                            AppLocalizations.of(context)!.calculate_incorrect,
+                            style: AppTextStyles.heading(14)),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: status == false
+                              ? Colors.red.shade400
+                              : Colors.red.withValues(alpha: 0.3),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: _phase == _Phase.answering
-                      ? () => _showAnswerDialog(index)
-                      : null,
-                  icon: Icon(
-                      status == null ? Icons.edit : Icons.refresh,
-                      size: 18),
-                  label: Text(
-                      _phase == _Phase.running
-                          ? AppLocalizations.of(context)!.calculate_stopBeforeAnswer
-                          : status == null
-                              ? AppLocalizations.of(context)!.calculate_answer
-                              : AppLocalizations.of(context)!.calculate_answerAgain,
-                      style: AppTextStyles.heading(14)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: _phase == _Phase.answering
-                        ? (status == null ? Palette.sky : Colors.grey.shade400)
-                        : Colors.grey.shade300,
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor: Colors.grey.shade300,
-                    disabledForegroundColor: Colors.white70,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                  ),
-                ),
-              ),
-            ),
+            ],
           ],
         ),
       );

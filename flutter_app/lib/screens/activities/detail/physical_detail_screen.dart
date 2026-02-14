@@ -220,26 +220,18 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
       // print('✅ Submit Response: $response');
 
       if (mounted) {
-        // 2. 🚀 แสดง Popup ว่าเสร็จแล้ว
-        showDialog(
-            context: context,
-            builder: (context) => AlertDialog(
-                  title: Text(AppLocalizations.of(context)!.physical_dialogSubmitTitle,
-                      style: AppTextStyles.heading(18)),
-                  content: Text(
-                      AppLocalizations.of(context)!.physical_dialogSubmitContent,
-                      style: AppTextStyles.body(14)),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          AppRoutes.home,
-                          (route) => route.isFirst), // 🆕 กลับไปหน้า Home
-                      child: Text(AppLocalizations.of(context)!.common_ok,
-                          style: AppTextStyles.heading(16, color: Palette.sky)),
-                    ),
-                  ],
-                ));
+        Navigator.pushReplacementNamed(
+          context,
+          AppRoutes.result,
+          arguments: {
+            'activityName': widget.activity.name,
+            'totalScore': ((_parentScore / widget.activity.maxScore) * 100).round(),
+            'scoreEarned': _parentScore,
+            'timeSpend': timeSpentSeconds,
+            'activityObject': widget.activity,
+            'evidenceImagePath': _imagePath,
+          },
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -247,14 +239,7 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
             SnackBar(content: Text(AppLocalizations.of(context)!.physical_snackSubmitError(e.toString()))));
       }
     } finally {
-      setState(() => _isSubmitting = false);
-      if (!mounted) {
-        Navigator.pushNamedAndRemoveUntil(
-            // ignore: use_build_context_synchronously
-            context,
-            AppRoutes.home,
-            (route) => route.isFirst);
-      }
+      if (mounted) setState(() => _isSubmitting = false);
     }
   }
 

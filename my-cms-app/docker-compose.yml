@@ -17,7 +17,12 @@ services:
 
     environment:
       - NODE_ENV=production
-      - WHISPER_MODE=groq
+      - WHISPER_MODE=local
+      - WHISPER_LOCAL_URL=http://whisper:8000
+
+    depends_on:
+      whisper:
+        condition: service_healthy
 
     restart: unless-stopped
 
@@ -27,3 +32,20 @@ services:
           memory: 2G
         reservations:
           memory: 512M
+
+  whisper:
+    build:
+      context: ../scripts
+      dockerfile: Dockerfile
+
+    ports:
+      - "8000:8000"
+
+    restart: unless-stopped
+
+    deploy:
+      resources:
+        limits:
+          memory: 3G
+        reservations:
+          memory: 1G

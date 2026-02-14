@@ -1137,6 +1137,25 @@ class AppLocalizationsTh extends AppLocalizations {
   String get calculate_noQuestions => 'ไม่มีคำถาม';
 
   @override
+  String get calculate_confirmFinishTitle => 'หยุดจับเวลา?';
+
+  @override
+  String get calculate_confirmFinishMsg =>
+      'คุณแน่ใจหรือไม่ว่าต้องการหยุด? ไม่สามารถเริ่มจับเวลาใหม่ได้';
+
+  @override
+  String get calculate_descriptionLabel => 'คำอธิบาย';
+
+  @override
+  String get calculate_solutionLabel => 'วิธีทำ:';
+
+  @override
+  String get calculate_correct => 'ถูก';
+
+  @override
+  String get calculate_incorrect => 'ผิด';
+
+  @override
   String get record_title => 'บันทึกเสียง';
 
   @override

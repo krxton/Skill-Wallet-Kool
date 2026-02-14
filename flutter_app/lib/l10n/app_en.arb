@@ -518,6 +518,12 @@
   "calculate_diaryNotes": "DIARY / NOTES",
   "calculate_writeNotes": "Write your notes here...",
   "calculate_noQuestions": "No questions available",
+  "calculate_confirmFinishTitle": "Finish?",
+  "calculate_confirmFinishMsg": "Are you sure you want to finish? You cannot restart the timer.",
+  "calculate_descriptionLabel": "DESCRIPTION",
+  "calculate_solutionLabel": "Solution:",
+  "calculate_correct": "CORRECT",
+  "calculate_incorrect": "INCORRECT",
 
   "record_title": "RECORD",
 

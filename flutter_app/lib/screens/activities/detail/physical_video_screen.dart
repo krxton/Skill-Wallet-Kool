@@ -11,7 +11,7 @@ import '../../../theme/palette.dart';
 import '../../../theme/app_text_styles.dart';
 import '../../../widgets/info_badges.dart';
 
-class PhysicalVideoScreen extends StatelessWidget {
+class PhysicalVideoScreen extends StatefulWidget {
   static const String routeName = '/video_detail';
 
   final Activity activity;
@@ -22,7 +22,15 @@ class PhysicalVideoScreen extends StatelessWidget {
   });
 
   @override
+  State<PhysicalVideoScreen> createState() => _PhysicalVideoScreenState();
+}
+
+class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
+  bool _howToPlayExpanded = false;
+
+  @override
   Widget build(BuildContext context) {
+    final activity = widget.activity;
     final String htmlContent = activity.tiktokHtmlContent ?? '';
     final String videoUrl = activity.videoUrl ?? '';
     final String name = activity.name;
@@ -145,36 +153,50 @@ class PhysicalVideoScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Text(
-                    AppLocalizations.of(context)!.videodetail_howToPlayLabel,
-                    style: AppTextStyles.heading(18, color: Palette.sky),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Palette.sky, width: 1),
-                    ),
-                    child: ExpansionTile(
-                      tilePadding: const EdgeInsets.symmetric(horizontal: 12),
-                      childrenPadding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-                      iconColor: Palette.sky,
-                      collapsedIconColor: Palette.sky,
-
-                      // ใช้ข้อความเล็กแทน เช่น View details
-                      title: Text(
-                        "",
-                        style:
-                            AppTextStyles.body(14).copyWith(color: Palette.sky),
-                      ),
-
+                  GestureDetector(
+                    onTap: () => setState(() =>
+                        _howToPlayExpanded = !_howToPlayExpanded),
+                    child: Row(
                       children: [
                         Text(
-                          content,
-                          style: AppTextStyles.body(15),
+                          AppLocalizations.of(context)!
+                              .videodetail_howToPlayLabel,
+                          style:
+                              AppTextStyles.heading(18, color: Palette.sky),
+                        ),
+                        const SizedBox(width: 4),
+                        AnimatedRotation(
+                          turns: _howToPlayExpanded ? 0.5 : 0.0,
+                          duration: const Duration(milliseconds: 200),
+                          child: const Icon(
+                            Icons.keyboard_arrow_down,
+                            color: Palette.sky,
+                            size: 24,
+                          ),
                         ),
                       ],
                     ),
+                  ),
+                  AnimatedCrossFade(
+                    firstChild: const SizedBox.shrink(),
+                    secondChild: Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.only(top: 8),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Palette.sky, width: 1),
+                      ),
+                      child: Text(
+                        content,
+                        style: AppTextStyles.body(15),
+                      ),
+                    ),
+                    crossFadeState: _howToPlayExpanded
+                        ? CrossFadeState.showSecond
+                        : CrossFadeState.showFirst,
+                    duration: const Duration(milliseconds: 200),
                   ),
                   const SizedBox(height: 20),
                   InfoBadges(activity: activity),

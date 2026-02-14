@@ -1138,6 +1138,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calculate_noQuestions => 'No questions available';
 
   @override
+  String get calculate_confirmFinishTitle => 'Finish?';
+
+  @override
+  String get calculate_confirmFinishMsg =>
+      'Are you sure you want to finish? You cannot restart the timer.';
+
+  @override
+  String get calculate_descriptionLabel => 'DESCRIPTION';
+
+  @override
+  String get calculate_solutionLabel => 'Solution:';
+
+  @override
+  String get calculate_correct => 'CORRECT';
+
+  @override
+  String get calculate_incorrect => 'INCORRECT';
+
+  @override
   String get record_title => 'RECORD';
 
   @override
