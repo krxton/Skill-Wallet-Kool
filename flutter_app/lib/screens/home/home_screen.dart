@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 
@@ -10,6 +9,7 @@ import '../../services/activity_service.dart';
 import '../../theme/palette.dart';
 import '../../utils/youtube_helper.dart';
 
+import '../../theme/app_text_styles.dart';
 import '../../widgets/activity_card.dart';
 import '../../widgets/scrollable_activity_list.dart';
 import '../../widgets/main_bottom_nav.dart';
@@ -52,9 +52,6 @@ class _HomeScreenState extends State<HomeScreen> {
   // Drag scrolling helpers
   double _popularDragStart = 0;
   double _newDragStart = 0;
-
-  // Fallback ไทยสำหรับตำแหน่งที่บังคับ Luckiest Guy
-  final List<String> _thaiFallback = [GoogleFonts.itim().fontFamily!];
 
   // bottom nav: 0 = home, 1 = plus, 2 = profile
   int _selectedTab = 0;
@@ -202,32 +199,19 @@ class _HomeScreenState extends State<HomeScreen> {
             const Icon(Icons.warning_amber_rounded,
                 color: Colors.orange, size: 28),
             const SizedBox(width: 8),
-            Text(
-              'กรุณาเลือกเด็ก',
-              style: TextStyle(
-                fontFamily: GoogleFonts.itim().fontFamily,
-                fontSize: 20,
-              ),
-            ),
+            Text('กรุณาเลือกเด็ก',
+                style: AppTextStyles.heading(20)),
           ],
         ),
         content: Text(
           'คุณต้องเลือกเด็กก่อนจึงจะสามารถเล่นกิจกรรมได้',
-          style: TextStyle(
-            fontFamily: GoogleFonts.itim().fontFamily,
-            fontSize: 16,
-          ),
+          style: AppTextStyles.body(16),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: Text(
-              'ปิด',
-              style: TextStyle(
-                fontFamily: GoogleFonts.itim().fontFamily,
-                color: Colors.grey,
-              ),
-            ),
+            child: Text('ปิด',
+                style: AppTextStyles.label(14, color: Colors.grey)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -237,13 +221,8 @@ class _HomeScreenState extends State<HomeScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Palette.sky,
             ),
-            child: Text(
-              'ไปเลือกเด็ก',
-              style: TextStyle(
-                fontFamily: GoogleFonts.itim().fontFamily,
-                color: Colors.white,
-              ),
-            ),
+            child: Text('ไปเลือกเด็ก',
+                style: AppTextStyles.label(14, color: Colors.white)),
           ),
         ],
       ),
@@ -252,6 +231,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // 🆕 แสดง Filter Bottom Sheet
   void _showFilterBottomSheet() {
+    final l = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -278,13 +258,8 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    'FILTER ACTIVITIES',
-                    style: GoogleFonts.luckiestGuy(
-                      fontSize: 20,
-                      color: Palette.sky,
-                    ),
-                  ),
+                  Text(l.home_filterTitle,
+                      style: AppTextStyles.heading(20, color: Palette.sky)),
                   IconButton(
                     icon: const Icon(Icons.close,
                         color: Colors.black87, size: 20),
@@ -295,30 +270,27 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 16),
 
               // Category Filter
-              Text(
-                'CATEGORY',
-                style: GoogleFonts.luckiestGuy(
-                    fontSize: 14, color: Colors.black54),
-              ),
+              Text(l.home_filterCategory,
+                  style: AppTextStyles.heading(14, color: Colors.black54)),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  {'label': 'ทั้งหมด', 'value': null},
-                  {'label': 'ภาษา', 'value': 'ด้านภาษา'},
-                  {'label': 'ร่างกาย', 'value': 'ด้านร่างกาย'},
-                  {'label': 'คำนวณ', 'value': 'ด้านคำนวณ'},
+                  {'label': l.home_filterAll, 'value': null},
+                  {'label': l.home_languageBtn, 'value': 'ด้านภาษา'},
+                  {'label': l.home_physicalBtn, 'value': 'ด้านร่างกาย'},
+                  {'label': l.home_calculationBtn, 'value': 'ด้านคำนวณ'},
                 ].map((cat) {
                   final isSelected = _selectedCategory == cat['value'];
                   return GestureDetector(
                     onTap: () {
                       _onCategoryFilterChanged(cat['value']);
-                      setModalState(() {}); // Update modal UI
+                      setModalState(() {});
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
+                          horizontal: 14, vertical: 8),
                       decoration: BoxDecoration(
                         color: isSelected ? Palette.sky : Colors.white,
                         borderRadius: BorderRadius.circular(16),
@@ -330,11 +302,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       child: Text(
                         cat['label'] as String,
-                        style: GoogleFonts.itim(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: isSelected ? Colors.white : Colors.black87,
-                        ),
+                        style: AppTextStyles.label(14,
+                            color:
+                                isSelected ? Colors.white : Colors.black87),
                       ),
                     ),
                   );
@@ -344,33 +314,31 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 20),
 
               // Level Filter
-              Text(
-                'LEVEL',
-                style: GoogleFonts.luckiestGuy(
-                    fontSize: 14, color: Colors.black54),
-              ),
+              Text(l.home_filterLevel,
+                  style: AppTextStyles.heading(14, color: Colors.black54)),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  {'label': 'ทั้งหมด', 'value': null},
-                  {'label': 'ง่าย', 'value': 'ง่าย'},
-                  {'label': 'กลาง', 'value': 'กลาง'},
-                  {'label': 'ยาก', 'value': 'ยาก'},
+                  {'label': l.home_filterAll, 'value': null},
+                  {'label': l.home_filterEasy, 'value': 'ง่าย'},
+                  {'label': l.home_filterMedium, 'value': 'กลาง'},
+                  {'label': l.home_filterHard, 'value': 'ยาก'},
                 ].map((level) {
                   final isSelected = _selectedLevel == level['value'];
                   return GestureDetector(
                     onTap: () {
                       _onLevelFilterChanged(level['value']);
-                      setModalState(() {}); // Update modal UI
+                      setModalState(() {});
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
+                          horizontal: 14, vertical: 8),
                       decoration: BoxDecoration(
-                        color:
-                            isSelected ? const Color(0xFFFFB74D) : Colors.white,
+                        color: isSelected
+                            ? const Color(0xFFFFB74D)
+                            : Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: isSelected
@@ -381,11 +349,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       child: Text(
                         level['label'] as String,
-                        style: GoogleFonts.itim(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: isSelected ? Colors.white : Colors.black87,
-                        ),
+                        style: AppTextStyles.label(14,
+                            color:
+                                isSelected ? Colors.white : Colors.black87),
                       ),
                     ),
                   );
@@ -534,10 +500,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Text(
                     activity.name,
-                    style: GoogleFonts.luckiestGuy(
-                      fontSize: 20,
-                      color: Colors.white,
-                    ).copyWith(fontFamilyFallback: _thaiFallback),
+                    style: AppTextStyles.heading(20, color: Colors.white),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -595,11 +558,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'SUGGESTED',
-                      style: GoogleFonts.luckiestGuy(
-                        fontSize: 12,
-                        color: Colors.white,
-                      ).copyWith(fontFamilyFallback: _thaiFallback),
+                      AppLocalizations.of(context)!.home_suggested,
+                      style: AppTextStyles.heading(12, color: Colors.white),
                     ),
                   ],
                 ),
@@ -703,81 +663,54 @@ class _HomeScreenState extends State<HomeScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        // Search Bar
-        Container(
-          height: 56,
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 195, 234, 255),
-            borderRadius: BorderRadius.circular(28),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(.06),
-                blurRadius: 12,
-                offset: const Offset(0, 6),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              // Menu icon สำหรับเปิด Filter พร้อม badge
-              GestureDetector(
-                onTap: _showFilterBottomSheet,
-                child: Stack(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      child: const Icon(Icons.filter_list,
-                          color: Colors.black87, size: 24),
-                    ),
-                    // Badge แสดงว่ามี filter active
-                    if (_selectedCategory != null || _selectedLevel != null)
-                      Positioned(
-                        right: 4,
-                        top: 4,
-                        child: Container(
-                          width: 10,
-                          height: 10,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFFF9800),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                      ),
-                  ],
+        // Filter button
+        GestureDetector(
+          onTap: _showFilterBottomSheet,
+          child: Container(
+            height: 48,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: (_selectedCategory != null || _selectedLevel != null)
+                  ? Palette.sky
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: Palette.sky, width: 2),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.tune,
+                    size: 20,
+                    color: (_selectedCategory != null ||
+                            _selectedLevel != null)
+                        ? Colors.white
+                        : Palette.sky),
+                const SizedBox(width: 8),
+                Text(
+                  AppLocalizations.of(context)!.home_filterTitle,
+                  style: AppTextStyles.label(14,
+                      color: (_selectedCategory != null ||
+                              _selectedLevel != null)
+                          ? Colors.white
+                          : Palette.sky),
                 ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: TextField(
-                  style: TextStyle(
-                    fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                    fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                    fontSize: 16,
-                    color: Colors.black,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: 'ค้นหา',
-                    hintStyle: TextStyle(
-                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                      color: Colors.black54,
-                      fontSize: 16,
-                      letterSpacing: .5,
+                if (_selectedCategory != null || _selectedLevel != null) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    filled: true,
-                    fillColor: Colors.transparent,
-                    isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
+                    child: Text(
+                      '${(_selectedCategory != null ? 1 : 0) + (_selectedLevel != null ? 1 : 0)}',
+                      style: AppTextStyles.label(12, color: Palette.sky),
+                    ),
                   ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Icon(Icons.search, color: Colors.black54),
-            ],
+                ],
+              ],
+            ),
           ),
         ),
         const SizedBox(height: 20),
@@ -786,13 +719,7 @@ class _HomeScreenState extends State<HomeScreen> {
         if (childName != null && childName.isNotEmpty)
           Text(
             childName,
-            style: TextStyle(
-              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-              fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-              fontSize: 28,
-              height: 1.0,
-              color: Palette.sky,
-            ),
+            style: AppTextStyles.heading(28, color: Palette.sky),
           ),
         const SizedBox(height: 20),
 
@@ -819,11 +746,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Text(
                     AppLocalizations.of(context)!.home_cannotBtn,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                        fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                        fontSize: 16,
-                        color: Colors.black),
+                    style: AppTextStyles.heading(16, color: Colors.black),
                   ),
                 );
               }
@@ -938,19 +861,11 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Text(
               AppLocalizations.of(context)!.home_popularactivityBtn,
-              style: TextStyle(
-                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                  fontSize: 20,
-                  color: Colors.black),
+              style: AppTextStyles.heading(20, color: Colors.black),
             ),
             Text(
               AppLocalizations.of(context)!.home_viewallBtn,
-              style: TextStyle(
-                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                  fontSize: 16,
-                  color: Palette.sky),
+              style: AppTextStyles.heading(16, color: Palette.sky),
             ),
           ],
         ),
@@ -978,19 +893,11 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Text(
               AppLocalizations.of(context)!.home_newactivityBtn,
-              style: TextStyle(
-                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                  fontSize: 20,
-                  color: Colors.black),
+              style: AppTextStyles.heading(20, color: Colors.black),
             ),
             Text(
               AppLocalizations.of(context)!.home_viewallBtn,
-              style: TextStyle(
-                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                  fontSize: 16,
-                  color: Palette.sky),
+              style: AppTextStyles.heading(16, color: Palette.sky),
             ),
           ],
         ),

@@ -57,6 +57,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home_bannerProblems => 'PROBLEMS SOLVE';
 
   @override
+  String get home_filterTitle => 'FILTER ACTIVITIES';
+
+  @override
+  String get home_filterCategory => 'CATEGORY';
+
+  @override
+  String get home_filterLevel => 'LEVEL';
+
+  @override
+  String get home_filterAll => 'ALL';
+
+  @override
+  String get home_filterEasy => 'EASY';
+
+  @override
+  String get home_filterMedium => 'MEDIUM';
+
+  @override
+  String get home_filterHard => 'HARD';
+
+  @override
+  String get home_suggested => 'SUGGESTED';
+
+  @override
   String get parentprofile_postBtn => 'POST';
 
   @override

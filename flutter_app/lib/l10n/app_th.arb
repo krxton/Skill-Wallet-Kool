@@ -16,6 +16,14 @@
   "home_bannerLanguage": "ฝึกภาษา",
   "home_bannerCalculate": "คิดเลข",
   "home_bannerProblems": "แก้ปัญหา",
+  "home_filterTitle": "กรองกิจกรรม",
+  "home_filterCategory": "หมวดหมู่",
+  "home_filterLevel": "ระดับ",
+  "home_filterAll": "ทั้งหมด",
+  "home_filterEasy": "ง่าย",
+  "home_filterMedium": "กลาง",
+  "home_filterHard": "ยาก",
+  "home_suggested": "แนะนำ",
 
   "parentprofile_postBtn": "โพสต์",
 

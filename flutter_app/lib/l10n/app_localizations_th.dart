@@ -57,6 +57,30 @@ class AppLocalizationsTh extends AppLocalizations {
   String get home_bannerProblems => 'แก้ปัญหา';
 
   @override
+  String get home_filterTitle => 'กรองกิจกรรม';
+
+  @override
+  String get home_filterCategory => 'หมวดหมู่';
+
+  @override
+  String get home_filterLevel => 'ระดับ';
+
+  @override
+  String get home_filterAll => 'ทั้งหมด';
+
+  @override
+  String get home_filterEasy => 'ง่าย';
+
+  @override
+  String get home_filterMedium => 'กลาง';
+
+  @override
+  String get home_filterHard => 'ยาก';
+
+  @override
+  String get home_suggested => 'แนะนำ';
+
+  @override
   String get parentprofile_postBtn => 'โพสต์';
 
   @override

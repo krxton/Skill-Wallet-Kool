@@ -194,6 +194,54 @@ abstract class AppLocalizations {
   /// **'PROBLEMS SOLVE'**
   String get home_bannerProblems;
 
+  /// No description provided for @home_filterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'FILTER ACTIVITIES'**
+  String get home_filterTitle;
+
+  /// No description provided for @home_filterCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'CATEGORY'**
+  String get home_filterCategory;
+
+  /// No description provided for @home_filterLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'LEVEL'**
+  String get home_filterLevel;
+
+  /// No description provided for @home_filterAll.
+  ///
+  /// In en, this message translates to:
+  /// **'ALL'**
+  String get home_filterAll;
+
+  /// No description provided for @home_filterEasy.
+  ///
+  /// In en, this message translates to:
+  /// **'EASY'**
+  String get home_filterEasy;
+
+  /// No description provided for @home_filterMedium.
+  ///
+  /// In en, this message translates to:
+  /// **'MEDIUM'**
+  String get home_filterMedium;
+
+  /// No description provided for @home_filterHard.
+  ///
+  /// In en, this message translates to:
+  /// **'HARD'**
+  String get home_filterHard;
+
+  /// No description provided for @home_suggested.
+  ///
+  /// In en, this message translates to:
+  /// **'SUGGESTED'**
+  String get home_suggested;
+
   /// No description provided for @parentprofile_postBtn.
   ///
   /// In en, this message translates to:

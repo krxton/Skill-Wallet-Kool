@@ -16,6 +16,14 @@
   "home_bannerLanguage": "LANGUAGE TRAINING",
   "home_bannerCalculate": "CALCULATE",
   "home_bannerProblems": "PROBLEMS SOLVE",
+  "home_filterTitle": "FILTER ACTIVITIES",
+  "home_filterCategory": "CATEGORY",
+  "home_filterLevel": "LEVEL",
+  "home_filterAll": "ALL",
+  "home_filterEasy": "EASY",
+  "home_filterMedium": "MEDIUM",
+  "home_filterHard": "HARD",
+  "home_suggested": "SUGGESTED",
 
   "parentprofile_postBtn": "POST",
 
