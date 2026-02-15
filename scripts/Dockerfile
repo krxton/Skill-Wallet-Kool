@@ -12,8 +12,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir setuptools wheel && \
     pip install --no-cache-dir \
     torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu && \
-    pip install --no-cache-dir setuptools && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir --no-build-isolation -r requirements.txt
 
 COPY whisper_eval.py .
 
