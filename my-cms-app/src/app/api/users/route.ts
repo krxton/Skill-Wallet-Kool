@@ -32,9 +32,6 @@ export async function GET(request: Request) {
       ];
     }
 
-    // Note: status และ verification ไม่มีใน parent table
-    // คุณอาจต้องเพิ่มฟิลด์เหล่านี้ใน schema หรือใช้ users table
-
     // Get total count
     const totalCount = await prisma.parent.count({ where });
     const totalPages = Math.ceil(totalCount / limit);

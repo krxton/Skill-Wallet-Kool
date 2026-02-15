@@ -110,9 +110,16 @@ class AppRoutes {
           return LanguageDetailScreen(activity: activity);
         },
         physicalActivity: (context) {
-          final activity =
-              ModalRoute.of(context)!.settings.arguments as Activity;
-          return PhysicalDetailScreen(activity: activity);
+          final args = ModalRoute.of(context)!.settings.arguments;
+          if (args is Activity) {
+            return PhysicalDetailScreen(activity: args);
+          }
+          final map = args as Map<String, dynamic>;
+          return PhysicalDetailScreen(
+            activity: map['activity'] as Activity,
+            extraChildIds:
+                List<String>.from(map['extraChildIds'] as List? ?? []),
+          );
         },
         calculateActivity: (context) {
           final activity =

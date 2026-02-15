@@ -657,8 +657,9 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    // แสดงชื่อเด็กที่เลือกอยู่แทนชื่อผู้ปกครอง
-    final childName = context.watch<UserProvider>().currentChildName;
+    final userProvider = context.watch<UserProvider>();
+    final parentName = userProvider.currentParentName;
+    final childName = userProvider.currentChildName;
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -715,11 +716,25 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         const SizedBox(height: 20),
 
-        // Child Name (ชื่อเด็กที่เลือกอยู่)
-        if (childName != null && childName.isNotEmpty)
+        // Parent + Child name
+        if (parentName != null && parentName.isNotEmpty)
           Text(
-            childName,
-            style: AppTextStyles.heading(28, color: Palette.sky),
+            parentName,
+            style: AppTextStyles.heading(24, color: Palette.deepGrey),
+          ),
+        if (childName != null && childName.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Row(
+              children: [
+                Icon(Icons.child_care, size: 20, color: Palette.sky),
+                const SizedBox(width: 6),
+                Text(
+                  childName,
+                  style: AppTextStyles.label(16, color: Palette.sky),
+                ),
+              ],
+            ),
           ),
         const SizedBox(height: 20),
 

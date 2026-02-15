@@ -88,16 +88,13 @@ class _ShareBottomSheetState extends State<_ShareBottomSheet> {
       final d = widget.data;
 
       if (d.hasEvidenceImage) {
-        // Share actual evidence image file
+        // Share actual evidence image file only (no text)
         if (!mounted) return;
         Navigator.pop(context);
 
-        await Share.shareXFiles(
-          [XFile(d.evidenceImagePath!)],
-          text: _buildShareText(),
-        );
+        await Share.shareXFiles([XFile(d.evidenceImagePath!)]);
       } else {
-        // Fallback: screenshot the preview card
+        // Fallback: screenshot the preview card (no text)
         final boundary = _cardKey.currentContext?.findRenderObject()
             as RenderRepaintBoundary?;
         if (boundary == null) return;
@@ -113,7 +110,6 @@ class _ShareBottomSheetState extends State<_ShareBottomSheet> {
 
         await Share.shareXFiles(
           [XFile.fromData(pngBytes, mimeType: 'image/png', name: 'result.png')],
-          text: _buildShareText(),
         );
       }
     } catch (e) {

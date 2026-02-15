@@ -201,6 +201,16 @@
   "physical_timeLabel": "เวลา",
   "physical_submittingBtn": "กำลังส่งข้อมูล...",
   "physical_finishBtn": "เสร็จสิ้น",
+  "physical_addChildren": "เพิ่มเด็ก",
+  "physical_addChildrenDesc": "เลือกเด็กที่จะเล่นด้วยกัน",
+  "physical_childrenAdded": "+{count} คน",
+  "@physical_childrenAdded": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "physical_currentChild": "กำลังเล่นอยู่",
+  "physical_confirm": "ยืนยัน",
 
   "languagedetail_titlePrefix": "ภาษา: ",
   "languagedetail_categoryPrefix": "หมวดหมู่: ",
@@ -283,6 +293,9 @@
   "common_categoryLanguage": "ด้านภาษา",
   "common_categoryPhysical": "ด้านร่างกาย",
   "common_categoryCalculate": "ด้านคำนวณ",
+  "common_activityLanguage": "กิจกรรมภาษา",
+  "common_activityPhysical": "กิจกรรมร่างกาย",
+  "common_activityCalculate": "กิจกรรมคำนวณ",
   "common_difficultyEasy": "ง่าย",
   "common_difficultyMedium": "ปานกลาง",
   "common_difficultyHard": "ยาก",

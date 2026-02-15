@@ -577,6 +577,23 @@ class AppLocalizationsTh extends AppLocalizations {
   String get physical_finishBtn => 'เสร็จสิ้น';
 
   @override
+  String get physical_addChildren => 'เพิ่มเด็ก';
+
+  @override
+  String get physical_addChildrenDesc => 'เลือกเด็กที่จะเล่นด้วยกัน';
+
+  @override
+  String physical_childrenAdded(int count) {
+    return '+$count คน';
+  }
+
+  @override
+  String get physical_currentChild => 'กำลังเล่นอยู่';
+
+  @override
+  String get physical_confirm => 'ยืนยัน';
+
+  @override
   String get languagedetail_titlePrefix => 'ภาษา: ';
 
   @override
@@ -783,6 +800,15 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get common_categoryCalculate => 'ด้านคำนวณ';
+
+  @override
+  String get common_activityLanguage => 'กิจกรรมภาษา';
+
+  @override
+  String get common_activityPhysical => 'กิจกรรมร่างกาย';
+
+  @override
+  String get common_activityCalculate => 'กิจกรรมคำนวณ';
 
   @override
   String get common_difficultyEasy => 'ง่าย';

@@ -1172,6 +1172,36 @@ abstract class AppLocalizations {
   /// **'FINISH'**
   String get physical_finishBtn;
 
+  /// No description provided for @physical_addChildren.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Children'**
+  String get physical_addChildren;
+
+  /// No description provided for @physical_addChildrenDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Select children to play together'**
+  String get physical_addChildrenDesc;
+
+  /// No description provided for @physical_childrenAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count} children'**
+  String physical_childrenAdded(int count);
+
+  /// No description provided for @physical_currentChild.
+  ///
+  /// In en, this message translates to:
+  /// **'Currently playing'**
+  String get physical_currentChild;
+
+  /// No description provided for @physical_confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get physical_confirm;
+
   /// No description provided for @languagedetail_titlePrefix.
   ///
   /// In en, this message translates to:
@@ -1579,6 +1609,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Calculate'**
   String get common_categoryCalculate;
+
+  /// No description provided for @common_activityLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language Activity'**
+  String get common_activityLanguage;
+
+  /// No description provided for @common_activityPhysical.
+  ///
+  /// In en, this message translates to:
+  /// **'Physical Activity'**
+  String get common_activityPhysical;
+
+  /// No description provided for @common_activityCalculate.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculation Activity'**
+  String get common_activityCalculate;
 
   /// No description provided for @common_difficultyEasy.
   ///

@@ -17,6 +17,22 @@ class ActivityL10n {
     }
   }
 
+  /// ชื่อประเภทกิจกรรมเต็ม เช่น "กิจกรรมภาษา" / "Language Activity"
+  static String localizedActivityType(
+      BuildContext context, String rawCategory) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (rawCategory) {
+      case 'ด้านภาษา':
+        return l10n.common_activityLanguage;
+      case 'ด้านร่างกาย':
+        return l10n.common_activityPhysical;
+      case 'ด้านคำนวณ':
+        return l10n.common_activityCalculate;
+      default:
+        return rawCategory;
+    }
+  }
+
   static String localizedDifficulty(
       BuildContext context, String rawDifficulty) {
     final l10n = AppLocalizations.of(context)!;

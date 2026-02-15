@@ -13,7 +13,7 @@ export async function GET(
     const parent = await prisma.parent.findUnique({
       where: { parent_id: params.id },
       include: {
-        users: true, // ถ้ามี users table
+        users: true,
         parent_and_child: {
           include: {
             child: {

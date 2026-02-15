@@ -14,10 +14,17 @@ import '../../../services/activity_service.dart';
 import '../../../theme/app_text_styles.dart';
 import '../../../theme/palette.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../utils/activity_l10n.dart';
+import '../../../widgets/sticky_bottom_button.dart';
 
 class PhysicalDetailScreen extends StatefulWidget {
   final Activity activity;
-  const PhysicalDetailScreen({super.key, required this.activity});
+  final List<String> extraChildIds;
+  const PhysicalDetailScreen({
+    super.key,
+    required this.activity,
+    this.extraChildIds = const [],
+  });
 
   @override
   State<PhysicalDetailScreen> createState() => _PhysicalDetailScreenState();
@@ -207,22 +214,26 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
     };
 
     try {
+      // รวม childId ปัจจุบัน + เด็กที่เลือกเพิ่ม (ไม่ซ้ำ)
+      final allChildIds = <String>{childId!, ...widget.extraChildIds}.toList();
       debugPrint(
-          '📊 Sending parentScore: $_parentScore, timeSpent: $timeSpentSeconds');
-      debugPrint('📦 Evidence payload: $evidencePayload');
+          '📊 Sending to ${allChildIds.length} children, parentScore: $_parentScore, timeSpent: $timeSpentSeconds');
 
-      // ignore: unused_local_variable
-      final response = await _activityService.finalizeQuest(
-        childId: childId!,
-        activityId: widget.activity.id,
-        segmentResults: [],
-        activityMaxScore: widget.activity.maxScore,
-        evidence: evidencePayload,
-        parentScore: _parentScore, // ✅ ส่ง parentScore แยกต่างหาก
-        timeSpent: timeSpentSeconds, // ⏱️ ส่งเวลาที่ใช้
+      // ส่งให้ทุกคนพร้อมกัน
+      final results = await Future.wait(
+        allChildIds.map((cid) => _activityService.finalizeQuest(
+              childId: cid,
+              activityId: widget.activity.id,
+              segmentResults: [],
+              activityMaxScore: widget.activity.maxScore,
+              evidence: evidencePayload,
+              parentScore: _parentScore,
+              timeSpent: timeSpentSeconds,
+            )),
+        eagerError: false,
       );
 
-      // print('✅ Submit Response: $response');
+      debugPrint('✅ Submitted for ${results.length} children');
 
       if (mounted) {
         Navigator.pushReplacementNamed(
@@ -405,15 +416,20 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(widget.activity.name.toUpperCase(),
-            style: AppTextStyles.heading(20, color: Palette.deepGrey)),
+        title: Text(
+            ActivityL10n.localizedActivityType(
+                context, widget.activity.category),
+            style: AppTextStyles.heading(20, color: Colors.black)),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
             // 1. TIME DISPLAY (ย้ายมาไว้บนสุด)
             Center(
               child: Container(
@@ -663,25 +679,20 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
             ),
 
             const SizedBox(height: 30),
-
-            // 7. FINISH BUTTON (Submit)
-            SizedBox(
-              height: 55,
-              child: ElevatedButton(
-                onPressed:
-                    isEvidenceAttached && !_isSubmitting ? _handleSubmit : null,
-                style:
-                    ElevatedButton.styleFrom(backgroundColor: Palette.success),
-                child: Text(
-                    _isSubmitting
-                        ? AppLocalizations.of(context)!.common_submitting
-                        : AppLocalizations.of(context)!.common_finish,
-                    style: AppTextStyles.heading(24, color: Colors.white)),
+                ],
               ),
             ),
-            const SizedBox(height: 30),
-          ],
-        ),
+          ),
+          // 7. FINISH BUTTON (sticky bottom)
+          StickyBottomButton(
+            onPressed: isEvidenceAttached && !_isSubmitting ? _handleSubmit : null,
+            label: _isSubmitting
+                ? AppLocalizations.of(context)!.common_submitting
+                : AppLocalizations.of(context)!.common_finish,
+            color: Palette.success,
+            isLoading: _isSubmitting,
+          ),
+        ],
       ),
     );
   }

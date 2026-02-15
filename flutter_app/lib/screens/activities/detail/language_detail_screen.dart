@@ -7,6 +7,7 @@ import '../../../theme/palette.dart';
 import '../../../theme/app_text_styles.dart';
 import '../../../utils/youtube_helper.dart';
 import '../../../widgets/info_badges.dart';
+import '../../../utils/activity_l10n.dart';
 import '../../../widgets/sticky_bottom_button.dart';
 
 class LanguageDetailScreen extends StatefulWidget {
@@ -80,7 +81,9 @@ class _LanguageDetailScreenState extends State<LanguageDetailScreen> {
     return Scaffold(
       backgroundColor: Palette.cream,
       appBar: AppBar(
-        title: Text('LANGUAGE: ${widget.activity.name.toUpperCase()}',
+        title: Text(
+            ActivityL10n.localizedActivityType(
+                context, widget.activity.category),
             style: AppTextStyles.heading(22, color: Colors.black)),
         backgroundColor: Colors.transparent,
         elevation: 0,

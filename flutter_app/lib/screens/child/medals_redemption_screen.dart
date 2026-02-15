@@ -970,31 +970,54 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
       ),
       body: Column(
         children: [
-          // Child name
-          if (widget.childName != null && widget.childName!.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 4, bottom: 6),
-              child: Text(
-                widget.childName!,
-                style: AppTextStyles.heading(20),
-              ),
-            ),
-
-          // Score section
+          // Name + Score header
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                // Medal icon + names (left side)
                 _buildMedalIcon(),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Parent name
+                      Builder(builder: (context) {
+                        final parentName =
+                            context.watch<UserProvider>().currentParentName;
+                        if (parentName != null && parentName.isNotEmpty) {
+                          return Text(parentName,
+                              style: AppTextStyles.heading(
+                                  18, color: Palette.deepGrey));
+                        }
+                        return const SizedBox.shrink();
+                      }),
+                      // Child name
+                      if (widget.childName != null &&
+                          widget.childName!.isNotEmpty)
+                        Row(
+                          children: [
+                            Icon(Icons.child_care,
+                                size: 16, color: Palette.sky),
+                            const SizedBox(width: 4),
+                            Text(widget.childName!,
+                                style: AppTextStyles.label(14,
+                                    color: Palette.sky)),
+                          ],
+                        ),
+                    ],
+                  ),
+                ),
+                // Score (right side)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(loc.medalredemption_currentscoreBtn,
-                        style: AppTextStyles.heading(18)),
+                        style: AppTextStyles.heading(16)),
                     Text('${_formatNumber(_currentScore)} P',
-                        style: AppTextStyles.heading(24)),
+                        style: AppTextStyles.heading(22)),
                   ],
                 ),
               ],

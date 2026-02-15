@@ -16,6 +16,7 @@ import '../../../services/activity_service.dart';
 import '../../../models/activity.dart';
 import '../../../routes/app_routes.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
+import '../../../utils/activity_l10n.dart';
 
 /// Helper แยกเฉพาะไว้แปลง URL -> YouTube ID
 /// (ตั้งชื่อว่า YoutubeUrlHelper เพื่อไม่ให้ชนกับ widget YoutubePlayer ของ package)
@@ -688,8 +689,9 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          widget.activity.name.toUpperCase(),
-          style: titleStyle,
+          ActivityL10n.localizedActivityType(
+              context, widget.activity.category),
+          style: titleStyle.copyWith(color: Colors.black),
           textAlign: TextAlign.center,
         ),
         centerTitle: true,

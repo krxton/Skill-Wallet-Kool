@@ -4,7 +4,6 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
@@ -17,6 +16,7 @@ import '../../../theme/palette.dart';
 import '../../../widgets/info_badges.dart';
 import '../../../widgets/sticky_bottom_button.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
+import '../../../utils/activity_l10n.dart';
 
 /// Activity phases
 enum _Phase { ready, running, answering }
@@ -321,12 +321,9 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
         ),
         centerTitle: true,
         title: Text(
-          widget.activity.name,
-          style: GoogleFonts.luckiestGuy(
-            fontSize: 24,
-            color: Palette.sky,
-            letterSpacing: 1.5,
-          ),
+          ActivityL10n.localizedActivityType(
+              context, widget.activity.category),
+          style: AppTextStyles.heading(24, color: Colors.black),
         ),
       ),
       body: _segments.isEmpty
@@ -544,49 +541,72 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
       }
 
       return Container(
-        margin: const EdgeInsets.only(bottom: 14),
+        margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
           color: cardColor,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(color: borderColor, width: 2),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 6,
-              offset: const Offset(0, 3),
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
+            // Header with question number + status
             Container(
               padding:
-                  const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: Palette.sky,
+                color: status == true
+                    ? Palette.success
+                    : status == false
+                        ? Colors.red.shade400
+                        : Palette.sky,
                 borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(14),
-                  topRight: Radius.circular(14),
+                  topLeft: Radius.circular(18),
+                  topRight: Radius.circular(18),
                 ),
               ),
               child: Row(
                 children: [
-                  Icon(statusIcon, color: Colors.white, size: 20),
-                  const SizedBox(width: 8),
-                  Text(AppLocalizations.of(context)!.calculate_solutionTitle(index + 1),
-                      style:
-                          AppTextStyles.heading(16, color: Colors.white)),
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.25),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(statusIcon, color: Colors.white, size: 20),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                        AppLocalizations.of(context)!
+                            .calculate_solutionTitle(index + 1),
+                        style:
+                            AppTextStyles.heading(16, color: Colors.white)),
+                  ),
                 ],
               ),
             ),
 
-            // Question text
-            Padding(
-              padding: const EdgeInsets.all(14),
+            // Question text — larger, prominent
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              margin: const EdgeInsets.fromLTRB(14, 14, 14, 6),
+              decoration: BoxDecoration(
+                color: Palette.sky.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(14),
+                border:
+                    Border.all(color: Palette.sky.withValues(alpha: 0.15)),
+              ),
               child: Text(question,
-                  style: AppTextStyles.body(15, color: Colors.black87)),
+                  style: AppTextStyles.body(17, color: Colors.black87)),
             ),
 
             // Answering phase: show answer + solution + correct/incorrect buttons
@@ -594,14 +614,15 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
               // Answer box
               if (answer.isNotEmpty)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
+                  padding: const EdgeInsets.fromLTRB(14, 8, 14, 6),
                   child: Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Palette.success.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Palette.success),
+                      color: Palette.success.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                          color: Palette.success.withValues(alpha: 0.5)),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -611,13 +632,17 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                             Icon(Icons.check_circle,
                                 color: Palette.success, size: 18),
                             const SizedBox(width: 6),
-                            Text(AppLocalizations.of(context)!.calculate_answerLabel,
+                            Text(
+                                AppLocalizations.of(context)!
+                                    .calculate_answerLabel,
                                 style: AppTextStyles.label(13,
                                     color: Palette.success)),
                           ],
                         ),
-                        const SizedBox(height: 4),
-                        Text(answer, style: AppTextStyles.body(15)),
+                        const SizedBox(height: 6),
+                        Text(answer,
+                            style: AppTextStyles.body(15,
+                                weight: FontWeight.w600)),
                       ],
                     ),
                   ),
@@ -626,13 +651,13 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
               // Solution box
               if (solution.isNotEmpty)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
+                  padding: const EdgeInsets.fromLTRB(14, 4, 14, 6),
                   child: Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Palette.sky.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(10),
+                      color: Palette.sky.withValues(alpha: 0.06),
+                      borderRadius: BorderRadius.circular(14),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -642,74 +667,138 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                             const Icon(Icons.lightbulb,
                                 color: Colors.amber, size: 18),
                             const SizedBox(width: 6),
-                            Text(AppLocalizations.of(context)!.calculate_solutionLabel,
+                            Text(
+                                AppLocalizations.of(context)!
+                                    .calculate_solutionLabel,
                                 style: AppTextStyles.label(13,
                                     color: Palette.sky)),
                           ],
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 6),
                         Text(solution, style: AppTextStyles.body(14)),
                       ],
                     ),
                   ),
                 ),
 
-              // Correct / Incorrect buttons
+              // Correct / Incorrect toggle buttons
               Padding(
-                padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
+                padding: const EdgeInsets.fromLTRB(14, 8, 14, 16),
                 child: Row(
                   children: [
                     Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () {
+                      child: GestureDetector(
+                        onTap: () {
                           setState(() {
                             _answerStatus[index] = true;
                             _segmentResults[index].maxScore =
                                 _originalScores[index] ?? 100;
                           });
                         },
-                        icon: const Icon(Icons.check, size: 20),
-                        label: Text(
-                            AppLocalizations.of(context)!.calculate_correct,
-                            style: AppTextStyles.heading(14)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: status == true
-                              ? Palette.success
-                              : Palette.success.withValues(alpha: 0.3),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          decoration: BoxDecoration(
+                            color: status == true
+                                ? Palette.success
+                                : Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: Palette.success,
+                              width: status == true ? 2.5 : 1.5,
+                            ),
+                            boxShadow: status == true
+                                ? [
+                                    BoxShadow(
+                                      color: Palette.success
+                                          .withValues(alpha: 0.3),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    )
+                                  ]
+                                : [],
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.check_circle_rounded,
+                                  size: 22,
+                                  color: status == true
+                                      ? Colors.white
+                                      : Palette.success),
+                              const SizedBox(width: 8),
+                              Text(
+                                AppLocalizations.of(context)!
+                                    .calculate_correct,
+                                style: AppTextStyles.heading(15,
+                                    color: status == true
+                                        ? Colors.white
+                                        : Palette.success),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: 12),
                     Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: () {
+                      child: GestureDetector(
+                        onTap: () {
                           setState(() {
                             _answerStatus[index] = false;
                             _segmentResults[index].maxScore = 0;
                           });
                         },
-                        icon: const Icon(Icons.close, size: 20),
-                        label: Text(
-                            AppLocalizations.of(context)!.calculate_incorrect,
-                            style: AppTextStyles.heading(14)),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: status == false
-                              ? Colors.red.shade400
-                              : Colors.red.withValues(alpha: 0.3),
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          decoration: BoxDecoration(
+                            color: status == false
+                                ? Colors.red.shade400
+                                : Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: Colors.red.shade400,
+                              width: status == false ? 2.5 : 1.5,
+                            ),
+                            boxShadow: status == false
+                                ? [
+                                    BoxShadow(
+                                      color: Colors.red
+                                          .withValues(alpha: 0.3),
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 2),
+                                    )
+                                  ]
+                                : [],
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.cancel_rounded,
+                                  size: 22,
+                                  color: status == false
+                                      ? Colors.white
+                                      : Colors.red.shade400),
+                              const SizedBox(width: 8),
+                              Text(
+                                AppLocalizations.of(context)!
+                                    .calculate_incorrect,
+                                style: AppTextStyles.heading(15,
+                                    color: status == false
+                                        ? Colors.white
+                                        : Colors.red.shade400),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
+            ] else ...[
+              const SizedBox(height: 8),
             ],
           ],
         ),

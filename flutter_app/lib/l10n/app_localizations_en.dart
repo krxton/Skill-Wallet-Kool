@@ -578,6 +578,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get physical_finishBtn => 'FINISH';
 
   @override
+  String get physical_addChildren => 'Add Children';
+
+  @override
+  String get physical_addChildrenDesc => 'Select children to play together';
+
+  @override
+  String physical_childrenAdded(int count) {
+    return '+$count children';
+  }
+
+  @override
+  String get physical_currentChild => 'Currently playing';
+
+  @override
+  String get physical_confirm => 'Confirm';
+
+  @override
   String get languagedetail_titlePrefix => 'LANGUAGE: ';
 
   @override
@@ -784,6 +801,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get common_categoryCalculate => 'Calculate';
+
+  @override
+  String get common_activityLanguage => 'Language Activity';
+
+  @override
+  String get common_activityPhysical => 'Physical Activity';
+
+  @override
+  String get common_activityCalculate => 'Calculation Activity';
 
   @override
   String get common_difficultyEasy => 'Easy';

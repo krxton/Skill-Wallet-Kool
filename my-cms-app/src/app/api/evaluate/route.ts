@@ -218,9 +218,7 @@ export async function POST(request: NextRequest) {
         // 2. ส่งต่อ Request Payload ไปยัง Backend CMS
         const cmsResponse = await fetch(CMS_EVAL_URL, {
             method: 'POST',
-            // 🛑 สำคัญ: ส่งต่อ FormData Object โดยตรง
             body: formData, 
-            // ⚠️ Next.js จะจัดการ Header 'Content-Type: multipart/form-data' ให้อัตโนมัติ
         });
 
         // 3. จัดการ Response จาก CMS

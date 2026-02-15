@@ -4,11 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:provider/provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../models/activity.dart';
+import '../../../providers/user_provider.dart';
 import '../../../routes/app_routes.dart';
 import '../../../theme/palette.dart';
 import '../../../theme/app_text_styles.dart';
+import '../../../utils/activity_l10n.dart';
 import '../../../widgets/info_badges.dart';
 
 class PhysicalVideoScreen extends StatefulWidget {
@@ -27,6 +30,152 @@ class PhysicalVideoScreen extends StatefulWidget {
 
 class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
   bool _howToPlayExpanded = false;
+  List<String> _extraChildIds = [];
+
+  void _showChildPicker() {
+    final userProvider = context.read<UserProvider>();
+    final children = userProvider.children;
+    final currentChildId = userProvider.currentChildId;
+    final l = AppLocalizations.of(context)!;
+
+    // Temp selection for the bottom sheet
+    final tempSelected = Set<String>.from(_extraChildIds);
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setModalState) => Container(
+          decoration: const BoxDecoration(
+            color: Palette.cream,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(l.physical_addChildren,
+                      style: AppTextStyles.heading(20, color: Palette.sky)),
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 20),
+                    onPressed: () => Navigator.pop(ctx),
+                  ),
+                ],
+              ),
+              Text(l.physical_addChildrenDesc,
+                  style: AppTextStyles.body(14, color: Colors.black54)),
+              const SizedBox(height: 16),
+
+              // Child list
+              ...children.map((childData) {
+                final info = childData['child'] as Map<String, dynamic>?;
+                if (info == null) return const SizedBox.shrink();
+                final childId = info['child_id'] as String;
+                final childName = info['name_surname'] as String? ?? '';
+                final isCurrent = childId == currentChildId;
+                final isSelected = isCurrent || tempSelected.contains(childId);
+
+                return GestureDetector(
+                  onTap: isCurrent
+                      ? null
+                      : () {
+                          setModalState(() {
+                            if (tempSelected.contains(childId)) {
+                              tempSelected.remove(childId);
+                            } else {
+                              tempSelected.add(childId);
+                            }
+                          });
+                        },
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 8),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
+                    decoration: BoxDecoration(
+                      color: isSelected ? Palette.sky.withValues(alpha: 0.1) : Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: isSelected ? Palette.sky : Colors.grey.shade300,
+                        width: isSelected ? 2 : 1,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          isSelected
+                              ? Icons.check_circle
+                              : Icons.radio_button_unchecked,
+                          color: isSelected ? Palette.sky : Colors.grey,
+                          size: 24,
+                        ),
+                        const SizedBox(width: 12),
+                        CircleAvatar(
+                          radius: 18,
+                          backgroundColor: Palette.sky.withValues(alpha: 0.2),
+                          child: Text(
+                            childName.isNotEmpty ? childName[0].toUpperCase() : '?',
+                            style: AppTextStyles.heading(16, color: Palette.sky),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(childName,
+                              style: AppTextStyles.label(16,
+                                  color: Colors.black87)),
+                        ),
+                        if (isCurrent)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: Palette.sky,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(l.physical_currentChild,
+                                style: AppTextStyles.label(11,
+                                    color: Colors.white)),
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+
+              const SizedBox(height: 16),
+
+              // Confirm button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    setState(() {
+                      _extraChildIds = tempSelected.toList();
+                    });
+                    Navigator.pop(ctx);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Palette.sky,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16)),
+                  ),
+                  child: Text(l.physical_confirm,
+                      style: AppTextStyles.heading(18, color: Colors.white)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,8 +190,10 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
     return Scaffold(
       backgroundColor: Palette.cream,
       appBar: AppBar(
-        title:
-            Text(name, style: AppTextStyles.heading(22, color: Colors.black)),
+        title: Text(
+            ActivityL10n.localizedActivityType(
+                context, activity.category),
+            style: AppTextStyles.heading(22, color: Colors.black)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.black),
@@ -226,7 +377,10 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
                       Navigator.pushNamed(
                         context,
                         AppRoutes.physicalActivity,
-                        arguments: activity,
+                        arguments: {
+                          'activity': activity,
+                          'extraChildIds': _extraChildIds,
+                        },
                       );
                     },
                     icon: const Icon(Icons.play_arrow),
@@ -242,17 +396,28 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: ElevatedButton.icon(
-                    onPressed: () {
-                      // TODO: Implement Add to Diary/Favorite Logic
-                    },
-                    icon: const Icon(Icons.add_circle_outline),
-                    label: Text(
-                        AppLocalizations.of(context)!.videodetail_addBtn,
-                        style:
-                            AppTextStyles.heading(20, color: Palette.deepGrey)),
+                    onPressed: _showChildPicker,
+                    icon: Icon(_extraChildIds.isEmpty
+                        ? Icons.group_add_outlined
+                        : Icons.group),
+                    label: _extraChildIds.isEmpty
+                        ? Text(
+                            AppLocalizations.of(context)!.videodetail_addBtn,
+                            style: AppTextStyles.heading(20,
+                                color: Palette.deepGrey))
+                        : Text(
+                            AppLocalizations.of(context)!
+                                .physical_childrenAdded(
+                                    _extraChildIds.length),
+                            style: AppTextStyles.heading(16,
+                                color: Colors.white)),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.grey.shade400,
-                      foregroundColor: Palette.deepGrey,
+                      backgroundColor: _extraChildIds.isEmpty
+                          ? Colors.grey.shade400
+                          : Palette.sky,
+                      foregroundColor: _extraChildIds.isEmpty
+                          ? Palette.deepGrey
+                          : Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                   ),

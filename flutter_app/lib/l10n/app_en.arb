@@ -241,6 +241,16 @@
   "physical_timeLabel": "TIME",
   "physical_submittingBtn": "Submitting...",
   "physical_finishBtn": "FINISH",
+  "physical_addChildren": "Add Children",
+  "physical_addChildrenDesc": "Select children to play together",
+  "physical_childrenAdded": "+{count} children",
+  "@physical_childrenAdded": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "physical_currentChild": "Currently playing",
+  "physical_confirm": "Confirm",
 
   "languagedetail_titlePrefix": "LANGUAGE: ",
   "languagedetail_categoryPrefix": "CATEGORY: ",
@@ -329,6 +339,9 @@
   "common_categoryLanguage": "Language",
   "common_categoryPhysical": "Physical",
   "common_categoryCalculate": "Calculate",
+  "common_activityLanguage": "Language Activity",
+  "common_activityPhysical": "Physical Activity",
+  "common_activityCalculate": "Calculation Activity",
   "common_difficultyEasy": "Easy",
   "common_difficultyMedium": "Medium",
   "common_difficultyHard": "Hard",

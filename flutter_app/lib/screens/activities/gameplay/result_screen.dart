@@ -6,6 +6,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../theme/palette.dart';
 import '../../../routes/app_routes.dart';
 import '../../../models/activity.dart';
+import '../../../utils/activity_l10n.dart';
 import '../../../widgets/share_result_helper.dart';
 
 class ResultScreen extends StatefulWidget {
@@ -43,7 +44,6 @@ class _ResultScreenState extends State<ResultScreen>
         (ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?) ??
             {};
 
-    final int totalScore = (args['totalScore'] as int?) ?? 0;
     final String activityName = (args['activityName'] as String?) ??
         AppLocalizations.of(context)!.result_activityCompletedDefault;
     final int timeSpentSeconds = (args['timeSpend'] as int?) ?? 0;
@@ -62,8 +62,13 @@ class _ResultScreenState extends State<ResultScreen>
     String two(int n) => n.toString().padLeft(2, '0');
     final mm = two(time.inMinutes % 60), ss = two(time.inSeconds % 60);
 
-    final Color scoreColor =
-        totalScore >= 70 ? Palette.successAlt : Palette.pink;
+    // สี based on scoreEarned vs maxScore:
+    // เต็ม = เขียว, ≥ครึ่ง = เหลือง, <ครึ่ง = แดง
+    final Color scoreColor = scoreEarned >= maxScore
+        ? Palette.successAlt
+        : scoreEarned >= (maxScore / 2)
+            ? Palette.warning
+            : Palette.pink;
 
     return Scaffold(
       backgroundColor: Palette.cream,
@@ -79,8 +84,11 @@ class _ResultScreenState extends State<ResultScreen>
         ),
         elevation: 0,
         title: Text(
-          AppLocalizations.of(context)!.result_resultTitle,
-          style: GoogleFonts.luckiestGuy(color: Colors.black87),
+          activityToReplay != null
+              ? ActivityL10n.localizedActivityType(
+                  context, activityToReplay.category)
+              : AppLocalizations.of(context)!.result_resultTitle,
+          style: GoogleFonts.luckiestGuy(color: Colors.black),
         ),
         centerTitle: true,
         actions: [
@@ -141,7 +149,7 @@ class _ResultScreenState extends State<ResultScreen>
                           fontSize: 72, color: scoreColor),
                     ),
                     Text(
-                      totalScore >= 70
+                      scoreEarned >= (maxScore / 2)
                           ? AppLocalizations.of(context)!.result_greatJobTitle
                           : AppLocalizations.of(context)!
                               .result_keepTryingTitle,
