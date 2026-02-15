@@ -9,9 +9,10 @@ WORKDIR /app
 
 # Install Python dependencies (CPU-only torch to reduce image size)
 COPY requirements.txt .
-RUN pip install --no-cache-dir setuptools && \
+RUN pip install --no-cache-dir setuptools wheel && \
     pip install --no-cache-dir \
     torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu && \
+    pip install --no-cache-dir setuptools && \
     pip install --no-cache-dir -r requirements.txt
 
 COPY whisper_eval.py .
