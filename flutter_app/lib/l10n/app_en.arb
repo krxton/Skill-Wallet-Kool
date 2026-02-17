@@ -50,6 +50,11 @@
   "login_backBtn": "BACK",
   "login_facebookBtn": "CONTINUE WITH FACEBOOK",
   "login_googleBtn": "CONTINUE WITH GOOGLE",
+  "login_noAccount": "No account found. Please register first.",
+  "login_goToRegister": "GO TO REGISTER",
+
+  "register_alreadyExists": "This account is already registered. Please login instead.",
+  "register_goToLogin": "GO TO LOGIN",
 
   "setting_backBtn": "BACK",
   "setting_settingBtn": "SETTING",

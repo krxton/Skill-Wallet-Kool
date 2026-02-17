@@ -83,8 +83,12 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _currentChildId = childId;
         _currentParentId = parentId;
-        // Carousel ด้านบน = กิจกรรมแนะนำตามหมวดที่เคยเล่น
+        // Carousel ด้านบน = กิจกรรมแนะนำ (ใช้ filter ตาม category/level)
         _recommendedActivitiesFuture = _fetchRecommendedActivities(childId);
+        _currentCarouselPage = 0;
+        if (_carouselController.hasClients) {
+          _carouselController.jumpToPage(0);
+        }
         // Popular list ด้านล่าง = กิจกรรมยอดนิยม (ตาม play_count)
         _popularActivitiesFuture = _activityService.fetchPopularActivities(
           childId,
@@ -118,16 +122,32 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  /// ดึงกิจกรรมแนะนำสำหรับ Carousel สลับ category วนรอบ (รวม 5 กิจกรรม)
+  /// ดึงกิจกรรมแนะนำสำหรับ Carousel
+  /// - ถ้ามี filter → ดึงตาม filter แล้วสุ่ม 5 ตัว
+  /// - ถ้าไม่มี filter → round-robin สลับ category (รวม 5 กิจกรรม)
   Future<List<Activity>> _fetchRecommendedActivities(String childId) async {
     try {
-      // 1. ดึงกิจกรรมทั้งหมด
-      final allActivities = await _activityService
-          .fetchPopularActivities(childId, parentId: _currentParentId);
+      final hasFilter =
+          _selectedCategory != null || _selectedLevel != null;
+
+      // 1. ดึงกิจกรรมตาม filter (ถ้ามี)
+      final allActivities =
+          await _activityService.fetchPopularActivities(
+        childId,
+        category: _selectedCategory,
+        level: _selectedLevel,
+        parentId: _currentParentId,
+      );
 
       if (allActivities.isEmpty) return [];
 
-      // 2. แยกกิจกรรมตาม category แล้วสุ่มภายในแต่ละ category
+      // 2. ถ้ามี filter → สุ่มจากผลลัพธ์ที่ filter แล้ว
+      if (hasFilter) {
+        allActivities.shuffle();
+        return allActivities.take(5).toList();
+      }
+
+      // 3. ไม่มี filter → round-robin สลับ category
       final Map<String, List<Activity>> byCategory = {};
       for (var a in allActivities) {
         byCategory.putIfAbsent(a.category, () => []).add(a);
@@ -136,11 +156,9 @@ class _HomeScreenState extends State<HomeScreen> {
         list.shuffle();
       }
 
-      // 3. สุ่มลำดับ category
       final categories = byCategory.keys.toList()..shuffle();
-      debugPrint('🔄 Category rotation order: $categories');
+      debugPrint('Category rotation order: $categories');
 
-      // 4. Round-robin เลือกทีละ category จนครบ 5
       List<Activity> recommended = [];
       const int targetCount = 5;
       final Map<String, int> categoryIndex = {
@@ -159,16 +177,19 @@ class _HomeScreenState extends State<HomeScreen> {
         }
 
         catIdx++;
-        // ป้องกัน infinite loop ถ้ากิจกรรมทั้งหมดน้อยกว่า targetCount
         if (catIdx >= categories.length * (targetCount + 1)) break;
       }
 
-      debugPrint('✅ Recommended activities: ${recommended.length} items');
+      debugPrint('Recommended activities: ${recommended.length} items');
       return recommended;
     } catch (e) {
-      debugPrint('❌ Error fetching recommended activities: $e');
-      final all = await _activityService.fetchPopularActivities(childId,
-          parentId: _currentParentId);
+      debugPrint('Error fetching recommended activities: $e');
+      final all = await _activityService.fetchPopularActivities(
+        childId,
+        category: _selectedCategory,
+        level: _selectedLevel,
+        parentId: _currentParentId,
+      );
       all.shuffle();
       return all.take(5).toList();
     }

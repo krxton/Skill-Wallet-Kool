@@ -161,6 +161,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get login_googleBtn => 'CONTINUE WITH GOOGLE';
 
   @override
+  String get login_noAccount => 'No account found. Please register first.';
+
+  @override
+  String get login_goToRegister => 'GO TO REGISTER';
+
+  @override
+  String get register_alreadyExists =>
+      'This account is already registered. Please login instead.';
+
+  @override
+  String get register_goToLogin => 'GO TO LOGIN';
+
+  @override
   String get setting_backBtn => 'BACK';
 
   @override

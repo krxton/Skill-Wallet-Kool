@@ -50,6 +50,11 @@
   "login_backBtn": "ย้อนกลับ",
   "login_facebookBtn": "ดำเนินการต่อด้วย FACEBOOK",
   "login_googleBtn": "ดำเนินการต่อด้วย GOOGLE",
+  "login_noAccount": "ไม่พบบัญชีผู้ใช้ กรุณาลงทะเบียนก่อน",
+  "login_goToRegister": "ไปลงทะเบียน",
+
+  "register_alreadyExists": "บัญชีนี้ลงทะเบียนแล้ว กรุณาเข้าสู่ระบบแทน",
+  "register_goToLogin": "ไปเข้าสู่ระบบ",
 
   "setting_backBtn": "ย้อนกลับ",
   "setting_settingBtn": "การตั้งค่า",

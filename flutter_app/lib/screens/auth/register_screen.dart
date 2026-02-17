@@ -219,6 +219,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
       final user = response.user;
       if (user != null) {
+        // ตรวจสอบว่ามี parent record อยู่แล้วหรือไม่
+        final alreadyExists = await _checkParentExists();
+        if (alreadyExists) {
+          await Supabase.instance.client.auth.signOut();
+          setState(() => _isLoading = false);
+          if (mounted) _showAlreadyExistsDialog();
+          return;
+        }
+
         // บันทึกข้อมูลลง database
         await _saveUserToDatabase(
           userId: user.id,
@@ -437,6 +446,57 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  // ========== Helper: Check if parent exists ==========
+  Future<bool> _checkParentExists() async {
+    try {
+      final supabase = Supabase.instance.client;
+      final user = supabase.auth.currentUser;
+      if (user == null) return false;
+
+      final result = await supabase
+          .from('parent')
+          .select('parent_id')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+      return result != null;
+    } catch (e) {
+      debugPrint('Check parent error: $e');
+      return false;
+    }
+  }
+
+  // ========== Helper: Already Exists Dialog ==========
+  void _showAlreadyExistsDialog() {
+    final l10n = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Icon(Icons.info_outline, size: 48, color: Color(0xFF0D92F4)),
+        content: Text(
+          l10n.register_alreadyExists,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 16),
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.register_backBtn),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              Navigator.pushReplacementNamed(context, AppRoutes.login);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0D92F4)),
+            child: Text(l10n.register_goToLogin, style: const TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
     );
   }
 

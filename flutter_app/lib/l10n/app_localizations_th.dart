@@ -161,6 +161,19 @@ class AppLocalizationsTh extends AppLocalizations {
   String get login_googleBtn => 'ดำเนินการต่อด้วย GOOGLE';
 
   @override
+  String get login_noAccount => 'ไม่พบบัญชีผู้ใช้ กรุณาลงทะเบียนก่อน';
+
+  @override
+  String get login_goToRegister => 'ไปลงทะเบียน';
+
+  @override
+  String get register_alreadyExists =>
+      'บัญชีนี้ลงทะเบียนแล้ว กรุณาเข้าสู่ระบบแทน';
+
+  @override
+  String get register_goToLogin => 'ไปเข้าสู่ระบบ';
+
+  @override
   String get setting_backBtn => 'ย้อนกลับ';
 
   @override

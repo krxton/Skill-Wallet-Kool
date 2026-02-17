@@ -380,6 +380,30 @@ abstract class AppLocalizations {
   /// **'CONTINUE WITH GOOGLE'**
   String get login_googleBtn;
 
+  /// No description provided for @login_noAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'No account found. Please register first.'**
+  String get login_noAccount;
+
+  /// No description provided for @login_goToRegister.
+  ///
+  /// In en, this message translates to:
+  /// **'GO TO REGISTER'**
+  String get login_goToRegister;
+
+  /// No description provided for @register_alreadyExists.
+  ///
+  /// In en, this message translates to:
+  /// **'This account is already registered. Please login instead.'**
+  String get register_alreadyExists;
+
+  /// No description provided for @register_goToLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'GO TO LOGIN'**
+  String get register_goToLogin;
+
   /// No description provided for @setting_backBtn.
   ///
   /// In en, this message translates to:

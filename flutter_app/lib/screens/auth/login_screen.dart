@@ -136,7 +136,16 @@ class _LoginScreenState extends State<LoginScreen> {
       final user = supabase.auth.currentUser;
 
       if (user != null) {
-        // บันทึกหรืออัพเดทข้อมูลลง parent table
+        // ตรวจสอบว่ามี parent record หรือยัง
+        final hasAccount = await _checkParentExists();
+        if (!hasAccount) {
+          // ยังไม่เคยสมัคร → sign out แล้วแจ้งเตือน
+          await Supabase.instance.client.auth.signOut();
+          setState(() => _isLoading = false);
+          if (mounted) _showNoAccountDialog();
+          return;
+        }
+
         await _syncUserData(
           userId: user.id,
           email: user.email,
@@ -147,7 +156,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
         setState(() => _isLoading = false);
 
-        // Navigate to home
         if (mounted) {
           Navigator.pushNamedAndRemoveUntil(
             context,
@@ -163,7 +171,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } catch (e) {
       setState(() => _isLoading = false);
-      debugPrint('❌ Facebook Sign-In error: $e');
+      debugPrint('Facebook Sign-In error: $e');
       if (mounted) {
         _showMessage(
             AppLocalizations.of(context)!.common_errorGeneric(e.toString()));
@@ -234,7 +242,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
       final user = response.user;
       if (user != null) {
-        // 5. Sync user data to database
+        // 5. ตรวจสอบว่ามี parent record หรือยัง
+        final hasAccount = await _checkParentExists();
+        if (!hasAccount) {
+          await Supabase.instance.client.auth.signOut();
+          setState(() => _isLoading = false);
+          if (mounted) _showNoAccountDialog();
+          return;
+        }
+
+        // 6. Sync user data to database
         final String nameToSave = fullName ?? user.email!.split('@')[0];
         await _syncUserData(
           userId: user.id,
@@ -244,7 +261,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
         setState(() => _isLoading = false);
 
-        // 6. Navigate to home
+        // 7. Navigate to home
         if (mounted) {
           Navigator.pushNamedAndRemoveUntil(
             context,
@@ -288,6 +305,57 @@ class _LoginScreenState extends State<LoginScreen> {
       debugPrint('❌ Error syncing user data: $e');
       // Don't throw - allow user to continue even if sync fails
     }
+  }
+
+  // ========== Helper: Check if parent exists ==========
+  Future<bool> _checkParentExists() async {
+    try {
+      final supabase = Supabase.instance.client;
+      final user = supabase.auth.currentUser;
+      if (user == null) return false;
+
+      final result = await supabase
+          .from('parent')
+          .select('parent_id')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+      return result != null;
+    } catch (e) {
+      debugPrint('Check parent error: $e');
+      return false;
+    }
+  }
+
+  // ========== Helper: No Account Dialog ==========
+  void _showNoAccountDialog() {
+    final l10n = AppLocalizations.of(context)!;
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Icon(Icons.info_outline, size: 48, color: Color(0xFFEA5B6F)),
+        content: Text(
+          l10n.login_noAccount,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 16),
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(l10n.login_backBtn),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              Navigator.pushReplacementNamed(context, AppRoutes.register);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0D92F4)),
+            child: Text(l10n.login_goToRegister, style: const TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
   }
 
   // ========== Helper: Show Message ==========
