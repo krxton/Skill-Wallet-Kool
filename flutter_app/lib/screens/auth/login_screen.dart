@@ -16,12 +16,41 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  bool _isLoading = false; // ✅ เพิ่ม local loading state
+class _LoginScreenState extends State<LoginScreen> with WidgetsBindingObserver {
+  bool _isLoading = false;
+  bool _waitingForOAuth = false; // รอ redirect กลับจาก browser
 
   static const cream = Color(0xFFFFF5CD);
   static const fbBlue = Color(0xFF1877F2);
   static const backPink = Color(0xFFEA5B6F);
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // เมื่อ app กลับมา foreground หลังเปิด browser
+    if (state == AppLifecycleState.resumed && _waitingForOAuth) {
+      // รอ 3 วินาทีให้ auth callback ทำงาน ถ้าไม่มี → หยุด loading
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted && _isLoading && _waitingForOAuth) {
+          setState(() {
+            _isLoading = false;
+            _waitingForOAuth = false;
+          });
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       const CircularProgressIndicator(),
                       const SizedBox(height: 8),
                       Text(
-                        'กำลังเข้าสู่ระบบ...',
+                        AppLocalizations.of(context)!.login_loading,
                         style: GoogleFonts.itim(
                           fontSize: 16,
                           color: Colors.black54,
@@ -110,65 +139,68 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  // ========== Facebook Sign-In (เพิ่มใหม่ - ครบถ้วน) ==========
+  // ========== Facebook Sign-In via Supabase OAuth ==========
   Future<void> _handleFacebookSignIn() async {
     setState(() => _isLoading = true);
 
     try {
-      final authProvider = context.read<AuthProvider>();
-
-      // เรียก Facebook Sign-In
-      final success = await authProvider.signInWithFacebook();
-
-      if (!success) {
-        setState(() => _isLoading = false);
-        if (mounted) {
-          _showMessage('การเข้าสู่ระบบด้วย Facebook ล้มเหลว');
-        }
-        return;
-      }
-
-      // รอให้ Supabase อัพเดท session
-      await Future.delayed(const Duration(seconds: 1));
-
-      // ดึงข้อมูล user
       final supabase = Supabase.instance.client;
-      final user = supabase.auth.currentUser;
 
-      if (user != null) {
-        // ตรวจสอบว่ามี parent record หรือยัง
-        final hasAccount = await _checkParentExists();
-        if (!hasAccount) {
-          // ยังไม่เคยสมัคร → sign out แล้วแจ้งเตือน
-          await Supabase.instance.client.auth.signOut();
-          setState(() => _isLoading = false);
-          if (mounted) _showNoAccountDialog();
-          return;
-        }
+      // 1. Listen สำหรับ auth state change (จะ fire หลัง redirect กลับมา)
+      final authSubscription = supabase.auth.onAuthStateChange.listen((data) async {
+        final event = data.event;
+        final session = data.session;
 
-        await _syncUserData(
-          userId: user.id,
-          email: user.email,
-          fullName: user.userMetadata?['full_name'] ??
-              user.userMetadata?['name'] ??
-              user.email?.split('@')[0],
-        );
+        if (event == AuthChangeEvent.signedIn && session != null) {
+          final user = session.user;
 
-        setState(() => _isLoading = false);
+          // ตรวจสอบว่ามี parent record หรือยัง
+          final hasAccount = await _checkParentExists();
+          if (!hasAccount) {
+            await supabase.auth.signOut();
+            if (mounted) {
+              setState(() => _isLoading = false);
+              _showNoAccountDialog();
+            }
+            return;
+          }
 
-        if (mounted) {
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            AppRoutes.home,
-            (route) => false,
+          await _syncUserData(
+            userId: user.id,
+            email: user.email,
+            fullName: user.userMetadata?['full_name'] ??
+                user.userMetadata?['name'] ??
+                user.email?.split('@')[0],
           );
+
+          if (mounted) {
+            setState(() => _isLoading = false);
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              AppRoutes.home,
+              (route) => false,
+            );
+          }
         }
-      } else {
-        setState(() => _isLoading = false);
-        if (mounted) {
-          _showMessage('ไม่พบข้อมูลผู้ใช้');
+      });
+
+      // 2. เปิด Facebook OAuth ผ่าน Supabase
+      _waitingForOAuth = true;
+      await supabase.auth.signInWithOAuth(
+        OAuthProvider.facebook,
+        redirectTo: 'skillwalletkool://auth-callback',
+      );
+
+      // Cancel listener หลัง 2 นาที (timeout)
+      Future.delayed(const Duration(minutes: 2), () {
+        authSubscription.cancel();
+        if (mounted && _isLoading) {
+          setState(() {
+            _isLoading = false;
+            _waitingForOAuth = false;
+          });
         }
-      }
+      });
     } catch (e) {
       setState(() => _isLoading = false);
       debugPrint('Facebook Sign-In error: $e');
@@ -185,6 +217,17 @@ class _LoginScreenState extends State<LoginScreen> {
 
     try {
       await _nativeGoogleSignIn();
+    } on GoogleSignInException catch (e) {
+      setState(() => _isLoading = false);
+      if (e.code == GoogleSignInExceptionCode.canceled) {
+        debugPrint('Google Sign-In cancelled by user');
+        return;
+      }
+      debugPrint('❌ Google Sign-In error: $e');
+      if (mounted) {
+        _showMessage(
+            AppLocalizations.of(context)!.common_errorGeneric(e.toString()));
+      }
     } catch (e) {
       setState(() => _isLoading = false);
       debugPrint('❌ Google Sign-In error: $e');

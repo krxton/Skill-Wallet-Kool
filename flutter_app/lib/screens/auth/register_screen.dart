@@ -22,12 +22,13 @@ class RegisterScreen extends StatefulWidget {
   State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
+class _RegisterScreenState extends State<RegisterScreen> with WidgetsBindingObserver {
   final AuthService authService = AuthService();
   final ChildService childService = ChildService();
 
   late int step;
   bool _isLoading = false;
+  bool _waitingForOAuth = false;
 
   // palette (UI เดิม)
   static const cream = Color(0xFFFFF5CD);
@@ -42,11 +43,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     step = (widget.initialStep == 1) ? 1 : 0;
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && _waitingForOAuth) {
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted && _isLoading && _waitingForOAuth) {
+          setState(() {
+            _isLoading = false;
+            _waitingForOAuth = false;
+          });
+        }
+      });
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     for (final c in _children) {
       c.dispose();
     }
@@ -102,7 +119,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           const SizedBox(height: 8),
           Center(
             child: Text(
-              'กำลังลงทะเบียน...',
+              AppLocalizations.of(context)!.register_loading,
               style: GoogleFonts.itim(
                 fontSize: 16,
                 color: Colors.black54,
@@ -115,48 +132,73 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  // ========== Facebook Sign-In (เพิ่มใหม่) ==========
+  // ========== Facebook Sign-In via Supabase OAuth ==========
   Future<void> _handleFacebookSignIn() async {
     setState(() => _isLoading = true);
 
     try {
-      // final LoginResult result = await FacebookAuth.instance.login(
-      //   permissions: ['public_profile', 'email'],
-      // );
+      final supabase = Supabase.instance.client;
 
-      // if (result.status == LoginStatus.success) {
-      //   final accessToken = result.accessToken!.tokenString;
+      // 1. Listen สำหรับ auth state change
+      final authSubscription = supabase.auth.onAuthStateChange.listen((data) async {
+        final event = data.event;
+        final session = data.session;
 
-      //   final response = await Supabase.instance.client.auth.signInWithIdToken(
-      //     provider: OAuthProvider.facebook,
-      //     idToken: accessToken,
-      //   );
-      //   final user = response.user;
-      //         if (user != null) {
-      //     // บันทึกข้อมูลลง database
-      //     await _saveUserToDatabase(
-      //       userId: user.id,
-      //       email: user.email,
-      //       fullName: "parent",
-      //     );
+        if (event == AuthChangeEvent.signedIn && session != null) {
+          final user = session.user;
 
-      //     // ไปขั้นตอนถัดไป
-      //     if (mounted) {
-      //       setState(() {
-      //         step = 1;
-      //         _isLoading = false;
-      //       });
-      //     }
-      //   }
+          // ตรวจสอบว่ามี parent record อยู่แล้วหรือไม่
+          final alreadyExists = await _checkParentExists();
+          if (alreadyExists) {
+            await supabase.auth.signOut();
+            if (mounted) {
+              setState(() => _isLoading = false);
+              _showAlreadyExistsDialog();
+            }
+            return;
+          }
 
-      //   // Authentication successful
-      // } else {
-      //   // Handle login cancellation or failure
-      //   throw Exception('Facebook login failed: ${result.status}');
-      // }
+          // บันทึกข้อมูลลง database
+          await _saveUserToDatabase(
+            userId: user.id,
+            email: user.email,
+            fullName: user.userMetadata?['full_name'] ??
+                user.userMetadata?['name'],
+          );
+
+          // ไปขั้นตอนถัดไป
+          if (mounted) {
+            setState(() {
+              step = 1;
+              _isLoading = false;
+            });
+          }
+        }
+      });
+
+      // 2. เปิด Facebook OAuth ผ่าน Supabase
+      _waitingForOAuth = true;
+      await supabase.auth.signInWithOAuth(
+        OAuthProvider.facebook,
+        redirectTo: 'skillwalletkool://auth-callback',
+      );
+
+      // Cancel listener หลัง 2 นาที (timeout)
+      Future.delayed(const Duration(minutes: 2), () {
+        authSubscription.cancel();
+        if (mounted && _isLoading) {
+          setState(() {
+            _isLoading = false;
+            _waitingForOAuth = false;
+          });
+        }
+      });
     } catch (e) {
-      // Handle errors
-      throw Exception('Facebook authentication error: ${e.toString()}');
+      setState(() => _isLoading = false);
+      debugPrint('Facebook Sign-In error: $e');
+      if (mounted) {
+        _toast(AppLocalizations.of(context)!.common_errorGeneric(e.toString()));
+      }
     }
   }
 
@@ -166,6 +208,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     try {
       await _nativeGoogleSignIn();
+    } on GoogleSignInException catch (e) {
+      setState(() => _isLoading = false);
+      if (e.code == GoogleSignInExceptionCode.canceled) {
+        debugPrint('Google Sign-In cancelled by user');
+        return;
+      }
+      debugPrint('Google Sign-In error: $e');
+      if (mounted) {
+        _toast(AppLocalizations.of(context)!.common_errorGeneric(e.toString()));
+      }
     } catch (e) {
       setState(() => _isLoading = false);
       debugPrint('Google Sign-In error: $e');

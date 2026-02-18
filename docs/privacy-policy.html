@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — Skill Wallet Kool</title>
+  <style>
+    :root {
+      --cream: #FFF5CD;
+      --sky: #0D92F4;
+      --pink: #EA5B6F;
+      --dark: #2D2D2D;
+      --gray: #666;
+      --light-gray: #f5f5f5;
+      --white: #ffffff;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--cream);
+      color: var(--dark);
+      line-height: 1.7;
+    }
+
+    .header {
+      background: linear-gradient(135deg, var(--sky), #0b7fd4);
+      color: white;
+      text-align: center;
+      padding: 40px 20px 30px;
+    }
+
+    .header img {
+      width: 80px;
+      height: 80px;
+      border-radius: 16px;
+      margin-bottom: 12px;
+      background: white;
+      padding: 8px;
+    }
+
+    .header h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .header p {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    /* Language tabs */
+    .lang-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      margin-top: 20px;
+    }
+
+    .lang-tab {
+      padding: 10px 32px;
+      border: none;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+
+    .lang-tab:first-child { border-radius: 8px 0 0 8px; }
+    .lang-tab:last-child { border-radius: 0 8px 8px 0; }
+
+    .lang-tab.active {
+      background: white;
+      color: var(--sky);
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 30px 20px 60px;
+    }
+
+    .content { display: none; }
+    .content.active { display: block; }
+
+    .card {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .card h2 {
+      color: var(--sky);
+      font-size: 1.2rem;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card h2 .icon {
+      font-size: 1.3rem;
+    }
+
+    .card h3 {
+      color: var(--dark);
+      font-size: 1rem;
+      margin: 16px 0 8px;
+    }
+
+    .card p, .card li {
+      color: var(--gray);
+      font-size: 0.93rem;
+      margin-bottom: 8px;
+    }
+
+    .card ul, .card ol {
+      padding-left: 20px;
+    }
+
+    .card li {
+      margin-bottom: 6px;
+    }
+
+    .highlight {
+      background: var(--light-gray);
+      border-left: 3px solid var(--sky);
+      padding: 12px 16px;
+      border-radius: 0 8px 8px 0;
+      margin: 12px 0;
+    }
+
+    .highlight p {
+      margin: 0;
+      color: var(--dark);
+      font-size: 0.9rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background: var(--light-gray);
+      color: var(--dark);
+      font-weight: 600;
+    }
+
+    td { color: var(--gray); }
+
+    .contact-box {
+      background: linear-gradient(135deg, var(--sky), #0b7fd4);
+      border-radius: 12px;
+      padding: 24px 28px;
+      color: white;
+      text-align: center;
+    }
+
+    .contact-box h2 { color: white; justify-content: center; }
+    .contact-box p { color: rgba(255,255,255,0.9); }
+    .contact-box a { color: white; font-weight: 600; }
+
+    .footer {
+      text-align: center;
+      padding: 20px;
+      color: var(--gray);
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: 600px) {
+      .card { padding: 18px 16px; }
+      .header h1 { font-size: 1.3rem; }
+      .lang-tab { padding: 8px 24px; font-size: 0.85rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>Skill Wallet Kool</h1>
+    <p>Privacy Policy</p>
+    <div class="lang-tabs">
+      <button class="lang-tab active" onclick="switchLang('en')">English</button>
+      <button class="lang-tab" onclick="switchLang('th')">ภาษาไทย</button>
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- ==================== ENGLISH ==================== -->
+    <div id="content-en" class="content active">
+
+      <div class="card">
+        <h2><span class="icon">📋</span> Introduction</h2>
+        <p>Skill Wallet Kool ("we", "us", or "our") operates the Skill Wallet Kool mobile application (the "App"). This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our App.</p>
+        <p>By using the App, you agree to the collection and use of information in accordance with this policy.</p>
+        <div class="highlight">
+          <p><strong>Effective Date:</strong> February 18, 2026</p>
+          <p><strong>Last Updated:</strong> February 18, 2026</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">📦</span> Information We Collect</h2>
+
+        <h3>1. Information You Provide</h3>
+        <table>
+          <tr><th>Data Type</th><th>Purpose</th></tr>
+          <tr><td>Name and email address</td><td>Account creation and authentication</td></tr>
+          <tr><td>Child's name and information</td><td>Activity tracking and skill development</td></tr>
+          <tr><td>Activity records and scores</td><td>Progress tracking and reporting</td></tr>
+          <tr><td>Photos and media (optional)</td><td>Activity evidence and documentation</td></tr>
+        </table>
+
+        <h3>2. Information Collected Automatically</h3>
+        <ul>
+          <li><strong>Authentication data:</strong> OAuth tokens from Google or Facebook for sign-in purposes</li>
+          <li><strong>Device information:</strong> Device type and operating system (for app compatibility)</li>
+          <li><strong>Usage data:</strong> App interaction patterns to improve user experience</li>
+        </ul>
+
+        <h3>3. Information from Third-Party Services</h3>
+        <p>When you sign in via Google or Facebook, we receive your public profile information (name and email address) as authorized by you during the sign-in process.</p>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">🎯</span> How We Use Your Information</h2>
+        <ul>
+          <li>To create and manage your account</li>
+          <li>To track children's activity progress and skill development</li>
+          <li>To provide personalized activity recommendations</li>
+          <li>To generate progress reports for parents</li>
+          <li>To improve the App's features and user experience</li>
+          <li>To communicate with you about your account or the App</li>
+          <li>To ensure the security and integrity of our services</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">🔒</span> Data Storage and Security</h2>
+        <p>Your data is stored securely using the following services:</p>
+        <ul>
+          <li><strong>Supabase:</strong> Our primary database and authentication provider, hosted on secure cloud infrastructure with encryption at rest and in transit</li>
+          <li><strong>Cloudinary:</strong> For secure media file storage (activity evidence photos)</li>
+        </ul>
+        <p>We implement industry-standard security measures including:</p>
+        <ul>
+          <li>Encrypted data transmission (HTTPS/TLS)</li>
+          <li>Secure authentication via OAuth 2.0</li>
+          <li>Row-level security policies on database</li>
+          <li>Regular security reviews</li>
+        </ul>
+        <div class="highlight">
+          <p>While we strive to protect your information, no method of electronic transmission or storage is 100% secure. We cannot guarantee absolute security.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">🤝</span> Information Sharing and Disclosure</h2>
+        <p>We do <strong>not</strong> sell, trade, or rent your personal information to third parties. We may share your information only in the following circumstances:</p>
+        <ul>
+          <li><strong>Service providers:</strong> With trusted third-party services (Supabase, Cloudinary) that help us operate the App, subject to their own privacy policies</li>
+          <li><strong>Legal requirements:</strong> When required by law, regulation, or legal process</li>
+          <li><strong>Safety:</strong> To protect the rights, safety, or property of our users or the public</li>
+          <li><strong>Consent:</strong> With your explicit consent for any other purpose</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">👶</span> Children's Privacy</h2>
+        <p>Our App is designed for parents to track their children's skill development. We take children's privacy seriously:</p>
+        <ul>
+          <li>Children's data is collected and managed exclusively by their parent/guardian account</li>
+          <li>We do not knowingly collect personal information directly from children</li>
+          <li>Parents have full control over their children's data and can request deletion at any time</li>
+          <li>Children's information is not shared with any third parties for marketing purposes</li>
+        </ul>
+        <p>We comply with applicable children's privacy laws, including the Children's Online Privacy Protection Act (COPPA) and Thailand's Personal Data Protection Act (PDPA).</p>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">⚖️</span> Your Rights</h2>
+        <p>You have the following rights regarding your personal data:</p>
+        <ul>
+          <li><strong>Access:</strong> Request a copy of the personal data we hold about you</li>
+          <li><strong>Correction:</strong> Request correction of inaccurate or incomplete data</li>
+          <li><strong>Deletion:</strong> Request deletion of your account and all associated data</li>
+          <li><strong>Portability:</strong> Request your data in a portable format</li>
+          <li><strong>Withdrawal of consent:</strong> Withdraw your consent for data processing at any time</li>
+          <li><strong>Objection:</strong> Object to the processing of your personal data</li>
+        </ul>
+        <p>To exercise any of these rights, please contact us using the information provided below.</p>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">🔗</span> Third-Party Services</h2>
+        <p>Our App integrates with the following third-party services, each governed by their own privacy policies:</p>
+        <ul>
+          <li><strong>Google Sign-In:</strong> <a href="https://policies.google.com/privacy" target="_blank">Google Privacy Policy</a></li>
+          <li><strong>Facebook Login:</strong> <a href="https://www.facebook.com/privacy/policy/" target="_blank">Meta Privacy Policy</a></li>
+          <li><strong>Supabase:</strong> <a href="https://supabase.com/privacy" target="_blank">Supabase Privacy Policy</a></li>
+          <li><strong>YouTube (embedded videos):</strong> <a href="https://policies.google.com/privacy" target="_blank">Google Privacy Policy</a></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">📝</span> Changes to This Privacy Policy</h2>
+        <p>We may update this Privacy Policy from time to time. We will notify you of any material changes by:</p>
+        <ul>
+          <li>Posting the updated policy on this page with a new "Last Updated" date</li>
+          <li>Sending a notification through the App when significant changes are made</li>
+        </ul>
+        <p>We encourage you to review this Privacy Policy periodically.</p>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">🗑️</span> Data Retention and Deletion</h2>
+        <p>We retain your personal data for as long as your account is active or as needed to provide you with our services. You may request account deletion at any time by contacting us.</p>
+        <p>Upon account deletion:</p>
+        <ul>
+          <li>Your personal information will be permanently deleted within 30 days</li>
+          <li>All associated children's data will also be deleted</li>
+          <li>Activity records and evidence will be removed from our servers</li>
+          <li>Some anonymized, aggregated data may be retained for analytical purposes</li>
+        </ul>
+      </div>
+
+      <div class="contact-box">
+        <h2><span class="icon">📧</span> Contact Us</h2>
+        <p>If you have questions about this Privacy Policy or wish to exercise your data rights, please contact us:</p>
+        <p style="margin-top: 12px;">
+          <strong>Email:</strong> <a href="mailto:ngaotlcfhanon@gmail.com">ngaotlcfhanon@gmail.com</a>
+        </p>
+        <p>
+          <strong>GitHub:</strong> <a href="https://github.com/krxton/Skill-Wallet-Kool" target="_blank">github.com/krxton/Skill-Wallet-Kool</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- ==================== THAI ==================== -->
+    <div id="content-th" class="content">
+
+      <div class="card">
+        <h2><span class="icon">📋</span> บทนำ</h2>
+        <p>Skill Wallet Kool ("เรา") ดำเนินการแอปพลิเคชันมือถือ Skill Wallet Kool ("แอป") นโยบายความเป็นส่วนตัวนี้อธิบายวิธีที่เราเก็บรวบรวม ใช้ เปิดเผย และปกป้องข้อมูลของคุณเมื่อคุณใช้แอปของเรา</p>
+        <p>การใช้แอปแสดงว่าคุณยอมรับการเก็บรวบรวมและใช้ข้อมูลตามนโยบายนี้</p>
+        <div class="highlight">
+          <p><strong>วันที่มีผลบังคับใช้:</strong> 18 กุมภาพันธ์ 2569</p>
+          <p><strong>อัปเดตล่าสุด:</strong> 18 กุมภาพันธ์ 2569</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">📦</span> ข้อมูลที่เราเก็บรวบรวม</h2>
+
+        <h3>1. ข้อมูลที่คุณให้</h3>
+        <table>
+          <tr><th>ประเภทข้อมูล</th><th>วัตถุประสงค์</th></tr>
+          <tr><td>ชื่อและอีเมล</td><td>สร้างบัญชีและยืนยันตัวตน</td></tr>
+          <tr><td>ชื่อและข้อมูลของเด็ก</td><td>ติดตามกิจกรรมและพัฒนาทักษะ</td></tr>
+          <tr><td>บันทึกกิจกรรมและคะแนน</td><td>ติดตามความก้าวหน้าและรายงานผล</td></tr>
+          <tr><td>รูปภาพและสื่อ (ไม่บังคับ)</td><td>หลักฐานและเอกสารกิจกรรม</td></tr>
+        </table>
+
+        <h3>2. ข้อมูลที่เก็บรวบรวมอัตโนมัติ</h3>
+        <ul>
+          <li><strong>ข้อมูลการยืนยันตัวตน:</strong> โทเค็น OAuth จาก Google หรือ Facebook สำหรับการเข้าสู่ระบบ</li>
+          <li><strong>ข้อมูลอุปกรณ์:</strong> ประเภทอุปกรณ์และระบบปฏิบัติการ (เพื่อความเข้ากันได้ของแอป)</li>
+          <li><strong>ข้อมูลการใช้งาน:</strong> รูปแบบการใช้งานแอปเพื่อปรับปรุงประสบการณ์ผู้ใช้</li>
+        </ul>
+
+        <h3>3. ข้อมูลจากบริการภายนอก</h3>
+        <p>เมื่อคุณเข้าสู่ระบบผ่าน Google หรือ Facebook เราจะได้รับข้อมูลโปรไฟล์สาธารณะของคุณ (ชื่อและอีเมล) ตามที่คุณอนุญาตระหว่างขั้นตอนการเข้าสู่ระบบ</p>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">🎯</span> วิธีที่เราใช้ข้อมูลของคุณ</h2>
+        <ul>
+          <li>เพื่อสร้างและจัดการบัญชีของคุณ</li>
+          <li>เพื่อติดตามความก้าวหน้าของกิจกรรมและพัฒนาทักษะของเด็ก</li>
+          <li>เพื่อแนะนำกิจกรรมที่เหมาะสม</li>
+          <li>เพื่อสร้างรายงานความก้าวหน้าสำหรับผู้ปกครอง</li>
+          <li>เพื่อปรับปรุงคุณสมบัติและประสบการณ์การใช้งานแอป</li>
+          <li>เพื่อสื่อสารกับคุณเกี่ยวกับบัญชีหรือแอป</li>
+          <li>เพื่อรักษาความปลอดภัยและความสมบูรณ์ของบริการ</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">🔒</span> การจัดเก็บและความปลอดภัยของข้อมูล</h2>
+        <p>ข้อมูลของคุณถูกจัดเก็บอย่างปลอดภัยผ่านบริการดังนี้:</p>
+        <ul>
+          <li><strong>Supabase:</strong> ผู้ให้บริการฐานข้อมูลและยืนยันตัวตนหลัก โฮสต์บนโครงสร้างพื้นฐานคลาวด์ที่ปลอดภัย พร้อมการเข้ารหัสข้อมูลขณะจัดเก็บและส่งผ่าน</li>
+          <li><strong>Cloudinary:</strong> สำหรับจัดเก็บไฟล์สื่ออย่างปลอดภัย (รูปหลักฐานกิจกรรม)</li>
+        </ul>
+        <p>เราใช้มาตรการความปลอดภัยตามมาตรฐานอุตสาหกรรม ได้แก่:</p>
+        <ul>
+          <li>การส่งข้อมูลแบบเข้ารหัส (HTTPS/TLS)</li>
+          <li>การยืนยันตัวตนที่ปลอดภัยผ่าน OAuth 2.0</li>
+          <li>นโยบายความปลอดภัยระดับแถวบนฐานข้อมูล</li>
+          <li>การตรวจสอบความปลอดภัยอย่างสม่ำเสมอ</li>
+        </ul>
+        <div class="highlight">
+          <p>แม้เราจะพยายามปกป้องข้อมูลของคุณ แต่ไม่มีวิธีการส่งผ่านทางอิเล็กทรอนิกส์หรือการจัดเก็บใดที่ปลอดภัย 100% เราไม่สามารถรับประกันความปลอดภัยอย่างสมบูรณ์ได้</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">🤝</span> การแบ่งปันและเปิดเผยข้อมูล</h2>
+        <p>เรา<strong>ไม่</strong>ขาย แลกเปลี่ยน หรือให้เช่าข้อมูลส่วนบุคคลของคุณแก่บุคคลภายนอก เราอาจแบ่งปันข้อมูลของคุณเฉพาะในกรณีดังต่อไปนี้:</p>
+        <ul>
+          <li><strong>ผู้ให้บริการ:</strong> กับบริการภายนอกที่เชื่อถือได้ (Supabase, Cloudinary) ที่ช่วยเราดำเนินการแอป ภายใต้นโยบายความเป็นส่วนตัวของบริการเหล่านั้น</li>
+          <li><strong>ข้อกำหนดทางกฎหมาย:</strong> เมื่อกฎหมาย ข้อบังคับ หรือกระบวนการทางกฎหมายกำหนด</li>
+          <li><strong>ความปลอดภัย:</strong> เพื่อปกป้องสิทธิ์ ความปลอดภัย หรือทรัพย์สินของผู้ใช้หรือสาธารณะ</li>
+          <li><strong>ความยินยอม:</strong> ด้วยความยินยอมอย่างชัดเจนจากคุณสำหรับวัตถุประสงค์อื่น</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">👶</span> ความเป็นส่วนตัวของเด็ก</h2>
+        <p>แอปของเราออกแบบมาเพื่อให้ผู้ปกครองติดตามพัฒนาการทักษะของบุตรหลาน เราให้ความสำคัญกับความเป็นส่วนตัวของเด็กอย่างจริงจัง:</p>
+        <ul>
+          <li>ข้อมูลของเด็กถูกเก็บรวบรวมและจัดการโดยบัญชีผู้ปกครอง/ผู้ดูแลเท่านั้น</li>
+          <li>เราไม่เก็บรวบรวมข้อมูลส่วนบุคคลจากเด็กโดยตรง</li>
+          <li>ผู้ปกครองมีสิทธิ์ควบคุมข้อมูลของบุตรหลานอย่างเต็มที่ และสามารถขอลบข้อมูลได้ตลอดเวลา</li>
+          <li>ข้อมูลของเด็กไม่ถูกแบ่งปันกับบุคคลภายนอกเพื่อวัตถุประสงค์ทางการตลาด</li>
+        </ul>
+        <p>เราปฏิบัติตามกฎหมายคุ้มครองความเป็นส่วนตัวของเด็กที่เกี่ยวข้อง รวมถึง Children's Online Privacy Protection Act (COPPA) และพระราชบัญญัติคุ้มครองข้อมูลส่วนบุคคล (PDPA) ของประเทศไทย</p>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">⚖️</span> สิทธิ์ของคุณ</h2>
+        <p>คุณมีสิทธิ์ดังต่อไปนี้เกี่ยวกับข้อมูลส่วนบุคคลของคุณ:</p>
+        <ul>
+          <li><strong>การเข้าถึง:</strong> ขอสำเนาข้อมูลส่วนบุคคลที่เราเก็บรักษาเกี่ยวกับคุณ</li>
+          <li><strong>การแก้ไข:</strong> ขอแก้ไขข้อมูลที่ไม่ถูกต้องหรือไม่สมบูรณ์</li>
+          <li><strong>การลบ:</strong> ขอลบบัญชีและข้อมูลที่เกี่ยวข้องทั้งหมดของคุณ</li>
+          <li><strong>การโอนย้าย:</strong> ขอข้อมูลของคุณในรูปแบบที่สามารถพกพาได้</li>
+          <li><strong>การเพิกถอนความยินยอม:</strong> เพิกถอนความยินยอมในการประมวลผลข้อมูลได้ตลอดเวลา</li>
+          <li><strong>การคัดค้าน:</strong> คัดค้านการประมวลผลข้อมูลส่วนบุคคลของคุณ</li>
+        </ul>
+        <p>หากต้องการใช้สิทธิ์เหล่านี้ กรุณาติดต่อเราตามข้อมูลด้านล่าง</p>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">🔗</span> บริการภายนอก</h2>
+        <p>แอปของเราเชื่อมต่อกับบริการภายนอกดังต่อไปนี้ ซึ่งแต่ละบริการมีนโยบายความเป็นส่วนตัวของตนเอง:</p>
+        <ul>
+          <li><strong>Google Sign-In:</strong> <a href="https://policies.google.com/privacy" target="_blank">นโยบายความเป็นส่วนตัวของ Google</a></li>
+          <li><strong>Facebook Login:</strong> <a href="https://www.facebook.com/privacy/policy/" target="_blank">นโยบายความเป็นส่วนตัวของ Meta</a></li>
+          <li><strong>Supabase:</strong> <a href="https://supabase.com/privacy" target="_blank">นโยบายความเป็นส่วนตัวของ Supabase</a></li>
+          <li><strong>YouTube (วิดีโอฝัง):</strong> <a href="https://policies.google.com/privacy" target="_blank">นโยบายความเป็นส่วนตัวของ Google</a></li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">📝</span> การเปลี่ยนแปลงนโยบายความเป็นส่วนตัว</h2>
+        <p>เราอาจอัปเดตนโยบายความเป็นส่วนตัวนี้เป็นครั้งคราว เราจะแจ้งให้คุณทราบเกี่ยวกับการเปลี่ยนแปลงที่สำคัญโดย:</p>
+        <ul>
+          <li>โพสต์นโยบายที่อัปเดตในหน้านี้พร้อมวันที่ "อัปเดตล่าสุด" ใหม่</li>
+          <li>ส่งการแจ้งเตือนผ่านแอปเมื่อมีการเปลี่ยนแปลงที่สำคัญ</li>
+        </ul>
+        <p>เราแนะนำให้คุณตรวจสอบนโยบายความเป็นส่วนตัวนี้เป็นระยะ</p>
+      </div>
+
+      <div class="card">
+        <h2><span class="icon">🗑️</span> การเก็บรักษาและการลบข้อมูล</h2>
+        <p>เราเก็บรักษาข้อมูลส่วนบุคคลของคุณตราบเท่าที่บัญชีของคุณยังใช้งานอยู่ หรือตามที่จำเป็นในการให้บริการ คุณสามารถขอลบบัญชีได้ตลอดเวลาโดยติดต่อเรา</p>
+        <p>เมื่อลบบัญชี:</p>
+        <ul>
+          <li>ข้อมูลส่วนบุคคลของคุณจะถูกลบอย่างถาวรภายใน 30 วัน</li>
+          <li>ข้อมูลของบุตรหลานที่เกี่ยวข้องทั้งหมดจะถูกลบด้วย</li>
+          <li>บันทึกกิจกรรมและหลักฐานจะถูกลบออกจากเซิร์ฟเวอร์ของเรา</li>
+          <li>ข้อมูลที่ไม่ระบุตัวตนและรวมกลุ่มบางส่วนอาจถูกเก็บไว้เพื่อวัตถุประสงค์ในการวิเคราะห์</li>
+        </ul>
+      </div>
+
+      <div class="contact-box">
+        <h2><span class="icon">📧</span> ติดต่อเรา</h2>
+        <p>หากคุณมีคำถามเกี่ยวกับนโยบายความเป็นส่วนตัวนี้ หรือต้องการใช้สิทธิ์เกี่ยวกับข้อมูลของคุณ กรุณาติดต่อเรา:</p>
+        <p style="margin-top: 12px;">
+          <strong>อีเมล:</strong> <a href="mailto:ngaotlcfhanon@gmail.com">ngaotlcfhanon@gmail.com</a>
+        </p>
+        <p>
+          <strong>GitHub:</strong> <a href="https://github.com/krxton/Skill-Wallet-Kool" target="_blank">github.com/krxton/Skill-Wallet-Kool</a>
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    &copy; 2026 Skill Wallet Kool. All rights reserved.
+  </div>
+
+  <script>
+    function switchLang(lang) {
+      document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.lang-tab').forEach(el => el.classList.remove('active'));
+      document.getElementById('content-' + lang).classList.add('active');
+      document.querySelector('.lang-tab[onclick="switchLang(\'' + lang + '\')"]').classList.add('active');
+    }
+  </script>
+</body>
+</html>

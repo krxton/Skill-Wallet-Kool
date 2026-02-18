@@ -380,6 +380,12 @@ abstract class AppLocalizations {
   /// **'CONTINUE WITH GOOGLE'**
   String get login_googleBtn;
 
+  /// No description provided for @login_loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing in...'**
+  String get login_loading;
+
   /// No description provided for @login_noAccount.
   ///
   /// In en, this message translates to:
@@ -391,6 +397,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'GO TO REGISTER'**
   String get login_goToRegister;
+
+  /// No description provided for @register_loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Registering...'**
+  String get register_loading;
 
   /// No description provided for @register_alreadyExists.
   ///
