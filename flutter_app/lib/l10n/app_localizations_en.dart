@@ -180,6 +180,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get register_goToLogin => 'GO TO LOGIN';
 
   @override
+  String get auth_termsAgree => 'I have read and agree to the';
+
+  @override
+  String get auth_termsOfService => 'Terms of Service';
+
+  @override
+  String get auth_privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get auth_and => 'and';
+
+  @override
+  String get auth_pleaseAgreeTerms =>
+      'Please agree to the Terms of Service and Privacy Policy first.';
+
+  @override
+  String get auth_loading => 'Signing in...';
+
+  @override
   String get setting_backBtn => 'BACK';
 
   @override

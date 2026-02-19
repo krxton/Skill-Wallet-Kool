@@ -13,7 +13,6 @@ import 'services/api_service.dart';
 import 'services/deep_link_service.dart';
 import 'services/storage_service.dart';
 import 'services/mock_auth_service.dart';
-import 'screens/auth/auth_loading_screen.dart';
 import 'screens/auth/welcome_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'package:media_kit/media_kit.dart';

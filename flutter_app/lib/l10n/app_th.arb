@@ -58,6 +58,13 @@
   "register_alreadyExists": "บัญชีนี้ลงทะเบียนแล้ว กรุณาเข้าสู่ระบบแทน",
   "register_goToLogin": "ไปเข้าสู่ระบบ",
 
+  "auth_termsAgree": "ฉันได้อ่านและยอมรับ",
+  "auth_termsOfService": "ข้อตกลงการใช้บริการ",
+  "auth_privacyPolicy": "นโยบายความเป็นส่วนตัว",
+  "auth_and": "และ",
+  "auth_pleaseAgreeTerms": "กรุณายอมรับข้อตกลงการใช้บริการและนโยบายความเป็นส่วนตัวก่อน",
+  "auth_loading": "กำลังเข้าสู่ระบบ...",
+
   "setting_backBtn": "ย้อนกลับ",
   "setting_settingBtn": "การตั้งค่า",
   "setting_personalBtn": "ข้อมูลส่วนตัว",

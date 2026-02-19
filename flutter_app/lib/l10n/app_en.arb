@@ -58,6 +58,13 @@
   "register_alreadyExists": "This account is already registered. Please login instead.",
   "register_goToLogin": "GO TO LOGIN",
 
+  "auth_termsAgree": "I have read and agree to the",
+  "auth_termsOfService": "Terms of Service",
+  "auth_privacyPolicy": "Privacy Policy",
+  "auth_and": "and",
+  "auth_pleaseAgreeTerms": "Please agree to the Terms of Service and Privacy Policy first.",
+  "auth_loading": "Signing in...",
+
   "setting_backBtn": "BACK",
   "setting_settingBtn": "SETTING",
   "setting_personalBtn":"PERSONAL INFORMATION",

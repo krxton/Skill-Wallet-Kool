@@ -416,6 +416,42 @@ abstract class AppLocalizations {
   /// **'GO TO LOGIN'**
   String get register_goToLogin;
 
+  /// No description provided for @auth_termsAgree.
+  ///
+  /// In en, this message translates to:
+  /// **'I have read and agree to the'**
+  String get auth_termsAgree;
+
+  /// No description provided for @auth_termsOfService.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Service'**
+  String get auth_termsOfService;
+
+  /// No description provided for @auth_privacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get auth_privacyPolicy;
+
+  /// No description provided for @auth_and.
+  ///
+  /// In en, this message translates to:
+  /// **'and'**
+  String get auth_and;
+
+  /// No description provided for @auth_pleaseAgreeTerms.
+  ///
+  /// In en, this message translates to:
+  /// **'Please agree to the Terms of Service and Privacy Policy first.'**
+  String get auth_pleaseAgreeTerms;
+
+  /// No description provided for @auth_loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing in...'**
+  String get auth_loading;
+
   /// No description provided for @setting_backBtn.
   ///
   /// In en, this message translates to:

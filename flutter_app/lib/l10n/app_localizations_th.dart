@@ -180,6 +180,25 @@ class AppLocalizationsTh extends AppLocalizations {
   String get register_goToLogin => 'ไปเข้าสู่ระบบ';
 
   @override
+  String get auth_termsAgree => 'ฉันได้อ่านและยอมรับ';
+
+  @override
+  String get auth_termsOfService => 'ข้อตกลงการใช้บริการ';
+
+  @override
+  String get auth_privacyPolicy => 'นโยบายความเป็นส่วนตัว';
+
+  @override
+  String get auth_and => 'และ';
+
+  @override
+  String get auth_pleaseAgreeTerms =>
+      'กรุณายอมรับข้อตกลงการใช้บริการและนโยบายความเป็นส่วนตัวก่อน';
+
+  @override
+  String get auth_loading => 'กำลังเข้าสู่ระบบ...';
+
+  @override
   String get setting_backBtn => 'ย้อนกลับ';
 
   @override

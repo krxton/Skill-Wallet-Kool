@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 
 // --- Auth & Core Screens ---
 import '../screens/auth/welcome_screen.dart';
-import '../screens/auth/login_screen.dart';
-import '../screens/auth/register_screen.dart';
+import '../screens/auth/children_info_screen.dart';
 import '../screens/home/home_screen.dart';
 
 // --- Activities & Hubs ---
@@ -39,8 +38,7 @@ class AppRoutes {
   static const String welcome = '/welcome';
 
   // --- Auth Routes ---
-  static const String login = '/login';
-  static const String register = '/register';
+  static const String childrenInfo = '/children-info';
 
   // --- Activity Routes ---
   static const String languageHub = '/language-hub';
@@ -76,8 +74,7 @@ class AppRoutes {
         home: (_) => const HomeScreen(),
 
         // Auth
-        login: (_) => const LoginScreen(),
-        register: (_) => const RegisterScreen(),
+        childrenInfo: (_) => const ChildrenInfoScreen(),
 
         // Activities
         languageHub: (_) => const LanguageHubScreen(),
