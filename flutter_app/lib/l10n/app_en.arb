@@ -64,6 +64,9 @@
   "auth_and": "and",
   "auth_pleaseAgreeTerms": "Please agree to the Terms of Service and Privacy Policy first.",
   "auth_loading": "Signing in...",
+  "auth_tosDialogMsg": "To ensure things are in your best interests, please review the Terms of Service and then choose to enter.",
+  "auth_readTos": "Read TOS",
+  "auth_enter": "Enter",
 
   "setting_backBtn": "BACK",
   "setting_settingBtn": "SETTING",

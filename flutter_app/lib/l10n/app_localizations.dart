@@ -452,6 +452,24 @@ abstract class AppLocalizations {
   /// **'Signing in...'**
   String get auth_loading;
 
+  /// No description provided for @auth_tosDialogMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'To ensure things are in your best interests, please review the Terms of Service and then choose to enter.'**
+  String get auth_tosDialogMsg;
+
+  /// No description provided for @auth_readTos.
+  ///
+  /// In en, this message translates to:
+  /// **'Read TOS'**
+  String get auth_readTos;
+
+  /// No description provided for @auth_enter.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter'**
+  String get auth_enter;
+
   /// No description provided for @setting_backBtn.
   ///
   /// In en, this message translates to:

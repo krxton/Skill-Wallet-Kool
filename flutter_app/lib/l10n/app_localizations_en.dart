@@ -199,6 +199,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get auth_loading => 'Signing in...';
 
   @override
+  String get auth_tosDialogMsg =>
+      'To ensure things are in your best interests, please review the Terms of Service and then choose to enter.';
+
+  @override
+  String get auth_readTos => 'Read TOS';
+
+  @override
+  String get auth_enter => 'Enter';
+
+  @override
   String get setting_backBtn => 'BACK';
 
   @override

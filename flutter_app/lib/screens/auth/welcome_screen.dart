@@ -192,7 +192,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   // ========== OAuth Entry Point ==========
   void _handleOAuth(String provider) {
     if (!_agreedToTerms) {
-      _showMessage(AppLocalizations.of(context)!.auth_pleaseAgreeTerms);
+      _showTermsDialog(provider);
       return;
     }
     if (provider == 'facebook') {
@@ -200,6 +200,48 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     } else {
       _handleGoogleSignIn();
     }
+  }
+
+  Future<void> _showTermsDialog(String provider) async {
+    final l10n = AppLocalizations.of(context)!;
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        content: Text(
+          l10n.auth_tosDialogMsg,
+          style: GoogleFonts.itim(fontSize: 15),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _openUrl(_termsOfServiceUrl);
+            },
+            child: Text(
+              l10n.auth_readTos,
+              style: GoogleFonts.itim(fontSize: 14, color: sky),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              setState(() => _agreedToTerms = true);
+              if (provider == 'facebook') {
+                _handleFacebookSignIn();
+              } else {
+                _handleGoogleSignIn();
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: sky),
+            child: Text(
+              l10n.auth_enter,
+              style: GoogleFonts.itim(fontSize: 14, color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   // ========== Facebook Sign-In via Supabase OAuth ==========

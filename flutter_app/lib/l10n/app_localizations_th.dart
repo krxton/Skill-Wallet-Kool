@@ -199,6 +199,16 @@ class AppLocalizationsTh extends AppLocalizations {
   String get auth_loading => 'กำลังเข้าสู่ระบบ...';
 
   @override
+  String get auth_tosDialogMsg =>
+      'เพื่อให้มั่นใจว่าสิ่งต่างๆ เป็นไปเพื่อประโยชน์ของคุณ กรุณาอ่านข้อตกลงการใช้บริการก่อนเลือกเข้าใช้งาน';
+
+  @override
+  String get auth_readTos => 'อ่านข้อตกลง';
+
+  @override
+  String get auth_enter => 'เข้าใช้งาน';
+
+  @override
   String get setting_backBtn => 'ย้อนกลับ';
 
   @override
