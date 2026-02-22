@@ -67,6 +67,29 @@ class _ShareBottomSheetState extends State<_ShareBottomSheet> {
   final GlobalKey _cardKey = GlobalKey();
   bool _isSharing = false;
 
+  Rect _getSharePositionOrigin() {
+    final renderBox = context.findRenderObject() as RenderBox?;
+    if (renderBox != null && renderBox.hasSize) {
+      final size = renderBox.size;
+      if (size.width > 0 && size.height > 0) {
+        return renderBox.localToGlobal(Offset.zero) & size;
+      }
+    }
+
+    final overlayBox =
+        Overlay.of(context).context.findRenderObject() as RenderBox?;
+    if (overlayBox != null && overlayBox.hasSize) {
+      final size = overlayBox.size;
+      return Rect.fromCenter(
+        center: size.center(Offset.zero),
+        width: 1,
+        height: 1,
+      );
+    }
+
+    return const Rect.fromLTWH(0, 0, 1, 1);
+  }
+
   String _formatTime(int seconds) {
     final m = (seconds % 3600) ~/ 60;
     final s = seconds % 60;
@@ -86,13 +109,17 @@ class _ShareBottomSheetState extends State<_ShareBottomSheet> {
 
     try {
       final d = widget.data;
+      final origin = _getSharePositionOrigin();
 
       if (d.hasEvidenceImage) {
         // Share actual evidence image file only (no text)
         if (!mounted) return;
         Navigator.pop(context);
 
-        await Share.shareXFiles([XFile(d.evidenceImagePath!)]);
+        await Share.shareXFiles(
+          [XFile(d.evidenceImagePath!)],
+          sharePositionOrigin: origin,
+        );
       } else {
         // Fallback: screenshot the preview card (no text)
         final boundary = _cardKey.currentContext?.findRenderObject()
@@ -110,6 +137,7 @@ class _ShareBottomSheetState extends State<_ShareBottomSheet> {
 
         await Share.shareXFiles(
           [XFile.fromData(pngBytes, mimeType: 'image/png', name: 'result.png')],
+          sharePositionOrigin: origin,
         );
       }
     } catch (e) {
@@ -124,10 +152,14 @@ class _ShareBottomSheetState extends State<_ShareBottomSheet> {
     setState(() => _isSharing = true);
 
     try {
+      final origin = _getSharePositionOrigin();
       if (!mounted) return;
       Navigator.pop(context);
 
-      await Share.share(_buildShareText());
+      await Share.share(
+        _buildShareText(),
+        sharePositionOrigin: origin,
+      );
     } catch (e) {
       debugPrint('Share text error: $e');
     } finally {
