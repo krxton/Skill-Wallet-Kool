@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -69,69 +70,86 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     return Scaffold(
       backgroundColor: cream,
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            // Logo — พื้นที่บน (2 ส่วน)
-            Expanded(
-              flex: 2,
-              child: Center(
-                child: Image.asset('assets/images/SWK_home.png', height: 260),
-              ),
+            // ── Main layout (ปุ่มอยู่เดิมเสมอ) ──
+            Column(
+              children: [
+                // Logo
+                Expanded(
+                  flex: 2,
+                  child: Center(
+                    child: Image.asset('assets/images/SWK_home.png', height: 260),
+                  ),
+                ),
+
+                // OAuth buttons
+                Expanded(
+                  flex: 1,
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _oauthButton(
+                            icon: Icons.email_outlined,
+                            text: l10n.email_loginWithEmail,
+                            color: Colors.grey.shade700,
+                            onTap: isLoading
+                                ? () {}
+                                : () => Navigator.pushNamed(
+                                    context, AppRoutes.emailLogin),
+                          ),
+                          const SizedBox(height: 12),
+                          _oauthButton(
+                            icon: Icons.facebook,
+                            text: l10n.login_facebookBtn,
+                            color: fbBlue,
+                            onTap: isLoading ? () {} : () => _handleOAuth('facebook'),
+                          ),
+                          const SizedBox(height: 12),
+                          _googleButton(
+                            text: l10n.login_googleBtn,
+                            onTap: isLoading ? () {} : () => _handleOAuth('google'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                // Terms
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 36, 24, 24),
+                  child: _buildTermsCheckbox(l10n),
+                ),
+              ],
             ),
 
-            // OAuth buttons — พื้นที่กลาง (1 ส่วน) จัดกลางแนวตั้ง
-            Expanded(
-              flex: 1,
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      if (isLoading) ...[
-                        const CircularProgressIndicator(),
-                        const SizedBox(height: 8),
+            // ── Loading overlay (ลอยอยู่บนทุกอย่าง) ──
+            if (isLoading)
+              Positioned.fill(
+                child: ColoredBox(
+                  color: Colors.black.withValues(alpha: 0.35),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const CircularProgressIndicator(color: Colors.white),
+                        const SizedBox(height: 12),
                         Text(
                           l10n.auth_loading,
                           style: GoogleFonts.itim(
                             fontSize: 16,
-                            color: Colors.black54,
+                            color: Colors.white,
                           ),
                         ),
-                        const SizedBox(height: 12),
                       ],
-                      _oauthButton(
-                        icon: Icons.facebook,
-                        text: l10n.login_facebookBtn,
-                        color: fbBlue,
-                        onTap: isLoading ? () {} : () => _handleOAuth('facebook'),
-                      ),
-                      const SizedBox(height: 12),
-                      _googleButton(
-                        text: l10n.login_googleBtn,
-                        onTap: isLoading ? () {} : () => _handleOAuth('google'),
-                      ),
-                      const SizedBox(height: 12),
-                      _oauthButton(
-                        icon: Icons.email_outlined,
-                        text: l10n.email_loginWithEmail,
-                        color: Colors.grey.shade700,
-                        onTap: isLoading
-                            ? () {}
-                            : () => Navigator.pushNamed(
-                                context, AppRoutes.emailLogin),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ),
-
-            // Terms — ชิดล่างสุด
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-              child: _buildTermsCheckbox(l10n),
-            ),
           ],
         ),
       ),
@@ -562,15 +580,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 decoration: const BoxDecoration(
                     color: Colors.white, shape: BoxShape.circle),
                 alignment: Alignment.center,
-                child: Text(
-                  'G',
-                  style: TextStyle(
-                    fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                    fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                    fontSize: 22,
-                    color: Colors.black87,
-                  ),
-                ),
+                child: const _GoogleLogoIcon(size: 26),
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -590,4 +600,65 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       ),
     );
   }
+}
+
+// ─── Google "G" Logo ───────────────────────────────────────────────────────
+
+class _GoogleLogoIcon extends StatelessWidget {
+  final double size;
+  const _GoogleLogoIcon({this.size = 26});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: size,
+      height: size,
+      child: CustomPaint(painter: _GoogleGPainter()),
+    );
+  }
+}
+
+class _GoogleGPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final cx = size.width / 2;
+    final cy = size.height / 2;
+    final sw = size.width * 0.22;
+    final arcR = size.width / 2 - sw / 2;
+
+    const blue   = Color(0xFF4285F4);
+    const red    = Color(0xFFEA4335);
+    const yellow = Color(0xFFFBBC05);
+    const green  = Color(0xFF34A853);
+
+    double rad(double deg) => deg * math.pi / 180;
+
+    final rect = Rect.fromCircle(center: Offset(cx, cy), radius: arcR);
+    final arc = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = sw
+      ..strokeCap = StrokeCap.butt;
+
+    // Blue: -10° → 90° (top-right going down)
+    arc.color = blue;
+    canvas.drawArc(rect, rad(-10), rad(100), false, arc);
+    // Green: 90° → 170°
+    arc.color = green;
+    canvas.drawArc(rect, rad(90), rad(80), false, arc);
+    // Yellow: 170° → 230°
+    arc.color = yellow;
+    canvas.drawArc(rect, rad(170), rad(60), false, arc);
+    // Red: 230° → 350°
+    arc.color = red;
+    canvas.drawArc(rect, rad(230), rad(120), false, arc);
+
+    // Blue crossbar (horizontal bar from center to right edge)
+    canvas.drawRect(
+      Rect.fromLTRB(cx, cy - sw / 2, cx + arcR + sw / 2, cy + sw / 2),
+      Paint()..color = blue,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

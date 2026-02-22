@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(openssl passwd:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(adb shell:*)",
+      "Bash(adb devices:*)"
     ],
     "additionalDirectories": [
       "d:\\SWK"
