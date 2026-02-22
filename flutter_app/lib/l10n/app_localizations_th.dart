@@ -239,6 +239,25 @@ class AppLocalizationsTh extends AppLocalizations {
   String get setting_logoutBtn => 'ลงชื่อออก';
 
   @override
+  String get setting_deleteAccountBtn => 'ลบบัญชี';
+
+  @override
+  String get setting_deleteTitle => 'ลบบัญชีหรือไม่?';
+
+  @override
+  String get setting_deleteMsg =>
+      'การดำเนินการนี้จะลบบัญชีและข้อมูลลูกทั้งหมดอย่างถาวร ข้อมูลจะถูกลบภายใน 30 วัน และไม่สามารถกู้คืนได้';
+
+  @override
+  String get setting_deleteConfirm => 'ลบบัญชี';
+
+  @override
+  String get setting_deleteSuccess => 'ลบบัญชีสำเร็จแล้ว';
+
+  @override
+  String get setting_deleteError => 'ไม่สามารถลบบัญชีได้ กรุณาลองใหม่อีกครั้ง';
+
+  @override
   String get namesetting_changenameBtn => 'เปลี่ยนชื่อ';
 
   @override
@@ -1354,4 +1373,86 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get answerplus_answerLabel => 'เฉลย';
+
+  @override
+  String get email_loginTitle => 'เข้าสู่ระบบด้วยอีเมล';
+
+  @override
+  String get email_registerTitle => 'สมัครสมาชิก';
+
+  @override
+  String get email_emailHint => 'อีเมล';
+
+  @override
+  String get email_passwordHint => 'รหัสผ่าน';
+
+  @override
+  String get email_nameHint => 'ชื่อ-นามสกุล';
+
+  @override
+  String get email_loginBtn => 'เข้าสู่ระบบ';
+
+  @override
+  String get email_registerBtn => 'สมัครสมาชิก';
+
+  @override
+  String get email_forgotPassword => 'ลืมรหัสผ่าน?';
+
+  @override
+  String get email_noAccount => 'ยังไม่มีบัญชี? สมัครสมาชิก';
+
+  @override
+  String get email_hasAccount => 'มีบัญชีอยู่แล้ว? เข้าสู่ระบบ';
+
+  @override
+  String get email_resetSent =>
+      'ส่งอีเมลรีเซ็ตรหัสผ่านแล้ว กรุณาตรวจสอบกล่องจดหมาย';
+
+  @override
+  String get email_passwordTooShort => 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร';
+
+  @override
+  String get email_enterEmail => 'กรุณากรอกอีเมล';
+
+  @override
+  String get email_enterPassword => 'กรุณากรอกรหัสผ่าน';
+
+  @override
+  String get email_enterName => 'กรุณากรอกชื่อ';
+
+  @override
+  String get email_forgotTitle => 'รีเซ็ตรหัสผ่าน';
+
+  @override
+  String get email_forgotMsg => 'กรอกอีเมลของคุณเพื่อรับลิงก์รีเซ็ตรหัสผ่าน';
+
+  @override
+  String get email_sendReset => 'ส่ง';
+
+  @override
+  String get email_loginWithEmail => 'เข้าสู่ระบบด้วยอีเมล';
+
+  @override
+  String get relation_label => 'ความสัมพันธ์';
+
+  @override
+  String get relation_hint => 'เลือกความสัมพันธ์';
+
+  @override
+  String get relation_parent => 'พ่อ/แม่';
+
+  @override
+  String get relation_grandparentPaternal => 'ปู่/ย่า (ฝ่ายพ่อ)';
+
+  @override
+  String get relation_grandparentMaternal => 'ตา/ยาย (ฝ่ายแม่)';
+
+  @override
+  String get relation_auntUncle => 'ลุง/ป้า/น้า/อา';
+
+  @override
+  String get relation_caregiver => 'คนดูแล';
+
+  @override
+  String get relation_nanny => 'พี่เลี้ยง';
 }

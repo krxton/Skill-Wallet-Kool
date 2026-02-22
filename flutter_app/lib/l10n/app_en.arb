@@ -78,6 +78,12 @@
   "setting_thaiBtn": "THAI",
   "setting_englishBtn": "ENGLISH",
   "setting_logoutBtn": "LOG OUT",
+  "setting_deleteAccountBtn": "DELETE ACCOUNT",
+  "setting_deleteTitle": "Delete Account?",
+  "setting_deleteMsg": "This will permanently delete your account and all children data. Your data will be removed within 30 days. This action cannot be undone.",
+  "setting_deleteConfirm": "DELETE",
+  "setting_deleteSuccess": "Account deleted successfully.",
+  "setting_deleteError": "Failed to delete account. Please try again.",
 
   "namesetting_changenameBtn": "CHANGE NAME",
   "namesetting_enternewnameBtn": "ENTER NEW NAME",
@@ -608,5 +614,34 @@
 
   "answerplus_title": "ANSWER PLUS +",
   "answerplus_questionLabel": "QUESTION",
-  "answerplus_answerLabel": "ANSWER"
+  "answerplus_answerLabel": "ANSWER",
+
+  "email_loginTitle": "Login with Email",
+  "email_registerTitle": "Register",
+  "email_emailHint": "Email",
+  "email_passwordHint": "Password",
+  "email_nameHint": "Full Name",
+  "email_loginBtn": "LOGIN",
+  "email_registerBtn": "REGISTER",
+  "email_forgotPassword": "Forgot Password?",
+  "email_noAccount": "Don't have an account? Register",
+  "email_hasAccount": "Already have an account? Login",
+  "email_resetSent": "Password reset email sent. Please check your inbox.",
+  "email_passwordTooShort": "Password must be at least 6 characters",
+  "email_enterEmail": "Please enter your email",
+  "email_enterPassword": "Please enter your password",
+  "email_enterName": "Please enter your name",
+  "email_forgotTitle": "Reset Password",
+  "email_forgotMsg": "Enter your email to receive a password reset link.",
+  "email_sendReset": "SEND",
+  "email_loginWithEmail": "LOGIN WITH EMAIL",
+
+  "relation_label": "RELATIONSHIP",
+  "relation_hint": "Select relationship",
+  "relation_parent": "Father/Mother",
+  "relation_grandparentPaternal": "Grandfather/Grandmother (Father's side)",
+  "relation_grandparentMaternal": "Grandfather/Grandmother (Mother's side)",
+  "relation_auntUncle": "Aunt/Uncle",
+  "relation_caregiver": "Caregiver",
+  "relation_nanny": "Nanny/Babysitter"
 }

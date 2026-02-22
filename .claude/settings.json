@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(openssl passwd:*)"
+      "Bash(openssl passwd:*)",
+      "Bash(curl:*)"
     ],
     "additionalDirectories": [
       "d:\\SWK"

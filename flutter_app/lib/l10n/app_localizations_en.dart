@@ -239,6 +239,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get setting_logoutBtn => 'LOG OUT';
 
   @override
+  String get setting_deleteAccountBtn => 'DELETE ACCOUNT';
+
+  @override
+  String get setting_deleteTitle => 'Delete Account?';
+
+  @override
+  String get setting_deleteMsg =>
+      'This will permanently delete your account and all children data. Your data will be removed within 30 days. This action cannot be undone.';
+
+  @override
+  String get setting_deleteConfirm => 'DELETE';
+
+  @override
+  String get setting_deleteSuccess => 'Account deleted successfully.';
+
+  @override
+  String get setting_deleteError =>
+      'Failed to delete account. Please try again.';
+
+  @override
   String get namesetting_changenameBtn => 'CHANGE NAME';
 
   @override
@@ -1354,4 +1374,89 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get answerplus_answerLabel => 'ANSWER';
+
+  @override
+  String get email_loginTitle => 'Login with Email';
+
+  @override
+  String get email_registerTitle => 'Register';
+
+  @override
+  String get email_emailHint => 'Email';
+
+  @override
+  String get email_passwordHint => 'Password';
+
+  @override
+  String get email_nameHint => 'Full Name';
+
+  @override
+  String get email_loginBtn => 'LOGIN';
+
+  @override
+  String get email_registerBtn => 'REGISTER';
+
+  @override
+  String get email_forgotPassword => 'Forgot Password?';
+
+  @override
+  String get email_noAccount => 'Don\'t have an account? Register';
+
+  @override
+  String get email_hasAccount => 'Already have an account? Login';
+
+  @override
+  String get email_resetSent =>
+      'Password reset email sent. Please check your inbox.';
+
+  @override
+  String get email_passwordTooShort => 'Password must be at least 6 characters';
+
+  @override
+  String get email_enterEmail => 'Please enter your email';
+
+  @override
+  String get email_enterPassword => 'Please enter your password';
+
+  @override
+  String get email_enterName => 'Please enter your name';
+
+  @override
+  String get email_forgotTitle => 'Reset Password';
+
+  @override
+  String get email_forgotMsg =>
+      'Enter your email to receive a password reset link.';
+
+  @override
+  String get email_sendReset => 'SEND';
+
+  @override
+  String get email_loginWithEmail => 'LOGIN WITH EMAIL';
+
+  @override
+  String get relation_label => 'RELATIONSHIP';
+
+  @override
+  String get relation_hint => 'Select relationship';
+
+  @override
+  String get relation_parent => 'Father/Mother';
+
+  @override
+  String get relation_grandparentPaternal =>
+      'Grandfather/Grandmother (Father\'s side)';
+
+  @override
+  String get relation_grandparentMaternal =>
+      'Grandfather/Grandmother (Mother\'s side)';
+
+  @override
+  String get relation_auntUncle => 'Aunt/Uncle';
+
+  @override
+  String get relation_caregiver => 'Caregiver';
+
+  @override
+  String get relation_nanny => 'Nanny/Babysitter';
 }

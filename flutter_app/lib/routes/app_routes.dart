@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 // --- Auth & Core Screens ---
 import '../screens/auth/welcome_screen.dart';
 import '../screens/auth/children_info_screen.dart';
+import '../screens/auth/email_login_screen.dart';
 import '../screens/home/home_screen.dart';
 
 // --- Activities & Hubs ---
@@ -39,6 +40,7 @@ class AppRoutes {
 
   // --- Auth Routes ---
   static const String childrenInfo = '/children-info';
+  static const String emailLogin = '/email-login';
 
   // --- Activity Routes ---
   static const String languageHub = '/language-hub';
@@ -75,6 +77,7 @@ class AppRoutes {
 
         // Auth
         childrenInfo: (_) => const ChildrenInfoScreen(),
+        emailLogin: (_) => const EmailLoginScreen(),
 
         // Activities
         languageHub: (_) => const LanguageHubScreen(),

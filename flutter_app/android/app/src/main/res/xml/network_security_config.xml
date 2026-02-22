@@ -7,6 +7,8 @@
         <!-- localhost สำหรับ physical device (ถ้าใช้ ngrok หรือ IP เครื่อง) -->
         <domain includeSubdomains="true">localhost</domain>
         <domain includeSubdomains="true">127.0.0.1</domain>
+        <!-- TODO: ลบออกเมื่อได้ HTTPS — ชั่วคราวระหว่างรอเปิด port 443 -->
+        <domain includeSubdomains="false">112.121.157.57</domain>
     </domain-config>
 
     <!-- ✅ Base configuration สำหรับ HTTPS ปกติ -->

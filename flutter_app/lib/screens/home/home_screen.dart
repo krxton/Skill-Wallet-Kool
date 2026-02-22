@@ -534,7 +534,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
-                          activity.category,
+                          _localizeCategory(context, activity.category),
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.white,
@@ -588,6 +588,20 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+  }
+
+  String _localizeCategory(BuildContext context, String category) {
+    final l10n = AppLocalizations.of(context)!;
+    switch (category) {
+      case 'ด้านภาษา':
+        return l10n.home_languageBtn;
+      case 'ด้านร่างกาย':
+        return l10n.home_physicalBtn;
+      case 'ด้านคำนวณ':
+        return l10n.home_calculationBtn;
+      default:
+        return category;
+    }
   }
 
   Widget _buildPlaceholder(String category) {

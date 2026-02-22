@@ -10,16 +10,25 @@ class AddChildScreen extends StatefulWidget {
 }
 
 class _AddChildScreenState extends State<AddChildScreen> {
-  // 1. สร้าง Controller เพื่อดึงข้อความจากช่องกรอก
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _birthDayController = TextEditingController();
   DateTime? _selectedBirthday;
+  String? _selectedRelation;
 
-  // 🎨 สีตาม Theme
   static const cream = Color(0xFFFFF5CD);
   static const sky = Color(0xFF5AB2FF);
-  static const orangeInput = Color(0xFFFFCC80);
+  static const blueInput = Color(0xFFBBDEFB);
   static const greenBtn = Color(0xFF88C273);
+  static const redLabel = Color(0xFFFF8A80);
+
+  List<String> _relationOptions(AppLocalizations l10n) => [
+        l10n.relation_parent,
+        l10n.relation_grandparentPaternal,
+        l10n.relation_grandparentMaternal,
+        l10n.relation_auntUncle,
+        l10n.relation_caregiver,
+        l10n.relation_nanny,
+      ];
 
   Future<void> _selectBirthday() async {
     final DateTime? picked = await showDatePicker(
@@ -51,8 +60,73 @@ class _AddChildScreenState extends State<AddChildScreen> {
     }
   }
 
+  Future<void> _pickRelation(AppLocalizations l10n) async {
+    final options = _relationOptions(l10n);
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: cream,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.black26,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              child: Text(
+                l10n.relation_label,
+                style: TextStyle(
+                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                  fontSize: 18,
+                  color: redLabel,
+                ),
+              ),
+            ),
+            ...options.map((option) => ListTile(
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 2),
+                  title: Text(
+                    option,
+                    style:
+                        GoogleFonts.itim(fontSize: 16, color: Colors.black87),
+                  ),
+                  trailing: _selectedRelation == option
+                      ? const Icon(Icons.check, color: sky)
+                      : null,
+                  onTap: () {
+                    setState(() => _selectedRelation = option);
+                    Navigator.pop(ctx);
+                  },
+                )),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _birthDayController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: cream,
       appBar: AppBar(
@@ -64,7 +138,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
         ),
         centerTitle: true,
         title: Text(
-          AppLocalizations.of(context)!.register_registerBtn,
+          l10n.register_registerBtn,
           style: TextStyle(
             fontFamily: GoogleFonts.luckiestGuy().fontFamily,
             fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
@@ -81,7 +155,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
           children: [
             Center(
               child: Text(
-                AppLocalizations.of(context)!.register_additionalBtn,
+                l10n.register_additionalBtn,
                 style: TextStyle(
                   fontFamily: GoogleFonts.luckiestGuy().fontFamily,
                   fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
@@ -92,25 +166,21 @@ class _AddChildScreenState extends State<AddChildScreen> {
             ),
             const SizedBox(height: 30),
 
-            // --- Name Input ---
+            // --- Name ---
             Text(
-              AppLocalizations.of(context)!.addchild_namesurnameBtn,
+              l10n.addchild_namesurnameBtn,
               style: TextStyle(
                 fontFamily: GoogleFonts.luckiestGuy().fontFamily,
                 fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
                 fontSize: 16,
-                color: const Color(0xFFFF8A80),
+                color: redLabel,
               ),
             ),
             const SizedBox(height: 5),
-            Container(
-              height: 50,
-              decoration: BoxDecoration(
-                color: orangeInput,
-                borderRadius: BorderRadius.circular(25),
-              ),
+            _inputContainer(
               child: TextField(
-                controller: _nameController, // เชื่อม Controller
+                controller: _nameController,
+                style: GoogleFonts.itim(fontSize: 15, color: Colors.black87),
                 decoration: const InputDecoration(
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.symmetric(horizontal: 20),
@@ -120,41 +190,74 @@ class _AddChildScreenState extends State<AddChildScreen> {
 
             const SizedBox(height: 20),
 
-            // --- Birthday Input ---
+            // --- Birthday ---
             Text(
-              AppLocalizations.of(context)!.addchild_birthdayBtn,
+              l10n.addchild_birthdayBtn,
               style: TextStyle(
                 fontFamily: GoogleFonts.luckiestGuy().fontFamily,
                 fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
                 fontSize: 16,
-                color: const Color(0xFFFF8A80),
+                color: redLabel,
               ),
             ),
             const SizedBox(height: 5),
             GestureDetector(
               onTap: _selectBirthday,
-              child: Container(
-                height: 50,
-                decoration: BoxDecoration(
-                  color: orangeInput,
-                  borderRadius: BorderRadius.circular(25),
-                ),
+              child: _inputContainer(
                 child: AbsorbPointer(
                   child: TextField(
                     controller: _birthDayController,
+                    style: GoogleFonts.itim(fontSize: 15, color: Colors.black87),
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       contentPadding:
                           const EdgeInsets.symmetric(horizontal: 20),
-                      hintText: 'เลือกวันเกิด',
-                      hintStyle: TextStyle(
-                        fontFamily: GoogleFonts.itim().fontFamily,
-                        color: Colors.grey,
-                      ),
-                      suffixIcon:
-                          const Icon(Icons.calendar_today, color: Colors.grey),
+                      hintText: l10n.register_pickbirthday,
+                      hintStyle: GoogleFonts.itim(
+                          fontSize: 15, color: Colors.grey),
+                      suffixIcon: const Icon(Icons.calendar_today,
+                          color: Colors.grey),
                     ),
                   ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // --- Relation ---
+            Text(
+              l10n.relation_label,
+              style: TextStyle(
+                fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                fontSize: 16,
+                color: redLabel,
+              ),
+            ),
+            const SizedBox(height: 5),
+            GestureDetector(
+              onTap: () => _pickRelation(l10n),
+              child: _inputContainer(
+                child: Row(
+                  children: [
+                    const SizedBox(width: 20),
+                    Expanded(
+                      child: Text(
+                        _selectedRelation ?? l10n.relation_hint,
+                        style: GoogleFonts.itim(
+                          fontSize: 15,
+                          color: _selectedRelation != null
+                              ? Colors.black87
+                              : Colors.grey,
+                        ),
+                      ),
+                    ),
+                    const Padding(
+                      padding: EdgeInsets.only(right: 12),
+                      child: Icon(Icons.arrow_drop_down, color: Colors.black54),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -167,23 +270,12 @@ class _AddChildScreenState extends State<AddChildScreen> {
               height: 55,
               child: ElevatedButton(
                 onPressed: () {
-                  // 2. Logic ส่งข้อมูลกลับ
-                  String name = _nameController.text.trim();
-                  if (name.isNotEmpty) {
-                    // สร้าง Map ข้อมูลเด็กใหม่
-                    Map<String, dynamic> newChild = {
-                      'name': name,
-                      'birthday': _selectedBirthday ?? DateTime.now(),
-                    };
-
-                    // ส่งข้อมูลกลับไปหน้าก่อนหน้า (Pop with Result)
-                    Navigator.pop(context, newChild);
-                  } else {
-                    // แจ้งเตือนถ้าไม่ได้กรอกชื่อ
+                  final name = _nameController.text.trim();
+                  if (name.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
-                          AppLocalizations.of(context)!.addchild_errorName,
+                          l10n.addchild_errorName,
                           style: TextStyle(
                             fontFamily: GoogleFonts.luckiestGuy().fontFamily,
                             fontFamilyFallback: [
@@ -193,7 +285,14 @@ class _AddChildScreenState extends State<AddChildScreen> {
                         ),
                       ),
                     );
+                    return;
                   }
+
+                  Navigator.pop(context, {
+                    'name': name,
+                    'birthday': _selectedBirthday ?? DateTime.now(),
+                    'relation': _selectedRelation,
+                  });
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: greenBtn,
@@ -203,7 +302,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
                   elevation: 0,
                 ),
                 child: Text(
-                  AppLocalizations.of(context)!.addchild_okBtn,
+                  l10n.addchild_okBtn,
                   style: TextStyle(
                     fontFamily: GoogleFonts.luckiestGuy().fontFamily,
                     fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
@@ -216,6 +315,17 @@ class _AddChildScreenState extends State<AddChildScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _inputContainer({required Widget child}) {
+    return Container(
+      height: 50,
+      decoration: BoxDecoration(
+        color: blueInput,
+        borderRadius: BorderRadius.circular(25),
+      ),
+      child: child,
     );
   }
 }

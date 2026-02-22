@@ -33,14 +33,21 @@ class ChildService {
   Future<Child?> addChild({
     required String fullName,
     DateTime? dob,
+    String? relationship,
   }) async {
     try {
       final result = await _apiService.post('/children', {
         'fullName': fullName,
         'birthday': dob?.toIso8601String() ?? '',
-        'relationship': 'Parent & Child',
+        'relationship': relationship ?? 'พ่อ/แม่',
       });
-      return Child.fromJson(result);
+      try {
+        return Child.fromJson(result);
+      } catch (_) {
+        // API call succeeded but response format doesn't match Child.fromJson
+        // Return a minimal Child object so addChildren() knows it was created
+        return Child(fullName: fullName, dob: dob);
+      }
     } catch (e) {
       debugPrint('Add child exception: $e');
       return null;
@@ -64,6 +71,7 @@ class ChildService {
       final child = await addChild(
         fullName: childData['fullName'] as String,
         dob: dob,
+        relationship: childData['relation'] as String?,
       );
 
       if (child != null) {

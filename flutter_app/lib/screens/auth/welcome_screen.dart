@@ -111,6 +111,16 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                         text: l10n.login_googleBtn,
                         onTap: isLoading ? () {} : () => _handleOAuth('google'),
                       ),
+                      const SizedBox(height: 12),
+                      _oauthButton(
+                        icon: Icons.email_outlined,
+                        text: l10n.email_loginWithEmail,
+                        color: Colors.grey.shade700,
+                        onTap: isLoading
+                            ? () {}
+                            : () => Navigator.pushNamed(
+                                context, AppRoutes.emailLogin),
+                      ),
                     ],
                   ),
                 ),

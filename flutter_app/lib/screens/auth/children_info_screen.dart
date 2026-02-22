@@ -18,11 +18,20 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
   static const cream = Color(0xFFFFF5CD);
   static const sky = Color(0xFF0D92F4);
   static const redLabel = Color(0xFFE54D4D);
-  static const fieldBg = Color(0xFFFDC05E);
+  static const fieldBg = Color(0xFFBBDEFB);
   static const okGreen = Color(0xFF66BB6A);
   static const backPink = Color(0xFFEA5B6F);
 
   final List<_ChildFields> _children = [_ChildFields()];
+
+  List<String> _relationOptions(AppLocalizations l10n) => [
+        l10n.relation_parent,
+        l10n.relation_grandparentPaternal,
+        l10n.relation_grandparentMaternal,
+        l10n.relation_auntUncle,
+        l10n.relation_caregiver,
+        l10n.relation_nanny,
+      ];
 
   @override
   void dispose() {
@@ -34,6 +43,8 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: cream,
       body: SafeArea(
@@ -43,7 +54,7 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
               padding: const EdgeInsets.fromLTRB(24, 10, 24, 80),
               children: [
                 Text(
-                  AppLocalizations.of(context)!.register_registerBtn,
+                  l10n.register_registerBtn,
                   style: TextStyle(
                     fontFamily: GoogleFonts.luckiestGuy().fontFamily,
                     fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
@@ -53,7 +64,7 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  AppLocalizations.of(context)!.register_additionalBtn,
+                  l10n.register_additionalBtn,
                   style: TextStyle(
                     fontFamily: GoogleFonts.luckiestGuy().fontFamily,
                     fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
@@ -63,7 +74,6 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // Loop children forms
                 ..._children.asMap().entries.map((e) {
                   final i = e.key;
                   final c = e.value;
@@ -78,8 +88,7 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
                           children: [
                             Expanded(
                               child: Text(
-                                AppLocalizations.of(context)!
-                                    .register_namesurnamechildBtn(i + 1),
+                                l10n.register_namesurnamechildBtn(i + 1),
                                 style: GoogleFonts.luckiestGuy(
                                     fontSize: 16, color: redLabel),
                                 overflow: TextOverflow.ellipsis,
@@ -104,11 +113,13 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
                           decoration: _dec(hint: 'ชื่อ-นามสกุล'),
                           keyboardType: TextInputType.text,
                           textInputAction: TextInputAction.next,
+                          style: GoogleFonts.itim(
+                              fontSize: 14, color: Colors.black87),
                         ),
 
                         const SizedBox(height: 14),
                         Text(
-                          AppLocalizations.of(context)!.register_birthdayBtn,
+                          l10n.register_birthdayBtn,
                           style: TextStyle(
                             fontFamily: GoogleFonts.luckiestGuy().fontFamily,
                             fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
@@ -123,13 +134,15 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
                             child: TextField(
                               controller: c.birthCtrl,
                               decoration: _dec(hint: 'วัน/เดือน/ปี'),
+                              style: GoogleFonts.itim(
+                                  fontSize: 14, color: Colors.black87),
                             ),
                           ),
                         ),
 
                         const SizedBox(height: 14),
                         Text(
-                          AppLocalizations.of(context)!.register_relation,
+                          l10n.relation_label,
                           style: TextStyle(
                             fontFamily: GoogleFonts.luckiestGuy().fontFamily,
                             fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
@@ -138,11 +151,34 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
                           ),
                         ),
                         const SizedBox(height: 6),
-                        TextField(
-                          controller: c.relationCtrl,
-                          decoration: _dec(hint: 'เช่น บิดา, มารดา, ปู่, ย่า'),
-                          keyboardType: TextInputType.text,
-                          textInputAction: TextInputAction.done,
+                        GestureDetector(
+                          onTap: () => _pickRelation(i, l10n),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 16),
+                            decoration: BoxDecoration(
+                              color: fieldBg,
+                              borderRadius: BorderRadius.circular(26),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    c.selectedRelation ?? l10n.relation_hint,
+                                    style: GoogleFonts.itim(
+                                      fontSize: 14,
+                                      color: c.selectedRelation != null
+                                          ? Colors.black87
+                                          : Colors.black38,
+                                    ),
+                                  ),
+                                ),
+                                const Icon(Icons.arrow_drop_down,
+                                    color: Colors.black54),
+                              ],
+                            ),
+                          ),
                         ),
                       ],
                     ),
@@ -151,7 +187,6 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
 
                 const SizedBox(height: 8),
 
-                // Add child button
                 Center(
                   child: InkWell(
                     onTap: () => setState(() => _children.add(_ChildFields())),
@@ -170,7 +205,6 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
 
                 const SizedBox(height: 24),
 
-                // OK button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -195,7 +229,7 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
                             ),
                           )
                         : Text(
-                            AppLocalizations.of(context)!.register_okBtn,
+                            l10n.register_okBtn,
                             style: TextStyle(
                               fontFamily: GoogleFonts.luckiestGuy().fontFamily,
                               fontFamilyFallback: [
@@ -210,7 +244,6 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
               ],
             ),
 
-            // Back button
             Positioned(
               left: 12,
               bottom: 12,
@@ -238,6 +271,63 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
                 ),
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickRelation(int index, AppLocalizations l10n) async {
+    final options = _relationOptions(l10n);
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: cream,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.black26,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              child: Text(
+                l10n.relation_label,
+                style: TextStyle(
+                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                  fontSize: 18,
+                  color: redLabel,
+                ),
+              ),
+            ),
+            ...options.map((option) => ListTile(
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 2),
+                  title: Text(
+                    option,
+                    style:
+                        GoogleFonts.itim(fontSize: 16, color: Colors.black87),
+                  ),
+                  trailing: _children[index].selectedRelation == option
+                      ? const Icon(Icons.check, color: Color(0xFF0D92F4))
+                      : null,
+                  onTap: () {
+                    setState(
+                        () => _children[index].selectedRelation = option);
+                    Navigator.pop(ctx);
+                  },
+                )),
+            const SizedBox(height: 8),
           ],
         ),
       ),
@@ -274,12 +364,12 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
   }
 
   Future<void> _submit(BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
     for (var i = 0; i < _children.length; i++) {
       if (_children[i].nameCtrl.text.trim().isEmpty ||
           _children[i].birthCtrl.text.trim().isEmpty ||
-          _children[i].relationCtrl.text.trim().isEmpty) {
-        _toast(
-            AppLocalizations.of(context)!.register_requiredinformation(i + 1));
+          _children[i].selectedRelation == null) {
+        _toast(l10n.register_requiredinformation(i + 1));
         return;
       }
     }
@@ -287,22 +377,20 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
     setState(() => _isLoading = true);
 
     try {
-      List<Map<String, dynamic>> childrenData = _children.map((c) {
-        return {
-          'fullName': c.nameCtrl.text.trim(),
-          'dob': c.birthday?.toIso8601String(),
-          'relation': c.relationCtrl.text.trim(),
-        };
-      }).toList();
+      final childrenData = _children
+          .map((c) => {
+                'fullName': c.nameCtrl.text.trim(),
+                'dob': c.birthday?.toIso8601String(),
+                'relation': c.selectedRelation,
+              })
+          .toList();
 
       final addedChildren = await childService.addChildren(childrenData);
 
       setState(() => _isLoading = false);
 
       if (addedChildren.isNotEmpty) {
-        _toast(
-            AppLocalizations.of(context)!.register_sus(addedChildren.length));
-
+        _toast(l10n.register_sus(addedChildren.length));
         if (mounted) {
           Navigator.pushNamedAndRemoveUntil(
             context,
@@ -311,7 +399,7 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
           );
         }
       } else {
-        _toast(AppLocalizations.of(context)!.register_Anerroroccurredplstry);
+        _toast(l10n.register_Anerroroccurredplstry);
       }
     } catch (e) {
       setState(() => _isLoading = false);
@@ -337,12 +425,11 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
 class _ChildFields {
   final TextEditingController nameCtrl = TextEditingController();
   final TextEditingController birthCtrl = TextEditingController();
-  final TextEditingController relationCtrl = TextEditingController();
+  String? selectedRelation;
   DateTime? birthday;
 
   void dispose() {
     nameCtrl.dispose();
     birthCtrl.dispose();
-    relationCtrl.dispose();
   }
 }

@@ -530,6 +530,42 @@ abstract class AppLocalizations {
   /// **'LOG OUT'**
   String get setting_logoutBtn;
 
+  /// No description provided for @setting_deleteAccountBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'DELETE ACCOUNT'**
+  String get setting_deleteAccountBtn;
+
+  /// No description provided for @setting_deleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account?'**
+  String get setting_deleteTitle;
+
+  /// No description provided for @setting_deleteMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'This will permanently delete your account and all children data. Your data will be removed within 30 days. This action cannot be undone.'**
+  String get setting_deleteMsg;
+
+  /// No description provided for @setting_deleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'DELETE'**
+  String get setting_deleteConfirm;
+
+  /// No description provided for @setting_deleteSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deleted successfully.'**
+  String get setting_deleteSuccess;
+
+  /// No description provided for @setting_deleteError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete account. Please try again.'**
+  String get setting_deleteError;
+
   /// No description provided for @namesetting_changenameBtn.
   ///
   /// In en, this message translates to:
@@ -2641,6 +2677,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'ANSWER'**
   String get answerplus_answerLabel;
+
+  /// No description provided for @email_loginTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Login with Email'**
+  String get email_loginTitle;
+
+  /// No description provided for @email_registerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
+  String get email_registerTitle;
+
+  /// No description provided for @email_emailHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get email_emailHint;
+
+  /// No description provided for @email_passwordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get email_passwordHint;
+
+  /// No description provided for @email_nameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name'**
+  String get email_nameHint;
+
+  /// No description provided for @email_loginBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'LOGIN'**
+  String get email_loginBtn;
+
+  /// No description provided for @email_registerBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'REGISTER'**
+  String get email_registerBtn;
+
+  /// No description provided for @email_forgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot Password?'**
+  String get email_forgotPassword;
+
+  /// No description provided for @email_noAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Don\'t have an account? Register'**
+  String get email_noAccount;
+
+  /// No description provided for @email_hasAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have an account? Login'**
+  String get email_hasAccount;
+
+  /// No description provided for @email_resetSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Password reset email sent. Please check your inbox.'**
+  String get email_resetSent;
+
+  /// No description provided for @email_passwordTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least 6 characters'**
+  String get email_passwordTooShort;
+
+  /// No description provided for @email_enterEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your email'**
+  String get email_enterEmail;
+
+  /// No description provided for @email_enterPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your password'**
+  String get email_enterPassword;
+
+  /// No description provided for @email_enterName.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter your name'**
+  String get email_enterName;
+
+  /// No description provided for @email_forgotTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Password'**
+  String get email_forgotTitle;
+
+  /// No description provided for @email_forgotMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email to receive a password reset link.'**
+  String get email_forgotMsg;
+
+  /// No description provided for @email_sendReset.
+  ///
+  /// In en, this message translates to:
+  /// **'SEND'**
+  String get email_sendReset;
+
+  /// No description provided for @email_loginWithEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'LOGIN WITH EMAIL'**
+  String get email_loginWithEmail;
+
+  /// No description provided for @relation_label.
+  ///
+  /// In en, this message translates to:
+  /// **'RELATIONSHIP'**
+  String get relation_label;
+
+  /// No description provided for @relation_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select relationship'**
+  String get relation_hint;
+
+  /// No description provided for @relation_parent.
+  ///
+  /// In en, this message translates to:
+  /// **'Father/Mother'**
+  String get relation_parent;
+
+  /// No description provided for @relation_grandparentPaternal.
+  ///
+  /// In en, this message translates to:
+  /// **'Grandfather/Grandmother (Father\'s side)'**
+  String get relation_grandparentPaternal;
+
+  /// No description provided for @relation_grandparentMaternal.
+  ///
+  /// In en, this message translates to:
+  /// **'Grandfather/Grandmother (Mother\'s side)'**
+  String get relation_grandparentMaternal;
+
+  /// No description provided for @relation_auntUncle.
+  ///
+  /// In en, this message translates to:
+  /// **'Aunt/Uncle'**
+  String get relation_auntUncle;
+
+  /// No description provided for @relation_caregiver.
+  ///
+  /// In en, this message translates to:
+  /// **'Caregiver'**
+  String get relation_caregiver;
+
+  /// No description provided for @relation_nanny.
+  ///
+  /// In en, this message translates to:
+  /// **'Nanny/Babysitter'**
+  String get relation_nanny;
 }
 
 class _AppLocalizationsDelegate

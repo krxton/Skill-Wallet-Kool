@@ -61,6 +61,7 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
       final success = await userProvider.addChild(
         name: newChildData['name'] as String,
         birthday: birthday,
+        relationship: newChildData['relation'] as String?,
       );
 
       if (!mounted) return;

@@ -78,6 +78,12 @@
   "setting_thaiBtn": "ภาษาไทย",
   "setting_englishBtn": "ภาษาอังกฤษ",
   "setting_logoutBtn": "ลงชื่อออก",
+  "setting_deleteAccountBtn": "ลบบัญชี",
+  "setting_deleteTitle": "ลบบัญชีหรือไม่?",
+  "setting_deleteMsg": "การดำเนินการนี้จะลบบัญชีและข้อมูลลูกทั้งหมดอย่างถาวร ข้อมูลจะถูกลบภายใน 30 วัน และไม่สามารถกู้คืนได้",
+  "setting_deleteConfirm": "ลบบัญชี",
+  "setting_deleteSuccess": "ลบบัญชีสำเร็จแล้ว",
+  "setting_deleteError": "ไม่สามารถลบบัญชีได้ กรุณาลองใหม่อีกครั้ง",
 
   "namesetting_changenameBtn": "เปลี่ยนชื่อ",
   "namesetting_enternewnameBtn": "กรุณากรอกชื่อใหม่",
@@ -488,5 +494,34 @@
 
   "answerplus_title": "เฉลย บวก +",
   "answerplus_questionLabel": "โจทย์",
-  "answerplus_answerLabel": "เฉลย"
+  "answerplus_answerLabel": "เฉลย",
+
+  "email_loginTitle": "เข้าสู่ระบบด้วยอีเมล",
+  "email_registerTitle": "สมัครสมาชิก",
+  "email_emailHint": "อีเมล",
+  "email_passwordHint": "รหัสผ่าน",
+  "email_nameHint": "ชื่อ-นามสกุล",
+  "email_loginBtn": "เข้าสู่ระบบ",
+  "email_registerBtn": "สมัครสมาชิก",
+  "email_forgotPassword": "ลืมรหัสผ่าน?",
+  "email_noAccount": "ยังไม่มีบัญชี? สมัครสมาชิก",
+  "email_hasAccount": "มีบัญชีอยู่แล้ว? เข้าสู่ระบบ",
+  "email_resetSent": "ส่งอีเมลรีเซ็ตรหัสผ่านแล้ว กรุณาตรวจสอบกล่องจดหมาย",
+  "email_passwordTooShort": "รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร",
+  "email_enterEmail": "กรุณากรอกอีเมล",
+  "email_enterPassword": "กรุณากรอกรหัสผ่าน",
+  "email_enterName": "กรุณากรอกชื่อ",
+  "email_forgotTitle": "รีเซ็ตรหัสผ่าน",
+  "email_forgotMsg": "กรอกอีเมลของคุณเพื่อรับลิงก์รีเซ็ตรหัสผ่าน",
+  "email_sendReset": "ส่ง",
+  "email_loginWithEmail": "เข้าสู่ระบบด้วยอีเมล",
+
+  "relation_label": "ความสัมพันธ์",
+  "relation_hint": "เลือกความสัมพันธ์",
+  "relation_parent": "พ่อ/แม่",
+  "relation_grandparentPaternal": "ปู่/ย่า (ฝ่ายพ่อ)",
+  "relation_grandparentMaternal": "ตา/ยาย (ฝ่ายแม่)",
+  "relation_auntUncle": "ลุง/ป้า/น้า/อา",
+  "relation_caregiver": "คนดูแล",
+  "relation_nanny": "พี่เลี้ยง"
 }

@@ -9,6 +9,7 @@ import 'package:skill_wallet_kool/routes/app_routes.dart';
 // Import Provider
 import '../../../providers/user_provider.dart';
 import '../../../providers/auth_provider.dart';
+import '../../../services/api_service.dart';
 
 // Import หน้าย่อยต่างๆ
 import 'profile_setting_screen.dart'; // หน้าแก้ไขโปรไฟล์
@@ -237,12 +238,103 @@ class _SettingScreenState extends State<SettingScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
+
+                // --- 4. Delete Account ---
+                GestureDetector(
+                  onTap: _confirmDeleteAccount,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.setting_deleteAccountBtn,
+                        style: TextStyle(
+                          fontFamily: GoogleFonts.itim().fontFamily,
+                          fontSize: 14,
+                          color: Colors.grey,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
               ],
             ),
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _confirmDeleteAccount() async {
+    final l10n = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          l10n.setting_deleteTitle,
+          style: GoogleFonts.itim(
+              fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
+        ),
+        content: Text(
+          l10n.setting_deleteMsg,
+          style: GoogleFonts.itim(fontSize: 14),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.common_cancel,
+                style: GoogleFonts.itim(fontSize: 14, color: Colors.black54)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.setting_deleteConfirm,
+                style: GoogleFonts.itim(fontSize: 14, color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+    await _deleteAccount();
+  }
+
+  Future<void> _deleteAccount() async {
+    final l10n = AppLocalizations.of(context)!;
+    try {
+      // 1. Call backend to delete parent + children data
+      final apiService = ApiService();
+      await apiService.delete('/parents/me');
+
+      // 2. Delete Supabase auth user
+      try {
+        await Supabase.instance.client.auth.signOut();
+      } catch (_) {}
+
+      // 3. Clear local state
+      if (!mounted) return;
+      context.read<AuthProvider>().signOut();
+      context.read<UserProvider>().clearUserData();
+
+      // 4. Navigate to welcome
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.setting_deleteSuccess)),
+        );
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          AppRoutes.welcome,
+          (route) => false,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.setting_deleteError)),
+        );
+      }
+    }
   }
 
   // Helper Widget: สร้างแถวเมนู (Profile, Child, Noti)
