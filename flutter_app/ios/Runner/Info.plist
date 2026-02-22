@@ -52,6 +52,8 @@
 	<string>3f9b1f8abe33bfe0529348a7ae159ba8</string>
 	<key>FacebookDisplayName</key>
 	<string>Skill-Wallet-Kool</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app needs access to the microphone to record audio during activities.</string>
 	<!-- Google Sign-in Section -->
 	<key>CFBundleURLTypes</key>
 	<array>
