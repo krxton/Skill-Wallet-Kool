@@ -45,11 +45,11 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
   Timer? _uiUpdateTimer; // Timer สำหรับอัพเดท UI เท่านั้น
   bool _isPlaying = false;
 
-  int _parentScore = 0;
+  final Map<String, int> _childScores = {};
   bool _isSubmitting = false;
-  final TextEditingController _scoreController = TextEditingController();
+  bool _initialized = false;
   final TextEditingController _descriptionController =
-      TextEditingController(); // 🆕 Controller สำหรับ Diary
+      TextEditingController();
 
   @override
   void initState() {
@@ -58,11 +58,23 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_initialized) {
+      _initialized = true;
+      final childId = context.read<UserProvider>().currentChildId;
+      if (childId != null) _childScores[childId] = 0;
+      for (final id in widget.extraChildIds) {
+        _childScores.putIfAbsent(id, () => 0);
+      }
+    }
+  }
+
+  @override
   void dispose() {
     _activityStopwatch.stop();
     _uiUpdateTimer?.cancel();
-    _scoreController.dispose();
-    _descriptionController.dispose(); // 🆕 Dispose controller
+    _descriptionController.dispose();
     super.dispose();
   }
 
@@ -185,7 +197,12 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
       }
       return;
     }
-    if (_parentScore <= 0 || _parentScore > widget.activity.maxScore) {
+    final allChildIds = <String>{childId!, ...widget.extraChildIds}.toList();
+    final bool allScoresValid = allChildIds.every((cid) {
+      final s = _childScores[cid] ?? 0;
+      return s > 0 && s <= widget.activity.maxScore;
+    });
+    if (!allScoresValid) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(AppLocalizations.of(context)!
@@ -214,12 +231,8 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
     };
 
     try {
-      // รวม childId ปัจจุบัน + เด็กที่เลือกเพิ่ม (ไม่ซ้ำ)
-      final allChildIds = <String>{childId!, ...widget.extraChildIds}.toList();
-      debugPrint(
-          '📊 Sending to ${allChildIds.length} children, parentScore: $_parentScore, timeSpent: $timeSpentSeconds');
+      debugPrint('📊 Sending to ${allChildIds.length} children, timeSpent: $timeSpentSeconds');
 
-      // ส่งให้ทุกคนพร้อมกัน
       final results = await Future.wait(
         allChildIds.map((cid) => _activityService.finalizeQuest(
               childId: cid,
@@ -227,7 +240,7 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
               segmentResults: [],
               activityMaxScore: widget.activity.maxScore,
               evidence: evidencePayload,
-              parentScore: _parentScore,
+              parentScore: _childScores[cid] ?? 0,
               timeSpent: timeSpentSeconds,
             )),
         eagerError: false,
@@ -236,13 +249,14 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
       debugPrint('✅ Submitted for ${results.length} children');
 
       if (mounted) {
+        final currentScore = _childScores[childId] ?? 0;
         Navigator.pushReplacementNamed(
           context,
           AppRoutes.result,
           arguments: {
             'activityName': widget.activity.name,
-            'totalScore': ((_parentScore / widget.activity.maxScore) * 100).round(),
-            'scoreEarned': _parentScore,
+            'totalScore': ((currentScore / widget.activity.maxScore) * 100).round(),
+            'scoreEarned': currentScore,
             'timeSpend': timeSpentSeconds,
             'activityObject': widget.activity,
             'evidenceImagePath': _imagePath,
@@ -276,76 +290,93 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
     return Icon(Icons.add, size: 50, color: Palette.deepGrey.withOpacity(0.5));
   }
 
-  // 🆕 Helper: Build Score Control
-  Widget _buildScoreControl() {
+  // ── Score Section: แสดงคะแนนแยกต่อเด็กแต่ละคน ──
+  Widget _buildScoreSection() {
+    final userProvider = context.read<UserProvider>();
+    final currentChildId = userProvider.currentChildId ?? '';
+    final allIds = <String>{currentChildId, ...widget.extraChildIds}
+        .where((id) => id.isNotEmpty)
+        .toList();
+
+    return Column(
+      children: allIds.map((childId) {
+        final name = _getChildName(userProvider.children, childId);
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: _buildChildScoreRow(childId, name),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildChildScoreRow(String childId, String childName) {
+    final score = _childScores[childId] ?? 0;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: Colors.black12),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          IconButton(
-            icon: const Icon(Icons.remove, color: Colors.red),
-            onPressed: () {
-              setState(() {
-                _parentScore = (_parentScore > 0) ? _parentScore - 1 : 0;
-                _scoreController.text = _parentScore.toString();
-              });
-            },
+          CircleAvatar(
+            radius: 14,
+            backgroundColor: Palette.sky,
+            child: Text(
+              childName.isNotEmpty ? childName[0].toUpperCase() : '?',
+              style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+            ),
           ),
-          // 🆕 ทำให้กดแล้วกรอกตัวเลขได้
-          Expanded(
-            child: GestureDetector(
-              onTap: () {
-                _scoreController.text = _parentScore.toString();
-                _showScoreInputDialog();
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Text(
-                  '$_parentScore / ${widget.activity.maxScore}',
-                  style: AppTextStyles.heading(24, color: Palette.deepGrey),
-                  textAlign: TextAlign.center,
-                ),
+          const SizedBox(width: 8),
+          Expanded(child: Text(childName, style: AppTextStyles.body(14))),
+          IconButton(
+            icon: const Icon(Icons.remove, color: Colors.red, size: 20),
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            padding: EdgeInsets.zero,
+            onPressed: () => setState(() {
+              _childScores[childId] = (score > 0) ? score - 1 : 0;
+            }),
+          ),
+          GestureDetector(
+            onTap: () => _showChildScoreDialog(childId, childName),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              child: Text(
+                '$score / ${widget.activity.maxScore}',
+                style: AppTextStyles.heading(20, color: Palette.deepGrey),
               ),
             ),
           ),
           IconButton(
-            icon: Icon(Icons.add, color: Palette.success),
-            onPressed: () {
-              setState(() {
-                _parentScore = (_parentScore < widget.activity.maxScore)
-                    ? _parentScore + 1
-                    : widget.activity.maxScore;
-                _scoreController.text = _parentScore.toString();
-              });
-            },
+            icon: Icon(Icons.add, color: Palette.success, size: 20),
+            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+            padding: EdgeInsets.zero,
+            onPressed: () => setState(() {
+              _childScores[childId] = (score < widget.activity.maxScore)
+                  ? score + 1
+                  : widget.activity.maxScore;
+            }),
           ),
         ],
       ),
     );
   }
 
-  // 🆕 Dialog สำหรับกรอกคะแนนโดยตรง
-  void _showScoreInputDialog() {
-    _scoreController.text = _parentScore.toString();
-    _scoreController.selection = TextSelection(
-      baseOffset: 0,
-      extentOffset: _scoreController.text.length,
+  void _showChildScoreDialog(String childId, String childName) {
+    final tempController = TextEditingController(
+      text: (_childScores[childId] ?? 0).toString(),
     );
-
+    tempController.selection = TextSelection(
+      baseOffset: 0,
+      extentOffset: tempController.text.length,
+    );
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-            AppLocalizations.of(context)!.physical_dialogEnterScoreTitle,
-            style: AppTextStyles.heading(18)),
+      builder: (ctx) => AlertDialog(
+        title: Text(childName, style: AppTextStyles.heading(16)),
         content: TextField(
-          controller: _scoreController,
+          controller: tempController,
           keyboardType: TextInputType.number,
           autofocus: true,
           decoration: InputDecoration(
@@ -354,45 +385,48 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
             border: const OutlineInputBorder(),
           ),
           onSubmitted: (value) {
-            _updateScoreFromInput(value);
-            Navigator.pop(context);
+            _updateChildScore(childId, value);
+            Navigator.pop(ctx);
           },
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(ctx),
             child: Text(AppLocalizations.of(context)!.common_cancel,
                 style: AppTextStyles.body(14, color: Colors.grey)),
           ),
           TextButton(
             onPressed: () {
-              _updateScoreFromInput(_scoreController.text);
-              Navigator.pop(context);
+              _updateChildScore(childId, tempController.text);
+              Navigator.pop(ctx);
             },
             child: Text(AppLocalizations.of(context)!.common_ok,
                 style: AppTextStyles.heading(16, color: Palette.success)),
           ),
         ],
       ),
-    );
+    ).then((_) => tempController.dispose());
   }
 
-  // 🆕 Helper: อัพเดทคะแนนจาก Input
-  void _updateScoreFromInput(String value) {
-    final int? newScore = int.tryParse(value);
-    if (newScore != null &&
-        newScore >= 0 &&
-        newScore <= widget.activity.maxScore) {
-      setState(() {
-        _parentScore = newScore;
-      });
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(AppLocalizations.of(context)!
-                .physical_snackInvalidInput(widget.activity.maxScore))),
-      );
+  void _updateChildScore(String childId, String value) {
+    final score = int.tryParse(value);
+    if (score != null && score >= 0 && score <= widget.activity.maxScore) {
+      setState(() => _childScores[childId] = score);
+    } else if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(AppLocalizations.of(context)!
+              .physical_snackInvalidInput(widget.activity.maxScore))));
     }
+  }
+
+  String _getChildName(List<Map<String, dynamic>> children, String childId) {
+    for (final item in children) {
+      final child = item['child'] as Map<String, dynamic>?;
+      if (child != null && child['child_id']?.toString() == childId) {
+        return child['name_surname']?.toString() ?? '?';
+      }
+    }
+    return '?';
   }
 
   // ----------------------------------------------------
@@ -477,10 +511,10 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
 
             const SizedBox(height: 20),
 
-            // 3. SCORE CONTROL
+            // 3. SCORE CONTROL (per child)
             Text(AppLocalizations.of(context)!.physical_medalsScoreLabel,
                 style: AppTextStyles.heading(18, color: Palette.pink)),
-            _buildScoreControl(),
+            _buildScoreSection(),
 
             const SizedBox(height: 20),
 

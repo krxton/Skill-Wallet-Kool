@@ -91,6 +91,13 @@ class UserProvider extends ChangeNotifier {
       final result = await _apiService.get('/parents/me');
       _currentParentName = result['nameSurname'] ?? '';
       _currentParentId = result['parentId']?.toString();
+
+      // Load photo URL: custom override first, then OAuth avatar fallback
+      final meta = _supabase.auth.currentUser?.userMetadata;
+      _parentPhotoUrl = (meta?['photo_url'] as String?) ??
+          (meta?['avatar_url'] as String?) ??
+          (meta?['picture'] as String?);
+
       notifyListeners();
     } catch (e) {
       debugPrint('fetchParentData error: $e');
@@ -238,15 +245,66 @@ class UserProvider extends ChangeNotifier {
   }
 
   // ==========================================
-  // 4. ส่วนรูปโปรไฟล์ (Profile Image)
+  // 4. ส่วนรูปโปรไฟล์ (Profile Image URL)
   // ==========================================
-  Uint8List? _profileImageBytes;
+  String? _parentPhotoUrl;
 
-  Uint8List? get profileImageBytes => _profileImageBytes;
+  String? get parentPhotoUrl => _parentPhotoUrl;
 
-  void setProfileImage(Uint8List? bytes) {
-    _profileImageBytes = bytes;
-    notifyListeners();
+  /// Upload bytes to Supabase Storage and persist URL in user metadata.
+  Future<bool> uploadAndSetPhoto(Uint8List bytes) async {
+    try {
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return false;
+
+      final path = 'parent/$userId/profile.jpg';
+      await _supabase.storage.from('avatars').uploadBinary(
+        path,
+        bytes,
+        fileOptions: const FileOptions(upsert: true, contentType: 'image/jpeg'),
+      );
+
+      // Cache-bust so Flutter's image cache refreshes
+      final base = _supabase.storage.from('avatars').getPublicUrl(path);
+      final url = '$base?v=${DateTime.now().millisecondsSinceEpoch}';
+
+      await _supabase.auth.updateUser(
+        UserAttributes(data: {'photo_url': url}),
+      );
+      _parentPhotoUrl = url;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      debugPrint('uploadAndSetPhoto error: $e');
+      return false;
+    }
+  }
+
+  /// Use OAuth provider's avatar (Google / Facebook) and persist in user metadata.
+  Future<bool> setPhotoFromOAuth(String provider) async {
+    try {
+      final user = _supabase.auth.currentUser;
+      if (user == null) return false;
+
+      final identity = user.identities?.firstWhere(
+        (i) => i.provider == provider,
+        orElse: () => throw Exception('No $provider identity'),
+      );
+
+      final url = (identity?.identityData?['avatar_url'] as String?) ??
+          (identity?.identityData?['picture'] as String?);
+      if (url == null) return false;
+
+      await _supabase.auth.updateUser(
+        UserAttributes(data: {'photo_url': url}),
+      );
+      _parentPhotoUrl = url;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      debugPrint('setPhotoFromOAuth error: $e');
+      return false;
+    }
   }
 
   // ==========================================
@@ -257,7 +315,7 @@ class UserProvider extends ChangeNotifier {
     _currentParentId = '';
     _currentChildId = null;
     _children = [];
-    _profileImageBytes = null;
+    _parentPhotoUrl = null;
     notifyListeners();
   }
 }

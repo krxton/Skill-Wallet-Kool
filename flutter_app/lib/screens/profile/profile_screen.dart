@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 
@@ -66,19 +65,6 @@ class ProfileScreenState extends State<ProfileScreen> {
         _myActivities = activities;
         _loading = false;
       });
-    }
-  }
-
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final XFile? picked = await picker.pickImage(
-      source: ImageSource.gallery,
-      imageQuality: 80,
-    );
-    if (picked != null) {
-      final bytes = await picked.readAsBytes();
-      if (!mounted) return;
-      context.read<UserProvider>().setProfileImage(bytes);
     }
   }
 
@@ -178,7 +164,7 @@ class ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final userProvider = context.watch<UserProvider>();
     final parentName = userProvider.currentParentName ?? 'PARENT';
-    final profileImageBytes = userProvider.profileImageBytes;
+    final photoUrl = userProvider.parentPhotoUrl;
     final l = AppLocalizations.of(context)!;
 
     return Container(
@@ -200,21 +186,22 @@ class ProfileScreenState extends State<ProfileScreen> {
                     child: Column(
                       children: [
                         GestureDetector(
-                          onTap: _pickImage,
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const SettingScreen(),
+                            ),
+                          ),
                           child: CircleAvatar(
                             radius: 80,
                             backgroundColor: Colors.white,
-                            child: profileImageBytes == null
+                            backgroundImage: photoUrl != null
+                                ? NetworkImage(photoUrl)
+                                : null,
+                            child: photoUrl == null
                                 ? const Icon(Icons.person,
                                     size: 80, color: Colors.black87)
-                                : ClipOval(
-                                    child: Image.memory(
-                                      profileImageBytes,
-                                      width: 160,
-                                      height: 160,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
+                                : null,
                           ),
                         ),
                         const SizedBox(height: 16),

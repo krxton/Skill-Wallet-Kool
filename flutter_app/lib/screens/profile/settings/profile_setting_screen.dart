@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../providers/user_provider.dart';
 import '../../../routes/app_routes.dart';
@@ -21,17 +22,106 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
   static const textGrey = Color(0xFF8E8E8E);
   static const yellowBadge = Color(0xFFFFD54F);
 
-  Future<void> _pickImage() async {
+  bool _uploading = false;
+
+  void _showPhotoOptions() {
+    final supabase = Supabase.instance.client;
+    final identities = supabase.auth.currentUser?.identities ?? [];
+    final hasGoogle = identities.any((i) => i.provider == 'google');
+    final hasFacebook = identities.any((i) => i.provider == 'facebook');
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 8),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('เลือกรูปจากคลัง / Gallery'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _pickFromGallery();
+              },
+            ),
+            if (hasGoogle)
+              ListTile(
+                leading: const Text(
+                  'G',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF4285F4),
+                  ),
+                ),
+                title: const Text('ใช้รูปโปรไฟล์ Google'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _useOAuthPhoto('google');
+                },
+              ),
+            if (hasFacebook)
+              ListTile(
+                leading: const Icon(Icons.facebook, color: Color(0xFF1877F2), size: 28),
+                title: const Text('ใช้รูปโปรไฟล์ Facebook'),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _useOAuthPhoto('facebook');
+                },
+              ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickFromGallery() async {
     final picker = ImagePicker();
     final XFile? picked = await picker.pickImage(
       source: ImageSource.gallery,
       imageQuality: 80,
     );
+    if (picked == null || !mounted) return;
 
-    if (picked != null) {
-      final bytes = await picked.readAsBytes();
-      if (!mounted) return;
-      context.read<UserProvider>().setProfileImage(bytes);
+    setState(() => _uploading = true);
+    final bytes = await picked.readAsBytes();
+    if (!mounted) return;
+    final ok = await context.read<UserProvider>().uploadAndSetPhoto(bytes);
+    if (mounted) {
+      setState(() => _uploading = false);
+      if (!ok) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('อัปโหลดรูปไม่สำเร็จ / Upload failed')),
+        );
+      }
+    }
+  }
+
+  Future<void> _useOAuthPhoto(String provider) async {
+    setState(() => _uploading = true);
+    final ok = await context.read<UserProvider>().setPhotoFromOAuth(provider);
+    if (mounted) {
+      setState(() => _uploading = false);
+      if (!ok) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('ไม่พบรูปโปรไฟล์จาก $provider')),
+        );
+      }
     }
   }
 
@@ -118,7 +208,7 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
   @override
   Widget build(BuildContext context) {
     final userProvider = context.watch<UserProvider>();
-    final profileImageBytes = userProvider.profileImageBytes;
+    final photoUrl = userProvider.parentPhotoUrl;
     final parentName = userProvider.currentParentName ?? 'SWK';
 
     return Scaffold(
@@ -144,7 +234,7 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
               // --- Profile Image ---
               Center(
                 child: GestureDetector(
-                  onTap: _pickImage,
+                  onTap: _showPhotoOptions,
                   child: Stack(
                     children: [
                       Container(
@@ -153,17 +243,19 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: Colors.grey.shade300,
-                          image: profileImageBytes != null
+                          image: photoUrl != null
                               ? DecorationImage(
-                                  image: MemoryImage(profileImageBytes),
+                                  image: NetworkImage(photoUrl),
                                   fit: BoxFit.cover,
                                 )
                               : null,
                         ),
-                        child: profileImageBytes == null
-                            ? const Icon(Icons.person,
-                                size: 80, color: Colors.grey)
-                            : null,
+                        child: _uploading
+                            ? const CircularProgressIndicator()
+                            : photoUrl == null
+                                ? const Icon(Icons.person,
+                                    size: 80, color: Colors.grey)
+                                : null,
                       ),
                       Positioned(
                         bottom: 0,

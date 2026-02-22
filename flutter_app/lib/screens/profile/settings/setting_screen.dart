@@ -36,8 +36,7 @@ class _SettingScreenState extends State<SettingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // ดึงรูปโปรไฟล์จาก Provider มาแสดง
-    final profileImageBytes = context.watch<UserProvider>().profileImageBytes;
+    final photoUrl = context.watch<UserProvider>().parentPhotoUrl;
 
     return Scaffold(
       backgroundColor: cream,
@@ -104,14 +103,14 @@ class _SettingScreenState extends State<SettingScreen> {
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: Colors.white,
-                      image: profileImageBytes != null
+                      image: photoUrl != null
                           ? DecorationImage(
-                              image: MemoryImage(profileImageBytes),
+                              image: NetworkImage(photoUrl),
                               fit: BoxFit.cover,
                             )
                           : null,
                     ),
-                    child: profileImageBytes == null
+                    child: photoUrl == null
                         ? const Icon(Icons.person,
                             size: 30, color: Colors.black87)
                         : null,
