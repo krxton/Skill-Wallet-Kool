@@ -45,6 +45,13 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<!-- Facebook Sign-in Section -->
+	<key>FacebookAppID</key>
+	<string>2963610230515338</string>
+	<key>FacebookClientToken</key>
+	<string>3f9b1f8abe33bfe0529348a7ae159ba8</string>
+	<key>FacebookDisplayName</key>
+	<string>Skill-Wallet-Kool</string>
 	<!-- Google Sign-in Section -->
 	<key>CFBundleURLTypes</key>
 	<array>
@@ -53,6 +60,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string>fb2963610230515338</string>
 				<!-- Google Sign-in reversed client ID -->
 				<string>com.googleusercontent.apps.286775717840-etqs6h74ku98274lcb03be4hmoj12s7u</string>
 				<!-- Deep link scheme for OAuth callback (Facebook, etc.) -->

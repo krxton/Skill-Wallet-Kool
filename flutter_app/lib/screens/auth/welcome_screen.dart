@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
@@ -276,6 +277,47 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   // ========== Facebook Sign-In via Supabase OAuth ==========
   Future<void> _handleFacebookSignIn() async {
     setState(() => _isLoading = true);
+
+    try {
+      final supabase = Supabase.instance.client;
+
+      final LoginResult result = await FacebookAuth.instance.login(
+          permissions: ['public_profile', 'email'],
+          loginTracking: LoginTracking.enabled);
+
+      if (result.status == LoginStatus.success) {
+        final accessToken = result.accessToken!.tokenString;
+        final response = await supabase.auth.signInWithIdToken(
+          provider: OAuthProvider.facebook,
+          idToken: accessToken,
+        );
+
+        final user = response.user;
+        if (user != null) {
+          await _handlePostOAuth(
+              userId: user.id,
+              email: user.email,
+              fullName: user.userMetadata?['full_name'] ??
+                  user.userMetadata?['name'] ??
+                  user.email?.split('@')[0]);
+        }
+      } else {
+        // Handle login cancellation or failure
+        setState(() => _isLoading = false);
+        debugPrint('Facebook Sign-In error: ${result.status}');
+        if (mounted) {
+          _showMessage(AppLocalizations.of(context)!
+              .common_errorGeneric(result.status.toString()));
+        }
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+      debugPrint('Facebook Sign-In error: $e');
+      if (mounted) {
+        _showMessage(
+            AppLocalizations.of(context)!.common_errorGeneric(e.toString()));
+      }
+    }
 
     try {
       final supabase = Supabase.instance.client;
