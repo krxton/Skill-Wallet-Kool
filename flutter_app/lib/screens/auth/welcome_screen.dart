@@ -80,7 +80,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 Expanded(
                   flex: 2,
                   child: Center(
-                    child: Image.asset('assets/images/SWK_home.png', height: 260),
+                    child:
+                        Image.asset('assets/images/SWK_home.png', height: 260),
                   ),
                 ),
 
@@ -107,12 +108,16 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             icon: Icons.facebook,
                             text: l10n.login_facebookBtn,
                             color: fbBlue,
-                            onTap: isLoading ? () {} : () => _handleOAuth('facebook'),
+                            onTap: isLoading
+                                ? () {}
+                                : () => _handleOAuth('facebook'),
                           ),
                           const SizedBox(height: 12),
                           _googleButton(
                             text: l10n.login_googleBtn,
-                            onTap: isLoading ? () {} : () => _handleOAuth('google'),
+                            onTap: isLoading
+                                ? () {}
+                                : () => _handleOAuth('google'),
                           ),
                         ],
                       ),
@@ -310,50 +315,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               .common_errorGeneric(result.status.toString()));
         }
       }
-    } catch (e) {
-      setState(() => _isLoading = false);
-      debugPrint('Facebook Sign-In error: $e');
-      if (mounted) {
-        _showMessage(
-            AppLocalizations.of(context)!.common_errorGeneric(e.toString()));
-      }
-    }
-
-    try {
-      final supabase = Supabase.instance.client;
-
-      final authSubscription =
-          supabase.auth.onAuthStateChange.listen((data) async {
-        final event = data.event;
-        final session = data.session;
-
-        if (event == AuthChangeEvent.signedIn && session != null) {
-          final user = session.user;
-          await _handlePostOAuth(
-            userId: user.id,
-            email: user.email,
-            fullName: user.userMetadata?['full_name'] ??
-                user.userMetadata?['name'] ??
-                user.email?.split('@')[0],
-          );
-        }
-      });
-
-      _waitingForOAuth = true;
-      await supabase.auth.signInWithOAuth(
-        OAuthProvider.facebook,
-        redirectTo: 'skillwalletkool://auth-callback',
-      );
-
-      Future.delayed(const Duration(minutes: 2), () {
-        authSubscription.cancel();
-        if (mounted && _isLoading) {
-          setState(() {
-            _isLoading = false;
-            _waitingForOAuth = false;
-          });
-        }
-      });
     } catch (e) {
       setState(() => _isLoading = false);
       debugPrint('Facebook Sign-In error: $e');
@@ -668,10 +629,10 @@ class _GoogleGPainter extends CustomPainter {
     final sw = size.width * 0.22;
     final arcR = size.width / 2 - sw / 2;
 
-    const blue   = Color(0xFF4285F4);
-    const red    = Color(0xFFEA4335);
+    const blue = Color(0xFF4285F4);
+    const red = Color(0xFFEA4335);
     const yellow = Color(0xFFFBBC05);
-    const green  = Color(0xFF34A853);
+    const green = Color(0xFF34A853);
 
     double rad(double deg) => deg * math.pi / 180;
 
