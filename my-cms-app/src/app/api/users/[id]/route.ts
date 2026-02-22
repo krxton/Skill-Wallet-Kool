@@ -1,6 +1,7 @@
 // app/api/users/[id]/route.ts
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { createClient } from '@supabase/supabase-js';
 
 export async function GET(
   request: Request,
@@ -117,8 +118,8 @@ export async function GET(
       scoreUsed: redemption.point_for_reward ? Number(redemption.point_for_reward) : 0
     }));
 
-    // Extract role from Supabase user metadata
-    const meta = (parent.users?.raw_user_meta_data as Record<string, any>) || {};
+    // Extract role from app metadata (matches Flutter's appMetadata read)
+    const meta = (parent.users?.raw_app_meta_data as Record<string, any>) || {};
 
     // Transform to match frontend interface
     const userDetail = {
@@ -167,7 +168,7 @@ export async function PATCH(
     // Find parent to get user_id
     const parent = await prisma.parent.findUnique({
       where: { parent_id: params.id },
-      select: { user_id: true, users: { select: { raw_user_meta_data: true } } }
+      select: { user_id: true, users: { select: { raw_app_meta_data: true } } }
     });
 
     if (!parent || !parent.user_id) {
@@ -177,14 +178,14 @@ export async function PATCH(
       );
     }
 
-    // Merge new role into existing metadata
-    const existingMeta = (parent.users?.raw_user_meta_data as Record<string, any>) || {};
+    // Merge new role into existing app_metadata (Flutter reads appMetadata)
+    const existingMeta = (parent.users?.raw_app_meta_data as Record<string, any>) || {};
     const updatedMeta = { ...existingMeta, role };
 
-    // Update auth.users raw_user_meta_data
+    // Update auth.users raw_app_meta_data
     await prisma.users.update({
       where: { id: parent.user_id },
-      data: { raw_user_meta_data: updatedMeta }
+      data: { raw_app_meta_data: updatedMeta }
     });
 
     return NextResponse.json({ success: true, role });
@@ -193,6 +194,56 @@ export async function PATCH(
     console.error(`PATCH /api/users/${params.id} error:`, error);
     return NextResponse.json(
       { error: 'Failed to update role', details: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * DELETE /api/users/[id]
+ * Admin: permanently delete a parent account, all children links, and Supabase auth user.
+ */
+export async function DELETE(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  try {
+    const params = await context.params;
+
+    const parent = await prisma.parent.findUnique({
+      where: { parent_id: params.id },
+      select: { user_id: true }
+    });
+
+    if (!parent) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // 1. Delete activities created by this parent (onDelete: NoAction — must delete manually)
+    await prisma.activity.deleteMany({
+      where: { parent_id: params.id }
+    });
+
+    // 2. Delete parent record (cascades: activity_record, parent_and_child, parent_and_medals, redemption)
+    await prisma.parent.delete({
+      where: { parent_id: params.id }
+    });
+
+    // 3. Delete Supabase auth user via service role key
+    if (parent.user_id) {
+      const supabaseAdmin = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!
+      );
+      await supabaseAdmin.auth.admin.deleteUser(parent.user_id);
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    const params = await context.params;
+    console.error(`DELETE /api/users/${params.id} error:`, error);
+    return NextResponse.json(
+      { error: 'Failed to delete user', details: error.message },
       { status: 500 }
     );
   }

@@ -35,12 +35,12 @@ export async function DELETE(request: NextRequest) {
   const { parent } = auth;
 
   try {
-    // 1. Delete all parent_and_child links for this parent
-    await prisma.parent_and_child.deleteMany({
+    // 1. Delete activities created by this parent (onDelete: NoAction — must delete manually)
+    await prisma.activity.deleteMany({
       where: { parent_id: parent.parent_id },
     });
 
-    // 2. Delete parent record
+    // 2. Delete parent record (cascades: activity_record, parent_and_child, parent_and_medals, redemption)
     await prisma.parent.delete({
       where: { parent_id: parent.parent_id },
     });

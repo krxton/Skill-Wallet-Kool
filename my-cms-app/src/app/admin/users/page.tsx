@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
-import { Search, MoreVertical, Eye, UserCheck, UserX, ShieldCheck, Shield } from 'lucide-react';
+import { Search, MoreVertical, Eye, UserCheck, UserX, ShieldCheck, Shield, Trash2 } from 'lucide-react';
 import UserProfile from '@/components/UserProfile';
 
 interface User {
@@ -28,6 +28,8 @@ export default function UsersPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -75,6 +77,21 @@ export default function UsersPage() {
 
   const toggleMenu = (id: string) => {
     setOpenMenuId(openMenuId === id ? null : id);
+  };
+
+  const handleDeleteUser = async () => {
+    if (!confirmDeleteId) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/users/${confirmDeleteId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Delete failed');
+      setConfirmDeleteId(null);
+      fetchUsers();
+    } catch (error) {
+      console.error('Failed to delete user:', error);
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -180,7 +197,8 @@ export default function UsersPage() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-lg shadow overflow-x-auto">
+      <div className="bg-white rounded-lg shadow">
+        <div className="overflow-x-auto">
         <table className="w-full min-w-[900px]">
           <thead className="bg-gray--light1 border-b border-gray4">
             <tr>
@@ -205,8 +223,8 @@ export default function UsersPage() {
                 <td className="px-3 py-3 body-medium-regular">
                   {(currentPage - 1) * 10 + index + 1}
                 </td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-3 whitespace-nowrap">
+                <td className="px-4 py-3 max-w-[160px]">
+                  <div className="flex items-center gap-3 min-w-0">
                     {user.photoUrl ? (
                       <img
                         src={user.photoUrl}
@@ -218,10 +236,12 @@ export default function UsersPage() {
                         {user.fullName.charAt(0).toUpperCase()}
                       </div>
                     )}
-                    <span className="body-medium-medium">{user.fullName}</span>
+                    <span className="body-medium-medium truncate" title={user.fullName}>{user.fullName}</span>
                   </div>
                 </td>
-                <td className="px-4 py-3 body-medium-regular">{user.email}</td>
+                <td className="px-4 py-3 body-medium-regular max-w-[180px]">
+                  <span className="truncate block" title={user.email}>{user.email}</span>
+                </td>
                 <td className="px-3 py-3 text-center">
                   {getRoleBadge(user.role)}
                 </td>
@@ -253,7 +273,7 @@ export default function UsersPage() {
                       <MoreVertical size={16} className="text-secondary--text" />
                     </button>
                     {openMenuId === user.id && (
-                      <div className="absolute right-0 top-full mt-1 bg-white border border-gray4 rounded-lg shadow-lg py-2 z-10 min-w-[120px]">
+                      <div className="absolute right-0 top-full mt-1 bg-white border border-gray4 rounded-lg shadow-lg py-2 z-10 min-w-[140px]">
                         <Link
                           href={`/admin/users/${user.id}`}
                           className="flex items-center gap-2 px-4 py-2 hover:bg-gray--light1 body-small-medium whitespace-nowrap"
@@ -262,6 +282,13 @@ export default function UsersPage() {
                           <Eye size={16} />
                           View Detail
                         </Link>
+                        <button
+                          className="w-full flex items-center gap-2 px-4 py-2 hover:bg-red--light6 body-small-medium whitespace-nowrap text-red--dark"
+                          onClick={() => { setOpenMenuId(null); setConfirmDeleteId(user.id); }}
+                        >
+                          <Trash2 size={16} />
+                          Delete User
+                        </button>
                       </div>
                     )}
                   </div>
@@ -270,6 +297,7 @@ export default function UsersPage() {
             ))}
           </tbody>
         </table>
+        </div>
 
         {/* Pagination */}
         <div className="flex items-center justify-between px-6 py-4 border-t border-gray4">
@@ -360,6 +388,39 @@ export default function UsersPage() {
           </div>
           <div className="body-medium-regular text-secondary--text">
             Try adjusting your search or filters
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {confirmDeleteId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-xl shadow-xl p-6 w-full max-w-sm mx-4">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-red--light6 flex items-center justify-center flex-shrink-0">
+                <Trash2 size={20} className="text-red--dark" />
+              </div>
+              <h2 className="body-large-medium">Delete User</h2>
+            </div>
+            <p className="body-medium-regular text-secondary--text mb-6">
+              This action cannot be undone. The user account and all associated data will be permanently deleted.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setConfirmDeleteId(null)}
+                disabled={deleting}
+                className="px-4 py-2 body-small-medium border border-gray4 rounded-lg hover:bg-gray--light1 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteUser}
+                disabled={deleting}
+                className="px-4 py-2 body-small-medium bg-red--dark text-white rounded-lg hover:opacity-90 disabled:opacity-50"
+              >
+                {deleting ? 'Deleting...' : 'Delete'}
+              </button>
+            </div>
           </div>
         </div>
       )}

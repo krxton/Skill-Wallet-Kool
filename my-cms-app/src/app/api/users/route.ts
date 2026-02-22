@@ -55,7 +55,7 @@ export async function GET(request: Request) {
         users: {
           select: {
             id: true,
-            raw_user_meta_data: true
+            raw_app_meta_data: true
           }
         }
       },
@@ -66,7 +66,7 @@ export async function GET(request: Request) {
 
     // Transform to match frontend interface
     const users = parents.map((parent) => {
-      const meta = (parent.users?.raw_user_meta_data as Record<string, any>) || {};
+      const meta = (parent.users?.raw_app_meta_data as Record<string, any>) || {};
       return {
         id: parent.parent_id,
         fullName: parent.name_surname || 'N/A',
