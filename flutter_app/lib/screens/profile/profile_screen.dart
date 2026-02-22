@@ -26,11 +26,29 @@ class ProfileScreenState extends State<ProfileScreen> {
   List<Activity> _myActivities = [];
   bool _loading = true;
   bool _isEditMode = false;
+  UserProvider? _userProvider;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadActivities());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadActivities();
+      _userProvider = context.read<UserProvider>();
+      _userProvider!.addListener(_onProviderChanged);
+    });
+  }
+
+  void _onProviderChanged() {
+    final parentId = _userProvider?.currentParentId;
+    if (parentId != null && parentId.isNotEmpty && _myActivities.isEmpty) {
+      _loadActivities();
+    }
+  }
+
+  @override
+  void dispose() {
+    _userProvider?.removeListener(_onProviderChanged);
+    super.dispose();
   }
 
   /// Public method so HomeScreen can trigger a reload.

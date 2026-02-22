@@ -49,7 +49,9 @@ class ApiService {
     }
 
     final headers = await _getHeaders();
-    final response = await http.get(uri, headers: headers);
+    final response = await http
+        .get(uri, headers: headers)
+        .timeout(const Duration(seconds: 15));
 
     if (response.statusCode == 200) {
       if (response.body.isEmpty) return {};
@@ -111,11 +113,13 @@ class ApiService {
 
   Future<Map<String, dynamic>> post(String path, dynamic body) async {
     final headers = await _getHeaders();
-    final response = await http.post(
-      Uri.parse('$_baseUrl$path'),
-      headers: headers,
-      body: jsonEncode(body),
-    );
+    final response = await http
+        .post(
+          Uri.parse('$_baseUrl$path'),
+          headers: headers,
+          body: jsonEncode(body),
+        )
+        .timeout(const Duration(seconds: 15));
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
       if (response.body.isEmpty) return {};
@@ -136,11 +140,13 @@ class ApiService {
 
   Future<Map<String, dynamic>> patch(String path, dynamic body) async {
     final headers = await _getHeaders();
-    final response = await http.patch(
-      Uri.parse('$_baseUrl$path'),
-      headers: headers,
-      body: jsonEncode(body),
-    );
+    final response = await http
+        .patch(
+          Uri.parse('$_baseUrl$path'),
+          headers: headers,
+          body: jsonEncode(body),
+        )
+        .timeout(const Duration(seconds: 15));
 
     if (response.statusCode >= 200 && response.statusCode < 300) {
       if (response.body.isEmpty) return {};
@@ -161,10 +167,12 @@ class ApiService {
 
   Future<void> delete(String path) async {
     final headers = await _getHeaders();
-    final response = await http.delete(
-      Uri.parse('$_baseUrl$path'),
-      headers: headers,
-    );
+    final response = await http
+        .delete(
+          Uri.parse('$_baseUrl$path'),
+          headers: headers,
+        )
+        .timeout(const Duration(seconds: 15));
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       String errorMessage = 'Failed to delete: ${response.statusCode}';

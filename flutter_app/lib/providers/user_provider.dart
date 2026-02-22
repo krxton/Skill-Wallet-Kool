@@ -105,9 +105,10 @@ class UserProvider extends ChangeNotifier {
         try {
           final parentResult = await _apiService.get('/parents/me');
           _currentParentId = parentResult['parentId']?.toString();
-        } catch (_) {
-          // ยังไม่ได้ login ให้ข้าม
-          return;
+        } catch (e) {
+          // /parents/me ล้มเหลว (ไม่ได้ login หรือ API ช้า)
+          // ยังคงดำเนินการต่อ — /children ใช้ auth token โดยตรง
+          debugPrint('fetchChildrenData: /parents/me failed ($e), continuing...');
         }
       }
 

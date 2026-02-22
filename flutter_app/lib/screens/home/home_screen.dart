@@ -39,7 +39,6 @@ class _HomeScreenState extends State<HomeScreen> {
   late Future<List<Activity>> _newActivitiesFuture;
 
   String? _currentChildId;
-  String? _currentParentId;
 
   // Carousel
   final PageController _carouselController = PageController();
@@ -59,14 +58,27 @@ class _HomeScreenState extends State<HomeScreen> {
   // dirty flag — จะ reload home เฉพาะเมื่อมีการเปลี่ยนแปลง activity
   bool _homeNeedsRefresh = false;
 
+  UserProvider? _userProvider;
+
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadData());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadData();
+      _userProvider = context.read<UserProvider>();
+      _userProvider!.addListener(_onChildrenLoaded);
+    });
+  }
+
+  void _onChildrenLoaded() {
+    if (_currentChildId == null && _userProvider?.currentChildId != null) {
+      _loadData();
+    }
   }
 
   @override
   void dispose() {
+    _userProvider?.removeListener(_onChildrenLoaded);
     _carouselController.dispose();
     _popularScrollController.dispose();
     _newScrollController.dispose();
@@ -82,20 +94,23 @@ class _HomeScreenState extends State<HomeScreen> {
     if (childId != null) {
       setState(() {
         _currentChildId = childId;
-        _currentParentId = parentId;
-        // Carousel ด้านบน = กิจกรรมแนะนำ (ใช้ filter ตาม category/level)
-        _recommendedActivitiesFuture = _fetchRecommendedActivities(childId);
         _currentCarouselPage = 0;
         if (_carouselController.hasClients) {
           _carouselController.jumpToPage(0);
         }
-        // Popular list ด้านล่าง = กิจกรรมยอดนิยม (ตาม play_count)
-        _popularActivitiesFuture = _activityService.fetchPopularActivities(
+
+        // Popular: fetch ครั้งเดียว ใช้ร่วมกับ Carousel (ลด API calls จาก 3 → 2)
+        final popularFuture = _activityService.fetchPopularActivities(
           childId,
           category: _selectedCategory,
           level: _selectedLevel,
           parentId: parentId,
         );
+        _popularActivitiesFuture = popularFuture;
+        // Carousel ใช้ข้อมูลเดียวกับ popular แต่สุ่มเลือก 5 ตัว
+        _recommendedActivitiesFuture =
+            popularFuture.then(_pickRecommended);
+
         _newActivitiesFuture = _activityService.fetchNewActivities(
           childId,
           category: _selectedCategory,
@@ -110,89 +125,72 @@ class _HomeScreenState extends State<HomeScreen> {
   void _refreshSuggestedOnly() {
     if (!mounted) return;
     final childId = context.read<UserProvider>().currentChildId;
+    final parentId = context.read<UserProvider>().currentParentId;
     if (childId != null) {
+      final popularFuture = _activityService.fetchPopularActivities(
+        childId,
+        category: _selectedCategory,
+        level: _selectedLevel,
+        parentId: parentId,
+      );
       setState(() {
         _currentCarouselPage = 0;
-        _recommendedActivitiesFuture = _fetchRecommendedActivities(childId);
+        _popularActivitiesFuture = popularFuture;
+        _recommendedActivitiesFuture = popularFuture.then(_pickRecommended);
       });
-      // reset carousel position กลับหน้าแรกเสมอ
       if (_carouselController.hasClients) {
         _carouselController.jumpToPage(0);
       }
     }
   }
 
-  /// ดึงกิจกรรมแนะนำสำหรับ Carousel
-  /// - ถ้ามี filter → ดึงตาม filter แล้วสุ่ม 5 ตัว
-  /// - ถ้าไม่มี filter → round-robin สลับ category (รวม 5 กิจกรรม)
-  Future<List<Activity>> _fetchRecommendedActivities(String childId) async {
-    try {
-      final hasFilter =
-          _selectedCategory != null || _selectedLevel != null;
+  /// เลือก 5 กิจกรรมแนะนำจาก popular list (ไม่ fetch API เพิ่ม)
+  /// - ถ้ามี filter → สุ่มจากผลลัพธ์ที่ filter แล้ว
+  /// - ถ้าไม่มี filter → round-robin สลับ category
+  List<Activity> _pickRecommended(List<Activity> allActivities) {
+    if (allActivities.isEmpty) return [];
 
-      // 1. ดึงกิจกรรมตาม filter (ถ้ามี)
-      final allActivities =
-          await _activityService.fetchPopularActivities(
-        childId,
-        category: _selectedCategory,
-        level: _selectedLevel,
-        parentId: _currentParentId,
-      );
-
-      if (allActivities.isEmpty) return [];
-
-      // 2. ถ้ามี filter → สุ่มจากผลลัพธ์ที่ filter แล้ว
-      if (hasFilter) {
-        allActivities.shuffle();
-        return allActivities.take(5).toList();
-      }
-
-      // 3. ไม่มี filter → round-robin สลับ category
-      final Map<String, List<Activity>> byCategory = {};
-      for (var a in allActivities) {
-        byCategory.putIfAbsent(a.category, () => []).add(a);
-      }
-      for (var list in byCategory.values) {
-        list.shuffle();
-      }
-
-      final categories = byCategory.keys.toList()..shuffle();
-      debugPrint('Category rotation order: $categories');
-
-      List<Activity> recommended = [];
-      const int targetCount = 5;
-      final Map<String, int> categoryIndex = {
-        for (var c in categories) c: 0,
-      };
-
-      int catIdx = 0;
-      while (recommended.length < targetCount) {
-        final cat = categories[catIdx % categories.length];
-        final pool = byCategory[cat]!;
-        final idx = categoryIndex[cat]!;
-
-        if (idx < pool.length) {
-          recommended.add(pool[idx]);
-          categoryIndex[cat] = idx + 1;
-        }
-
-        catIdx++;
-        if (catIdx >= categories.length * (targetCount + 1)) break;
-      }
-
-      debugPrint('Recommended activities: ${recommended.length} items');
-      return recommended;
-    } catch (e) {
-      debugPrint('Error fetching recommended activities: $e');
-      final all = await _activityService.fetchPopularActivities(
-        childId,
-        category: _selectedCategory,
-        level: _selectedLevel,
-        parentId: _currentParentId,
-      );
-      all.shuffle();
-      return all.take(5).toList();
+    final hasFilter = _selectedCategory != null || _selectedLevel != null;
+    if (hasFilter) {
+      final shuffled = List.of(allActivities)..shuffle();
+      return shuffled.take(5).toList();
     }
+
+    // round-robin สลับ category
+    final Map<String, List<Activity>> byCategory = {};
+    for (var a in allActivities) {
+      byCategory.putIfAbsent(a.category, () => []).add(a);
+    }
+    for (var list in byCategory.values) {
+      list.shuffle();
+    }
+
+    final categories = byCategory.keys.toList()..shuffle();
+    debugPrint('Category rotation order: $categories');
+
+    List<Activity> recommended = [];
+    const int targetCount = 5;
+    final Map<String, int> categoryIndex = {
+      for (var c in categories) c: 0,
+    };
+
+    int catIdx = 0;
+    while (recommended.length < targetCount) {
+      final cat = categories[catIdx % categories.length];
+      final pool = byCategory[cat]!;
+      final idx = categoryIndex[cat]!;
+
+      if (idx < pool.length) {
+        recommended.add(pool[idx]);
+        categoryIndex[cat] = idx + 1;
+      }
+
+      catIdx++;
+      if (catIdx >= categories.length * (targetCount + 1)) break;
+    }
+
+    debugPrint('Recommended activities: ${recommended.length} items');
+    return recommended;
   }
 
   void _onCategoryFilterChanged(String? category) {

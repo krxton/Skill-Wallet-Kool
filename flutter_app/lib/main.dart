@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'l10n/app_localizations.dart';
@@ -268,7 +269,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
     // 3. ถ้า authenticated แล้วให้ดึงข้อมูล children
     if (authenticated && mounted) {
       final userProvider = context.read<UserProvider>();
-      await userProvider.fetchChildrenData();
+      unawaited(userProvider.fetchChildrenData());
     }
 
     if (mounted) {

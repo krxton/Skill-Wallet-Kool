@@ -1,5 +1,6 @@
 node_modules/
 .claude/settings.local.json
+.clude/settings.json
 ACTIVITY_EVIDENCE_GUIDE.md
 FIXES_AUTHENTICATION.md
 IMPLEMENTATION_TIME_TRACKING.md

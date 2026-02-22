@@ -1,28 +1,50 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedParent } from '@/lib/get-parent';
+import { prisma } from '@/lib/prisma';
 
 /**
  * GET /api/children
  * List children for authenticated parent.
+ * Uses Prisma (direct DB) instead of supabase.from() to avoid Supabase REST latency.
  * Returns nested format matching Flutter's expected structure.
  */
 export async function GET(request: NextRequest) {
   const auth = await getAuthenticatedParent(request);
   if (auth.error) return auth.error;
 
-  const { supabase, parent } = auth;
+  const { parent } = auth;
 
   try {
-    const { data, error } = await supabase
-      .from('parent_and_child')
-      .select('child_id, relationship, child!inner(child_id, name_surname, wallet, birthday)')
-      .eq('parent_id', parent.parent_id);
+    const rows = await prisma.parent_and_child.findMany({
+      where: { parent_id: parent.parent_id },
+      include: {
+        child: {
+          select: {
+            child_id: true,
+            name_surname: true,
+            wallet: true,
+            birthday: true,
+          },
+        },
+      },
+    });
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+    // Transform to match Flutter's expected format:
+    // [{ child_id, relationship, child: { child_id, name_surname, wallet, birthday } }]
+    const result = rows
+      .filter((r) => r.child !== null)
+      .map((r) => ({
+        child_id: r.child_id,
+        relationship: r.relationship,
+        child: {
+          child_id: r.child!.child_id,
+          name_surname: r.child!.name_surname,
+          wallet: r.child!.wallet !== null ? Number(r.child!.wallet) : 0,
+          birthday: r.child!.birthday?.toISOString() ?? null,
+        },
+      }));
 
-    return NextResponse.json(data || []);
+    return NextResponse.json(result);
   } catch (err: any) {
     return NextResponse.json(
       { error: 'Failed to fetch children', details: err.message },

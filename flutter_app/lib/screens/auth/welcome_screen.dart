@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -442,12 +443,14 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       });
 
       final parentName = result['parent']?['nameSurname'] ?? nameToSave;
-      debugPrint('User synced via API: $parentName');
+      final parentId = result['parent']?['parentId']?.toString();
+      debugPrint('User synced via API: $parentName (id: $parentId)');
 
       if (mounted) {
         final userProvider = context.read<UserProvider>();
         userProvider.setParentName(parentName);
-        await userProvider.fetchChildrenData();
+        if (parentId != null) userProvider.setParentId(parentId);
+        unawaited(userProvider.fetchChildrenData());
       }
     } catch (e) {
       debugPrint('Error syncing user data: $e');
