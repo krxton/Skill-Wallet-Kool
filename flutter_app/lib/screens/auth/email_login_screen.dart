@@ -72,120 +72,137 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
           builder: (context, constraints) => SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
             child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight - 32),
+              constraints:
+                  BoxConstraints(minHeight: constraints.maxHeight - 32),
               child: IntrinsicHeight(
                 child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Name field (register only)
-                if (isRegister) ...[
-                  _buildTextField(
-                    controller: _nameController,
-                    hint: l10n.email_nameHint,
-                    icon: Icons.person_outline,
-                    validator: (v) =>
-                        (v == null || v.trim().isEmpty) ? l10n.email_enterName : null,
-                  ),
-                  const SizedBox(height: 12),
-                ],
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Name field (register only)
+                      if (isRegister) ...[
+                        _buildTextField(
+                          controller: _nameController,
+                          hint: l10n.email_nameHint,
+                          icon: Icons.person_outline,
+                          validator: (v) => (v == null || v.trim().isEmpty)
+                              ? l10n.email_enterName
+                              : null,
+                        ),
+                        const SizedBox(height: 12),
+                      ],
 
-                // Email field
-                _buildTextField(
-                  controller: _emailController,
-                  hint: l10n.email_emailHint,
-                  icon: Icons.email_outlined,
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? l10n.email_enterEmail : null,
-                ),
-                const SizedBox(height: 12),
+                      // Email field
+                      _buildTextField(
+                        controller: _emailController,
+                        hint: l10n.email_emailHint,
+                        icon: Icons.email_outlined,
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (v) => (v == null || v.trim().isEmpty)
+                            ? l10n.email_enterEmail
+                            : null,
+                      ),
+                      const SizedBox(height: 12),
 
-                // Password field
-                _buildTextField(
-                  controller: _passwordController,
-                  hint: l10n.email_passwordHint,
-                  icon: Icons.lock_outline,
-                  obscure: _obscurePassword,
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                      color: Colors.black54,
-                    ),
-                    onPressed: () =>
-                        setState(() => _obscurePassword = !_obscurePassword),
-                  ),
-                  validator: (v) {
-                    if (v == null || v.isEmpty) return l10n.email_enterPassword;
-                    if (v.length < 6) return l10n.email_passwordTooShort;
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 20),
+                      // Password field
+                      _buildTextField(
+                        controller: _passwordController,
+                        hint: l10n.email_passwordHint,
+                        icon: Icons.lock_outline,
+                        obscure: _obscurePassword,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: Colors.black54,
+                          ),
+                          onPressed: () => setState(
+                              () => _obscurePassword = !_obscurePassword),
+                        ),
+                        validator: (v) {
+                          if (v == null || v.isEmpty)
+                            return l10n.email_enterPassword;
+                          if (v.length < 6) return l10n.email_passwordTooShort;
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 20),
 
-                // Terms checkbox
-                _buildTermsCheckbox(l10n),
-                const SizedBox(height: 20),
+                      // Terms checkbox
+                      _buildTermsCheckbox(l10n),
+                      const SizedBox(height: 20),
 
-                // Submit button
-                _isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : ElevatedButton(
-                        onPressed: _submit,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: sky,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(18),
+                      // Submit button
+                      _isLoading
+                          ? const Center(child: CircularProgressIndicator())
+                          : ElevatedButton(
+                              onPressed: _submit,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: sky,
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 16),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(18),
+                                ),
+                              ),
+                              child: Text(
+                                isRegister
+                                    ? l10n.email_registerBtn
+                                    : l10n.email_loginBtn,
+                                style: TextStyle(
+                                  fontFamily:
+                                      GoogleFonts.luckiestGuy().fontFamily,
+                                  fontFamilyFallback: [
+                                    GoogleFonts.itim().fontFamily!
+                                  ],
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+
+                      const SizedBox(height: 12),
+
+                      // Forgot password (login mode only)
+                      if (!isRegister)
+                        Center(
+                          child: TextButton(
+                            onPressed: _showForgotPasswordDialog,
+                            child: Text(
+                              l10n.email_forgotPassword,
+                              style: GoogleFonts.itim(fontSize: 14, color: sky),
+                            ),
                           ),
                         ),
-                        child: Text(
-                          isRegister ? l10n.email_registerBtn : l10n.email_loginBtn,
-                          style: TextStyle(
-                            fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                            fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                            fontSize: 16,
-                            color: Colors.white,
+
+                      const SizedBox(height: 8),
+
+                      // Switch mode
+                      Center(
+                        child: TextButton(
+                          onPressed: () => setState(() {
+                            _mode = isRegister
+                                ? _AuthMode.login
+                                : _AuthMode.register;
+                            _formKey.currentState?.reset();
+                          }),
+                          child: Text(
+                            isRegister
+                                ? l10n.email_hasAccount
+                                : l10n.email_noAccount,
+                            style: GoogleFonts.itim(
+                                fontSize: 14, color: Colors.black54),
                           ),
                         ),
                       ),
-
-                const SizedBox(height: 12),
-
-                // Forgot password (login mode only)
-                if (!isRegister)
-                  Center(
-                    child: TextButton(
-                      onPressed: _showForgotPasswordDialog,
-                      child: Text(
-                        l10n.email_forgotPassword,
-                        style: GoogleFonts.itim(fontSize: 14, color: sky),
-                      ),
-                    ),
-                  ),
-
-                const SizedBox(height: 8),
-
-                // Switch mode
-                Center(
-                  child: TextButton(
-                    onPressed: () => setState(() {
-                      _mode = isRegister ? _AuthMode.login : _AuthMode.register;
-                      _formKey.currentState?.reset();
-                    }),
-                    child: Text(
-                      isRegister ? l10n.email_hasAccount : l10n.email_noAccount,
-                      style: GoogleFonts.itim(fontSize: 14, color: Colors.black54),
-                    ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
           ),
         ),
       ),
@@ -444,8 +461,7 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(l10n.email_forgotMsg,
-                style: GoogleFonts.itim(fontSize: 14)),
+            Text(l10n.email_forgotMsg, style: GoogleFonts.itim(fontSize: 14)),
             const SizedBox(height: 12),
             TextField(
               controller: emailController,
@@ -454,8 +470,8 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
               decoration: InputDecoration(
                 hintText: l10n.email_emailHint,
                 hintStyle: GoogleFonts.itim(color: Colors.black38),
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               ),
             ),
           ],
@@ -493,8 +509,7 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
   void _showMessage(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-          content: Text(message), duration: const Duration(seconds: 3)),
+      SnackBar(content: Text(message), duration: const Duration(seconds: 3)),
     );
   }
 }

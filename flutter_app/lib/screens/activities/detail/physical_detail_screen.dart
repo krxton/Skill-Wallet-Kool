@@ -48,8 +48,7 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
   final Map<String, int> _childScores = {};
   bool _isSubmitting = false;
   bool _initialized = false;
-  final TextEditingController _descriptionController =
-      TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
 
   @override
   void initState() {
@@ -231,7 +230,8 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
     };
 
     try {
-      debugPrint('📊 Sending to ${allChildIds.length} children, timeSpent: $timeSpentSeconds');
+      debugPrint(
+          '📊 Sending to ${allChildIds.length} children, timeSpent: $timeSpentSeconds');
 
       final results = await Future.wait(
         allChildIds.map((cid) => _activityService.finalizeQuest(
@@ -255,7 +255,8 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
           AppRoutes.result,
           arguments: {
             'activityName': widget.activity.name,
-            'totalScore': ((currentScore / widget.activity.maxScore) * 100).round(),
+            'totalScore':
+                ((currentScore / widget.activity.maxScore) * 100).round(),
             'scoreEarned': currentScore,
             'timeSpend': timeSpentSeconds,
             'activityObject': widget.activity,
@@ -325,7 +326,10 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
             backgroundColor: Palette.sky,
             child: Text(
               childName.isNotEmpty ? childName[0].toUpperCase() : '?',
-              style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold),
             ),
           ),
           const SizedBox(width: 8),
@@ -464,262 +468,277 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-            // 1. TIME DISPLAY (ย้ายมาไว้บนสุด)
-            Center(
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Text(
-                  '$mm:$ss',
-                  style: AppTextStyles.heading(28, color: Palette.sky),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // 2. START/STOP BUTTON
-            Center(
-              child: ElevatedButton.icon(
-                onPressed: _isSubmitting
-                    ? null
-                    : (_isPlaying ? _handleFinish : _handleStart),
-                icon: Icon(
-                  _isPlaying ? Icons.stop : Icons.play_arrow,
-                  color: Colors.white,
-                ),
-                label: Text(
-                  _isPlaying
-                      ? AppLocalizations.of(context)!.physical_stopBtn
-                      : AppLocalizations.of(context)!.physical_startBtn,
-                  style: AppTextStyles.heading(20, color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _isPlaying ? Palette.pink : Palette.success,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // 3. SCORE CONTROL (per child)
-            Text(AppLocalizations.of(context)!.physical_medalsScoreLabel,
-                style: AppTextStyles.heading(18, color: Palette.pink)),
-            _buildScoreSection(),
-
-            const SizedBox(height: 20),
-
-            // 4. DIARY (Notes)
-            Text(AppLocalizations.of(context)!.physical_diaryLabel,
-                style: AppTextStyles.heading(18, color: Palette.pink)),
-            Container(
-              height: 100,
-              decoration: BoxDecoration(
-                  color: Colors.white, borderRadius: BorderRadius.circular(10)),
-              child: TextField(
-                controller: _descriptionController, // 🆕 ผูก Controller
-                decoration: InputDecoration(
-                    hintText: AppLocalizations.of(context)!.physical_diaryHint,
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.all(10)),
-                maxLines: null,
-                expands: true,
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Image
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        AppLocalizations.of(context)!.common_image,
-                        style: AppTextStyles.heading(18, color: Colors.black54),
+                  // 1. TIME DISPLAY (ย้ายมาไว้บนสุด)
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 40, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30),
                       ),
-                      const SizedBox(height: 5),
-                      GestureDetector(
-                        onTap: () => _handleMediaSelection(isVideo: false),
-                        child: Container(
-                          height: 120,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: _imagePath != null
-                                  ? Palette.success
-                                  : Colors.grey.shade300,
-                              width: 2,
-                            ),
-                          ),
-                          child: _imagePath != null && !kIsWeb
-                              ? Stack(
-                                  children: [
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(18),
-                                      child: SizedBox(
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                        child: Image.file(
-                                          File(_imagePath!),
-                                          fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                    ),
-                                    Positioned(
-                                      top: 4,
-                                      right: 4,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.black54,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: IconButton(
-                                          icon: const Icon(Icons.close,
-                                              color: Colors.white, size: 16),
-                                          onPressed: () =>
-                                              setState(() => _imagePath = null),
-                                          padding: EdgeInsets.zero,
-                                          constraints: const BoxConstraints(
-                                            minWidth: 28,
-                                            minHeight: 28,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(Icons.add_photo_alternate,
-                                        size: 40, color: Colors.grey),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      AppLocalizations.of(context)!
-                                          .common_addImage,
-                                      style: AppTextStyles.body(12,
-                                          color: Colors.grey),
-                                    ),
-                                  ],
-                                ),
+                      child: Text(
+                        '$mm:$ss',
+                        style: AppTextStyles.heading(28, color: Palette.sky),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // 2. START/STOP BUTTON
+                  Center(
+                    child: ElevatedButton.icon(
+                      onPressed: _isSubmitting
+                          ? null
+                          : (_isPlaying ? _handleFinish : _handleStart),
+                      icon: Icon(
+                        _isPlaying ? Icons.stop : Icons.play_arrow,
+                        color: Colors.white,
+                      ),
+                      label: Text(
+                        _isPlaying
+                            ? AppLocalizations.of(context)!.physical_stopBtn
+                            : AppLocalizations.of(context)!.physical_startBtn,
+                        style: AppTextStyles.heading(20, color: Colors.white),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            _isPlaying ? Palette.pink : Palette.success,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 40, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 10),
 
-                // Video
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  const SizedBox(height: 20),
+
+                  // 3. SCORE CONTROL (per child)
+                  Text(AppLocalizations.of(context)!.physical_medalsScoreLabel,
+                      style: AppTextStyles.heading(18, color: Palette.pink)),
+                  _buildScoreSection(),
+
+                  const SizedBox(height: 20),
+
+                  // 4. DIARY (Notes)
+                  Text(AppLocalizations.of(context)!.physical_diaryLabel,
+                      style: AppTextStyles.heading(18, color: Palette.pink)),
+                  Container(
+                    height: 100,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10)),
+                    child: TextField(
+                      controller: _descriptionController, // 🆕 ผูก Controller
+                      decoration: InputDecoration(
+                          hintText:
+                              AppLocalizations.of(context)!.physical_diaryHint,
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.all(10)),
+                      maxLines: null,
+                      expands: true,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Image
+                  Row(
                     children: [
-                      Text(
-                        AppLocalizations.of(context)!.common_video,
-                        style: AppTextStyles.heading(18, color: Colors.black54),
-                      ),
-                      const SizedBox(height: 5),
-                      GestureDetector(
-                        onTap: () => _handleMediaSelection(isVideo: true),
-                        child: Container(
-                          height: 120,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: _videoPath != null
-                                  ? Palette.success
-                                  : Colors.grey.shade300,
-                              width: 2,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              AppLocalizations.of(context)!.common_image,
+                              style: AppTextStyles.heading(18,
+                                  color: Colors.black54),
                             ),
-                          ),
-                          child: _videoPath != null
-                              ? Stack(
-                                  children: [
-                                    Center(
-                                      child: Column(
+                            const SizedBox(height: 5),
+                            GestureDetector(
+                              onTap: () =>
+                                  _handleMediaSelection(isVideo: false),
+                              child: Container(
+                                height: 120,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: _imagePath != null
+                                        ? Palette.success
+                                        : Colors.grey.shade300,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: _imagePath != null && !kIsWeb
+                                    ? Stack(
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(18),
+                                            child: SizedBox(
+                                              width: double.infinity,
+                                              height: double.infinity,
+                                              child: Image.file(
+                                                File(_imagePath!),
+                                                fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ),
+                                          Positioned(
+                                            top: 4,
+                                            right: 4,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.black54,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: IconButton(
+                                                icon: const Icon(Icons.close,
+                                                    color: Colors.white,
+                                                    size: 16),
+                                                onPressed: () => setState(
+                                                    () => _imagePath = null),
+                                                padding: EdgeInsets.zero,
+                                                constraints:
+                                                    const BoxConstraints(
+                                                  minWidth: 28,
+                                                  minHeight: 28,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : Column(
                                         mainAxisAlignment:
                                             MainAxisAlignment.center,
                                         children: [
-                                          Icon(Icons.videocam,
-                                              size: 50, color: Palette.success),
+                                          const Icon(Icons.add_photo_alternate,
+                                              size: 40, color: Colors.grey),
                                           const SizedBox(height: 8),
                                           Text(
                                             AppLocalizations.of(context)!
-                                                .common_videoAdded,
-                                            style: AppTextStyles.label(12,
-                                                color: Palette.success),
+                                                .common_addImage,
+                                            style: AppTextStyles.body(12,
+                                                color: Colors.grey),
                                           ),
                                         ],
                                       ),
-                                    ),
-                                    Positioned(
-                                      top: 4,
-                                      right: 4,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.black54,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: IconButton(
-                                          icon: const Icon(Icons.close,
-                                              color: Colors.white, size: 16),
-                                          onPressed: () =>
-                                              setState(() => _videoPath = null),
-                                          padding: EdgeInsets.zero,
-                                          constraints: const BoxConstraints(
-                                            minWidth: 28,
-                                            minHeight: 28,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(Icons.add_circle_outline,
-                                        size: 40, color: Colors.grey),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      AppLocalizations.of(context)!
-                                          .common_addVideo,
-                                      style: AppTextStyles.body(12,
-                                          color: Colors.grey),
-                                    ),
-                                  ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+
+                      // Video
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              AppLocalizations.of(context)!.common_video,
+                              style: AppTextStyles.heading(18,
+                                  color: Colors.black54),
+                            ),
+                            const SizedBox(height: 5),
+                            GestureDetector(
+                              onTap: () => _handleMediaSelection(isVideo: true),
+                              child: Container(
+                                height: 120,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: _videoPath != null
+                                        ? Palette.success
+                                        : Colors.grey.shade300,
+                                    width: 2,
+                                  ),
                                 ),
+                                child: _videoPath != null
+                                    ? Stack(
+                                        children: [
+                                          Center(
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Icon(Icons.videocam,
+                                                    size: 50,
+                                                    color: Palette.success),
+                                                const SizedBox(height: 8),
+                                                Text(
+                                                  AppLocalizations.of(context)!
+                                                      .common_videoAdded,
+                                                  style: AppTextStyles.label(12,
+                                                      color: Palette.success),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Positioned(
+                                            top: 4,
+                                            right: 4,
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.black54,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: IconButton(
+                                                icon: const Icon(Icons.close,
+                                                    color: Colors.white,
+                                                    size: 16),
+                                                onPressed: () => setState(
+                                                    () => _videoPath = null),
+                                                padding: EdgeInsets.zero,
+                                                constraints:
+                                                    const BoxConstraints(
+                                                  minWidth: 28,
+                                                  minHeight: 28,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    : Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          const Icon(Icons.add_circle_outline,
+                                              size: 40, color: Colors.grey),
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            AppLocalizations.of(context)!
+                                                .common_addVideo,
+                                            style: AppTextStyles.body(12,
+                                                color: Colors.grey),
+                                          ),
+                                        ],
+                                      ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
 
-            const SizedBox(height: 30),
+                  const SizedBox(height: 30),
                 ],
               ),
             ),
           ),
           // 7. FINISH BUTTON (sticky bottom)
           StickyBottomButton(
-            onPressed: isEvidenceAttached && !_isSubmitting ? _handleSubmit : null,
+            onPressed:
+                isEvidenceAttached && !_isSubmitting ? _handleSubmit : null,
             label: _isSubmitting
                 ? AppLocalizations.of(context)!.common_submitting
                 : AppLocalizations.of(context)!.common_finish,

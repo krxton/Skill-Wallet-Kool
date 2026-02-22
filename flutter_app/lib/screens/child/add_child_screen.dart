@@ -207,16 +207,17 @@ class _AddChildScreenState extends State<AddChildScreen> {
                 child: AbsorbPointer(
                   child: TextField(
                     controller: _birthDayController,
-                    style: GoogleFonts.itim(fontSize: 15, color: Colors.black87),
+                    style:
+                        GoogleFonts.itim(fontSize: 15, color: Colors.black87),
                     decoration: InputDecoration(
                       border: InputBorder.none,
                       contentPadding:
                           const EdgeInsets.symmetric(horizontal: 20),
                       hintText: l10n.register_pickbirthday,
-                      hintStyle: GoogleFonts.itim(
-                          fontSize: 15, color: Colors.grey),
-                      suffixIcon: const Icon(Icons.calendar_today,
-                          color: Colors.grey),
+                      hintStyle:
+                          GoogleFonts.itim(fontSize: 15, color: Colors.grey),
+                      suffixIcon:
+                          const Icon(Icons.calendar_today, color: Colors.grey),
                     ),
                   ),
                 ),

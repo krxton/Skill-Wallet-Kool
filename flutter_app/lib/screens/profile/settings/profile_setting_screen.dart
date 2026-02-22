@@ -76,7 +76,8 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
               ),
             if (hasFacebook)
               ListTile(
-                leading: const Icon(Icons.facebook, color: Color(0xFF1877F2), size: 28),
+                leading: const Icon(Icons.facebook,
+                    color: Color(0xFF1877F2), size: 28),
                 title: const Text('ใช้รูปโปรไฟล์ Facebook'),
                 onTap: () {
                   Navigator.pop(ctx);

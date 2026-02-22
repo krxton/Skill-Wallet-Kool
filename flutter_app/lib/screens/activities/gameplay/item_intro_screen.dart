@@ -228,7 +228,9 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
     if (!_isPlayerReady) {
       debugPrint('❌ Play Section: Player not ready yet');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.itemintro_videoLoading)),
+        SnackBar(
+            content:
+                Text(AppLocalizations.of(context)!.itemintro_videoLoading)),
       );
       return;
     }
@@ -245,7 +247,9 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
     if (start == null || end == null) {
       debugPrint('❌ Play Section: Missing start/end time in segment data');
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.itemintro_timingIncomplete)),
+        SnackBar(
+            content:
+                Text(AppLocalizations.of(context)!.itemintro_timingIncomplete)),
       );
       return;
     }
@@ -268,7 +272,9 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
       debugPrint('❌ Play Section Error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.itemintro_videoPlayError(e.toString()))),
+          SnackBar(
+              content: Text(AppLocalizations.of(context)!
+                  .itemintro_videoPlayError(e.toString()))),
         );
       }
     }
@@ -291,7 +297,9 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
       debugPrint('Self-Playback Error: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.itemintro_playbackFailed)),
+        SnackBar(
+            content:
+                Text(AppLocalizations.of(context)!.itemintro_playbackFailed)),
       );
       setState(() => _isPlaybackPlaying = false);
     }
@@ -319,7 +327,9 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
     if (!hasPermission) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.itemintro_micPermission)),
+          SnackBar(
+              content:
+                  Text(AppLocalizations.of(context)!.itemintro_micPermission)),
         );
       }
       return;
@@ -369,7 +379,9 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
       debugPrint('❌ Recording start error: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.itemintro_recordStartError(e.toString()))),
+          SnackBar(
+              content: Text(AppLocalizations.of(context)!
+                  .itemintro_recordStartError(e.toString()))),
         );
       }
     }
@@ -389,7 +401,9 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
       debugPrint('⚠️ Recording too short: ${_recordingDuration.inSeconds}s');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.itemintro_recordTooShort)),
+          SnackBar(
+              content:
+                  Text(AppLocalizations.of(context)!.itemintro_recordTooShort)),
         );
         setState(() => state = 'idle');
       }
@@ -481,7 +495,8 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
         // แสดง feedback
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.itemintro_evalResult(score, recognizedText)),
+            content: Text(AppLocalizations.of(context)!
+                .itemintro_evalResult(score, recognizedText)),
             backgroundColor: score >= 70 ? Colors.green : Colors.orange,
             duration: const Duration(seconds: 3),
           ),
@@ -614,7 +629,9 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.itemintro_questError(e.toString()))),
+        SnackBar(
+            content: Text(AppLocalizations.of(context)!
+                .itemintro_questError(e.toString()))),
       );
     }
   }
@@ -689,8 +706,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          ActivityL10n.localizedActivityType(
-              context, widget.activity.category),
+          ActivityL10n.localizedActivityType(context, widget.activity.category),
           style: titleStyle.copyWith(color: Colors.black),
           textAlign: TextAlign.center,
         ),
@@ -723,14 +739,15 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                     // Caption segment
                     Center(
                       child: Container(
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
                           color: Colors.black.withOpacity(0.25),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
-                          AppLocalizations.of(context)!.itemintro_segmentOf(current, totalSegments),
+                          AppLocalizations.of(context)!
+                              .itemintro_segmentOf(current, totalSegments),
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
@@ -812,7 +829,9 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: _bottomBtn(
-                      label: current == totalSegments ? AppLocalizations.of(context)!.itemintro_finish : AppLocalizations.of(context)!.itemintro_next,
+                      label: current == totalSegments
+                          ? AppLocalizations.of(context)!.itemintro_finish
+                          : AppLocalizations.of(context)!.itemintro_next,
                       bg: nextBlue,
                       fg: Colors.white,
                       onTap: () {
@@ -874,9 +893,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
   }
 
   Widget _recordButton({required bool isReviewed}) {
-    final Color bg = _isRecording
-        ? const Color(0xFFE53935)
-        : greenPill;
+    final Color bg = _isRecording ? const Color(0xFFE53935) : greenPill;
 
     return Expanded(
       child: InkWell(
@@ -1040,8 +1057,10 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                       const SizedBox(width: 8),
                       Text(
                         _isPlaybackPlaying
-                            ? AppLocalizations.of(context)!.itemintro_pausePlayback
-                            : AppLocalizations.of(context)!.itemintro_listenRecording,
+                            ? AppLocalizations.of(context)!
+                                .itemintro_pausePlayback
+                            : AppLocalizations.of(context)!
+                                .itemintro_listenRecording,
                         style: GoogleFonts.luckiestGuy(
                           fontSize: 13,
                           color: deepGrey,

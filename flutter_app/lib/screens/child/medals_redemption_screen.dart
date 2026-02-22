@@ -989,8 +989,8 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                             context.watch<UserProvider>().currentParentName;
                         if (parentName != null && parentName.isNotEmpty) {
                           return Text(parentName,
-                              style: AppTextStyles.heading(
-                                  18, color: Palette.deepGrey));
+                              style: AppTextStyles.heading(18,
+                                  color: Palette.deepGrey));
                         }
                         return const SizedBox.shrink();
                       }),

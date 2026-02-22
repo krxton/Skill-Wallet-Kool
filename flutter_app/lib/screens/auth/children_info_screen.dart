@@ -73,7 +73,6 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-
                 ..._children.asMap().entries.map((e) {
                   final i = e.key;
                   final c = e.value;
@@ -116,13 +115,14 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
                           style: GoogleFonts.itim(
                               fontSize: 14, color: Colors.black87),
                         ),
-
                         const SizedBox(height: 14),
                         Text(
                           l10n.register_birthdayBtn,
                           style: TextStyle(
                             fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                            fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                            fontFamilyFallback: [
+                              GoogleFonts.itim().fontFamily!
+                            ],
                             fontSize: 16,
                             color: redLabel,
                           ),
@@ -139,13 +139,14 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
                             ),
                           ),
                         ),
-
                         const SizedBox(height: 14),
                         Text(
                           l10n.relation_label,
                           style: TextStyle(
                             fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                            fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                            fontFamilyFallback: [
+                              GoogleFonts.itim().fontFamily!
+                            ],
                             fontSize: 16,
                             color: redLabel,
                           ),
@@ -184,9 +185,7 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
                     ),
                   );
                 }),
-
                 const SizedBox(height: 8),
-
                 Center(
                   child: InkWell(
                     onTap: () => setState(() => _children.add(_ChildFields())),
@@ -202,9 +201,7 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 24),
-
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -243,7 +240,6 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
                 ),
               ],
             ),
-
             Positioned(
               left: 12,
               bottom: 12,
@@ -322,8 +318,7 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
                       ? const Icon(Icons.check, color: Color(0xFF0D92F4))
                       : null,
                   onTap: () {
-                    setState(
-                        () => _children[index].selectedRelation = option);
+                    setState(() => _children[index].selectedRelation = option);
                     Navigator.pop(ctx);
                   },
                 )),

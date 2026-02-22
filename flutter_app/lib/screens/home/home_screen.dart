@@ -108,8 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
         );
         _popularActivitiesFuture = popularFuture;
         // Carousel ใช้ข้อมูลเดียวกับ popular แต่สุ่มเลือก 5 ตัว
-        _recommendedActivitiesFuture =
-            popularFuture.then(_pickRecommended);
+        _recommendedActivitiesFuture = popularFuture.then(_pickRecommended);
 
         _newActivitiesFuture = _activityService.fetchNewActivities(
           childId,
@@ -218,8 +217,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const Icon(Icons.warning_amber_rounded,
                 color: Colors.orange, size: 28),
             const SizedBox(width: 8),
-            Text('กรุณาเลือกเด็ก',
-                style: AppTextStyles.heading(20)),
+            Text('กรุณาเลือกเด็ก', style: AppTextStyles.heading(20)),
           ],
         ),
         content: Text(
@@ -229,8 +227,8 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: Text('ปิด',
-                style: AppTextStyles.label(14, color: Colors.grey)),
+            child:
+                Text('ปิด', style: AppTextStyles.label(14, color: Colors.grey)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -322,8 +320,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Text(
                         cat['label'] as String,
                         style: AppTextStyles.label(14,
-                            color:
-                                isSelected ? Colors.white : Colors.black87),
+                            color: isSelected ? Colors.white : Colors.black87),
                       ),
                     ),
                   );
@@ -355,9 +352,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 14, vertical: 8),
                       decoration: BoxDecoration(
-                        color: isSelected
-                            ? const Color(0xFFFFB74D)
-                            : Colors.white,
+                        color:
+                            isSelected ? const Color(0xFFFFB74D) : Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: isSelected
@@ -369,8 +365,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Text(
                         level['label'] as String,
                         style: AppTextStyles.label(14,
-                            color:
-                                isSelected ? Colors.white : Colors.black87),
+                            color: isSelected ? Colors.white : Colors.black87),
                       ),
                     ),
                   );
@@ -715,24 +710,23 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Icon(Icons.tune,
                     size: 20,
-                    color: (_selectedCategory != null ||
-                            _selectedLevel != null)
+                    color: (_selectedCategory != null || _selectedLevel != null)
                         ? Colors.white
                         : Palette.sky),
                 const SizedBox(width: 8),
                 Text(
                   AppLocalizations.of(context)!.home_filterTitle,
                   style: AppTextStyles.label(14,
-                      color: (_selectedCategory != null ||
-                              _selectedLevel != null)
-                          ? Colors.white
-                          : Palette.sky),
+                      color:
+                          (_selectedCategory != null || _selectedLevel != null)
+                              ? Colors.white
+                              : Palette.sky),
                 ),
                 if (_selectedCategory != null || _selectedLevel != null) ...[
                   const SizedBox(width: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 6, vertical: 2),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(10),

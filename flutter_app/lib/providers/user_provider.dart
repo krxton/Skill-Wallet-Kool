@@ -115,7 +115,8 @@ class UserProvider extends ChangeNotifier {
         } catch (e) {
           // /parents/me ล้มเหลว (ไม่ได้ login หรือ API ช้า)
           // ยังคงดำเนินการต่อ — /children ใช้ auth token โดยตรง
-          debugPrint('fetchChildrenData: /parents/me failed ($e), continuing...');
+          debugPrint(
+              'fetchChildrenData: /parents/me failed ($e), continuing...');
         }
       }
 
@@ -259,10 +260,11 @@ class UserProvider extends ChangeNotifier {
 
       final path = 'parent/$userId/profile.jpg';
       await _supabase.storage.from('avatars').uploadBinary(
-        path,
-        bytes,
-        fileOptions: const FileOptions(upsert: true, contentType: 'image/jpeg'),
-      );
+            path,
+            bytes,
+            fileOptions:
+                const FileOptions(upsert: true, contentType: 'image/jpeg'),
+          );
 
       // Cache-bust so Flutter's image cache refreshes
       final base = _supabase.storage.from('avatars').getPublicUrl(path);

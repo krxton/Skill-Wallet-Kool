@@ -98,7 +98,9 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
-                      color: isSelected ? Palette.sky.withValues(alpha: 0.1) : Colors.white,
+                      color: isSelected
+                          ? Palette.sky.withValues(alpha: 0.1)
+                          : Colors.white,
                       borderRadius: BorderRadius.circular(14),
                       border: Border.all(
                         color: isSelected ? Palette.sky : Colors.grey.shade300,
@@ -119,8 +121,11 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
                           radius: 18,
                           backgroundColor: Palette.sky.withValues(alpha: 0.2),
                           child: Text(
-                            childName.isNotEmpty ? childName[0].toUpperCase() : '?',
-                            style: AppTextStyles.heading(16, color: Palette.sky),
+                            childName.isNotEmpty
+                                ? childName[0].toUpperCase()
+                                : '?',
+                            style:
+                                AppTextStyles.heading(16, color: Palette.sky),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -191,8 +196,7 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
       backgroundColor: Palette.cream,
       appBar: AppBar(
         title: Text(
-            ActivityL10n.localizedActivityType(
-                context, activity.category),
+            ActivityL10n.localizedActivityType(context, activity.category),
             style: AppTextStyles.heading(22, color: Colors.black)),
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -305,15 +309,14 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
                   ),
                   const SizedBox(height: 20),
                   GestureDetector(
-                    onTap: () => setState(() =>
-                        _howToPlayExpanded = !_howToPlayExpanded),
+                    onTap: () => setState(
+                        () => _howToPlayExpanded = !_howToPlayExpanded),
                     child: Row(
                       children: [
                         Text(
                           AppLocalizations.of(context)!
                               .videodetail_howToPlayLabel,
-                          style:
-                              AppTextStyles.heading(18, color: Palette.sky),
+                          style: AppTextStyles.heading(18, color: Palette.sky),
                         ),
                         const SizedBox(width: 4),
                         AnimatedRotation(
@@ -401,16 +404,14 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
                         ? Icons.group_add_outlined
                         : Icons.group),
                     label: _extraChildIds.isEmpty
-                        ? Text(
-                            AppLocalizations.of(context)!.videodetail_addBtn,
+                        ? Text(AppLocalizations.of(context)!.videodetail_addBtn,
                             style: AppTextStyles.heading(20,
                                 color: Palette.deepGrey))
                         : Text(
                             AppLocalizations.of(context)!
-                                .physical_childrenAdded(
-                                    _extraChildIds.length),
-                            style: AppTextStyles.heading(16,
-                                color: Colors.white)),
+                                .physical_childrenAdded(_extraChildIds.length),
+                            style:
+                                AppTextStyles.heading(16, color: Colors.white)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _extraChildIds.isEmpty
                           ? Colors.grey.shade400
