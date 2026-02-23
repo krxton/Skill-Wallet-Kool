@@ -1,24 +1,24 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 
+import '../../providers/user_provider.dart';
 import 'child_name_setting_screen.dart';
 import 'medals_redemption_screen.dart';
 
 class ManageChildScreen extends StatefulWidget {
-  final String? childId; // ใช้สำหรับดึงข้อมูลเด็กคนนี้โดยเฉพาะ
+  final String? childId;
   final String name;
-  final String imageUrl;
+  final String? imageUrl;
   final int score;
 
   const ManageChildScreen({
     super.key,
     this.childId,
     required this.name,
-    required this.imageUrl,
+    this.imageUrl,
     required this.score,
   });
 
@@ -28,7 +28,8 @@ class ManageChildScreen extends StatefulWidget {
 
 class _ManageChildScreenState extends State<ManageChildScreen> {
   late String _currentName;
-  Uint8List? _imageBytes;
+  String? _currentImageUrl;
+  bool _isUploading = false;
   final ImagePicker _picker = ImagePicker();
 
   // 🎨 Palette
@@ -41,26 +42,47 @@ class _ManageChildScreenState extends State<ManageChildScreen> {
   void initState() {
     super.initState();
     _currentName = widget.name;
+    _currentImageUrl = widget.imageUrl;
   }
 
   // --- Functions ---
 
   Future<void> _pickImage() async {
+    if (widget.childId == null) return;
     try {
       final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-      if (image != null) {
-        final bytes = await image.readAsBytes();
+      if (image == null) return;
+
+      final bytes = await image.readAsBytes();
+      if (!mounted) return;
+
+      setState(() => _isUploading = true);
+
+      final userProvider = context.read<UserProvider>();
+      final success =
+          await userProvider.uploadChildPhoto(widget.childId!, bytes);
+
+      if (!mounted) return;
+      setState(() => _isUploading = false);
+
+      if (success) {
+        // Pull the new URL from the updated local children list
+        final children = userProvider.children;
+        final childData = children.firstWhere(
+          (c) => c['child']?['child_id'] == widget.childId,
+          orElse: () => {},
+        );
         setState(() {
-          _imageBytes = bytes;
+          _currentImageUrl = childData['child']?['photo_url'] as String?;
         });
       }
     } catch (e) {
       debugPrint('Error picking image: $e');
+      if (mounted) setState(() => _isUploading = false);
     }
   }
 
   Future<void> _navigateToEditName() async {
-    // ไปหน้าแก้ไขชื่อ (สมมติว่า ChildNameSettingScreen รับค่าชื่อปัจจุบันและส่งคืนชื่อใหม่)
     final newName = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -99,7 +121,7 @@ class _ManageChildScreenState extends State<ManageChildScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(), // ปิด Dialog
+              onPressed: () => Navigator.of(context).pop(),
               child: Text(
                 AppLocalizations.of(context)!.dialog_cancel,
                 style: TextStyle(
@@ -111,9 +133,8 @@ class _ManageChildScreenState extends State<ManageChildScreen> {
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // ปิด Dialog
-                Navigator.of(context)
-                    .pop(true); // กลับหน้าก่อนหน้าพร้อมค่า true (แจ้งลบ)
+                Navigator.of(context).pop();
+                Navigator.of(context).pop(true);
               },
               child: Text(
                 AppLocalizations.of(context)!.dialog_confirmDelete,
@@ -134,11 +155,11 @@ class _ManageChildScreenState extends State<ManageChildScreen> {
   Widget build(BuildContext context) {
     // Logic แสดงรูปภาพ
     Widget profileImageWidget;
-    if (_imageBytes != null) {
-      profileImageWidget = Image.memory(_imageBytes!, fit: BoxFit.cover);
-    } else if (widget.imageUrl.isNotEmpty) {
+    if (_isUploading) {
+      profileImageWidget = const Center(child: CircularProgressIndicator());
+    } else if (_currentImageUrl != null && _currentImageUrl!.isNotEmpty) {
       profileImageWidget = Image.network(
-        widget.imageUrl,
+        _currentImageUrl!,
         fit: BoxFit.cover,
         errorBuilder: (_, __, ___) =>
             const Icon(Icons.person, size: 80, color: Colors.grey),
@@ -161,11 +182,7 @@ class _ManageChildScreenState extends State<ManageChildScreen> {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      // ส่งค่ากลับเมื่อกด Back (กรณีมีการแก้ไข)
-                      Navigator.pop(context, {
-                        'newName': _currentName,
-                        'newImageBytes': _imageBytes
-                      });
+                      Navigator.pop(context, {'newName': _currentName});
                     },
                     child: Container(
                       padding: const EdgeInsets.all(8.0),
@@ -185,7 +202,7 @@ class _ManageChildScreenState extends State<ManageChildScreen> {
                     ),
                   ),
                   const Spacer(),
-                  const SizedBox(width: 46), // จัดกึ่งกลาง
+                  const SizedBox(width: 46),
                 ],
               ),
             ),
@@ -194,7 +211,7 @@ class _ManageChildScreenState extends State<ManageChildScreen> {
             // --- Profile Image ---
             Center(
               child: GestureDetector(
-                onTap: _pickImage,
+                onTap: _isUploading ? null : _pickImage,
                 child: Stack(
                   children: [
                     Container(

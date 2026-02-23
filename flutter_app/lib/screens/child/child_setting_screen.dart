@@ -94,9 +94,9 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => ManageChildScreen(
-          childId: childId, // ส่ง childId เพื่อให้แสดงข้อมูลเด็กคนที่ถูกต้อง
+          childId: childId,
           name: childName,
-          imageUrl: '', // No image URL for now
+          imageUrl: childInfo['photo_url'] as String?,
           score: childWallet,
         ),
       ),
@@ -270,16 +270,22 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                         CircleAvatar(
                           radius: 35,
                           backgroundColor: Colors.grey.shade200,
-                          child: Text(
-                            childName.isNotEmpty
-                                ? childName[0].toUpperCase()
-                                : '?',
-                            style: TextStyle(
-                              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                              fontSize: 28,
-                              color: sky,
-                            ),
-                          ),
+                          backgroundImage: (childInfo['photo_url'] as String? ?? '').isNotEmpty
+                              ? NetworkImage(childInfo['photo_url'] as String)
+                              : null,
+                          child: (childInfo['photo_url'] as String? ?? '').isEmpty
+                              ? Text(
+                                  childName.isNotEmpty
+                                      ? childName[0].toUpperCase()
+                                      : '?',
+                                  style: TextStyle(
+                                    fontFamily:
+                                        GoogleFonts.luckiestGuy().fontFamily,
+                                    fontSize: 28,
+                                    color: sky,
+                                  ),
+                                )
+                              : null,
                         ),
                         const SizedBox(width: 16),
                         Expanded(
@@ -388,10 +394,9 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => ChildProfileScreen(
-                                      childId:
-                                          childId, // ส่ง childId เพื่อให้แสดงข้อมูลเด็กคนที่ถูกต้อง
+                                      childId: childId,
                                       name: childName,
-                                      imageUrl: '',
+                                      imageUrl: childInfo['photo_url'] as String? ?? '',
                                       points: childWallet,
                                     ),
                                   ),

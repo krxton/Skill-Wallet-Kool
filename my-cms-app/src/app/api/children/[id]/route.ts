@@ -38,7 +38,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
   const { data, error } = await supabase
     .from('child')
-    .select('child_id, name_surname, wallet, birthday')
+    .select('child_id, name_surname, wallet, birthday, photo_url')
     .eq('child_id', childId)
     .single();
 
@@ -70,6 +70,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
   const updates: Record<string, any> = {};
   if (body.fullName) updates.name_surname = body.fullName;
   if (body.birthday) updates.birthday = body.birthday;
+  if (body.photoUrl !== undefined) updates.photo_url = body.photoUrl;
 
   if (Object.keys(updates).length === 0) {
     return NextResponse.json({ error: 'No updates provided' }, { status: 400 });
@@ -79,7 +80,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     .from('child')
     .update(updates)
     .eq('child_id', childId)
-    .select('child_id, name_surname, wallet, birthday')
+    .select('child_id, name_surname, wallet, birthday, photo_url')
     .single();
 
   if (error) {

@@ -328,6 +328,52 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
+  /// Upload child profile photo to Supabase Storage and save URL via API.
+  /// Deletes the existing storage file first (if any) before uploading.
+  Future<bool> uploadChildPhoto(String childId, Uint8List bytes) async {
+    try {
+      final path = 'child/$childId/profile.jpg';
+
+      // Delete existing file before uploading new one
+      try {
+        await _supabase.storage.from('avatars').remove([path]);
+      } catch (_) {
+        // File may not exist yet — ignore
+      }
+
+      await _supabase.storage.from('avatars').uploadBinary(
+            path,
+            bytes,
+            fileOptions: const FileOptions(contentType: 'image/jpeg'),
+          );
+
+      // Cache-bust so Flutter's image cache refreshes
+      final base = _supabase.storage.from('avatars').getPublicUrl(path);
+      final url = '$base?v=${DateTime.now().millisecondsSinceEpoch}';
+
+      // Save URL to DB via API
+      await _apiService.patch('/children/$childId', {'photoUrl': url});
+
+      // Update local children list immediately
+      final idx = _children.indexWhere(
+          (c) => c['child']?['child_id'] == childId);
+      if (idx != -1) {
+        final updated = Map<String, dynamic>.from(_children[idx]);
+        final childMap =
+            Map<String, dynamic>.from(updated['child'] as Map<String, dynamic>);
+        childMap['photo_url'] = url;
+        updated['child'] = childMap;
+        _children[idx] = updated;
+        notifyListeners();
+      }
+
+      return true;
+    } catch (e) {
+      debugPrint('uploadChildPhoto error: $e');
+      return false;
+    }
+  }
+
   // ==========================================
   // 5. ฟังก์ชันล้างค่า (ใช้ตอน Logout)
   // ==========================================

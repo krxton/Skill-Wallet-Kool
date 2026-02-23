@@ -477,6 +477,7 @@ model child {
   birthday         DateTime?          @db.Timestamptz(6)
   update_wallet    Decimal?           @db.Decimal
   wallet           Decimal?           @db.Decimal
+  photo_url        String?
   activity_record  activity_record[]
   parent_and_child parent_and_child[]
   redemption       redemption[]

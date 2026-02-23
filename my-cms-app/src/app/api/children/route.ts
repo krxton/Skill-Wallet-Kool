@@ -24,6 +24,7 @@ export async function GET(request: NextRequest) {
             name_surname: true,
             wallet: true,
             birthday: true,
+            photo_url: true,
           },
         },
       },
@@ -41,6 +42,7 @@ export async function GET(request: NextRequest) {
           name_surname: r.child!.name_surname,
           wallet: r.child!.wallet !== null ? Number(r.child!.wallet) : 0,
           birthday: r.child!.birthday?.toISOString() ?? null,
+          photo_url: r.child!.photo_url ?? null,
         },
       }));
 
