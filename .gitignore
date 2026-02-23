@@ -1,9 +1,8 @@
 node_modules/
-.claude/settings.local.json
-.clude/settings.json
+.claude/
+.vscode/settings.json
+.DS_Store
 ACTIVITY_EVIDENCE_GUIDE.md
 FIXES_AUTHENTICATION.md
 IMPLEMENTATION_TIME_TRACKING.md
 SETUP_ACTIVITY_RECORD.md
-.vscode/settings.json
-.DS_Store
