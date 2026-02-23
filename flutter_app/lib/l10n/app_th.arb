@@ -9,6 +9,7 @@
   "home_calculationBtn": "ด้านการคำนวณ",
   "home_cannotBtn": "ไม่สามารถโหลดกิจกรรมยอดนิยมได้",
   "home_nonewBtn": "ไม่มีกิจกรรมใหม่เกิดขึ้น",
+  "home_noChildrenMsg": "ยังไม่ได้เพิ่มลูก\nกรุณาเพิ่มลูกเพื่อเริ่มดูกิจกรรม",
   "home_popularactivityBtn": "กิจกรรมยอดนิยม",
   "home_newactivityBtn": "กิจกรรมใหม่",
   "home_viewallBtn": "ดูทั้งหมด",
@@ -145,6 +146,9 @@
   "addchild_errorName": "กรุณาระบุชื่อ",
   "addchild_birthdayBtn": "วันเกิด : วว/ดด/ปปปป",
   "addchild_okBtn": "OK",
+  "addchild_logoutTitle": "ออกจากระบบ?",
+  "addchild_logoutMsg": "กรุณาเพิ่มลูกอย่างน้อย 1 คนก่อนใช้งานแอป คุณต้องการออกจากระบบหรือไม่?",
+  "addchild_errorRequiredFields": "กรุณากรอกข้อมูลให้ครบทุกช่อง (ชื่อ, วันเกิด, ความสัมพันธ์)",
 
   "childnamesetting_editnameBtn": "แก้ไขชื่อ",
   "childnamesetting_saveBtn": "บันทึก",
@@ -515,6 +519,12 @@
   "email_forgotMsg": "กรอกอีเมลของคุณเพื่อรับลิงก์รีเซ็ตรหัสผ่าน",
   "email_sendReset": "ส่ง",
   "email_loginWithEmail": "เข้าสู่ระบบด้วยอีเมล",
+  "email_confirmSent": "ส่งอีเมลยืนยันบัญชีแล้ว กรุณาตรวจสอบกล่องจดหมายและคลิกลิงก์เพื่อยืนยัน จากนั้นกลับมาเข้าสู่ระบบ",
+  "email_confirmPasswordHint": "ยืนยันรหัสผ่าน",
+  "email_passwordsDoNotMatch": "รหัสผ่านไม่ตรงกัน",
+
+  "register_childNameHint": "ชื่อ-นามสกุล",
+  "register_birthdayHint": "วว/ดด/ปปปป",
 
   "relation_label": "ความสัมพันธ์",
   "relation_hint": "เลือกความสัมพันธ์",

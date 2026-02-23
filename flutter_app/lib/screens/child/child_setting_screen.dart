@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 
+import '../../theme/app_text_styles.dart';
+import '../../theme/palette.dart';
 import 'add_child_screen.dart';
 import 'manage_child_screen.dart';
 import 'child_profile_screen.dart';
@@ -129,6 +131,9 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
         name: result['newName'] as String,
       );
     }
+
+    // Reload after any manage action (delete/edit)
+    await _loadChildren();
   }
 
   // ✅ เลือกเด็กเป็น active child
@@ -195,35 +200,38 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
 
           if (children.isEmpty) {
             return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.child_care, size: 80, color: Colors.grey.shade400),
-                  const SizedBox(height: 16),
-                  Text(
-                    AppLocalizations.of(context)!.childsetting_noChildren,
-                    style: TextStyle(
-                      fontFamily: GoogleFonts.itim().fontFamily,
-                      fontSize: 18,
-                      color: Colors.grey,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 32),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.child_care_rounded,
+                        size: 80, color: Colors.black26),
+                    const SizedBox(height: 24),
+                    Text(
+                      AppLocalizations.of(context)!.childsetting_noChildren,
+                      textAlign: TextAlign.center,
+                      style: AppTextStyles.body(16, color: Colors.black54),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: _addNewChild,
-                    icon: const Icon(Icons.add),
-                    label: Text(
-                      AppLocalizations.of(context)!.childsetting_addChild,
-                      style: TextStyle(
-                        fontFamily: GoogleFonts.itim().fontFamily,
+                    const SizedBox(height: 28),
+                    ElevatedButton.icon(
+                      onPressed: _addNewChild,
+                      icon: const Icon(Icons.add, color: Colors.white, size: 20),
+                      label: Text(
+                        AppLocalizations.of(context)!.childsetting_addChild,
+                        style: AppTextStyles.label(16, color: Colors.white),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Palette.sky,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 14),
                       ),
                     ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: greenIcon,
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           }

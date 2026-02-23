@@ -152,6 +152,12 @@ abstract class AppLocalizations {
   /// **'No new activities available'**
   String get home_nonewBtn;
 
+  /// No description provided for @home_noChildrenMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'No children added yet.\nPlease add a child to start viewing activities.'**
+  String get home_noChildrenMsg;
+
   /// No description provided for @home_popularactivityBtn.
   ///
   /// In en, this message translates to:
@@ -907,6 +913,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'OK'**
   String get addchild_okBtn;
+
+  /// No description provided for @addchild_logoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log out?'**
+  String get addchild_logoutTitle;
+
+  /// No description provided for @addchild_logoutMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Please add at least one child to use the app. Are you sure you want to log out?'**
+  String get addchild_logoutMsg;
+
+  /// No description provided for @addchild_errorRequiredFields.
+  ///
+  /// In en, this message translates to:
+  /// **'Please fill in all required fields (name, birthday, relationship).'**
+  String get addchild_errorRequiredFields;
 
   /// No description provided for @childnamesetting_editnameBtn.
   ///
@@ -2791,6 +2815,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'LOGIN WITH EMAIL'**
   String get email_loginWithEmail;
+
+  /// No description provided for @email_confirmSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmation email sent. Please check your inbox and click the link to verify, then log in.'**
+  String get email_confirmSent;
+
+  /// No description provided for @email_confirmPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Password'**
+  String get email_confirmPasswordHint;
+
+  /// No description provided for @email_passwordsDoNotMatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match'**
+  String get email_passwordsDoNotMatch;
+
+  /// No description provided for @register_childNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'First - Last Name'**
+  String get register_childNameHint;
+
+  /// No description provided for @register_birthdayHint.
+  ///
+  /// In en, this message translates to:
+  /// **'DD/MM/YYYY'**
+  String get register_birthdayHint;
 
   /// No description provided for @relation_label.
   ///

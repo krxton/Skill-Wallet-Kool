@@ -9,6 +9,7 @@
   "home_calculationBtn": "CALCULATION",
   "home_cannotBtn": "Cannot load popular activities",
   "home_nonewBtn": "No new activities available",
+  "home_noChildrenMsg": "No children added yet.\nPlease add a child to start viewing activities.",
   "home_popularactivityBtn": "POPULAR ACTIVITIES",
   "home_newactivityBtn": "NEW ACTIVITIES",
   "home_viewallBtn": "View All",
@@ -152,6 +153,9 @@
   "addchild_errorName": "Please enter a name",
   "addchild_birthdayBtn": "BIRTHDAY : DD/MM/YYYY",
   "addchild_okBtn": "OK",
+  "addchild_logoutTitle": "Log out?",
+  "addchild_logoutMsg": "Please add at least one child to use the app. Are you sure you want to log out?",
+  "addchild_errorRequiredFields": "Please fill in all required fields (name, birthday, relationship).",
 
   "childnamesetting_editnameBtn": "EDIT NAME",
   "childnamesetting_saveBtn": "SAVE",
@@ -635,6 +639,12 @@
   "email_forgotMsg": "Enter your email to receive a password reset link.",
   "email_sendReset": "SEND",
   "email_loginWithEmail": "LOGIN WITH EMAIL",
+  "email_confirmSent": "Confirmation email sent. Please check your inbox and click the link to verify, then log in.",
+  "email_confirmPasswordHint": "Confirm Password",
+  "email_passwordsDoNotMatch": "Passwords do not match",
+
+  "register_childNameHint": "First - Last Name",
+  "register_birthdayHint": "DD/MM/YYYY",
 
   "relation_label": "RELATIONSHIP",
   "relation_hint": "Select relationship",

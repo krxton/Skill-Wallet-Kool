@@ -13,6 +13,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../providers/auth_provider.dart';
 import '../../routes/app_routes.dart';
+import '../child/add_child_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -435,7 +436,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
       if (mounted) {
         setState(() => _isLoading = false);
-        Navigator.pushNamed(context, AppRoutes.childrenInfo);
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+              builder: (_) => const AddChildScreen(isRequired: true)),
+          (route) => false,
+        );
       }
     }
   }

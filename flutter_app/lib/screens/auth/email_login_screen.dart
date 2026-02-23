@@ -9,6 +9,7 @@ import 'package:skill_wallet_kool/services/api_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../routes/app_routes.dart';
+import '../child/add_child_screen.dart';
 
 enum _AuthMode { login, register }
 
@@ -24,9 +25,11 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
   bool _isLoading = false;
   bool _agreedToTerms = false;
   bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   final _nameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
@@ -42,6 +45,7 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     _nameController.dispose();
     super.dispose();
   }
@@ -129,6 +133,36 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                           return null;
                         },
                       ),
+
+                      // Confirm password field (register only)
+                      if (isRegister) ...[
+                        const SizedBox(height: 12),
+                        _buildTextField(
+                          controller: _confirmPasswordController,
+                          hint: l10n.email_confirmPasswordHint,
+                          icon: Icons.lock_outline,
+                          obscure: _obscureConfirmPassword,
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureConfirmPassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              color: Colors.black54,
+                            ),
+                            onPressed: () => setState(() =>
+                                _obscureConfirmPassword =
+                                    !_obscureConfirmPassword),
+                          ),
+                          validator: (v) {
+                            if (v == null || v.isEmpty)
+                              return l10n.email_enterPassword;
+                            if (v != _passwordController.text)
+                              return l10n.email_passwordsDoNotMatch;
+                            return null;
+                          },
+                        ),
+                      ],
+
                       const SizedBox(height: 20),
 
                       // Terms checkbox
@@ -188,6 +222,7 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                                 ? _AuthMode.login
                                 : _AuthMode.register;
                             _formKey.currentState?.reset();
+                            _confirmPasswordController.clear();
                           }),
                           child: Text(
                             isRegister
@@ -378,7 +413,12 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
       );
       if (mounted) {
         setState(() => _isLoading = false);
-        Navigator.pushNamed(context, AppRoutes.childrenInfo);
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+              builder: (_) => const AddChildScreen(isRequired: true)),
+          (route) => false,
+        );
       }
     }
   }

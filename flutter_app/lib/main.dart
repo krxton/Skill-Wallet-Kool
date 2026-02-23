@@ -16,6 +16,7 @@ import 'services/storage_service.dart';
 import 'services/mock_auth_service.dart';
 import 'screens/auth/welcome_screen.dart';
 import 'screens/home/home_screen.dart';
+import 'screens/child/add_child_screen.dart';
 import 'package:media_kit/media_kit.dart';
 
 Future<void> main() async {
@@ -212,6 +213,7 @@ class AuthWrapper extends StatefulWidget {
 class _AuthWrapperState extends State<AuthWrapper> {
   bool _isInitialized = false;
   bool _isAuthenticated = false;
+  bool _hasChildren = true; // default true; set false only when fetch succeeds with empty list
 
   @override
   void initState() {
@@ -266,15 +268,23 @@ class _AuthWrapperState extends State<AuthWrapper> {
       }
     }
 
-    // 3. ถ้า authenticated แล้วให้ดึงข้อมูล children
+    // 3. ถ้า authenticated ให้ดึงข้อมูล children และเช็คว่ามีหรือไม่
+    bool hasChildren = true;
     if (authenticated && mounted) {
       final userProvider = context.read<UserProvider>();
-      unawaited(userProvider.fetchChildrenData());
+      try {
+        await userProvider.fetchChildrenData();
+        hasChildren = userProvider.children.isNotEmpty;
+      } catch (_) {
+        // network error → don't block user
+        hasChildren = true;
+      }
     }
 
     if (mounted) {
       setState(() {
         _isAuthenticated = authenticated;
+        _hasChildren = hasChildren;
         _isInitialized = true;
       });
     }
@@ -298,6 +308,9 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
     // ✅ ใช้ค่า _isAuthenticated ที่ตรวจสอบแล้ว
     if (_isAuthenticated) {
+      if (!_hasChildren) {
+        return const AddChildScreen(isRequired: true);
+      }
       return const HomeScreen();
     }
 

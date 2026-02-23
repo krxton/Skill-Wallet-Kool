@@ -48,223 +48,245 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
     return Scaffold(
       backgroundColor: cream,
       body: SafeArea(
-        child: Stack(
+        child: Column(
           children: [
-            ListView(
-              padding: const EdgeInsets.fromLTRB(24, 10, 24, 80),
-              children: [
-                Text(
-                  l10n.register_registerBtn,
-                  style: TextStyle(
-                    fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                    fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                    fontSize: 28,
-                    color: sky,
+            // Scrollable content
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(24, 10, 24, 16),
+                children: [
+                  Text(
+                    l10n.register_registerBtn,
+                    style: TextStyle(
+                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                      fontSize: 28,
+                      color: sky,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  l10n.register_additionalBtn,
-                  style: TextStyle(
-                    fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                    fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                    fontSize: 22,
-                    color: sky,
+                  const SizedBox(height: 2),
+                  Text(
+                    l10n.register_additionalBtn,
+                    style: TextStyle(
+                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                      fontSize: 22,
+                      color: sky,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                ..._children.asMap().entries.map((e) {
-                  final i = e.key;
-                  final c = e.value;
+                  const SizedBox(height: 20),
+                  ..._children.asMap().entries.map((e) {
+                    final i = e.key;
+                    final c = e.value;
 
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 18),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Text(
-                                l10n.register_namesurnamechildBtn(i + 1),
-                                style: GoogleFonts.luckiestGuy(
-                                    fontSize: 16, color: redLabel),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            if (_children.length > 1)
-                              GestureDetector(
-                                onTap: () => setState(() {
-                                  _children.removeAt(i).dispose();
-                                }),
-                                child: const Padding(
-                                  padding: EdgeInsets.all(4.0),
-                                  child: Icon(Icons.close,
-                                      size: 26, color: Colors.black87),
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 18),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  l10n.register_namesurnamechildBtn(i + 1),
+                                  style: GoogleFonts.luckiestGuy(
+                                      fontSize: 16, color: redLabel),
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        TextField(
-                          controller: c.nameCtrl,
-                          decoration: _dec(hint: 'ชื่อ-นามสกุล'),
-                          keyboardType: TextInputType.text,
-                          textInputAction: TextInputAction.next,
-                          style: GoogleFonts.itim(
-                              fontSize: 14, color: Colors.black87),
-                        ),
-                        const SizedBox(height: 14),
-                        Text(
-                          l10n.register_birthdayBtn,
-                          style: TextStyle(
-                            fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                            fontFamilyFallback: [
-                              GoogleFonts.itim().fontFamily!
-                            ],
-                            fontSize: 16,
-                            color: redLabel,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        GestureDetector(
-                          onTap: () => _pickBirthday(i),
-                          child: AbsorbPointer(
-                            child: TextField(
-                              controller: c.birthCtrl,
-                              decoration: _dec(hint: 'วัน/เดือน/ปี'),
-                              style: GoogleFonts.itim(
-                                  fontSize: 14, color: Colors.black87),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 14),
-                        Text(
-                          l10n.relation_label,
-                          style: TextStyle(
-                            fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                            fontFamilyFallback: [
-                              GoogleFonts.itim().fontFamily!
-                            ],
-                            fontSize: 16,
-                            color: redLabel,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        GestureDetector(
-                          onTap: () => _pickRelation(i, l10n),
-                          child: Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 16),
-                            decoration: BoxDecoration(
-                              color: fieldBg,
-                              borderRadius: BorderRadius.circular(26),
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    c.selectedRelation ?? l10n.relation_hint,
-                                    style: GoogleFonts.itim(
-                                      fontSize: 14,
-                                      color: c.selectedRelation != null
-                                          ? Colors.black87
-                                          : Colors.black38,
-                                    ),
+                              if (_children.length > 1)
+                                GestureDetector(
+                                  onTap: () => setState(() {
+                                    _children.removeAt(i).dispose();
+                                  }),
+                                  child: const Padding(
+                                    padding: EdgeInsets.all(4.0),
+                                    child: Icon(Icons.close,
+                                        size: 26, color: Colors.black87),
                                   ),
                                 ),
-                                const Icon(Icons.arrow_drop_down,
-                                    color: Colors.black54),
-                              ],
-                            ),
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-                  );
-                }),
-                const SizedBox(height: 8),
-                Center(
-                  child: InkWell(
-                    onTap: () => setState(() => _children.add(_ChildFields())),
-                    borderRadius: BorderRadius.circular(40),
-                    child: Container(
-                      width: 58,
-                      height: 58,
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.black54),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.add, size: 28),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : () => _submit(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: okGreen,
-                      disabledBackgroundColor: Colors.grey,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      elevation: 2,
-                    ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
-                          )
-                        : Text(
-                            l10n.register_okBtn,
+                          const SizedBox(height: 6),
+                          TextField(
+                            controller: c.nameCtrl,
+                            decoration: _dec(hint: l10n.register_childNameHint),
+                            keyboardType: TextInputType.text,
+                            textInputAction: TextInputAction.next,
+                            style: GoogleFonts.itim(
+                                fontSize: 14, color: Colors.black87),
+                          ),
+                          const SizedBox(height: 14),
+                          Text(
+                            l10n.register_birthdayBtn,
                             style: TextStyle(
                               fontFamily: GoogleFonts.luckiestGuy().fontFamily,
                               fontFamilyFallback: [
                                 GoogleFonts.itim().fontFamily!
                               ],
-                              fontSize: 20,
-                              color: Colors.white,
+                              fontSize: 16,
+                              color: redLabel,
                             ),
                           ),
-                  ),
-                ),
-              ],
-            ),
-            Positioned(
-              left: 12,
-              bottom: 12,
-              child: InkWell(
-                onTap: _isLoading ? null : () => Navigator.pop(context),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.arrow_back,
-                      color: _isLoading ? Colors.grey : backPink,
-                      size: 26,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      AppLocalizations.of(context)!.register_backBtn,
-                      style: TextStyle(
-                        fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                        fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                        fontSize: 24,
-                        color: _isLoading ? Colors.grey : backPink,
+                          const SizedBox(height: 6),
+                          GestureDetector(
+                            onTap: () => _pickBirthday(i),
+                            child: AbsorbPointer(
+                              child: TextField(
+                                controller: c.birthCtrl,
+                                decoration:
+                                    _dec(hint: l10n.register_birthdayHint),
+                                style: GoogleFonts.itim(
+                                    fontSize: 14, color: Colors.black87),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                          Text(
+                            l10n.relation_label,
+                            style: TextStyle(
+                              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                              fontFamilyFallback: [
+                                GoogleFonts.itim().fontFamily!
+                              ],
+                              fontSize: 16,
+                              color: redLabel,
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                          GestureDetector(
+                            onTap: () => _pickRelation(i, l10n),
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 16),
+                              decoration: BoxDecoration(
+                                color: fieldBg,
+                                borderRadius: BorderRadius.circular(26),
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      c.selectedRelation ?? l10n.relation_hint,
+                                      style: GoogleFonts.itim(
+                                        fontSize: 14,
+                                        color: c.selectedRelation != null
+                                            ? Colors.black87
+                                            : Colors.black38,
+                                      ),
+                                    ),
+                                  ),
+                                  const Icon(Icons.arrow_drop_down,
+                                      color: Colors.black54),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                  const SizedBox(height: 8),
+                  Center(
+                    child: InkWell(
+                      onTap: () =>
+                          setState(() => _children.add(_ChildFields())),
+                      borderRadius: BorderRadius.circular(40),
+                      child: Container(
+                        width: 58,
+                        height: 58,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.black54),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.add, size: 28),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Sticky bottom bar: Back + Confirm
+            Container(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+              decoration: const BoxDecoration(
+                color: cream,
+                border: Border(top: BorderSide(color: Colors.black12)),
+              ),
+              child: Row(
+                children: [
+                  // Back button
+                  InkWell(
+                    onTap: _isLoading ? null : () => Navigator.pop(context),
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 4, vertical: 8),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.arrow_back,
+                            color: _isLoading ? Colors.grey : backPink,
+                            size: 26,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            l10n.register_backBtn,
+                            style: TextStyle(
+                              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                              fontFamilyFallback: [
+                                GoogleFonts.itim().fontFamily!
+                              ],
+                              fontSize: 22,
+                              color: _isLoading ? Colors.grey : backPink,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  // Confirm button
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _isLoading ? null : () => _submit(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: okGreen,
+                        disabledBackgroundColor: Colors.grey,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        elevation: 2,
+                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor:
+                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                              ),
+                            )
+                          : Text(
+                              l10n.common_ok,
+                              style: TextStyle(
+                                fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                                fontFamilyFallback: [
+                                  GoogleFonts.itim().fontFamily!
+                                ],
+                                fontSize: 20,
+                                color: Colors.white,
+                              ),
+                            ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

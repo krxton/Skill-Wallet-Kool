@@ -15,6 +15,7 @@ import '../../widgets/scrollable_activity_list.dart';
 import '../../widgets/main_bottom_nav.dart';
 import '../profile/profile_screen.dart';
 import '../activities/create_activity_screen.dart';
+import '../child/add_child_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -678,14 +679,74 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Widget _buildNoChildrenPlaceholder() {
+    final l10n = AppLocalizations.of(context)!;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.child_care_rounded,
+                size: 80, color: Colors.black26),
+            const SizedBox(height: 24),
+            Text(
+              l10n.home_noChildrenMsg,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.body(16, color: Colors.black54),
+            ),
+            const SizedBox(height: 28),
+            ElevatedButton.icon(
+              onPressed: () async {
+                final userProvider = context.read<UserProvider>();
+                final newChildData =
+                    await Navigator.push<Map<String, dynamic>>(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const AddChildScreen()),
+                );
+                if (!mounted || newChildData == null) return;
+                final birthday =
+                    newChildData['birthday'] as DateTime? ?? DateTime.now();
+                await userProvider.addChild(
+                  name: newChildData['name'] as String,
+                  birthday: birthday,
+                  relationship: newChildData['relation'] as String?,
+                );
+              },
+              icon: const Icon(Icons.add, color: Colors.white, size: 20),
+              label: Text(
+                l10n.childsetting_addChild,
+                style: AppTextStyles.label(16, color: Colors.white),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Palette.sky,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 24, vertical: 14),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildHomeBody(BuildContext context) {
+    final userProvider = context.watch<UserProvider>();
+
+    if (userProvider.children.isEmpty) {
+      return _buildNoChildrenPlaceholder();
+    }
+
     if (_currentChildId == null) {
       return const Center(
         child: CircularProgressIndicator(color: Palette.sky),
       );
     }
 
-    final userProvider = context.watch<UserProvider>();
     final parentName = userProvider.currentParentName;
     final childName = userProvider.currentChildName;
 

@@ -36,6 +36,10 @@ class AppLocalizationsTh extends AppLocalizations {
   String get home_nonewBtn => 'ไม่มีกิจกรรมใหม่เกิดขึ้น';
 
   @override
+  String get home_noChildrenMsg =>
+      'ยังไม่ได้เพิ่มลูก\nกรุณาเพิ่มลูกเพื่อเริ่มดูกิจกรรม';
+
+  @override
   String get home_popularactivityBtn => 'กิจกรรมยอดนิยม';
 
   @override
@@ -430,6 +434,17 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get addchild_okBtn => 'OK';
+
+  @override
+  String get addchild_logoutTitle => 'ออกจากระบบ?';
+
+  @override
+  String get addchild_logoutMsg =>
+      'กรุณาเพิ่มลูกอย่างน้อย 1 คนก่อนใช้งานแอป คุณต้องการออกจากระบบหรือไม่?';
+
+  @override
+  String get addchild_errorRequiredFields =>
+      'กรุณากรอกข้อมูลให้ครบทุกช่อง (ชื่อ, วันเกิด, ความสัมพันธ์)';
 
   @override
   String get childnamesetting_editnameBtn => 'แก้ไขชื่อ';
@@ -1431,6 +1446,22 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get email_loginWithEmail => 'เข้าสู่ระบบด้วยอีเมล';
+
+  @override
+  String get email_confirmSent =>
+      'ส่งอีเมลยืนยันบัญชีแล้ว กรุณาตรวจสอบกล่องจดหมายและคลิกลิงก์เพื่อยืนยัน จากนั้นกลับมาเข้าสู่ระบบ';
+
+  @override
+  String get email_confirmPasswordHint => 'ยืนยันรหัสผ่าน';
+
+  @override
+  String get email_passwordsDoNotMatch => 'รหัสผ่านไม่ตรงกัน';
+
+  @override
+  String get register_childNameHint => 'ชื่อ-นามสกุล';
+
+  @override
+  String get register_birthdayHint => 'วว/ดด/ปปปป';
 
   @override
   String get relation_label => 'ความสัมพันธ์';

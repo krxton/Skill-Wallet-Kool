@@ -36,6 +36,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home_nonewBtn => 'No new activities available';
 
   @override
+  String get home_noChildrenMsg =>
+      'No children added yet.\nPlease add a child to start viewing activities.';
+
+  @override
   String get home_popularactivityBtn => 'POPULAR ACTIVITIES';
 
   @override
@@ -431,6 +435,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get addchild_okBtn => 'OK';
+
+  @override
+  String get addchild_logoutTitle => 'Log out?';
+
+  @override
+  String get addchild_logoutMsg =>
+      'Please add at least one child to use the app. Are you sure you want to log out?';
+
+  @override
+  String get addchild_errorRequiredFields =>
+      'Please fill in all required fields (name, birthday, relationship).';
 
   @override
   String get childnamesetting_editnameBtn => 'EDIT NAME';
@@ -1433,6 +1448,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get email_loginWithEmail => 'LOGIN WITH EMAIL';
+
+  @override
+  String get email_confirmSent =>
+      'Confirmation email sent. Please check your inbox and click the link to verify, then log in.';
+
+  @override
+  String get email_confirmPasswordHint => 'Confirm Password';
+
+  @override
+  String get email_passwordsDoNotMatch => 'Passwords do not match';
+
+  @override
+  String get register_childNameHint => 'First - Last Name';
+
+  @override
+  String get register_birthdayHint => 'DD/MM/YYYY';
 
   @override
   String get relation_label => 'RELATIONSHIP';
