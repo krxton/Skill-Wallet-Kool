@@ -750,9 +750,12 @@ class _HomeScreenState extends State<HomeScreen> {
     final parentName = userProvider.currentParentName;
     final childName = userProvider.currentChildName;
 
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
+    return RefreshIndicator(
+      onRefresh: () async => _loadData(),
+      color: Palette.sky,
+      child: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
         // Filter button
         GestureDetector(
           onTap: _showFilterBottomSheet,
@@ -1022,6 +1025,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
         const SizedBox(height: 30),
       ],
+      ),
     );
   }
 
