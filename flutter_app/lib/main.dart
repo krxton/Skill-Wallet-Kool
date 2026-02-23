@@ -10,7 +10,6 @@ import 'routes/app_routes.dart';
 import 'theme/app_theme.dart';
 import 'providers/user_provider.dart';
 import 'providers/auth_provider.dart';
-import 'services/api_service.dart';
 import 'services/deep_link_service.dart';
 import 'services/storage_service.dart';
 import 'services/mock_auth_service.dart';
@@ -114,26 +113,24 @@ class _SWKAppState extends State<SWKApp> {
     }
   }
 
-  // ✅ ดึงชื่อผู้ปกครองจาก API แล้วตั้งใน UserProvider
+  // ✅ ดึงข้อมูลผู้ปกครอง (ชื่อ + รูปโปรไฟล์) จาก API + Supabase metadata
   Future<void> _populateParentNameFromSupabase() async {
     if (!mounted) return;
 
     try {
       final userProvider = Provider.of<UserProvider>(context, listen: false);
 
-      final apiService = ApiService();
-      final result = await apiService.get('/parents/me');
+      // fetchParentData() loads both name (from /parents/me) and photo URL
+      // (from Supabase auth user metadata: photo_url → avatar_url → picture)
+      await userProvider.fetchParentData();
 
-      final parentName = result['nameSurname'] as String?;
-
-      if (parentName != null && parentName.isNotEmpty) {
-        userProvider.setParentName(parentName);
-        print('👤 Parent name set: $parentName');
-
-        await userProvider.fetchChildrenData();
+      if (userProvider.currentParentName?.isNotEmpty == true) {
+        print('👤 Parent name set: ${userProvider.currentParentName}');
       }
+
+      await userProvider.fetchChildrenData();
     } catch (e) {
-      print('⚠️ Fetch parent name failed: $e');
+      print('⚠️ Fetch parent data failed: $e');
     }
   }
 

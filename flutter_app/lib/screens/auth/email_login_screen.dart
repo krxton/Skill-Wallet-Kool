@@ -396,7 +396,12 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
     final hasAccount = await _checkParentExists();
 
     if (hasAccount) {
-      await _syncUserData(email: email, fullName: fullName);
+      // Existing user → sync email only (preserve user-edited name in DB)
+      await _syncUserData(email: email);
+      // Load photo from user metadata
+      if (mounted) {
+        await context.read<UserProvider>().fetchParentData();
+      }
       if (mounted) {
         setState(() => _isLoading = false);
         Navigator.pushNamedAndRemoveUntil(
@@ -440,22 +445,21 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
     }
   }
 
-  Future<void> _syncUserData({
-    required String? email,
-    required String? fullName,
-  }) async {
-    final String nameToSave = fullName ?? email?.split('@')[0] ?? 'User';
+  Future<void> _syncUserData({required String? email}) async {
     try {
       final apiService = ApiService();
+      // Only pass email — do NOT pass fullName so the user's manually edited
+      // name in the DB is preserved across logins.
       final result = await apiService.post('/parents/sync', {
         'email': email,
-        'fullName': nameToSave,
       });
-      final parentName = result['parent']?['nameSurname'] ?? nameToSave;
+      final parentName = result['parent']?['nameSurname'] as String?;
       final parentId = result['parent']?['parentId']?.toString();
       if (mounted) {
         final userProvider = context.read<UserProvider>();
-        userProvider.setParentName(parentName);
+        if (parentName != null && parentName.isNotEmpty) {
+          userProvider.setParentName(parentName);
+        }
         if (parentId != null) userProvider.setParentId(parentId);
         unawaited(userProvider.fetchChildrenData());
       }

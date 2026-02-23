@@ -301,6 +301,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         final user = response.user;
         if (user != null) {
           await _handlePostOAuth(
+              provider: 'facebook',
               userId: user.id,
               email: user.email,
               fullName: user.userMetadata?['full_name'] ??
@@ -395,6 +396,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       final user = response.user;
       if (user != null) {
         await _handlePostOAuth(
+          provider: 'google',
           userId: user.id,
           email: user.email,
           fullName: fullName ?? user.email?.split('@')[0],
@@ -408,6 +410,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
   // ========== Post-OAuth: Auto-detect Login vs Register ==========
   Future<void> _handlePostOAuth({
+    required String provider,
     required String userId,
     required String? email,
     required String? fullName,
@@ -415,8 +418,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     final hasAccount = await _checkParentExists();
 
     if (hasAccount) {
-      // Existing user → sync + go home
-      await _syncUserData(email: email, fullName: fullName);
+      // Existing user → sync email only (preserve user-edited name)
+      await _syncUserData(email: email);
+      // Load photo from user metadata (custom photo_url takes priority)
+      if (mounted) {
+        await context.read<UserProvider>().fetchParentData();
+      }
 
       if (mounted) {
         setState(() => _isLoading = false);
@@ -427,12 +434,16 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         );
       }
     } else {
-      // New user → save + go to children info
+      // New user → save to DB + freeze OAuth photo on first login
       await _saveUserToDatabase(
         userId: userId,
         email: email,
         fullName: fullName,
       );
+      // Save OAuth photo once so it won't change when user's Google photo changes
+      if (mounted) {
+        await context.read<UserProvider>().setPhotoFromOAuth(provider);
+      }
 
       if (mounted) {
         setState(() => _isLoading = false);
@@ -466,26 +477,24 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     }
   }
 
-  Future<void> _syncUserData({
-    required String? email,
-    required String? fullName,
-  }) async {
-    final String nameToSave = fullName ?? email?.split('@')[0] ?? 'User';
-
+  Future<void> _syncUserData({required String? email}) async {
     try {
       final apiService = ApiService();
+      // Only pass email — do NOT pass fullName so the user's manually edited
+      // name in the DB is preserved across logins.
       final result = await apiService.post('/parents/sync', {
         'email': email,
-        'fullName': nameToSave,
       });
 
-      final parentName = result['parent']?['nameSurname'] ?? nameToSave;
+      final parentName = result['parent']?['nameSurname'] as String?;
       final parentId = result['parent']?['parentId']?.toString();
       debugPrint('User synced via API: $parentName (id: $parentId)');
 
       if (mounted) {
         final userProvider = context.read<UserProvider>();
-        userProvider.setParentName(parentName);
+        if (parentName != null && parentName.isNotEmpty) {
+          userProvider.setParentName(parentName);
+        }
         if (parentId != null) userProvider.setParentId(parentId);
         unawaited(userProvider.fetchChildrenData());
       }

@@ -253,17 +253,25 @@ class UserProvider extends ChangeNotifier {
   String? get parentPhotoUrl => _parentPhotoUrl;
 
   /// Upload bytes to Supabase Storage and persist URL in user metadata.
+  /// Deletes the existing storage file first (if any) before uploading.
   Future<bool> uploadAndSetPhoto(Uint8List bytes) async {
     try {
       final userId = _supabase.auth.currentUser?.id;
       if (userId == null) return false;
 
       final path = 'parent/$userId/profile.jpg';
+
+      // Delete existing file before uploading new one
+      try {
+        await _supabase.storage.from('avatars').remove([path]);
+      } catch (_) {
+        // File may not exist yet — ignore
+      }
+
       await _supabase.storage.from('avatars').uploadBinary(
             path,
             bytes,
-            fileOptions:
-                const FileOptions(upsert: true, contentType: 'image/jpeg'),
+            fileOptions: const FileOptions(contentType: 'image/jpeg'),
           );
 
       // Cache-bust so Flutter's image cache refreshes
@@ -283,6 +291,7 @@ class UserProvider extends ChangeNotifier {
   }
 
   /// Use OAuth provider's avatar (Google / Facebook) and persist in user metadata.
+  /// Also removes any custom storage file so storage stays clean.
   Future<bool> setPhotoFromOAuth(String provider) async {
     try {
       final user = _supabase.auth.currentUser;
@@ -296,6 +305,16 @@ class UserProvider extends ChangeNotifier {
       final url = (identity?.identityData?['avatar_url'] as String?) ??
           (identity?.identityData?['picture'] as String?);
       if (url == null) return false;
+
+      // Remove custom storage file if it exists
+      final userId = user.id;
+      try {
+        await _supabase.storage
+            .from('avatars')
+            .remove(['parent/$userId/profile.jpg']);
+      } catch (_) {
+        // File may not exist — ignore
+      }
 
       await _supabase.auth.updateUser(
         UserAttributes(data: {'photo_url': url}),

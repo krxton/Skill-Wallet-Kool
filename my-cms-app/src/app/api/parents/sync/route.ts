@@ -7,7 +7,9 @@ import { createAuthClient } from '@/lib/auth-helpers';
  * Upsert parent record for authenticated user.
  * Called after login/register from Flutter.
  *
- * Body: { email: string, fullName: string }
+ * Body: { email?: string, fullName?: string }
+ * - fullName is optional for existing users (omit to preserve current name).
+ * - fullName is required when creating a new parent record.
  * Response: { success: true, parent: { parentId, nameSurname, email } }
  */
 export async function POST(request: NextRequest) {
@@ -22,13 +24,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { email, fullName } = body;
 
-    if (!fullName) {
-      return NextResponse.json(
-        { error: 'fullName is required' },
-        { status: 400 }
-      );
-    }
-
     const emailToSave = email || user.email;
 
     // Check if parent exists
@@ -41,29 +36,35 @@ export async function POST(request: NextRequest) {
     let parent;
 
     if (existing) {
-      // Update existing parent
-      const { data, error } = await supabase
-        .from('parent')
-        .update({ name_surname: fullName })
-        .eq('user_id', user.id)
-        .select('parent_id, name_surname, email')
-        .single();
+      if (fullName) {
+        // Explicit name update requested (e.g. from profile settings)
+        const { data, error } = await supabase
+          .from('parent')
+          .update({ name_surname: fullName })
+          .eq('user_id', user.id)
+          .select('parent_id, name_surname, email')
+          .single();
 
-      if (error) {
-        return NextResponse.json(
-          { error: 'Failed to update parent', details: error.message },
-          { status: 500 }
-        );
+        if (error) {
+          return NextResponse.json(
+            { error: 'Failed to update parent', details: error.message },
+            { status: 500 }
+          );
+        }
+        parent = data;
+      } else {
+        // No name provided — return existing record without modifying name
+        parent = existing;
       }
-      parent = data;
     } else {
-      // Insert new parent
+      // Insert new parent — name required (fall back to email prefix)
+      const nameToSave = fullName || emailToSave?.split('@')[0] || 'User';
       const { data, error } = await supabase
         .from('parent')
         .insert({
           user_id: user.id,
           email: emailToSave,
-          name_surname: fullName,
+          name_surname: nameToSave,
         })
         .select('parent_id, name_surname, email')
         .single();
