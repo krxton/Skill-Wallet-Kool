@@ -439,6 +439,7 @@
       "msg": { "type": "String" }
     }
   },
+  "common_error": "Error",
   "common_processing": "Processing...",
   "common_retry": "Retry",
   "common_cancel": "Cancel",

@@ -698,7 +698,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(result['error']?.toString() ?? 'Error'),
+          content: Text(result['error']?.toString() ?? AppLocalizations.of(context)!.common_error),
           backgroundColor: Palette.errorStrong,
         ),
       );

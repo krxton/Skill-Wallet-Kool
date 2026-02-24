@@ -39,6 +39,9 @@ class ActivityService {
   String get API_BASE_URL =>
       dotenv.env['API_BASE_URL'] ?? 'http://127.0.0.1:3000/api';
 
+  // --- Category Constants (Thai names used in database) ---
+  static const String _categoryPhysical = 'ด้านร่างกาย';
+
   // ----------------------------------------------------
   // 1. HELPER FUNCTIONS
   // ----------------------------------------------------
@@ -81,7 +84,7 @@ class ActivityService {
 
   // 1.3 Helper: เสริม TikTok oEmbed ให้ activity ที่มี video
   Future<Activity> _enrichWithOEmbed(Activity activity) async {
-    if (activity.videoUrl == null || activity.category != 'ด้านร่างกาย') {
+    if (activity.videoUrl == null || activity.category != _categoryPhysical) {
       return activity;
     }
     // ถ้า API ส่ง tiktokHtmlContent มาแล้ว ไม่ต้อง fetch ซ้ำ

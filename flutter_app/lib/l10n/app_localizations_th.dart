@@ -1033,6 +1033,9 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String get common_error => 'ข้อผิดพลาด';
+
+  @override
   String get common_processing => 'กำลังดำเนินการ...';
 
   @override

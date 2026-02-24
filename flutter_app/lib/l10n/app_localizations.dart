@@ -2042,6 +2042,12 @@ abstract class AppLocalizations {
   /// **'Error: {msg}'**
   String common_errorGeneric(String msg);
 
+  /// No description provided for @common_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get common_error;
+
   /// No description provided for @common_processing.
   ///
   /// In en, this message translates to:

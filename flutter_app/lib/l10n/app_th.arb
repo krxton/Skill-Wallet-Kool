@@ -192,9 +192,31 @@
   "agreement_behaviorOk": "ปกติ",
   "agreement_behaviorBad": "ต้องปรับปรุง",
   "agreement_bonusMsg": "โบนัส: +{points} คะแนน",
+  "@agreement_bonusMsg": {
+    "placeholders": {
+      "points": { "type": "int" }
+    }
+  },
+  "agreement_confirmMsg": "ใช้ {cost} คะแนนเพื่อแลก \"{name}\"?",
+  "@agreement_confirmMsg": {
+    "placeholders": {
+      "cost": { "type": "int" },
+      "name": { "type": "String" }
+    }
+  },
   "agreement_deductMsg": "หัก: -{points} คะแนน",
+  "@agreement_deductMsg": {
+    "placeholders": {
+      "points": { "type": "int" }
+    }
+  },
   "agreement_noChange": "ไม่มีการเปลี่ยนแปลงคะแนน",
   "agreement_notEnoughPoints": "คะแนนไม่เพียงพอ! ต้องการอีก {needed} คะแนน",
+  "@agreement_notEnoughPoints": {
+    "placeholders": {
+      "needed": { "type": "int" }
+    }
+  },
   "agreement_durationLabel": "ระยะเวลา (นาที)",
   "agreement_emptyList": "ยังไม่มีข้อตกลง",
   "agreement_emptyHint": "กด + เพื่อสร้างข้อตกลงใหม่",
@@ -209,14 +231,34 @@
   
   "physical_snackNoEvidence": "กรุณาแนบวิดีโอหรือรูปภาพหลักฐาน",
   "physical_snackInvalidScore": "กรุณาระบุคะแนนให้ถูกต้อง (1 ถึง {maxScore})",
+  "@physical_snackInvalidScore": {
+    "placeholders": {
+      "maxScore": { "type": "int" }
+    }
+  },
   "physical_dialogSubmitTitle": "ส่งข้อมูลเรียบร้อย!",
   "physical_dialogSubmitContent": "หลักฐานของคุณถูกส่งเพื่อรอการอนุมัติแล้ว",
   "physical_dialogOkBtn": "ตกลง",
   "physical_snackSubmitError": "เกิดข้อผิดพลาดในการส่ง: {error}",
+  "@physical_snackSubmitError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
   "physical_dialogEnterScoreTitle": "ระบุคะแนน",
   "physical_dialogEnterScoreHint": "ใส่คะแนน (1-{maxScore})",
+  "@physical_dialogEnterScoreHint": {
+    "placeholders": {
+      "maxScore": { "type": "int" }
+    }
+  },
   "physical_dialogCancelBtn": "ยกเลิก",
   "physical_snackInvalidInput": "กรุณาใส่คะแนนให้ถูกต้อง (0-{maxScore})",
+  "@physical_snackInvalidInput": {
+    "placeholders": {
+      "maxScore": { "type": "int" }
+    }
+  },
   "physical_stopBtn": "หยุด",
   "physical_startBtn": "เริ่ม",
   "physical_takePhotoBtn": "ถ่ายรูป",
@@ -274,6 +316,12 @@
   "result_backToActivitiesBtn": "กลับไปหน้ากิจกรรม",
   "result_returnHomeBtn": "กลับหน้าหลัก",
   "result_timeFormat": "{minutes} นาที {seconds} วินาที",
+  "@result_timeFormat": {
+    "placeholders": {
+      "minutes": { "type": "int" },
+      "seconds": { "type": "int" }
+    }
+  },
 
   "calculate_title": "คำนวณ",
   "calculate_plusBtn": "บวก +",
@@ -349,6 +397,11 @@
   "createActivity_contentRequired": "กรุณาระบุวิธีเล่น",
   "createActivity_needQuestions": "กรุณาเพิ่มโจทย์อย่างน้อย 1 ข้อ",
   "createActivity_questionNo": "โจทย์ที่ {index}",
+  "@createActivity_questionNo": {
+    "placeholders": {
+      "index": { "type": "int" }
+    }
+  },
   "createActivity_removeQuestion": "ลบ",
   "createActivity_creating": "กำลังสร้าง...",
 
@@ -357,6 +410,11 @@
   "profile_editActivity": "แก้ไขกิจกรรม",
   "profile_deleteActivity": "ลบกิจกรรม",
   "profile_deleteConfirm": "คุณแน่ใจหรือไม่ว่าต้องการลบ \"{name}\"?",
+  "@profile_deleteConfirm": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
   "profile_deleteSuccess": "ลบกิจกรรมแล้ว",
   "profile_updateSuccess": "อัปเดตกิจกรรมแล้ว",
   "profile_save": "บันทึก",
@@ -368,9 +426,22 @@
   "share_greatJob": "ยอดเยี่ยม!",
   "share_keepTrying": "สู้ต่อไป!",
   "share_textTemplate": "ฉันได้ {score}/{maxScore} คะแนนจากกิจกรรม \"{activityName}\" ใน Skill Wallet Kool!",
+  "@share_textTemplate": {
+    "placeholders": {
+      "activityName": { "type": "String" },
+      "score": { "type": "int" },
+      "maxScore": { "type": "int" }
+    }
+  },
 
   "common_loginFailed": "เข้าสู่ระบบไม่สำเร็จ กรุณาลองอีกครั้ง",
   "common_errorGeneric": "ข้อผิดพลาด: {msg}",
+  "@common_errorGeneric": {
+    "placeholders": {
+      "msg": { "type": "String" }
+    }
+  },
+  "common_error": "ข้อผิดพลาด",
   "common_processing": "กำลังดำเนินการ...",
   "common_retry": "ลองอีกครั้ง",
   "common_cancel": "ยกเลิก",
@@ -380,22 +451,58 @@
   "calculate_restartMsg": "เวลาและคำตอบจะถูกรีเซ็ต",
   "calculate_restartBtn": "เริ่มใหม่",
   "calculate_solutionTitle": "ข้อที่ #{index}",
+  "@calculate_solutionTitle": {
+    "placeholders": {
+      "index": { "type": "int" }
+    }
+  },
   "calculate_questionLabel": "โจทย์:",
   "calculate_answerLabel": "คำตอบ:",
   "calculate_pressStart": "กดปุ่มเริ่มเพื่อจับเวลา",
   "calculate_questionsAfterTimer": "โจทย์จะแสดงหลังจากจับเวลาเสร็จ",
   "calculate_failedPickFile": "เลือกไฟล์ไม่สำเร็จ: {error}",
+  "@calculate_failedPickFile": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
   "calculate_childIdNotFound": "ไม่พบรหัสเด็ก กรุณาเข้าสู่ระบบอีกครั้ง",
   "calculate_errorCompleting": "เกิดข้อผิดพลาดในการทำกิจกรรม: {error}",
+  "@calculate_errorCompleting": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
 
   "itemintro_videoLoading": "กรุณารอสักครู่ กำลังโหลดวิดีโอ...",
   "itemintro_timingIncomplete": "ข้อมูลเวลาสำหรับประโยคนี้ไม่สมบูรณ์",
   "itemintro_videoPlayError": "ไม่สามารถเล่นวิดีโอได้: {error}",
+  "@itemintro_videoPlayError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
   "itemintro_micPermission": "กรุณาอนุญาตการเข้าถึงไมโครโฟน",
   "itemintro_recordStartError": "ไม่สามารถเริ่มบันทึกเสียงได้: {error}",
+  "@itemintro_recordStartError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
   "itemintro_recordTooShort": "บันทึกเสียงสั้นเกินไป กรุณาลองอีกครั้ง",
   "itemintro_evalResult": "ผลการประเมิน: {score}% - \"{text}\"",
+  "@itemintro_evalResult": {
+    "placeholders": {
+      "score": { "type": "int" },
+      "text": { "type": "String" }
+    }
+  },
   "itemintro_questError": "เกิดข้อผิดพลาดในการทำกิจกรรม: {error}",
+  "@itemintro_questError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
   "itemintro_playbackFailed": "ไม่สามารถเล่นเสียงที่บันทึกได้",
 
   "record_micDenied": "ไม่ได้รับอนุญาตให้ใช้ไมโครโฟน",
@@ -403,6 +510,11 @@
   "record_playbackFailed": "ไม่สามารถเล่นเสียงได้",
   "record_noValidAudio": "ข้อผิดพลาด: ไม่มีเสียงที่บันทึกไว้",
   "record_aiError": "ข้อผิดพลาด AI: {error}",
+  "@record_aiError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
 
   "medals_noActivityHistory": "ไม่มีประวัติกิจกรรม",
   "medals_noHistory": "ไม่มีประวัติ",
@@ -462,6 +574,12 @@
   "record_title": "บันทึกเสียง",
 
   "itemintro_segmentOf": "ข้อ {current} จาก {total}",
+  "@itemintro_segmentOf": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
   "itemintro_speak": "พูด",
   "itemintro_point": "คะแนน",
   "itemintro_completed": "เสร็จแล้ว",

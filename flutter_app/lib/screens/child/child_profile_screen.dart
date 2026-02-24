@@ -36,6 +36,11 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
   static const pinkBtn = Color(0xFFFFAB91);
   static const sky = Color(0xFF87CEEB);
 
+  // --- Category Constants (Thai names used in database) ---
+  static const String _categoryLanguage = 'ด้านภาษา';
+  static const String _categoryPhysical = 'ด้านร่างกาย';
+  static const String _categoryCalculate = 'ด้านคำนวณ';
+
   int _selectedTab = 0;
   Uint8List? _selectedImageBytes;
 
@@ -66,9 +71,9 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
 
       // Count activities by category
       Map<String, int> stats = {
-        'ด้านภาษา': 0,
-        'ด้านร่างกาย': 0,
-        'ด้านคำนวณ': 0,
+        _categoryLanguage: 0,
+        _categoryPhysical: 0,
+        _categoryCalculate: 0,
       };
 
       for (var record in history) {
@@ -443,15 +448,15 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
           Row(
             children: [
               _buildStatCard(AppLocalizations.of(context)!.childprofile_language,
-                  _categoryStats['ด้านภาษา'] ?? 0, yellowBtn,
+                  _categoryStats[_categoryLanguage] ?? 0, yellowBtn,
                   icon: Icons.abc),
               const SizedBox(width: 12),
               _buildStatCard(AppLocalizations.of(context)!.childprofile_physical,
-                  _categoryStats['ด้านร่างกาย'] ?? 0, pinkBtn,
+                  _categoryStats[_categoryPhysical] ?? 0, pinkBtn,
                   icon: Icons.directions_run),
               const SizedBox(width: 12),
               _buildStatCard(AppLocalizations.of(context)!.childprofile_calculation,
-                  _categoryStats['ด้านคำนวณ'] ?? 0, orangeBtn,
+                  _categoryStats[_categoryCalculate] ?? 0, orangeBtn,
                   imagePath: 'assets/images/Analysis_img.jpg'),
             ],
           ),
@@ -519,24 +524,24 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
           _buildCategoryButton(
             AppLocalizations.of(context)!.childprofile_language,
             yellowBtn,
-            _categoryStats['ด้านภาษา'] ?? 0,
-            () => _navigateToHistory('ด้านภาษา'),
+            _categoryStats[_categoryLanguage] ?? 0,
+            () => _navigateToHistory(_categoryLanguage),
             icon: Icons.abc,
           ),
           const SizedBox(height: 16),
           _buildCategoryButton(
             AppLocalizations.of(context)!.childprofile_physical,
             pinkBtn,
-            _categoryStats['ด้านร่างกาย'] ?? 0,
-            () => _navigateToHistory('ด้านร่างกาย'),
+            _categoryStats[_categoryPhysical] ?? 0,
+            () => _navigateToHistory(_categoryPhysical),
             icon: Icons.directions_run,
           ),
           const SizedBox(height: 16),
           _buildCategoryButton(
             AppLocalizations.of(context)!.childprofile_calculation,
             orangeBtn,
-            _categoryStats['ด้านคำนวณ'] ?? 0,
-            () => _navigateToHistory('ด้านคำนวณ'),
+            _categoryStats[_categoryCalculate] ?? 0,
+            () => _navigateToHistory(_categoryCalculate),
             imagePath: 'assets/images/Analysis_img.jpg',
           ),
         ],

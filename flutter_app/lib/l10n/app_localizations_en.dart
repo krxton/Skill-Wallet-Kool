@@ -1035,6 +1035,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get common_error => 'Error';
+
+  @override
   String get common_processing => 'Processing...';
 
   @override
