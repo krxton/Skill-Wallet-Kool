@@ -2893,6 +2893,234 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nanny/Babysitter'**
   String get relation_nanny;
+
+  /// No description provided for @activityhistory_selectDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Select date'**
+  String get activityhistory_selectDate;
+
+  /// No description provided for @activityhistory_times.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} times'**
+  String activityhistory_times(int count);
+
+  /// No description provided for @activityhistory_noHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity history'**
+  String get activityhistory_noHistory;
+
+  /// No description provided for @activityhistory_inCategory.
+  ///
+  /// In en, this message translates to:
+  /// **'In {category}'**
+  String activityhistory_inCategory(String category);
+
+  /// No description provided for @dailyactivity_playingHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Playing history'**
+  String get dailyactivity_playingHistory;
+
+  /// No description provided for @dailyactivity_noData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data'**
+  String get dailyactivity_noData;
+
+  /// No description provided for @dailyactivity_activity.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get dailyactivity_activity;
+
+  /// No description provided for @childprofile_language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get childprofile_language;
+
+  /// No description provided for @childprofile_physical.
+  ///
+  /// In en, this message translates to:
+  /// **'Physical'**
+  String get childprofile_physical;
+
+  /// No description provided for @childprofile_calculation.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculation'**
+  String get childprofile_calculation;
+
+  /// No description provided for @childprofile_unknownName.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown'**
+  String get childprofile_unknownName;
+
+  /// No description provided for @childprofile_noHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity history'**
+  String get childprofile_noHistory;
+
+  /// No description provided for @childprofile_startPlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'Start playing activities to see stats here'**
+  String get childprofile_startPlaying;
+
+  /// No description provided for @childprofile_totalActivities.
+  ///
+  /// In en, this message translates to:
+  /// **'Total activities'**
+  String get childprofile_totalActivities;
+
+  /// No description provided for @childprofile_times.
+  ///
+  /// In en, this message translates to:
+  /// **'times'**
+  String get childprofile_times;
+
+  /// No description provided for @medalredemption_activity.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get medalredemption_activity;
+
+  /// No description provided for @medalredemption_done.
+  ///
+  /// In en, this message translates to:
+  /// **'DONE'**
+  String get medalredemption_done;
+
+  /// No description provided for @medalredemption_points.
+  ///
+  /// In en, this message translates to:
+  /// **'points'**
+  String get medalredemption_points;
+
+  /// No description provided for @playingresult_activity.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get playingresult_activity;
+
+  /// No description provided for @playingresult_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Playing result'**
+  String get playingresult_title;
+
+  /// No description provided for @playingresult_session.
+  ///
+  /// In en, this message translates to:
+  /// **'Session {number}'**
+  String playingresult_session(int number);
+
+  /// No description provided for @playingresult_scoreObtained.
+  ///
+  /// In en, this message translates to:
+  /// **'Score obtained'**
+  String get playingresult_scoreObtained;
+
+  /// No description provided for @playingresult_diary.
+  ///
+  /// In en, this message translates to:
+  /// **'Diary'**
+  String get playingresult_diary;
+
+  /// No description provided for @playingresult_noNotes.
+  ///
+  /// In en, this message translates to:
+  /// **'No notes'**
+  String get playingresult_noNotes;
+
+  /// No description provided for @playingresult_image.
+  ///
+  /// In en, this message translates to:
+  /// **'Image'**
+  String get playingresult_image;
+
+  /// No description provided for @playingresult_video.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get playingresult_video;
+
+  /// No description provided for @playingresult_videoAttached.
+  ///
+  /// In en, this message translates to:
+  /// **'Video attached'**
+  String get playingresult_videoAttached;
+
+  /// No description provided for @playingresult_timeSpent.
+  ///
+  /// In en, this message translates to:
+  /// **'Time spent'**
+  String get playingresult_timeSpent;
+
+  /// No description provided for @playingresult_noImage.
+  ///
+  /// In en, this message translates to:
+  /// **'No image'**
+  String get playingresult_noImage;
+
+  /// No description provided for @playingresult_sentencesSpoken.
+  ///
+  /// In en, this message translates to:
+  /// **'Sentences spoken'**
+  String get playingresult_sentencesSpoken;
+
+  /// No description provided for @playingresult_sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'Sentence {number}'**
+  String playingresult_sentence(int number);
+
+  /// No description provided for @playingresult_sentenceToSpeak.
+  ///
+  /// In en, this message translates to:
+  /// **'Sentence to speak:'**
+  String get playingresult_sentenceToSpeak;
+
+  /// No description provided for @playingresult_whatWasSpoken.
+  ///
+  /// In en, this message translates to:
+  /// **'What was spoken:'**
+  String get playingresult_whatWasSpoken;
+
+  /// No description provided for @playingresult_noData.
+  ///
+  /// In en, this message translates to:
+  /// **'(No data)'**
+  String get playingresult_noData;
+
+  /// No description provided for @playingresult_noSpeechData.
+  ///
+  /// In en, this message translates to:
+  /// **'No speech data'**
+  String get playingresult_noSpeechData;
+
+  /// No description provided for @playingresult_answerResults.
+  ///
+  /// In en, this message translates to:
+  /// **'Answer results'**
+  String get playingresult_answerResults;
+
+  /// No description provided for @playingresult_questionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Q.{number}'**
+  String playingresult_questionLabel(int number);
+
+  /// No description provided for @playingresult_questionFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Question {number}'**
+  String playingresult_questionFallback(int number);
 }
 
 class _AppLocalizationsDelegate

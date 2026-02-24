@@ -120,8 +120,9 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
   Widget build(BuildContext context) {
     // Get real data from Provider
     final userProvider = context.watch<UserProvider>();
+    final l10n = AppLocalizations.of(context)!;
     final childName =
-        widget.name ?? userProvider.currentChildName ?? 'ไม่ระบุชื่อ';
+        widget.name ?? userProvider.currentChildName ?? l10n.childprofile_unknownName;
     final childWallet = widget.points ?? userProvider.currentChildWallet;
     final imageUrl = widget.imageUrl ?? '';
 
@@ -371,7 +372,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
             Icon(Icons.history, size: 80, color: Colors.grey.shade400),
             const SizedBox(height: 16),
             Text(
-              'ยังไม่มีประวัติกิจกรรม',
+              AppLocalizations.of(context)!.childprofile_noHistory,
               style: GoogleFonts.itim(
                 fontSize: 20,
                 color: Colors.grey.shade600,
@@ -379,7 +380,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'เริ่มเล่นกิจกรรมเพื่อดูสถิติที่นี่',
+              AppLocalizations.of(context)!.childprofile_startPlaying,
               style: GoogleFonts.itim(
                 fontSize: 16,
                 color: Colors.grey.shade500,
@@ -411,7 +412,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
             child: Column(
               children: [
                 Text(
-                  'กิจกรรมทั้งหมด',
+                  AppLocalizations.of(context)!.childprofile_totalActivities,
                   style: GoogleFonts.itim(
                     fontSize: 18,
                     color: Colors.grey.shade600,
@@ -426,7 +427,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
                   ),
                 ),
                 Text(
-                  'ครั้ง',
+                  AppLocalizations.of(context)!.childprofile_times,
                   style: GoogleFonts.itim(
                     fontSize: 16,
                     color: Colors.grey.shade500,
@@ -441,16 +442,16 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
           // Category breakdown
           Row(
             children: [
-              _buildStatCard(
-                  'ด้านภาษา', _categoryStats['ด้านภาษา'] ?? 0, yellowBtn,
+              _buildStatCard(AppLocalizations.of(context)!.childprofile_language,
+                  _categoryStats['ด้านภาษา'] ?? 0, yellowBtn,
                   icon: Icons.abc),
               const SizedBox(width: 12),
-              _buildStatCard(
-                  'ด้านร่างกาย', _categoryStats['ด้านร่างกาย'] ?? 0, pinkBtn,
+              _buildStatCard(AppLocalizations.of(context)!.childprofile_physical,
+                  _categoryStats['ด้านร่างกาย'] ?? 0, pinkBtn,
                   icon: Icons.directions_run),
               const SizedBox(width: 12),
-              _buildStatCard(
-                  'ด้านคำนวณ', _categoryStats['ด้านคำนวณ'] ?? 0, orangeBtn,
+              _buildStatCard(AppLocalizations.of(context)!.childprofile_calculation,
+                  _categoryStats['ด้านคำนวณ'] ?? 0, orangeBtn,
                   imagePath: 'assets/images/Analysis_img.jpg'),
             ],
           ),
@@ -516,7 +517,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
       child: Column(
         children: [
           _buildCategoryButton(
-            "ด้านภาษา",
+            AppLocalizations.of(context)!.childprofile_language,
             yellowBtn,
             _categoryStats['ด้านภาษา'] ?? 0,
             () => _navigateToHistory('ด้านภาษา'),
@@ -524,7 +525,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
           ),
           const SizedBox(height: 16),
           _buildCategoryButton(
-            "ด้านร่างกาย",
+            AppLocalizations.of(context)!.childprofile_physical,
             pinkBtn,
             _categoryStats['ด้านร่างกาย'] ?? 0,
             () => _navigateToHistory('ด้านร่างกาย'),
@@ -532,7 +533,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
           ),
           const SizedBox(height: 16),
           _buildCategoryButton(
-            "ด้านคำนวณ",
+            AppLocalizations.of(context)!.childprofile_calculation,
             orangeBtn,
             _categoryStats['ด้านคำนวณ'] ?? 0,
             () => _navigateToHistory('ด้านคำนวณ'),
@@ -617,7 +618,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
-                '$count ครั้ง',
+                '$count ${AppLocalizations.of(context)!.childprofile_times}',
                 style: GoogleFonts.itim(
                   fontSize: 14,
                   color: Colors.black87,

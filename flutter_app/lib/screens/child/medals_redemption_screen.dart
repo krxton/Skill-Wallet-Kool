@@ -1206,7 +1206,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                   itemBuilder: (context, index) {
                     final activity = _activityHistory[index];
                     final activityName =
-                        activity['activity']?['name_activity'] ?? 'กิจกรรม';
+                        activity['activity']?['name_activity'] ?? loc.medalredemption_activity;
                     final pointValue = activity['point'];
                     int scoreEarned = 0;
                     if (pointValue is int) {
@@ -1233,7 +1233,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   Text(
-                                    '+$scoreEarned คะแนน',
+                                    '+$scoreEarned ${loc.medalredemption_points}',
                                     style: AppTextStyles.heading(14,
                                         color: Palette.successAlt),
                                   ),
@@ -1248,7 +1248,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                                 color: const Color(0xFFD1E9FF),
                                 borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Text('DONE',
+                              child: Text(loc.medalredemption_done,
                                   style: AppTextStyles.heading(14,
                                       color: Palette.sky)),
                             ),

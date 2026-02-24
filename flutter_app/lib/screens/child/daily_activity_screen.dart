@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import 'playing_result_detail_screen.dart';
 
 class DailyActivityScreen extends StatelessWidget {
@@ -66,7 +67,7 @@ class DailyActivityScreen extends StatelessWidget {
             ),
 
             Text(
-              'ประวัติการเล่น',
+              AppLocalizations.of(context)!.dailyactivity_playingHistory,
               style: GoogleFonts.itim(fontSize: 18, color: Colors.grey),
             ),
             const SizedBox(height: 20),
@@ -76,7 +77,7 @@ class DailyActivityScreen extends StatelessWidget {
               child: sortedRecords.isEmpty
                   ? Center(
                       child: Text(
-                        'ไม่มีข้อมูล',
+                        AppLocalizations.of(context)!.dailyactivity_noData,
                         style:
                             GoogleFonts.itim(fontSize: 18, color: Colors.grey),
                       ),
@@ -99,7 +100,7 @@ class DailyActivityScreen extends StatelessWidget {
                         final createdAt = record['created_at'] as String?;
                         final activityName =
                             record['activity']?['name_activity'] as String? ??
-                                'กิจกรรม';
+                                AppLocalizations.of(context)!.dailyactivity_activity;
 
                         return GestureDetector(
                           onTap: () {

@@ -533,5 +533,78 @@
   "relation_grandparentMaternal": "ตา/ยาย (ฝ่ายแม่)",
   "relation_auntUncle": "ลุง/ป้า/น้า/อา",
   "relation_caregiver": "คนดูแล",
-  "relation_nanny": "พี่เลี้ยง"
+  "relation_nanny": "พี่เลี้ยง",
+
+  "activityhistory_selectDate": "เลือกวันที่",
+  "activityhistory_times": "{count} ครั้ง",
+  "@activityhistory_times": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "activityhistory_noHistory": "ยังไม่มีประวัติกิจกรรม",
+  "activityhistory_inCategory": "ในหมวด {category}",
+  "@activityhistory_inCategory": {
+    "placeholders": {
+      "category": { "type": "String" }
+    }
+  },
+
+  "dailyactivity_playingHistory": "ประวัติการเล่น",
+  "dailyactivity_noData": "ไม่มีข้อมูล",
+  "dailyactivity_activity": "กิจกรรม",
+
+  "childprofile_language": "ด้านภาษา",
+  "childprofile_physical": "ด้านร่างกาย",
+  "childprofile_calculation": "ด้านคำนวณ",
+  "childprofile_unknownName": "ไม่ระบุชื่อ",
+  "childprofile_noHistory": "ยังไม่มีประวัติกิจกรรม",
+  "childprofile_startPlaying": "เริ่มเล่นกิจกรรมเพื่อดูสถิติที่นี่",
+  "childprofile_totalActivities": "กิจกรรมทั้งหมด",
+  "childprofile_times": "ครั้ง",
+
+  "medalredemption_activity": "กิจกรรม",
+  "medalredemption_done": "เสร็จสิ้น",
+  "medalredemption_points": "คะแนน",
+
+  "playingresult_activity": "กิจกรรม",
+  "playingresult_title": "ผลการเล่น",
+  "playingresult_session": "ครั้งที่ {number}",
+  "@playingresult_session": {
+    "placeholders": {
+      "number": { "type": "int" }
+    }
+  },
+  "playingresult_scoreObtained": "คะแนนที่ได้",
+  "playingresult_diary": "บันทึก",
+  "playingresult_noNotes": "ไม่มีบันทึก",
+  "playingresult_image": "รูปภาพ",
+  "playingresult_video": "วิดีโอ",
+  "playingresult_videoAttached": "มีวิดีโอแนบ",
+  "playingresult_timeSpent": "เวลาที่ใช้",
+  "playingresult_noImage": "ไม่มีรูปภาพ",
+  "playingresult_sentencesSpoken": "ประโยคที่พูด",
+  "playingresult_sentence": "ประโยค {number}",
+  "@playingresult_sentence": {
+    "placeholders": {
+      "number": { "type": "int" }
+    }
+  },
+  "playingresult_sentenceToSpeak": "ประโยคที่ต้องพูด:",
+  "playingresult_whatWasSpoken": "สิ่งที่พูด:",
+  "playingresult_noData": "(ไม่มีข้อมูล)",
+  "playingresult_noSpeechData": "ไม่มีข้อมูลการพูด",
+  "playingresult_answerResults": "ผลการตอบคำถาม",
+  "playingresult_questionLabel": "ข้อ {number}",
+  "@playingresult_questionLabel": {
+    "placeholders": {
+      "number": { "type": "int" }
+    }
+  },
+  "playingresult_questionFallback": "คำถามข้อ {number}",
+  "@playingresult_questionFallback": {
+    "placeholders": {
+      "number": { "type": "int" }
+    }
+  }
 }

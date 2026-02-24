@@ -1490,4 +1490,131 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get relation_nanny => 'Nanny/Babysitter';
+
+  @override
+  String get activityhistory_selectDate => 'Select date';
+
+  @override
+  String activityhistory_times(int count) {
+    return '$count times';
+  }
+
+  @override
+  String get activityhistory_noHistory => 'No activity history';
+
+  @override
+  String activityhistory_inCategory(String category) {
+    return 'In $category';
+  }
+
+  @override
+  String get dailyactivity_playingHistory => 'Playing history';
+
+  @override
+  String get dailyactivity_noData => 'No data';
+
+  @override
+  String get dailyactivity_activity => 'Activity';
+
+  @override
+  String get childprofile_language => 'Language';
+
+  @override
+  String get childprofile_physical => 'Physical';
+
+  @override
+  String get childprofile_calculation => 'Calculation';
+
+  @override
+  String get childprofile_unknownName => 'Unknown';
+
+  @override
+  String get childprofile_noHistory => 'No activity history';
+
+  @override
+  String get childprofile_startPlaying =>
+      'Start playing activities to see stats here';
+
+  @override
+  String get childprofile_totalActivities => 'Total activities';
+
+  @override
+  String get childprofile_times => 'times';
+
+  @override
+  String get medalredemption_activity => 'Activity';
+
+  @override
+  String get medalredemption_done => 'DONE';
+
+  @override
+  String get medalredemption_points => 'points';
+
+  @override
+  String get playingresult_activity => 'Activity';
+
+  @override
+  String get playingresult_title => 'Playing result';
+
+  @override
+  String playingresult_session(int number) {
+    return 'Session $number';
+  }
+
+  @override
+  String get playingresult_scoreObtained => 'Score obtained';
+
+  @override
+  String get playingresult_diary => 'Diary';
+
+  @override
+  String get playingresult_noNotes => 'No notes';
+
+  @override
+  String get playingresult_image => 'Image';
+
+  @override
+  String get playingresult_video => 'Video';
+
+  @override
+  String get playingresult_videoAttached => 'Video attached';
+
+  @override
+  String get playingresult_timeSpent => 'Time spent';
+
+  @override
+  String get playingresult_noImage => 'No image';
+
+  @override
+  String get playingresult_sentencesSpoken => 'Sentences spoken';
+
+  @override
+  String playingresult_sentence(int number) {
+    return 'Sentence $number';
+  }
+
+  @override
+  String get playingresult_sentenceToSpeak => 'Sentence to speak:';
+
+  @override
+  String get playingresult_whatWasSpoken => 'What was spoken:';
+
+  @override
+  String get playingresult_noData => '(No data)';
+
+  @override
+  String get playingresult_noSpeechData => 'No speech data';
+
+  @override
+  String get playingresult_answerResults => 'Answer results';
+
+  @override
+  String playingresult_questionLabel(int number) {
+    return 'Q.$number';
+  }
+
+  @override
+  String playingresult_questionFallback(int number) {
+    return 'Question $number';
+  }
 }

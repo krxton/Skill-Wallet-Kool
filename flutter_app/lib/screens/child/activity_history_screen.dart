@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import '../../services/child_service.dart';
 import 'daily_activity_screen.dart';
 
@@ -133,7 +134,7 @@ class _ActivityHistoryScreenState extends State<ActivityHistoryScreen> {
             ),
 
             Text(
-              'เลือกวันที่',
+              AppLocalizations.of(context)!.activityhistory_selectDate,
               style: GoogleFonts.itim(fontSize: 18, color: Colors.grey),
             ),
             const SizedBox(height: 20),
@@ -212,7 +213,7 @@ class _ActivityHistoryScreenState extends State<ActivityHistoryScreen> {
                                               BorderRadius.circular(15),
                                         ),
                                         child: Text(
-                                          '${records.length} ครั้ง',
+                                          AppLocalizations.of(context)!.activityhistory_times(records.length),
                                           style: GoogleFonts.itim(
                                             fontSize: 14,
                                             fontWeight: FontWeight.bold,
@@ -242,7 +243,7 @@ class _ActivityHistoryScreenState extends State<ActivityHistoryScreen> {
           Icon(Icons.history, size: 80, color: Colors.grey.shade400),
           const SizedBox(height: 16),
           Text(
-            'ยังไม่มีประวัติกิจกรรม',
+            AppLocalizations.of(context)!.activityhistory_noHistory,
             style: GoogleFonts.itim(
               fontSize: 20,
               color: Colors.grey.shade600,
@@ -250,7 +251,7 @@ class _ActivityHistoryScreenState extends State<ActivityHistoryScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'ในหมวด ${widget.gameName}',
+            AppLocalizations.of(context)!.activityhistory_inCategory(widget.gameName),
             style: GoogleFonts.itim(
               fontSize: 16,
               color: Colors.grey.shade500,

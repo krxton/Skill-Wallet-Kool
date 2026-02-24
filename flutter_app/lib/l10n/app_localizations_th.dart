@@ -1486,4 +1486,130 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get relation_nanny => 'พี่เลี้ยง';
+
+  @override
+  String get activityhistory_selectDate => 'เลือกวันที่';
+
+  @override
+  String activityhistory_times(int count) {
+    return '$count ครั้ง';
+  }
+
+  @override
+  String get activityhistory_noHistory => 'ยังไม่มีประวัติกิจกรรม';
+
+  @override
+  String activityhistory_inCategory(String category) {
+    return 'ในหมวด $category';
+  }
+
+  @override
+  String get dailyactivity_playingHistory => 'ประวัติการเล่น';
+
+  @override
+  String get dailyactivity_noData => 'ไม่มีข้อมูล';
+
+  @override
+  String get dailyactivity_activity => 'กิจกรรม';
+
+  @override
+  String get childprofile_language => 'ด้านภาษา';
+
+  @override
+  String get childprofile_physical => 'ด้านร่างกาย';
+
+  @override
+  String get childprofile_calculation => 'ด้านคำนวณ';
+
+  @override
+  String get childprofile_unknownName => 'ไม่ระบุชื่อ';
+
+  @override
+  String get childprofile_noHistory => 'ยังไม่มีประวัติกิจกรรม';
+
+  @override
+  String get childprofile_startPlaying => 'เริ่มเล่นกิจกรรมเพื่อดูสถิติที่นี่';
+
+  @override
+  String get childprofile_totalActivities => 'กิจกรรมทั้งหมด';
+
+  @override
+  String get childprofile_times => 'ครั้ง';
+
+  @override
+  String get medalredemption_activity => 'กิจกรรม';
+
+  @override
+  String get medalredemption_done => 'เสร็จสิ้น';
+
+  @override
+  String get medalredemption_points => 'คะแนน';
+
+  @override
+  String get playingresult_activity => 'กิจกรรม';
+
+  @override
+  String get playingresult_title => 'ผลการเล่น';
+
+  @override
+  String playingresult_session(int number) {
+    return 'ครั้งที่ $number';
+  }
+
+  @override
+  String get playingresult_scoreObtained => 'คะแนนที่ได้';
+
+  @override
+  String get playingresult_diary => 'บันทึก';
+
+  @override
+  String get playingresult_noNotes => 'ไม่มีบันทึก';
+
+  @override
+  String get playingresult_image => 'รูปภาพ';
+
+  @override
+  String get playingresult_video => 'วิดีโอ';
+
+  @override
+  String get playingresult_videoAttached => 'มีวิดีโอแนบ';
+
+  @override
+  String get playingresult_timeSpent => 'เวลาที่ใช้';
+
+  @override
+  String get playingresult_noImage => 'ไม่มีรูปภาพ';
+
+  @override
+  String get playingresult_sentencesSpoken => 'ประโยคที่พูด';
+
+  @override
+  String playingresult_sentence(int number) {
+    return 'ประโยค $number';
+  }
+
+  @override
+  String get playingresult_sentenceToSpeak => 'ประโยคที่ต้องพูด:';
+
+  @override
+  String get playingresult_whatWasSpoken => 'สิ่งที่พูด:';
+
+  @override
+  String get playingresult_noData => '(ไม่มีข้อมูล)';
+
+  @override
+  String get playingresult_noSpeechData => 'ไม่มีข้อมูลการพูด';
+
+  @override
+  String get playingresult_answerResults => 'ผลการตอบคำถาม';
+
+  @override
+  String playingresult_questionLabel(int number) {
+    return 'ข้อ $number';
+  }
+
+  @override
+  String playingresult_questionFallback(int number) {
+    return 'คำถามข้อ $number';
+  }
 }

@@ -653,5 +653,78 @@
   "relation_grandparentMaternal": "Grandfather/Grandmother (Mother's side)",
   "relation_auntUncle": "Aunt/Uncle",
   "relation_caregiver": "Caregiver",
-  "relation_nanny": "Nanny/Babysitter"
+  "relation_nanny": "Nanny/Babysitter",
+
+  "activityhistory_selectDate": "Select date",
+  "activityhistory_times": "{count} times",
+  "@activityhistory_times": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "activityhistory_noHistory": "No activity history",
+  "activityhistory_inCategory": "In {category}",
+  "@activityhistory_inCategory": {
+    "placeholders": {
+      "category": { "type": "String" }
+    }
+  },
+
+  "dailyactivity_playingHistory": "Playing history",
+  "dailyactivity_noData": "No data",
+  "dailyactivity_activity": "Activity",
+
+  "childprofile_language": "Language",
+  "childprofile_physical": "Physical",
+  "childprofile_calculation": "Calculation",
+  "childprofile_unknownName": "Unknown",
+  "childprofile_noHistory": "No activity history",
+  "childprofile_startPlaying": "Start playing activities to see stats here",
+  "childprofile_totalActivities": "Total activities",
+  "childprofile_times": "times",
+
+  "medalredemption_activity": "Activity",
+  "medalredemption_done": "DONE",
+  "medalredemption_points": "points",
+
+  "playingresult_activity": "Activity",
+  "playingresult_title": "Playing result",
+  "playingresult_session": "Session {number}",
+  "@playingresult_session": {
+    "placeholders": {
+      "number": { "type": "int" }
+    }
+  },
+  "playingresult_scoreObtained": "Score obtained",
+  "playingresult_diary": "Diary",
+  "playingresult_noNotes": "No notes",
+  "playingresult_image": "Image",
+  "playingresult_video": "Video",
+  "playingresult_videoAttached": "Video attached",
+  "playingresult_timeSpent": "Time spent",
+  "playingresult_noImage": "No image",
+  "playingresult_sentencesSpoken": "Sentences spoken",
+  "playingresult_sentence": "Sentence {number}",
+  "@playingresult_sentence": {
+    "placeholders": {
+      "number": { "type": "int" }
+    }
+  },
+  "playingresult_sentenceToSpeak": "Sentence to speak:",
+  "playingresult_whatWasSpoken": "What was spoken:",
+  "playingresult_noData": "(No data)",
+  "playingresult_noSpeechData": "No speech data",
+  "playingresult_answerResults": "Answer results",
+  "playingresult_questionLabel": "Q.{number}",
+  "@playingresult_questionLabel": {
+    "placeholders": {
+      "number": { "type": "int" }
+    }
+  },
+  "playingresult_questionFallback": "Question {number}",
+  "@playingresult_questionFallback": {
+    "placeholders": {
+      "number": { "type": "int" }
+    }
+  }
 }

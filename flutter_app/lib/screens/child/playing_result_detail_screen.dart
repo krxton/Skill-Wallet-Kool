@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import '../../widgets/share_result_helper.dart';
 import '../../theme/palette.dart';
 
@@ -69,9 +70,10 @@ class PlayingResultDetailScreen extends StatelessWidget {
       timespent = int.tryParse(timeRaw.toString()) ?? 0;
     }
 
+    final loc = AppLocalizations.of(context)!;
     final createdAt = record['created_at'] as String?;
     final activityName =
-        record['activity']?['name_activity'] as String? ?? 'กิจกรรม';
+        record['activity']?['name_activity'] as String? ?? loc.playingresult_activity;
     final category = record['activity']?['category'] as String? ?? '';
     final maxScore = record['activity']?['maxscore'];
     int maxScoreInt = 0;
@@ -121,7 +123,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'ผลการเล่น',
+                              loc.playingresult_title,
                               style: GoogleFonts.itim(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
@@ -129,7 +131,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              '${_formatDate(createdAt)} | ครั้งที่ $sessionNumber',
+                              '${_formatDate(createdAt)} | ${loc.playingresult_session(sessionNumber)}',
                               style: GoogleFonts.itim(
                                   fontSize: 14, color: Colors.grey),
                             ),
@@ -168,7 +170,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
                           color: Colors.orange, size: 35),
                       const SizedBox(width: 10),
                       Text(
-                        'คะแนนที่ได้',
+                        loc.playingresult_scoreObtained,
                         style: GoogleFonts.itim(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -198,14 +200,14 @@ class PlayingResultDetailScreen extends StatelessWidget {
 
                   // สำหรับ Language: แสดง segments แทน diary/evidence
                   if (isLanguageCategory) ...[
-                    _buildLanguageSegmentsSection(),
+                    _buildLanguageSegmentsSection(loc),
                     const SizedBox(height: 25),
                   ]
                   // สำหรับ Physical และอื่นๆ: แสดง diary, image, video ตามปกติ
                   else ...[
                     // 2. Diary Section
                     Text(
-                      'บันทึก',
+                      loc.playingresult_diary,
                       style: GoogleFonts.itim(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -221,7 +223,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        diary.isNotEmpty ? diary : 'ไม่มีบันทึก',
+                        diary.isNotEmpty ? diary : loc.playingresult_noNotes,
                         style: GoogleFonts.itim(
                           fontSize: 16,
                           color:
@@ -233,7 +235,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
 
                     // 3. Image Section
                     Text(
-                      'รูปภาพ',
+                      loc.playingresult_image,
                       style: GoogleFonts.itim(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -248,14 +250,14 @@ class PlayingResultDetailScreen extends StatelessWidget {
                         color: Colors.grey.shade200,
                         borderRadius: BorderRadius.circular(20),
                       ),
-                      child: _buildImageWidget(imagePath),
+                      child: _buildImageWidget(imagePath, loc),
                     ),
                     const SizedBox(height: 25),
 
                     // 4. Video Section (if exists)
                     if (videoPath != null && videoPath.isNotEmpty) ...[
                       Text(
-                        'วิดีโอ',
+                        loc.playingresult_video,
                         style: GoogleFonts.itim(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
@@ -278,7 +280,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
                                   size: 40, color: Colors.grey),
                               const SizedBox(height: 8),
                               Text(
-                                'มีวิดีโอแนบ',
+                                loc.playingresult_videoAttached,
                                 style: GoogleFonts.itim(
                                   fontSize: 14,
                                   color: Colors.grey,
@@ -294,7 +296,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
 
                   // สำหรับ Analysis: เพิ่มส่วนผลการตอบคำถามท้ายสุด
                   if (isAnalysisCategory) ...[
-                    _buildAnalysisQuestionsSection(),
+                    _buildAnalysisQuestionsSection(loc),
                     const SizedBox(height: 25),
                   ],
 
@@ -303,7 +305,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
                     child: Column(
                       children: [
                         Text(
-                          'เวลาที่ใช้',
+                          loc.playingresult_timeSpent,
                           style: GoogleFonts.itim(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -373,7 +375,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildImageWidget(String? imagePath) {
+  Widget _buildImageWidget(String? imagePath, AppLocalizations loc) {
     // ถ้ามี local path และไฟล์ยังอยู่
     if (imagePath != null && imagePath.isNotEmpty) {
       final file = File(imagePath);
@@ -399,7 +401,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
               size: 50, color: Colors.grey.shade400),
           const SizedBox(height: 8),
           Text(
-            'ไม่มีรูปภาพ',
+            loc.playingresult_noImage,
             style: GoogleFonts.itim(
               fontSize: 14,
               color: Colors.grey,
@@ -411,10 +413,10 @@ class PlayingResultDetailScreen extends StatelessWidget {
   }
 
   // ==================== Language Category: Segments Display ====================
-  Widget _buildLanguageSegmentsSection() {
+  Widget _buildLanguageSegmentsSection(AppLocalizations loc) {
     final segments = _getSegmentResults();
     if (segments.isEmpty) {
-      return _buildEmptySegmentsState();
+      return _buildEmptySegmentsState(loc);
     }
 
     return Column(
@@ -425,7 +427,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
             const Icon(Icons.mic, color: skyBlue, size: 28),
             const SizedBox(width: 10),
             Text(
-              'ประโยคที่พูด',
+              loc.playingresult_sentencesSpoken,
               style: GoogleFonts.itim(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -438,13 +440,13 @@ class PlayingResultDetailScreen extends StatelessWidget {
         ...segments.asMap().entries.map((entry) {
           final index = entry.key;
           final segment = entry.value;
-          return _buildLanguageSegmentItem(index + 1, segment);
+          return _buildLanguageSegmentItem(index + 1, segment, loc);
         }),
       ],
     );
   }
 
-  Widget _buildLanguageSegmentItem(int number, Map<String, dynamic> segment) {
+  Widget _buildLanguageSegmentItem(int number, Map<String, dynamic> segment, AppLocalizations loc) {
     final text = segment['text'] as String? ?? '';
     final recognizedText = segment['recognizedText'] as String? ?? '';
     final maxScoreRaw = segment['maxScore'];
@@ -496,7 +498,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  'ประโยค $number',
+                  loc.playingresult_sentence(number),
                   style: GoogleFonts.itim(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -526,7 +528,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
 
           // ประโยคที่ต้องพูด
           Text(
-            'ประโยคที่ต้องพูด:',
+            loc.playingresult_sentenceToSpeak,
             style: GoogleFonts.itim(
               fontSize: 13,
               color: Colors.grey.shade600,
@@ -545,7 +547,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
 
           // ประโยคที่พูดได้
           Text(
-            'สิ่งที่พูด:',
+            loc.playingresult_whatWasSpoken,
             style: GoogleFonts.itim(
               fontSize: 13,
               color: Colors.grey.shade600,
@@ -553,7 +555,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            recognizedText.isNotEmpty ? recognizedText : '(ไม่มีข้อมูล)',
+            recognizedText.isNotEmpty ? recognizedText : loc.playingresult_noData,
             style: GoogleFonts.itim(
               fontSize: 16,
               color: recognizedText.isNotEmpty ? Colors.black87 : Colors.grey,
@@ -566,7 +568,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptySegmentsState() {
+  Widget _buildEmptySegmentsState(AppLocalizations loc) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -579,7 +581,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
             Icon(Icons.mic_off, size: 50, color: Colors.grey.shade400),
             const SizedBox(height: 8),
             Text(
-              'ไม่มีข้อมูลการพูด',
+              loc.playingresult_noSpeechData,
               style: GoogleFonts.itim(fontSize: 16, color: Colors.grey),
             ),
           ],
@@ -589,7 +591,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
   }
 
   // ==================== Analysis Category: Question Results ====================
-  Widget _buildAnalysisQuestionsSection() {
+  Widget _buildAnalysisQuestionsSection(AppLocalizations loc) {
     final segments = _getSegmentResults();
     if (segments.isEmpty) {
       return const SizedBox.shrink();
@@ -603,7 +605,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
             const Icon(Icons.quiz, color: Colors.purple, size: 28),
             const SizedBox(width: 10),
             Text(
-              'ผลการตอบคำถาม',
+              loc.playingresult_answerResults,
               style: GoogleFonts.itim(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -616,14 +618,14 @@ class PlayingResultDetailScreen extends StatelessWidget {
         ...segments.asMap().entries.map((entry) {
           final index = entry.key;
           final segment = entry.value;
-          return _buildAnalysisQuestionItem(index + 1, segment);
+          return _buildAnalysisQuestionItem(index + 1, segment, loc);
         }),
       ],
     );
   }
 
-  Widget _buildAnalysisQuestionItem(int number, Map<String, dynamic> segment) {
-    final text = segment['text'] as String? ?? 'คำถามข้อ $number';
+  Widget _buildAnalysisQuestionItem(int number, Map<String, dynamic> segment, AppLocalizations loc) {
+    final text = segment['text'] as String? ?? loc.playingresult_questionFallback(number);
     final maxScoreRaw = segment['maxScore'];
     int score = 0;
     if (maxScoreRaw is int) {
@@ -672,7 +674,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'ข้อ $number',
+                  loc.playingresult_questionLabel(number),
                   style: GoogleFonts.itim(
                     fontSize: 13,
                     color: Colors.grey.shade600,
