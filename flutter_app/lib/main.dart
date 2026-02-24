@@ -210,7 +210,8 @@ class AuthWrapper extends StatefulWidget {
 class _AuthWrapperState extends State<AuthWrapper> {
   bool _isInitialized = false;
   bool _isAuthenticated = false;
-  bool _hasChildren = true; // default true; set false only when fetch succeeds with empty list
+  bool _hasChildren =
+      true; // default true; set false only when fetch succeeds with empty list
 
   @override
   void initState() {
@@ -305,9 +306,6 @@ class _AuthWrapperState extends State<AuthWrapper> {
 
     // ✅ ใช้ค่า _isAuthenticated ที่ตรวจสอบแล้ว
     if (_isAuthenticated) {
-      if (!_hasChildren) {
-        return const AddChildScreen(isRequired: true);
-      }
       return const HomeScreen();
     }
 
