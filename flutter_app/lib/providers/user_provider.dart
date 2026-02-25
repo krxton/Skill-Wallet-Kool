@@ -332,7 +332,10 @@ class UserProvider extends ChangeNotifier {
   /// Deletes the existing storage file first (if any) before uploading.
   Future<bool> uploadChildPhoto(String childId, Uint8List bytes) async {
     try {
-      final path = 'child/$childId/profile.jpg';
+      final userId = _supabase.auth.currentUser?.id;
+      if (userId == null) return false;
+
+      final path = 'parent/$userId/child/$childId/profile.jpg';
 
       // Delete existing file before uploading new one
       try {
