@@ -331,19 +331,19 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
               const SizedBox(height: 40),
 
               // --- Delete Account Button ---
-              GestureDetector(
-                onTap: () {
-                  _showDeleteConfirmation(context);
-                },
-                child: Text(
-                  AppLocalizations.of(context)!.profilesetting_deleteaccoutBtn,
-                  style: TextStyle(
-                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                      fontSize: 20,
-                      color: pinkRed),
-                ),
-              ),
+              // GestureDetector(
+              //   onTap: () {
+              //     _showDeleteConfirmation(context);
+              //   },
+              //   child: Text(
+              //     AppLocalizations.of(context)!.profilesetting_deleteaccoutBtn,
+              //     style: TextStyle(
+              //         fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+              //         fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+              //         fontSize: 20,
+              //         color: pinkRed),
+              //   ),
+              // ),
             ],
           ),
         ),
