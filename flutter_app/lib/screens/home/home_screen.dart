@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 
 import '../../models/activity.dart';
+import 'all_activities_screen.dart';
 import '../../providers/user_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../services/activity_service.dart';
@@ -969,9 +970,16 @@ class _HomeScreenState extends State<HomeScreen> {
               AppLocalizations.of(context)!.home_popularactivityBtn,
               style: AppTextStyles.heading(20, color: Colors.black),
             ),
-            Text(
-              AppLocalizations.of(context)!.home_viewallBtn,
-              style: AppTextStyles.heading(16, color: Palette.sky),
+            GestureDetector(
+              onTap: () => Navigator.pushNamed(
+                context,
+                AppRoutes.allActivities,
+                arguments: ActivityListType.popular,
+              ),
+              child: Text(
+                AppLocalizations.of(context)!.home_viewallBtn,
+                style: AppTextStyles.heading(16, color: Palette.sky),
+              ),
             ),
           ],
         ),
@@ -1001,9 +1009,16 @@ class _HomeScreenState extends State<HomeScreen> {
               AppLocalizations.of(context)!.home_newactivityBtn,
               style: AppTextStyles.heading(20, color: Colors.black),
             ),
-            Text(
-              AppLocalizations.of(context)!.home_viewallBtn,
-              style: AppTextStyles.heading(16, color: Palette.sky),
+            GestureDetector(
+              onTap: () => Navigator.pushNamed(
+                context,
+                AppRoutes.allActivities,
+                arguments: ActivityListType.newActivity,
+              ),
+              child: Text(
+                AppLocalizations.of(context)!.home_viewallBtn,
+                style: AppTextStyles.heading(16, color: Palette.sky),
+              ),
             ),
           ],
         ),

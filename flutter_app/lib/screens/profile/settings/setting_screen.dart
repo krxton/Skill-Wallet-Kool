@@ -13,7 +13,6 @@ import '../../../services/api_service.dart';
 
 // Import หน้าย่อยต่างๆ
 import 'profile_setting_screen.dart'; // หน้าแก้ไขโปรไฟล์
-import 'notification_setting_screen.dart'; // หน้าตั้งค่าการแจ้งเตือน
 import '../../child/child_setting_screen.dart'; // หน้าจัดการเด็ก
 
 class SettingScreen extends StatefulWidget {
@@ -41,228 +40,226 @@ class _SettingScreenState extends State<SettingScreen> {
     return Scaffold(
       backgroundColor: cream,
       body: SafeArea(
-        child: SingleChildScrollView(
-          // ใส่ ScrollView เผื่อหน้าจอยาวเกิน
-          child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // --- 1. Header (Back & Title) ---
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Row(
+        child: Column(
+          children: [
+            // --- Scrollable content ---
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // --- 1. Header (Back & Title) ---
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Icon(Icons.arrow_back,
-                              size: 28, color: Colors.black87),
-                          const SizedBox(width: 4),
+                          GestureDetector(
+                            onTap: () => Navigator.pop(context),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.arrow_back,
+                                    size: 28, color: Colors.black87),
+                                const SizedBox(width: 4),
+                                Text(
+                                  AppLocalizations.of(context)!.setting_backBtn,
+                                  style: TextStyle(
+                                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                                      fontSize: 24,
+                                      color: pinkRed),
+                                ),
+                              ],
+                            ),
+                          ),
                           Text(
-                            AppLocalizations.of(context)!.setting_backBtn,
+                            AppLocalizations.of(context)!.setting_settingBtn,
                             style: TextStyle(
-                                fontFamily:
-                                    GoogleFonts.luckiestGuy().fontFamily,
-                                fontFamilyFallback: [
-                                  GoogleFonts.itim().fontFamily!
-                                ],
+                                fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                                fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
                                 fontSize: 24,
-                                color: pinkRed),
+                                color: blueTitle),
                           ),
                         ],
                       ),
-                    ),
-                    Text(
-                      AppLocalizations.of(context)!.setting_settingBtn,
-                      style: TextStyle(
-                          fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                          fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                          fontSize: 24,
-                          color: blueTitle),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 30),
+                      const SizedBox(height: 30),
 
-                // --- 2. Menu: PROFILE ---
-                _buildMenuItem(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ProfileSettingScreen(),
-                      ),
-                    );
-                  },
-                  title: AppLocalizations.of(context)!.setting_profileBtn,
-                  leading: Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.white,
-                      image: photoUrl != null
-                          ? DecorationImage(
-                              image: NetworkImage(photoUrl),
-                              fit: BoxFit.cover,
-                            )
-                          : null,
-                    ),
-                    child: photoUrl == null
-                        ? const Icon(Icons.person,
-                            size: 30, color: Colors.black87)
-                        : null,
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // --- Section: Personal Information ---
-                // หมายเหตุ: ใน JSON ไม่มีคีย์ "PERSONAL INFORMATION" จึงคงข้อความเดิมไว้
-                // แต่ปรับแก้ Style ให้ถูกต้อง
-                Text(
-                  AppLocalizations.of(context)!.setting_personalBtn,
-                  style: TextStyle(
-                    fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                    fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                    fontSize: 20,
-                    color: textGrey,
-                  ),
-                ),
-                const SizedBox(height: 10),
-
-                // Menu: CHILD
-                _buildMenuItem(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ChildSettingScreen(),
-                      ),
-                    );
-                  },
-                  title: AppLocalizations.of(context)!.setting_childBtn,
-                  leading: const Icon(Icons.sentiment_satisfied_alt,
-                      size: 32, color: Colors.black87),
-                ),
-
-                const SizedBox(height: 20),
-
-                // --- Section: General ---
-                // หมายเหตุ: ใน JSON ไม่มีคีย์ "GENERAL" จึงคงข้อความเดิมไว้
-                // แต่ปรับแก้ Style ให้ถูกต้อง
-                Text(
-                  AppLocalizations.of(context)!.setting_generalBtn,
-                  style: TextStyle(
-                    fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                    fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                    fontSize: 20,
-                    color: textGrey,
-                  ),
-                ),
-                const SizedBox(height: 10),
-
-                // Menu: NOTIFICATIONS
-                _buildMenuItem(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const NotificationSettingScreen(),
-                      ),
-                    );
-                  },
-                  title: AppLocalizations.of(context)!.setting_notificationBtn,
-                  leading: const Icon(Icons.notifications_outlined,
-                      size: 32, color: Colors.black87),
-                ),
-
-                const SizedBox(height: 20),
-
-                // --- Language Buttons ---
-                _buildLanguageButton(
-                  code: 'th',
-                  label: AppLocalizations.of(context)!.setting_thaiBtn,
-                  flagEmoji: '🇹🇭',
-                ),
-                const SizedBox(height: 12),
-                _buildLanguageButton(
-                  code: 'en',
-                  label: AppLocalizations.of(context)!.setting_englishBtn,
-                  flagEmoji: '🇺🇸',
-                ),
-
-                const SizedBox(height: 40),
-
-                // --- 3. Log Out Button ---
-                GestureDetector(
-                  onTap: () async {
-                    try {
-                      final supabase = Supabase.instance.client;
-                      await supabase.auth.signOut();
-                    } catch (e) {
-                      // Optionally show a message, but continue clearing local state
-                    }
-
-                    // Clear local providers/state
-                    await context.read<AuthProvider>().signOut();
-                    context.read<UserProvider>().clearUserData();
-
-                    // Navigate to Welcome and clear back stack
-                    if (mounted) {
-                      Navigator.of(context).pushNamedAndRemoveUntil(
-                        AppRoutes.welcome,
-                        (route) => false,
-                      );
-                    }
-                  },
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        AppLocalizations.of(context)!.setting_logoutBtn,
-                        style: TextStyle(
-                            fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                            fontFamilyFallback: [
-                              GoogleFonts.itim().fontFamily!
-                            ],
-                            fontSize: 24,
-                            color: pinkRed),
-                      ),
-                      const SizedBox(width: 8),
-                      const Icon(Icons.logout, color: Colors.black87, size: 28),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // --- 4. Delete Account ---
-                GestureDetector(
-                  onTap: _confirmDeleteAccount,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        AppLocalizations.of(context)!.setting_deleteAccountBtn,
-                        style: TextStyle(
-                          fontFamily: GoogleFonts.itim().fontFamily,
-                          fontSize: 14,
-                          color: Colors.grey,
-                          decoration: TextDecoration.underline,
+                      // --- 2. Menu: PROFILE ---
+                      _buildMenuItem(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ProfileSettingScreen(),
+                            ),
+                          );
+                        },
+                        title: AppLocalizations.of(context)!.setting_profileBtn,
+                        leading: Container(
+                          width: 50,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white,
+                            image: photoUrl != null
+                                ? DecorationImage(
+                                    image: NetworkImage(photoUrl),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null,
+                          ),
+                          child: photoUrl == null
+                              ? const Icon(Icons.person, size: 30, color: Colors.black87)
+                              : null,
                         ),
                       ),
+
+                      const SizedBox(height: 20),
+
+                      // --- Section: Personal Information ---
+                      Text(
+                        AppLocalizations.of(context)!.setting_personalBtn,
+                        style: TextStyle(
+                          fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                          fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                          fontSize: 20,
+                          color: textGrey,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+
+                      // Menu: CHILD
+                      _buildMenuItem(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const ChildSettingScreen(),
+                            ),
+                          );
+                        },
+                        title: AppLocalizations.of(context)!.setting_childBtn,
+                        leading: const Icon(Icons.sentiment_satisfied_alt,
+                            size: 32, color: Colors.black87),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // --- Language Buttons ---
+                      _buildLanguageButton(
+                        code: 'th',
+                        label: AppLocalizations.of(context)!.setting_thaiBtn,
+                        flagEmoji: '🇹🇭',
+                      ),
+                      const SizedBox(height: 12),
+                      _buildLanguageButton(
+                        code: 'en',
+                        label: AppLocalizations.of(context)!.setting_englishBtn,
+                        flagEmoji: '🇺🇸',
+                      ),
+                      const SizedBox(height: 16),
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
-              ],
+              ),
             ),
-          ),
+
+            // --- Sticky Bottom: Logout + Delete Account ---
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              child: Column(
+                children: [
+                  // Log Out Button
+                  GestureDetector(
+                    onTap: _confirmLogout,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.setting_logoutBtn,
+                          style: TextStyle(
+                              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
+                              fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
+                              fontSize: 24,
+                              color: pinkRed),
+                        ),
+                        const SizedBox(width: 8),
+                        const Icon(Icons.logout, color: Colors.black87, size: 28),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Delete Account
+                  GestureDetector(
+                    onTap: _confirmDeleteAccount,
+                    child: Text(
+                      AppLocalizations.of(context)!.setting_deleteAccountBtn,
+                      style: TextStyle(
+                        fontFamily: GoogleFonts.itim().fontFamily,
+                        fontSize: 14,
+                        color: Colors.grey,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  Future<void> _confirmLogout() async {
+    final l10n = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          l10n.setting_logoutTitle,
+          style: GoogleFonts.itim(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          l10n.setting_logoutMsg,
+          style: GoogleFonts.itim(fontSize: 14),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l10n.common_cancel,
+                style: GoogleFonts.itim(fontSize: 14, color: Colors.black54)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: pinkRed),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l10n.setting_logoutConfirm,
+                style: GoogleFonts.itim(fontSize: 14, color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    try {
+      await Supabase.instance.client.auth.signOut();
+    } catch (_) {}
+
+    if (!mounted) return;
+    final authProvider = context.read<AuthProvider>();
+    final userProvider = context.read<UserProvider>();
+    await authProvider.signOut();
+    userProvider.clearUserData();
+
+    if (mounted) {
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        AppRoutes.welcome,
+        (route) => false,
+      );
+    }
   }
 
   Future<void> _confirmDeleteAccount() async {
@@ -402,7 +399,7 @@ class _SettingScreenState extends State<SettingScreen> {
           // Logic ความสว่าง:
           // ถ้าเลือก (Active) -> สีชัด (Opacity 1.0)
           // ถ้าไม่เลือก -> สีจาง (Opacity 0.4)
-          color: isActive ? buttonYellow : buttonYellow.withOpacity(0.4),
+          color: isActive ? buttonYellow : buttonYellow.withValues(alpha: 0.4),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(

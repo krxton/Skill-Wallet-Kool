@@ -7,6 +7,7 @@ import '../screens/auth/welcome_screen.dart';
 import '../screens/auth/children_info_screen.dart';
 import '../screens/auth/email_login_screen.dart';
 import '../screens/home/home_screen.dart';
+import '../screens/home/all_activities_screen.dart';
 
 // --- Activities & Hubs ---
 import '../screens/activities/hub/language_hub_screen.dart';
@@ -65,6 +66,9 @@ class AppRoutes {
   static const String problemDetail = '/problem-detail';
   static const String problemAnswer = '/problem-answer';
   static const String problemPlaying = '/problem-playing';
+
+  // --- All Activities Routes ---
+  static const String allActivities = '/all-activities';
 
   // --- Child Management Routes ---
   static const String childSetting = '/child-setting';
@@ -135,6 +139,12 @@ class AppRoutes {
         problemDetail: (_) => const ProblemDetailScreen(),
         problemAnswer: (_) => const ProblemAnswerScreen(),
         problemPlaying: (_) => const ProblemPlayingScreen(),
+
+        // --- All Activities ---
+        allActivities: (context) {
+          final type = ModalRoute.of(context)!.settings.arguments as ActivityListType;
+          return AllActivitiesScreen(type: type);
+        },
 
         // --- Child Management Section ---
         childSetting: (_) => const ChildSettingScreen(),

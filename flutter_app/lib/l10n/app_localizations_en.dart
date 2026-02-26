@@ -243,6 +243,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get setting_logoutBtn => 'LOG OUT';
 
   @override
+  String get setting_logoutTitle => 'Log Out?';
+
+  @override
+  String get setting_logoutMsg => 'Are you sure you want to log out?';
+
+  @override
+  String get setting_logoutConfirm => 'LOG OUT';
+
+  @override
   String get setting_deleteAccountBtn => 'DELETE ACCOUNT';
 
   @override

@@ -243,6 +243,15 @@ class AppLocalizationsTh extends AppLocalizations {
   String get setting_logoutBtn => 'ลงชื่อออก';
 
   @override
+  String get setting_logoutTitle => 'ออกจากระบบ?';
+
+  @override
+  String get setting_logoutMsg => 'คุณต้องการออกจากระบบใช่ไหม?';
+
+  @override
+  String get setting_logoutConfirm => 'ออกจากระบบ';
+
+  @override
   String get setting_deleteAccountBtn => 'ลบบัญชี';
 
   @override

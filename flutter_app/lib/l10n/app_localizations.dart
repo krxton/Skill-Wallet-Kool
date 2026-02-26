@@ -536,6 +536,24 @@ abstract class AppLocalizations {
   /// **'LOG OUT'**
   String get setting_logoutBtn;
 
+  /// No description provided for @setting_logoutTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log Out?'**
+  String get setting_logoutTitle;
+
+  /// No description provided for @setting_logoutMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to log out?'**
+  String get setting_logoutMsg;
+
+  /// No description provided for @setting_logoutConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'LOG OUT'**
+  String get setting_logoutConfirm;
+
   /// No description provided for @setting_deleteAccountBtn.
   ///
   /// In en, this message translates to:
