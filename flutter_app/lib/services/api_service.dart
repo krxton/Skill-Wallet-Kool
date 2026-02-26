@@ -15,6 +15,7 @@ class ApiService {
   Future<Map<String, String>> _getHeaders() async {
     final headers = <String, String>{
       'Content-Type': 'application/json',
+      'X-API-Key': dotenv.env['API_SECRET_KEY'] ?? '',
     };
 
     // Get Supabase access token — refresh if expired

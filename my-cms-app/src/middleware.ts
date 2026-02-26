@@ -25,8 +25,21 @@ export async function middleware(req: NextRequest) {
   } = await supabase.auth.getUser()
 
   // Public paths that don't require authentication
-  const publicPaths = ['/login', '/api', '/_next', '/favicon.ico']
+  const publicPaths = ['/login', '/_next', '/favicon.ico']
   const isPublicPath = publicPaths.some(path => req.nextUrl.pathname.startsWith(path))
+
+  // /api/* requires valid X-API-Key header (only enforced when API_SECRET_KEY is set on server)
+  const isApiPath = req.nextUrl.pathname.startsWith('/api')
+  if (isApiPath) {
+    const expectedKey = process.env.API_SECRET_KEY
+    if (expectedKey) {
+      const apiKey = req.headers.get('x-api-key')
+      if (apiKey !== expectedKey) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      }
+    }
+    return res
+  }
 
   // Not logged in → redirect to login
   if (!user && !isPublicPath) {
