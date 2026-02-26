@@ -185,8 +185,15 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
   @override
   Widget build(BuildContext context) {
     final activity = widget.activity;
-    final String htmlContent = activity.tiktokHtmlContent ?? '';
     final String videoUrl = activity.videoUrl ?? '';
+    final String htmlContent = () {
+      final stored = activity.tiktokHtmlContent ?? '';
+      if (stored.isNotEmpty) return stored;
+      // Fallback: build embed from videoUrl if tiktokHtmlContent not stored
+      final videoId = _extractTikTokVideoId(videoUrl);
+      if (videoId != null) return _buildTikTokBlockquote(videoId);
+      return '';
+    }();
     final String name = activity.name;
     final String content = activity.content;
 
@@ -480,6 +487,23 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
       ),
     );
   }
+}
+
+String? _extractTikTokVideoId(String url) {
+  final regex = RegExp(
+    r'tiktok\.com\/(?:@[\w.]+\/video\/|v\/|t\/|.*\/)(\d+)',
+    caseSensitive: false,
+  );
+  return regex.firstMatch(url)?.group(1);
+}
+
+String _buildTikTokBlockquote(String videoId) {
+  return '<blockquote class="tiktok-embed" '
+      'cite="https://www.tiktok.com/video/$videoId" '
+      'data-video-id="$videoId" '
+      'style="max-width:605px;min-width:325px;">'
+      '<section></section></blockquote>'
+      '<script async src="https://www.tiktok.com/embed.js"></script>';
 }
 
 String buildResponsiveTikTokHtml(String rawHtml) {

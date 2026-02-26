@@ -388,11 +388,15 @@ class ActivityService {
   /// ดึงกิจกรรมที่ผู้ปกครองคนนี้สร้าง
   Future<List<Activity>> fetchMyActivities(String parentId) async {
     try {
-      return await _fetchActivitiesFromApi(
+      final activities = await _fetchActivitiesFromApi(
         ownedBy: parentId,
         sortBy: 'created_at',
         sortOrder: 'desc',
       );
+      final enriched = await Future.wait(
+        activities.map((a) => _enrichWithOEmbed(a)),
+      );
+      return enriched;
     } catch (e) {
       debugPrint('Error fetching my activities: $e');
       return [];
