@@ -7,11 +7,13 @@ import { getAuthenticatedParent } from '@/lib/get-parent';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { prisma } from '@/lib/prisma';
 
+type RouteContext = { params: Promise<{ id: string }> };
+
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: RouteContext
 ) {
-  const childId = params.id;
+  const { id: childId } = await context.params;
 
   // ตรวจสอบ auth
   const auth = await getAuthenticatedParent(request);
