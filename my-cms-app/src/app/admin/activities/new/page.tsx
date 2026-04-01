@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Save, Send, Plus, Trash2 } from 'lucide-react';
+import { Send, Plus, Trash2 } from 'lucide-react';
 import { supabase } from '@/lib/supabaseClient';
 import UserProfile from '@/components/UserProfile';
 
@@ -285,11 +285,6 @@ export default function NewActivityPage() {
     setFormData(prev => ({ ...prev, maxScore: newMaxScore }));
   };
 
-  // Save as draft
-  const handleSaveDraft = async () => {
-    alert('Save Draft functionality coming soon!');
-  };
-
   // Publish activity
   const handlePublish = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -415,19 +410,17 @@ export default function NewActivityPage() {
           <UserProfile />
           {selectedCategory && (
             <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={handleSaveDraft}
-                className="flex items-center gap-2 px-4 py-2 border border-gray6 rounded-lg body-medium-medium text-secondary--text hover:bg-gray--light1"
-              >
-                <Save size={20} />
-                Save Draft
-              </button>
+              {/*
+                TODO: Save Draft
+                - ต้องเพิ่ม field `is_draft` (boolean) ในตาราง activity
+                - สร้าง API endpoint หรือเพิ่ม param ใน POST /api/activities
+                - ซ่อนกิจกรรม draft จากหน้า Flutter และ list หลัก
+              */}
               <button
                 type="button"
                 onClick={handlePublish}
                 disabled={isSubmitting}
-                className="flex items-center gap-2 px-4 py-2 bg-purple text-white rounded-lg body-medium-medium hover:bg-purple--dark disabled:bg-gray6"
+                className="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg body-medium-medium disabled:opacity-50"
               >
                 <Send size={20} />
                 {isSubmitting ? 'Publishing...' : 'Publish'}
@@ -439,7 +432,7 @@ export default function NewActivityPage() {
 
       {/* Category Selection */}
       <div className="bg-white rounded-lg shadow p-6 mb-6">
-        <h3 className="body-large-semibold text-gray-800 mb-4">
+        <h3 className="body-large-semibold text-dark mb-4">
           Select Activity Category <span className="text-red">*</span>
         </h3>
         <div className="grid grid-cols-3 gap-4">
@@ -496,7 +489,7 @@ export default function NewActivityPage() {
           {/* Video Information - Language & Physical */}
           {(selectedCategory === 'ด้านภาษา' || selectedCategory === 'ด้านร่างกาย') && (
             <div className="bg-white rounded-lg shadow p-6 space-y-4">
-              <h3 className="body-large-semibold text-gray-800">
+              <h3 className="body-large-semibold text-dark">
                 Video Information <span className="text-red">*</span>
               </h3>
               <p className="body-small-regular text-secondary--text">
@@ -559,7 +552,7 @@ export default function NewActivityPage() {
 
           {/* Activity Title */}
           <div className="bg-white rounded-lg shadow p-6 space-y-4">
-            <label className="body-large-semibold text-gray-800">
+            <label className="body-large-semibold text-dark">
               Activity Title <span className="text-red">*</span>
             </label>
             <p className="body-small-regular text-secondary--text">
@@ -578,7 +571,7 @@ export default function NewActivityPage() {
 
           {/* Activities Description */}
           <div className="bg-white rounded-lg shadow p-6 space-y-4">
-            <label className="body-large-semibold text-gray-800">
+            <label className="body-large-semibold text-dark">
               Activities Description
             </label>
             <p className="body-small-regular text-secondary--text">
@@ -597,7 +590,7 @@ export default function NewActivityPage() {
           {/* Content/Instructions - Physical & Analytical */}
           {(selectedCategory === 'ด้านร่างกาย' || selectedCategory === 'ด้านคำนวณ') && (
             <div className="bg-white rounded-lg shadow p-6 space-y-4">
-              <label className="body-large-semibold text-gray-800">
+              <label className="body-large-semibold text-dark">
                 {selectedCategory === 'ด้านร่างกาย' ? 'วิธีเล่น / How to Play' : 'คำแนะนำเพิ่มเติม / Additional Instructions'} <span className="text-red">*</span>
               </label>
               <p className="body-small-regular text-secondary--text">
@@ -626,7 +619,7 @@ export default function NewActivityPage() {
           <div className="bg-white rounded-lg shadow p-6 space-y-4">
             <div className="grid grid-cols-2 gap-6">
               <div>
-                <label className="body-large-semibold text-gray-800 block mb-2">
+                <label className="body-large-semibold text-dark block mb-2">
                   Difficulty Level <span className="text-red">*</span>
                 </label>
                 <select
@@ -643,7 +636,7 @@ export default function NewActivityPage() {
               </div>
 
               <div>
-                <label className="body-large-semibold text-gray-800 block mb-2">
+                <label className="body-large-semibold text-dark block mb-2">
                   Maximum Score <span className="text-red">*</span>
                 </label>
                 <input
@@ -667,7 +660,7 @@ export default function NewActivityPage() {
           {/* Segment Subtitle - Language only */}
           {selectedCategory === 'ด้านภาษา' && formData.segments && (formData.segments as Segment[]).length > 0 && (
             <div className="bg-white rounded-lg shadow p-6 space-y-4">
-              <label className="body-large-semibold text-gray-800">
+              <label className="body-large-semibold text-dark">
                 Segment Subtitle
               </label>
               <p className="body-small-regular text-secondary--text">
@@ -687,7 +680,7 @@ export default function NewActivityPage() {
             <div className="bg-white rounded-lg shadow p-6 space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <label className="body-large-semibold text-gray-800">
+                  <label className="body-large-semibold text-dark">
                     Questions <span className="text-red">*</span>
                   </label>
                   <p className="body-small-regular text-secondary--text">
@@ -742,7 +735,7 @@ export default function NewActivityPage() {
                       </div>
 
                       <div>
-                        <label className="body-small-semibold text-gray-700 block mb-1">
+                        <label className="body-small-semibold text-dark block mb-1">
                           โจทย์ <span className="text-red">*</span>
                         </label>
                         <textarea
@@ -756,7 +749,7 @@ export default function NewActivityPage() {
                       </div>
 
                       <div>
-                        <label className="body-small-semibold text-gray-700 block mb-1">
+                        <label className="body-small-semibold text-dark block mb-1">
                           คำตอบ <span className="text-red">*</span>
                         </label>
                         <input
@@ -770,7 +763,7 @@ export default function NewActivityPage() {
                       </div>
 
                       <div>
-                        <label className="body-small-semibold text-gray-700 block mb-1">
+                        <label className="body-small-semibold text-dark block mb-1">
                           คำแนะนำ
                         </label>
                         <textarea

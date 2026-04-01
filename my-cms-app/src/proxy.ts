@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const res = NextResponse.next()
 
   const supabase = createServerClient(
@@ -29,10 +29,12 @@ export async function middleware(req: NextRequest) {
   const isPublicPath = publicPaths.some(path => req.nextUrl.pathname.startsWith(path))
 
   // /api/* requires valid X-API-Key header (only enforced when API_SECRET_KEY is set on server)
+  // Exception: logged-in admin users (CMS internal calls) are always allowed
   const isApiPath = req.nextUrl.pathname.startsWith('/api')
   if (isApiPath) {
     const expectedKey = process.env.API_SECRET_KEY
-    if (expectedKey) {
+    const isAdmin = user?.app_metadata?.role === 'admin'
+    if (expectedKey && !isAdmin) {
       const apiKey = req.headers.get('x-api-key')
       if (apiKey !== expectedKey) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

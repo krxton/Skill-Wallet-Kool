@@ -411,10 +411,7 @@ model users {
   oauth_consents              oauth_consents[]
   one_time_tokens             one_time_tokens[]
   sessions                    sessions[]
-  comments                    comments[]
-  likes                       likes[]
   parent                      parent?
-  posts                       posts[]
 
   @@index([instance_id])
   @@index([is_anonymous])
@@ -485,31 +482,6 @@ model child {
   @@schema("public")
 }
 
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model comments {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  created_at DateTime @default(now()) @db.Timestamptz(6)
-  user_id    String   @db.Uuid
-  post_id    String   @db.Uuid
-  content    String
-  posts      posts    @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users      users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@schema("public")
-}
-
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model likes {
-  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  created_at DateTime @default(now()) @db.Timestamptz(6)
-  user_id    String   @db.Uuid
-  post_id    String   @db.Uuid
-  posts      posts    @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  users      users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([user_id, post_id])
-  @@schema("public")
-}
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model medals {
@@ -566,21 +538,6 @@ model parent_and_medals {
   @@schema("public")
 }
 
-/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model posts {
-  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  created_at  DateTime   @default(now()) @db.Timestamptz(6)
-  updated_at  DateTime?  @default(now()) @db.Timestamptz(6)
-  user_id     String     @db.Uuid
-  image_url   String
-  caption     String?
-  likes_count Int?       @default(0)
-  comments    comments[]
-  likes       likes[]
-  users       users      @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@schema("public")
-}
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model redemption {

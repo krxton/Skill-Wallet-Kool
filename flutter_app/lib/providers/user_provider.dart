@@ -252,35 +252,16 @@ class UserProvider extends ChangeNotifier {
 
   String? get parentPhotoUrl => _parentPhotoUrl;
 
-  /// Upload bytes to Supabase Storage and persist URL in user metadata.
-  /// Deletes the existing storage file first (if any) before uploading.
+  /// Upload parent profile photo via backend API (POST /parents/photo).
+  /// Backend handles Supabase Storage and updates user metadata.
   Future<bool> uploadAndSetPhoto(Uint8List bytes) async {
     try {
-      final userId = _supabase.auth.currentUser?.id;
-      if (userId == null) return false;
-
-      final path = 'parent/$userId/profile.jpg';
-
-      // Delete existing file before uploading new one
-      try {
-        await _supabase.storage.from('avatars').remove([path]);
-      } catch (_) {
-        // File may not exist yet — ignore
-      }
-
-      await _supabase.storage.from('avatars').uploadBinary(
-            path,
-            bytes,
-            fileOptions: const FileOptions(contentType: 'image/jpeg'),
-          );
-
-      // Cache-bust so Flutter's image cache refreshes
-      final base = _supabase.storage.from('avatars').getPublicUrl(path);
-      final url = '$base?v=${DateTime.now().millisecondsSinceEpoch}';
-
-      await _supabase.auth.updateUser(
-        UserAttributes(data: {'photo_url': url}),
+      final result = await _apiService.postMultipart(
+        '/parents/photo',
+        bytes: bytes,
       );
+      final url = result['photoUrl'] as String?;
+      if (url == null) return false;
       _parentPhotoUrl = url;
       notifyListeners();
       return true;
@@ -291,7 +272,7 @@ class UserProvider extends ChangeNotifier {
   }
 
   /// Use OAuth provider's avatar (Google / Facebook) and persist in user metadata.
-  /// Also removes any custom storage file so storage stays clean.
+  /// Also removes any custom storage file (backend path) so storage stays clean.
   Future<bool> setPhotoFromOAuth(String provider) async {
     try {
       final user = _supabase.auth.currentUser;
@@ -306,12 +287,12 @@ class UserProvider extends ChangeNotifier {
           (identity?.identityData?['picture'] as String?);
       if (url == null) return false;
 
-      // Remove custom storage file if it exists
+      // Remove custom storage file at backend path if it exists
       final userId = user.id;
       try {
         await _supabase.storage
             .from('avatars')
-            .remove(['parent/$userId/profile.jpg']);
+            .remove(['$userId/profile.jpg']);
       } catch (_) {
         // File may not exist — ignore
       }
@@ -328,34 +309,16 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-  /// Upload child profile photo to Supabase Storage and save URL via API.
-  /// Deletes the existing storage file first (if any) before uploading.
+  /// Upload child profile photo via backend API (POST /children/{id}/photo).
+  /// Backend handles Supabase Storage and updates child.photo_url in DB.
   Future<bool> uploadChildPhoto(String childId, Uint8List bytes) async {
     try {
-      final userId = _supabase.auth.currentUser?.id;
-      if (userId == null) return false;
-
-      final path = 'parent/$userId/child/$childId/profile.jpg';
-
-      // Delete existing file before uploading new one
-      try {
-        await _supabase.storage.from('avatars').remove([path]);
-      } catch (_) {
-        // File may not exist yet — ignore
-      }
-
-      await _supabase.storage.from('avatars').uploadBinary(
-            path,
-            bytes,
-            fileOptions: const FileOptions(contentType: 'image/jpeg'),
-          );
-
-      // Cache-bust so Flutter's image cache refreshes
-      final base = _supabase.storage.from('avatars').getPublicUrl(path);
-      final url = '$base?v=${DateTime.now().millisecondsSinceEpoch}';
-
-      // Save URL to DB via API
-      await _apiService.patch('/children/$childId', {'photoUrl': url});
+      final result = await _apiService.postMultipart(
+        '/children/$childId/photo',
+        bytes: bytes,
+      );
+      final url = result['photoUrl'] as String?;
+      if (url == null) return false;
 
       // Update local children list immediately
       final idx = _children.indexWhere(

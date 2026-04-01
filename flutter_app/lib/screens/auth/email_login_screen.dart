@@ -430,15 +430,9 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
 
   Future<bool> _checkParentExists() async {
     try {
-      final supabase = Supabase.instance.client;
-      final user = supabase.auth.currentUser;
-      if (user == null) return false;
-      final result = await supabase
-          .from('parent')
-          .select('parent_id')
-          .eq('user_id', user.id)
-          .maybeSingle();
-      return result != null;
+      // GET /parents/me returns 200 if parent row exists, throws on 404
+      await ApiService().get('/parents/me');
+      return true;
     } catch (e) {
       debugPrint('Check parent error: $e');
       return false;
