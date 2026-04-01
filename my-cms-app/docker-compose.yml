@@ -1,5 +1,6 @@
 services:
   app:
+    container_name: swk-cms
     build:
       context: .
       dockerfile: Dockerfile
@@ -38,6 +39,7 @@ services:
           memory: 512M
 
   whisper:
+    container_name: swk-whisper
     build:
       context: ../scripts
       dockerfile: Dockerfile
