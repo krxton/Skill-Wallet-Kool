@@ -11,7 +11,6 @@ import 'package:skill_wallet_kool/providers/user_provider.dart';
 import 'package:skill_wallet_kool/services/api_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../providers/auth_provider.dart';
 import '../../routes/app_routes.dart';
 import '../child/add_child_screen.dart';
 
@@ -65,8 +64,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
-    final isLoading = _isLoading || authProvider.isLoading;
+    final isLoading = _isLoading;
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(

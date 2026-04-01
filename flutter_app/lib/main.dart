@@ -9,13 +9,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'routes/app_routes.dart';
 import 'theme/app_theme.dart';
 import 'providers/user_provider.dart';
-import 'providers/auth_provider.dart';
 import 'services/deep_link_service.dart';
 import 'services/storage_service.dart';
 import 'services/mock_auth_service.dart';
 import 'screens/auth/welcome_screen.dart';
 import 'screens/home/home_screen.dart';
-import 'screens/child/add_child_screen.dart';
 import 'package:media_kit/media_kit.dart';
 
 Future<void> main() async {
@@ -42,7 +40,6 @@ Future<void> main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => UserProvider()),
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: const SWKApp(),
     ),
@@ -74,15 +71,9 @@ class _SWKAppState extends State<SWKApp> {
 
   // ✅ Initialize App + Deep Links
   Future<void> _initializeApp() async {
-    if (!mounted) return; // เช็คว่า widget ยังอยู่หรือไม่
+    if (!mounted) return;
 
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-
-    // 1. เช็คว่ามี session เดิมอยู่หรือไม่
-    await authProvider.initialize();
-
-    // 1.1 หลัง initialize สำเร็จ: ดึงชื่อผู้ปกครองจาก Supabase แล้วตั้งใน UserProvider
-    //ต้องรีสตาทชื่อจากdatabaseถึงจะขึ้นชื่อใหม่
+    // ดึงข้อมูลผู้ปกครองจาก API + Supabase metadata
     await _populateParentNameFromSupabase();
 
     // 2. Deep Links (เฉพาะ Mobile/Desktop ที่รองรับ)
@@ -143,25 +134,19 @@ class _SWKAppState extends State<SWKApp> {
 
     // เช็คว่าเป็น OAuth callback หรือไม่
     if (uri.scheme == 'skillwalletkool' && uri.host == 'auth-callback') {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-
-      authProvider.handleOAuthCallback(uri).then((success) {
-        if (success && mounted) {
-          print('✅ OAuth login successful');
-          // หลัง login สำเร็จ: ตั้งชื่อผู้ปกครองจาก Supabase
+      Supabase.instance.client.auth.getSessionFromUrl(uri).then((_) {
+        if (mounted) {
+          // หลัง login สำเร็จ: ดึงข้อมูลผู้ปกครอง
           _populateParentNameFromSupabase();
-          // Navigate จะถูกจัดการโดย AuthWrapper
-        } else {
-          print('❌ OAuth login failed');
-          // แสดง error message
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่อีกครั้ง'),
-                backgroundColor: Colors.red,
-              ),
-            );
-          }
+        }
+      }).catchError((e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่อีกครั้ง'),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       });
     }
@@ -249,22 +234,7 @@ class _AuthWrapperState extends State<AuthWrapper> {
       debugPrint('✅ Found Supabase session');
     }
 
-    // 2. ถ้าไม่มี Supabase session ให้ตรวจสอบ token ใน storage
-    if (!authenticated) {
-      try {
-        final storageService = StorageService();
-        final token = await storageService.getToken();
-        if (token != null && mounted) {
-          // มี token ใน storage ให้ลอง validate
-          final authProvider = context.read<AuthProvider>();
-          await authProvider.initialize();
-          authenticated = authProvider.isAuthenticated;
-          debugPrint('✅ Token validation result: $authenticated');
-        }
-      } catch (e) {
-        debugPrint('⚠️ Token validation error: $e');
-      }
-    }
+    // Supabase session คือ source of truth เดียว — ไม่ต้องเช็ค storage token แยก
 
     // 3. ถ้า authenticated ให้ดึงข้อมูล children และเช็คว่ามีหรือไม่
     bool hasChildren = true;

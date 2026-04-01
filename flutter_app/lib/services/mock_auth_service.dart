@@ -1,6 +1,7 @@
 // lib/services/mock_auth_service.dart
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'api_service.dart';
 
 /// Mock Authentication Service สำหรับ Development
 /// ใช้เมื่อไม่สามารถ login ได้ (เช่น ไม่มี Google OAuth credentials)
@@ -34,20 +35,16 @@ class MockAuthService {
       print('📧 Mock Email: $mockEmail');
       print('👤 Mock User ID: $mockUserId');
 
-      // สร้างหรืออัพเดท parent record ใน Supabase
-      // หมายเหตุ: ต้องมี user_id นี้ใน Supabase ก่อน
-      // หรือใช้วิธี insert mock data
+      // สร้างหรืออัพเดท parent record ผ่าน backend API
       try {
-        await supabase.from('parent').upsert({
-          'user_id': mockUserId,
+        await ApiService().post('/parents/sync', {
           'email': mockEmail,
-          'name_surname': mockName,
+          'fullName': mockName,
         });
-        print('✅ Mock user data created in database');
+        print('✅ Mock user data created via API');
       } catch (e) {
-        print('⚠️ Could not create mock user in database: $e');
-        print(
-            'ℹ️ You may need to manually insert this user or skip database operations');
+        print('⚠️ Could not create mock user via API: $e');
+        print('ℹ️ Make sure the backend is running and reachable');
       }
     } catch (e) {
       print('❌ Error creating mock session: $e');

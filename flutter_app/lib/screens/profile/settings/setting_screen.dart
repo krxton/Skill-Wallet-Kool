@@ -8,7 +8,6 @@ import 'package:skill_wallet_kool/routes/app_routes.dart';
 
 // Import Provider
 import '../../../providers/user_provider.dart';
-import '../../../providers/auth_provider.dart';
 import '../../../services/api_service.dart';
 
 // Import หน้าย่อยต่างๆ
@@ -249,10 +248,7 @@ class _SettingScreenState extends State<SettingScreen> {
     } catch (_) {}
 
     if (!mounted) return;
-    final authProvider = context.read<AuthProvider>();
-    final userProvider = context.read<UserProvider>();
-    await authProvider.signOut();
-    userProvider.clearUserData();
+    context.read<UserProvider>().clearUserData();
 
     if (mounted) {
       Navigator.of(context).pushNamedAndRemoveUntil(
@@ -311,7 +307,6 @@ class _SettingScreenState extends State<SettingScreen> {
 
       // 3. Clear local state
       if (!mounted) return;
-      context.read<AuthProvider>().signOut();
       context.read<UserProvider>().clearUserData();
 
       // 4. Navigate to welcome
