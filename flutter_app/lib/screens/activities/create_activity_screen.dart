@@ -75,6 +75,45 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
 
   bool get _isPhysical => _selectedCategory == 'ด้านร่างกาย';
 
+  bool get _isDirty =>
+      _selectedCategory != null &&
+      (_nameCtrl.text.isNotEmpty ||
+          _descCtrl.text.isNotEmpty ||
+          _contentCtrl.text.isNotEmpty ||
+          _videoUrlCtrl.text.isNotEmpty ||
+          _questions.isNotEmpty);
+
+  Future<bool> _confirmDiscard() async {
+    if (!_isDirty) return true;
+    final l = AppLocalizations.of(context)!;
+    return await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20)),
+            title: Text(l.common_discardChanges,
+                style: AppTextStyles.heading(18)),
+            content: Text(l.common_discardMsg,
+                style: AppTextStyles.body(15)),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(l.common_keepEditing,
+                    style: AppTextStyles.label(14, color: Palette.sky)),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Palette.errorStrong),
+                child: Text(l.common_discard,
+                    style: AppTextStyles.label(14, color: Colors.white)),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+  }
+
   Future<void> _submit() async {
     final l = AppLocalizations.of(context)!;
 
@@ -159,19 +198,30 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
 
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: Palette.sky,
-        title: Text(l.createActivity_title,
-            style: AppTextStyles.heading(20, color: Colors.white)),
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        final nav = Navigator.of(context);
+        if (await _confirmDiscard() && mounted) nav.pop();
+      },
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Palette.sky,
+          title: Text(l.createActivity_title,
+              style: AppTextStyles.heading(20, color: Colors.white)),
+          centerTitle: true,
+          leading: IconButton(
+            icon: const Icon(Icons.close, color: Colors.white),
+            onPressed: () async {
+              final nav = Navigator.of(context);
+              if (await _confirmDiscard() && mounted) nav.pop();
+            },
+          ),
         ),
+        body: _selectedCategory == null ? _buildCategoryPicker(l) : _buildForm(l),
       ),
-      body: _selectedCategory == null ? _buildCategoryPicker(l) : _buildForm(l),
     );
   }
 

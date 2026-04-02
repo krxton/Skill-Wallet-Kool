@@ -10,6 +10,30 @@ const corsHeaders = {
     'Access-Control-Max-Age': '86400',
 };
 
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 🔒 Server-side semaphore for local Whisper (GPU = 1 slot)
+// Groq mode is unaffected — cloud handles its own concurrency.
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+let _localBusy = false;
+const _localWaiters: Array<() => void> = [];
+
+function acquireLocalSlot(): Promise<void> {
+    if (!_localBusy) {
+        _localBusy = true;
+        return Promise.resolve();
+    }
+    return new Promise((resolve) => _localWaiters.push(resolve));
+}
+
+function releaseLocalSlot(): void {
+    const next = _localWaiters.shift();
+    if (next) {
+        next(); // hand slot to next waiter (stays busy)
+    } else {
+        _localBusy = false;
+    }
+}
+
 // 🔧 Helper: ทำความสะอาดข้อความสำหรับเปรียบเทียบ
 function cleanText(text: string): string {
     return text.toLowerCase().replace(/[^\w\s]/g, '').trim();
@@ -262,21 +286,27 @@ export async function POST(request: NextRequest) {
             localForm.append("file", file, file.name || "audio.m4a");
             localForm.append("text", originalText);
 
-            const localResponse = await fetch(`${whisperUrl}/evaluate`, {
-                method: "POST",
-                body: localForm,
-            });
+            await acquireLocalSlot();
+            let localResult: any;
+            try {
+                const localResponse = await fetch(`${whisperUrl}/evaluate`, {
+                    method: "POST",
+                    body: localForm,
+                });
 
-            if (!localResponse.ok) {
-                const errBody = await localResponse.text();
-                console.error("Local Whisper Error:", localResponse.status, errBody);
-                return NextResponse.json(
-                    { error: `Local Whisper error (${localResponse.status}): ${errBody.substring(0, 200)}` },
-                    { status: 500, headers: errorCorsHeaders }
-                );
+                if (!localResponse.ok) {
+                    const errBody = await localResponse.text();
+                    console.error("Local Whisper Error:", localResponse.status, errBody);
+                    return NextResponse.json(
+                        { error: `Local Whisper error (${localResponse.status}): ${errBody.substring(0, 200)}` },
+                        { status: 500, headers: errorCorsHeaders }
+                    );
+                }
+
+                localResult = await localResponse.json();
+            } finally {
+                releaseLocalSlot();
             }
-
-            const localResult = await localResponse.json();
 
             if (localResult.error) {
                 return NextResponse.json(

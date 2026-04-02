@@ -25,6 +25,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
   late String _difficulty;
   late final bool _isPhysical;
   bool _isSubmitting = false;
+  bool _isDirty = false;
 
   @override
   void initState() {
@@ -37,6 +38,13 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
     _maxScoreCtrl = TextEditingController(text: a.maxScore.toString());
     _videoUrlCtrl = TextEditingController(text: a.videoUrl ?? '');
     _difficulty = a.difficulty;
+    for (final c in [_nameCtrl, _descCtrl, _contentCtrl, _maxScoreCtrl, _videoUrlCtrl]) {
+      c.addListener(_markDirty);
+    }
+  }
+
+  void _markDirty() {
+    if (!_isDirty) setState(() => _isDirty = true);
   }
 
   @override
@@ -81,11 +89,49 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
+  Future<bool> _confirmDiscard() async {
+    if (!_isDirty) return true;
+    final l = AppLocalizations.of(context)!;
+    return await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20)),
+            title: Text(l.common_discardChanges,
+                style: AppTextStyles.heading(18)),
+            content: Text(l.common_discardMsg,
+                style: AppTextStyles.body(15)),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(l.common_keepEditing,
+                    style: AppTextStyles.label(14, color: Palette.sky)),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Palette.errorStrong),
+                child: Text(l.common_discard,
+                    style: AppTextStyles.label(14, color: Colors.white)),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
 
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        final nav = Navigator.of(context);
+        if (await _confirmDiscard() && mounted) nav.pop();
+      },
+      child: Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Palette.sky,
@@ -94,7 +140,10 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () async {
+            final nav = Navigator.of(context);
+            if (await _confirmDiscard() && mounted) nav.pop();
+          },
         ),
       ),
       body: Column(
@@ -185,6 +234,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
           ),
         ],
       ),
+      ), // PopScope
     );
   }
 

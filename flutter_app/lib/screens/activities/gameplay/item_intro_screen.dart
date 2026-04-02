@@ -12,12 +12,14 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../../providers/user_provider.dart';
 import '../../../services/activity_service.dart';
+import '../../../services/audio_evaluation_queue.dart';
 import '../../../models/activity.dart';
 import '../../../routes/app_routes.dart';
 import '../../../theme/palette.dart';
 import '../../../theme/app_text_styles.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import '../../../utils/activity_l10n.dart';
+import 'activity_summary_screen.dart';
 
 /// Helper แยกเฉพาะไว้แปลง URL -> YouTube ID
 /// (ตั้งชื่อว่า YoutubeUrlHelper เพื่อไม่ให้ชนกับ widget YoutubePlayer ของ package)
@@ -73,11 +75,17 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
   String _recordedFilePath = '';
   BytesBuilder? _webBytesBuilder;
   StreamSubscription<List<int>>? _webAudioSub;
-  Uint8List? _webAudioBytes;
 
   // ⏱️ Stopwatch สำหรับจับเวลาทำกิจกรรม
   final Stopwatch _activityStopwatch = Stopwatch();
   final List<String> _tempAudioFiles = []; // เก็บรายการไฟล์เสียงที่ต้องลบ
+
+  // 🔄 Background evaluation queue (sequential, non-blocking)
+  final AudioEvaluationQueue _evaluationQueue = AudioEvaluationQueue();
+
+  // 📊 Shared notifiers — read by ActivitySummaryScreen via ValueListenable
+  late final ValueNotifier<List<SegmentResult>> _resultsNotifier;
+  final ValueNotifier<bool> _isSubmitting = ValueNotifier(false);
 
   String _youtubeVideoId = ''; // ID จาก URL
 
@@ -118,6 +126,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
         maxScore: 0,
       );
     }).toList();
+    _resultsNotifier = ValueNotifier(List.from(_segmentResults));
 
     // 3. กำหนด YouTube Video ID
     if (widget.activity.videoUrl != null) {
@@ -180,11 +189,13 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
 
   @override
   void dispose() {
-    _ytController?.close(); // ปิด YouTube controller
-    _playbackPlayer.dispose(); // ปิด audio player
-    _audioRecorder.dispose(); // ปิด audio recorder
+    _ytController?.close();
+    _playbackPlayer.dispose();
+    _audioRecorder.dispose();
     _recordingTimer?.cancel();
     _webAudioSub?.cancel();
+    _resultsNotifier.dispose();
+    _isSubmitting.dispose();
     super.dispose();
   }
 
@@ -200,7 +211,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
   }
 
   int get completedSegmentsCount =>
-      _segmentResults.where((r) => r.maxScore > 0).length;
+      _segmentResults.where((r) => r.status == SegmentStatus.done).length;
 
   String _getCurrentSegmentText() {
     if (_rawSegments.isEmpty || current > totalSegments) {
@@ -384,146 +395,114 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
     _recordingTimer?.cancel();
     await _audioRecorder.stop();
 
-    setState(() {
-      _isRecording = false;
-      state = 'processing';
-    });
+    setState(() => _isRecording = false);
 
     // ตรวจสอบระยะเวลาที่อัด
     if (_recordingDuration.inSeconds < 1) {
-      debugPrint('⚠️ Recording too short: ${_recordingDuration.inSeconds}s');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content:
-                  Text(AppLocalizations.of(context)!.itemintro_recordTooShort)),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content:
+                Text(AppLocalizations.of(context)!.itemintro_recordTooShort)));
         setState(() => state = 'idle');
       }
       return;
     }
 
-    // แสดง loading dialog
-    if (mounted) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => AlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(AppLocalizations.of(context)!.common_processing),
-              const SizedBox(height: 10),
-              const Center(child: CircularProgressIndicator()),
-              const SizedBox(height: 10),
-              Text(
-                'ระยะเวลา: ${_recordingDuration.inSeconds} วินาที',
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-            ],
-          ),
-        ),
-      );
+    // ── ดึง audio data ก่อน enqueue ──────────────────────────────────────
+    Uint8List? webBytes;
+    String mobilePath = '';
+
+    if (kIsWeb) {
+      await _webAudioSub?.cancel();
+      _webAudioSub = null;
+      final pcm = _webBytesBuilder?.toBytes();
+      _webBytesBuilder = null;
+      if (pcm == null || pcm.isEmpty || pcm.length < 8000) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('ข้อมูลเสียงสั้นเกินไป — ลองอีกครั้ง')));
+          setState(() => state = 'idle');
+        }
+        return;
+      }
+      webBytes = _pcm16ToWav(pcm, sampleRate: 44100, channels: 1);
+    } else {
+      mobilePath = _recordedFilePath;
+      final f = File(mobilePath);
+      if (!await f.exists() || await f.length() < 1000) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('ไม่พบไฟล์เสียง — ลองอีกครั้ง')));
+          setState(() => state = 'idle');
+        }
+        return;
+      }
     }
 
-    try {
-      Map<String, dynamic> result;
+    // ── อัปเดต segment เป็น "processing" ทันที ──────────────────────────
+    final segIdx = current - 1;
+    final segText = _getCurrentSegmentText();
+    final segId = _currentSegmentResult.id;
 
+    setState(() {
+      _segmentResults[segIdx] = _segmentResults[segIdx].copyWith(
+        status: SegmentStatus.processing,
+        audioUrl: kIsWeb ? '' : mobilePath,
+      );
+      _resultsNotifier.value = List.from(_segmentResults);
+      state = 'processing'; // แสดง inline indicator บน segment ปัจจุบัน
+    });
+
+    // ── เพิ่มงานเข้า queue — ไม่ await → ผู้ใช้ทำข้อถัดไปได้เลย ─────────
+    _evaluationQueue.enqueue(() async {
       if (kIsWeb) {
-        // Web: ประมวลผล bytes
-        await _webAudioSub?.cancel();
-        _webAudioSub = null;
-        final pcm = _webBytesBuilder?.toBytes();
-        if (pcm == null || pcm.isEmpty) {
-          throw Exception('ไม่มีข้อมูลเสียงที่บันทึก');
-        }
-        if (pcm.length < 8000) {
-          // น้อยกว่า ~0.5 วินาทีที่ 16kHz
-          throw Exception('ข้อมูลเสียงสั้นเกินไป');
-        }
-        _webAudioBytes = _pcm16ToWav(pcm, sampleRate: 44100, channels: 1);
-        debugPrint('📦 Web audio size: ${_webAudioBytes!.length} bytes');
-        result = await _activityService.evaluateAudioBytes(
-          audioBytes: _webAudioBytes!,
-          originalText: _getCurrentSegmentText(),
+        return _activityService.evaluateAudioBytes(
+          audioBytes: webBytes!,
+          originalText: segText,
           filename: 'recording.wav',
         );
-        _webBytesBuilder = null;
       } else {
-        // Mobile/Desktop: ส่งไฟล์
-        final audioFile = File(_recordedFilePath);
-        if (!await audioFile.exists()) {
-          throw Exception('ไม่พบไฟล์เสียงที่บันทึก');
-        }
-        final fileSize = await audioFile.length();
-        if (fileSize < 1000) {
-          throw Exception('ไฟล์เสียงมีขนาดเล็กเกินไป ($fileSize bytes)');
-        }
-        debugPrint('📦 Audio file size: $fileSize bytes');
-        result = await _activityService.evaluateAudio(
-          audioFile: audioFile,
-          originalText: _getCurrentSegmentText(),
+        return _activityService.evaluateAudio(
+          audioFile: File(mobilePath),
+          originalText: segText,
         );
       }
-
-      if (mounted) Navigator.pop(context); // ปิด loading dialog
-
-      final int score = result['score'] as int? ?? 0;
-      final String recognizedText = result['text'] as String? ?? 'N/A';
-
-      if (mounted) {
-        setState(() {
-          _segmentResults[current - 1] = SegmentResult(
-            id: _currentSegmentResult.id,
-            text: _currentSegmentResult.text,
-            maxScore: score,
-            recognizedText: recognizedText,
-            audioUrl: kIsWeb ? '' : _recordedFilePath,
-          );
-
+    }).then((result) {
+      if (!mounted) return;
+      final score = result['score'] as int? ?? 0;
+      final recognized = result['text'] as String? ?? '';
+      setState(() {
+        _segmentResults[segIdx] = SegmentResult(
+          id: segId,
+          text: segText,
+          maxScore: score,
+          status: SegmentStatus.done,
+          recognizedText: recognized,
+          audioUrl: kIsWeb ? '' : mobilePath,
+        );
+        _resultsNotifier.value = List.from(_segmentResults);
+        // อัปเดต UI ของ segment ปัจจุบันถ้ายังอยู่หน้าเดิม
+        if (current - 1 == segIdx) {
           state = 'reviewed';
           point = score;
-        });
-
-        // แสดง feedback
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!
-                .itemintro_evalResult(score, recognizedText)),
-            backgroundColor: score >= 70 ? Colors.green : Colors.orange,
-            duration: const Duration(seconds: 3),
-          ),
-        );
-      }
-
-      debugPrint(
-          '✅ Recording processed: $score% (recognized: "$recognizedText")');
-    } catch (e) {
-      if (mounted) Navigator.pop(context); // ปิด loading dialog
-      debugPrint('❌ Recording processing error: $e');
-      if (mounted) {
-        String errorMessage = 'เกิดข้อผิดพลาด';
-        if (e.toString().contains('ไม่มีข้อมูลเสียง') ||
-            e.toString().contains('สั้นเกินไป') ||
-            e.toString().contains('ไม่พบไฟล์')) {
-          errorMessage = e.toString().replaceAll('Exception: ', '');
-        } else if (e.toString().contains('Failed host lookup') ||
-            e.toString().contains('SocketException')) {
-          errorMessage = 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้';
-        } else {
-          errorMessage = 'เกิดข้อผิดพลาด: ${e.toString().substring(0, 50)}';
         }
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(errorMessage),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 4),
-          ),
+      });
+      debugPrint('✅ Segment ${segIdx + 1}: $score% ("$recognized")');
+    }).catchError((e) {
+      if (!mounted) return;
+      setState(() {
+        _segmentResults[segIdx] = _segmentResults[segIdx].copyWith(
+          status: SegmentStatus.error,
         );
-        setState(() => state = 'idle');
-      }
-    }
+        _resultsNotifier.value = List.from(_segmentResults);
+        if (current - 1 == segIdx) state = 'idle';
+      });
+      String msg = e.toString().contains('SocketException')
+          ? 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์'
+          : 'วิเคราะห์ไม่สำเร็จ — ลองอีกครั้ง';
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(msg), backgroundColor: Palette.errorStrong));
+    });
   }
 
   // Helper: Convert PCM16 to WAV format (for Web)
@@ -589,11 +568,10 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
 
   Future<void> _handleFinishQuest() async {
     if (_childId == null) return;
+    _isSubmitting.value = true;
 
-    // หยุดจับเวลา
     _activityStopwatch.stop();
     final timeSpentSeconds = _activityStopwatch.elapsed.inSeconds;
-    debugPrint('⏱️ Activity completed in $timeSpentSeconds seconds');
 
     try {
       final result = await _activityService.finalizeQuest(
@@ -601,13 +579,14 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
         activityId: widget.activity.id,
         segmentResults: _segmentResults,
         activityMaxScore: widget.activity.maxScore,
-        timeSpent: timeSpentSeconds, // ส่งเวลาที่ใช้
+        timeSpent: timeSpentSeconds,
       );
 
-      // ลบไฟล์เสียงชั่วคราว (privacy-first: เก็บเฉพาะ scores + text)
       await _cleanupAudioFiles();
 
       if (!mounted) return;
+      // Pop summary screen if it's on the stack, then go to result
+      Navigator.popUntil(context, (r) => r.isFirst || r.settings.name != null);
       Navigator.pushReplacementNamed(
         context,
         AppRoutes.result,
@@ -620,12 +599,49 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
         },
       );
     } catch (e) {
+      _isSubmitting.value = false;
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(AppLocalizations.of(context)!
-                .itemintro_questError(e.toString()))),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+              AppLocalizations.of(context)!.itemintro_questError(e.toString()))));
+    }
+  }
+
+  /// Opens the summary screen.  Pop result:
+  ///   {'reRecord': N}   → jump to segment N (0-indexed) and re-record
+  ///   {'playSection': N} → jump to segment N (0-indexed) and play section
+  Future<void> _openSummary() async {
+    final pop = await Navigator.push<Map<String, int>?>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ActivitySummaryScreen(
+          resultsNotifier: _resultsNotifier,
+          activity: widget.activity,
+          isSubmitting: _isSubmitting,
+          onComplete: _handleFinishQuest,
+        ),
+      ),
+    );
+
+    if (!mounted || pop == null) return;
+
+    final segIdx = pop['reRecord'] ?? pop['playSection'];
+    if (segIdx == null) return;
+
+    setState(() {
+      current = segIdx + 1;
+      final r = _segmentResults[segIdx];
+      state = switch (r.status) {
+        SegmentStatus.done => 'reviewed',
+        SegmentStatus.processing => 'processing',
+        _ => 'idle',
+      };
+      point = r.maxScore;
+    });
+
+    // If asked to play the section, trigger it after the frame
+    if (pop.containsKey('playSection')) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _playSection());
     }
   }
 
@@ -785,7 +801,13 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                       onTap: current > 1
                           ? () => setState(() {
                                 current--;
-                                state = 'idle';
+                                final r = _segmentResults[current - 1];
+                                state = switch (r.status) {
+                                  SegmentStatus.done => 'reviewed',
+                                  SegmentStatus.processing => 'processing',
+                                  _ => 'idle',
+                                };
+                                point = r.maxScore;
                               })
                           : null,
                     ),
@@ -821,7 +843,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                   Expanded(
                     child: _bottomBtn(
                       label: current == totalSegments
-                          ? AppLocalizations.of(context)!.itemintro_finish
+                          ? AppLocalizations.of(context)!.summary_title
                           : AppLocalizations.of(context)!.itemintro_next,
                       bg: nextBlue,
                       fg: Colors.white,
@@ -829,16 +851,16 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                         if (current < totalSegments) {
                           setState(() {
                             current++;
-                            final newSegmentResult =
-                                _segmentResults[current - 1];
-                            state = newSegmentResult.maxScore > 0
-                                ? 'reviewed'
-                                : 'idle';
+                            final r = _segmentResults[current - 1];
+                            state = switch (r.status) {
+                              SegmentStatus.done => 'reviewed',
+                              SegmentStatus.processing => 'processing',
+                              _ => 'idle',
+                            };
+                            point = r.maxScore;
                           });
-                          debugPrint(
-                              '➡️ Moved to segment $current/$totalSegments');
                         } else {
-                          _handleFinishQuest();
+                          _openSummary();
                         }
                       },
                     ),
@@ -971,7 +993,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
             ),
             child: isReviewed
                 ? FractionallySizedBox(
-                    widthFactor: score! / 100,
+                    widthFactor: score / 100,
                     alignment: Alignment.centerLeft,
                     child: Container(
                       decoration: BoxDecoration(
@@ -988,15 +1010,15 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
   }
 
   Widget _statusCard(SegmentResult result) {
-    final String recognizedTextDisplay = result.recognizedText?.trim() ?? "N/A";
+    final String recognizedTextDisplay = result.recognizedText?.trim() ?? 'N/A';
 
     final statusText = switch (state) {
-      'processing' => 'STATUS: AI PROCESSING…',
+      'processing' => null, // handled by inline spinner widget below
       'reviewed' =>
         'STATUS AI: "$recognizedTextDisplay" ✅ CORRECTNESS : ${result.maxScore}%',
       'finished' => 'STATUS: ALL SEGMENTS COMPLETED ✅',
       _ =>
-        'STATUS: Ready to record Segment $current ${!_isPlayerReady ? '(Player Loading)' : ''}',
+        'STATUS: Ready to record Segment $current${!_isPlayerReady ? ' (Player Loading)' : ''}',
     };
 
     final bool isRecordingAvailable =
@@ -1011,10 +1033,21 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            statusText,
-            style: AppTextStyles.heading(12, color: Palette.deepGrey),
-          ),
+          if (state == 'processing')
+            Row(children: [
+              const SizedBox(
+                width: 13, height: 13,
+                child: CircularProgressIndicator(strokeWidth: 2, color: Palette.sky),
+              ),
+              const SizedBox(width: 8),
+              Text(AppLocalizations.of(context)!.summary_analyzing,
+                  style: AppTextStyles.body(12, color: Palette.sky)),
+            ])
+          else
+            Text(
+              statusText ?? '',
+              style: AppTextStyles.heading(12, color: Palette.deepGrey),
+            ),
           const SizedBox(height: 10),
           Container(
             height: 40,

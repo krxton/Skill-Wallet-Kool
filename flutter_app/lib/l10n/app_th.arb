@@ -10,6 +10,11 @@
   "home_cannotBtn": "ไม่สามารถโหลดกิจกรรมยอดนิยมได้",
   "home_nonewBtn": "ไม่มีกิจกรรมใหม่เกิดขึ้น",
   "home_noChildrenMsg": "ยังไม่ได้เพิ่มลูก\nกรุณาเพิ่มลูกเพื่อเริ่มดูกิจกรรม",
+  "home_switchChild": "เปลี่ยนลูก",
+  "common_discardChanges": "ยกเลิกการเปลี่ยนแปลง?",
+  "common_discardMsg": "การเปลี่ยนแปลงที่ยังไม่ได้บันทึกจะหายไป",
+  "common_discard": "ยกเลิก",
+  "common_keepEditing": "แก้ไขต่อ",
   "home_popularactivityBtn": "กิจกรรมยอดนิยม",
   "home_newactivityBtn": "กิจกรรมใหม่",
   "home_viewallBtn": "ดูทั้งหมด",
@@ -727,5 +732,23 @@
     "placeholders": {
       "number": { "type": "int" }
     }
-  }
+  },
+
+  "summary_title": "ตรวจสอบการบันทึกเสียง",
+  "summary_completeActivity": "เสร็จสิ้นกิจกรรม",
+  "summary_segmentLabel": "ประโยคที่ {n}",
+  "@summary_segmentLabel": {
+    "placeholders": { "n": { "type": "int" } }
+  },
+  "summary_pendingAnalysis": "กำลังวิเคราะห์อีก {n} ประโยค…",
+  "@summary_pendingAnalysis": {
+    "placeholders": { "n": { "type": "int" } }
+  },
+  "summary_reRecord": "อัดเสียงใหม่",
+  "summary_notRecorded": "ยังไม่ได้บันทึกเสียง",
+  "summary_notRecordedShort": "—",
+  "summary_analyzing": "กำลังวิเคราะห์…",
+  "summary_analysisFailed": "วิเคราะห์ไม่สำเร็จ — กดอัดเสียงใหม่เพื่อลองอีกครั้ง",
+  "summary_youSaid": "คุณพูดว่า",
+  "summary_error": "ข้อผิดพลาด"
 }

@@ -12,6 +12,7 @@ class ScrollableActivityList extends StatelessWidget {
     required this.onDragStart,
     required this.onDragUpdate,
     required this.itemBuilder,
+    this.emptyAction,
   });
 
   final Future<List<Activity>> future;
@@ -20,6 +21,8 @@ class ScrollableActivityList extends StatelessWidget {
   final void Function(double dx) onDragStart;
   final void Function(double dx) onDragUpdate;
   final ActivityItemBuilder itemBuilder;
+  /// Optional CTA widget shown below the empty message (e.g. a "View All" button).
+  final Widget? emptyAction;
 
   static const sky = Color(0xFF0D92F4);
   static const deepSky = Color(0xFF7DBEF1);
@@ -46,9 +49,18 @@ class ScrollableActivityList extends StatelessWidget {
               border: Border.all(color: deepSky, width: 2),
             ),
             alignment: Alignment.center,
-            child: Text(
-              emptyMessage,
-              style: const TextStyle(color: Colors.grey),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  emptyMessage,
+                  style: const TextStyle(color: Colors.grey),
+                ),
+                if (emptyAction != null) ...[
+                  const SizedBox(height: 10),
+                  emptyAction!,
+                ],
+              ],
             ),
           );
         }

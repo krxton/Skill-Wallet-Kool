@@ -10,27 +10,47 @@ import 'package:http_parser/http_parser.dart';
 import '../models/activity.dart';
 import 'api_service.dart';
 
+/// Processing status for each recorded segment.
+enum SegmentStatus { idle, processing, done, error }
+
 class SegmentResult {
   final String id;
   final String text;
-  int maxScore; // Accuracy Score (0-100)
-  String? recognizedText;
-  String? audioUrl; // URL หรือ Path ของไฟล์เสียงที่บันทึก
-  SegmentResult({
+  final int maxScore; // Accuracy Score (0-100) — set after evaluation
+  final SegmentStatus status;
+  final String? recognizedText;
+  final String? audioUrl; // local path only, never sent to backend
+
+  const SegmentResult({
     required this.id,
     required this.text,
     this.maxScore = 0,
+    this.status = SegmentStatus.idle,
     this.recognizedText,
     this.audioUrl,
   });
-  // แปลงเป็น JSON สำหรับส่งไป Backend
-  // 🔒 Privacy-first: ไม่ส่ง audioUrl (เก็บเฉพาะในเครื่อง)
+
+  SegmentResult copyWith({
+    int? maxScore,
+    SegmentStatus? status,
+    String? recognizedText,
+    String? audioUrl,
+  }) =>
+      SegmentResult(
+        id: id,
+        text: text,
+        maxScore: maxScore ?? this.maxScore,
+        status: status ?? this.status,
+        recognizedText: recognizedText ?? this.recognizedText,
+        audioUrl: audioUrl ?? this.audioUrl,
+      );
+
+  // 🔒 Privacy-first: audioUrl ไม่ถูกส่งไป Backend
   Map<String, dynamic> toJson() => {
         'id': id,
         'text': text,
         'maxScore': maxScore,
         'recognizedText': recognizedText,
-        // audioUrl จะไม่ถูกส่งไปเซิร์ฟเวอร์ (เก็บเฉพาะ local)
       };
 }
 

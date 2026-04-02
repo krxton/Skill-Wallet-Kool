@@ -10,6 +10,11 @@
   "home_cannotBtn": "Cannot load popular activities",
   "home_nonewBtn": "No new activities available",
   "home_noChildrenMsg": "No children added yet.\nPlease add a child to start viewing activities.",
+  "home_switchChild": "Switch Child",
+  "common_discardChanges": "Discard changes?",
+  "common_discardMsg": "Your unsaved changes will be lost.",
+  "common_discard": "Discard",
+  "common_keepEditing": "Keep Editing",
   "home_popularactivityBtn": "POPULAR ACTIVITIES",
   "home_newactivityBtn": "NEW ACTIVITIES",
   "home_viewallBtn": "View All",
@@ -730,5 +735,23 @@
     "placeholders": {
       "number": { "type": "int" }
     }
-  }
+  },
+
+  "summary_title": "Review Your Recording",
+  "summary_completeActivity": "Complete Activity",
+  "summary_segmentLabel": "Segment {n}",
+  "@summary_segmentLabel": {
+    "placeholders": { "n": { "type": "int" } }
+  },
+  "summary_pendingAnalysis": "{n} segment(s) still analyzing…",
+  "@summary_pendingAnalysis": {
+    "placeholders": { "n": { "type": "int" } }
+  },
+  "summary_reRecord": "Re-record",
+  "summary_notRecorded": "Not recorded yet",
+  "summary_notRecordedShort": "—",
+  "summary_analyzing": "Analyzing…",
+  "summary_analysisFailed": "Analysis failed — tap Re-record to retry",
+  "summary_youSaid": "You said",
+  "summary_error": "Error"
 }

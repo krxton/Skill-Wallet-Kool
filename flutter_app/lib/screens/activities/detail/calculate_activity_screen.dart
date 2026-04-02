@@ -165,7 +165,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                 _phase = _Phase.ready;
                 _answerStatus.clear();
                 for (int i = 0; i < _segmentResults.length; i++) {
-                  _segmentResults[i].maxScore = 0;
+                  _segmentResults[i] = _segmentResults[i].copyWith(maxScore: 0);
                 }
               });
             },
@@ -696,8 +696,8 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                         onTap: () {
                           setState(() {
                             _answerStatus[index] = true;
-                            _segmentResults[index].maxScore =
-                                _originalScores[index] ?? 100;
+                            _segmentResults[index] = _segmentResults[index]
+                                .copyWith(maxScore: _originalScores[index] ?? 100);
                           });
                         },
                         child: AnimatedContainer(
@@ -749,7 +749,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                         onTap: () {
                           setState(() {
                             _answerStatus[index] = false;
-                            _segmentResults[index].maxScore = 0;
+                            _segmentResults[index] = _segmentResults[index].copyWith(maxScore: 0);
                           });
                         },
                         child: AnimatedContainer(

@@ -73,7 +73,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onChildrenLoaded() {
-    if (_currentChildId == null && _userProvider?.currentChildId != null) {
+    final newChildId = _userProvider?.currentChildId;
+    // Reload whenever the active child changes (initial load OR manual switch)
+    if (newChildId != null && newChildId != _currentChildId) {
       _loadData();
     }
   }
@@ -244,6 +246,73 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: AppTextStyles.label(14, color: Colors.white)),
           ),
         ],
+      ),
+    );
+  }
+
+  // 🔀 Child switcher bottom sheet
+  void _showChildSwitcher() {
+    final userProvider = context.read<UserProvider>();
+    final children = userProvider.children;
+    if (children.length <= 1) return; // no need if only one child
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40, height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.black12,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              AppLocalizations.of(context)!.home_switchChild,
+              style: AppTextStyles.heading(18, color: Palette.deepGrey),
+            ),
+            const SizedBox(height: 10),
+            ...children.map((c) {
+              final child = c['child'] as Map<String, dynamic>?;
+              if (child == null) return const SizedBox.shrink();
+              final id = child['child_id'] as String?;
+              final name = child['name_surname'] as String? ?? '—';
+              final isSelected = id == userProvider.currentChildId;
+              return ListTile(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                leading: CircleAvatar(
+                  backgroundColor: Palette.sky.withValues(alpha: 0.15),
+                  child: Text(
+                    name.isNotEmpty ? name[0].toUpperCase() : '?',
+                    style: AppTextStyles.heading(16, color: Palette.sky),
+                  ),
+                ),
+                title: Text(name, style: AppTextStyles.body(16)),
+                trailing: isSelected
+                    ? const Icon(Icons.check_circle, color: Palette.sky)
+                    : null,
+                onTap: () {
+                  if (id != null && !isSelected) {
+                    context.read<UserProvider>().selectChild(id);
+                  }
+                  Navigator.pop(ctx);
+                },
+              );
+            }),
+          ],
+        ),
       ),
     );
   }
@@ -798,15 +867,23 @@ class _HomeScreenState extends State<HomeScreen> {
         if (childName != null && childName.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(top: 2),
-            child: Row(
-              children: [
-                Icon(Icons.child_care, size: 20, color: Palette.sky),
-                const SizedBox(width: 6),
-                Text(
-                  childName,
-                  style: AppTextStyles.label(16, color: Palette.sky),
-                ),
-              ],
+            child: GestureDetector(
+              onTap: userProvider.children.length > 1 ? _showChildSwitcher : null,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.child_care, size: 20, color: Palette.sky),
+                  const SizedBox(width: 6),
+                  Text(
+                    childName,
+                    style: AppTextStyles.label(16, color: Palette.sky),
+                  ),
+                  if (userProvider.children.length > 1) ...[
+                    const SizedBox(width: 4),
+                    Icon(Icons.arrow_drop_down, size: 20, color: Palette.sky),
+                  ],
+                ],
+              ),
             ),
           ),
         const SizedBox(height: 20),
@@ -978,6 +1055,16 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           },
           itemBuilder: (a) => ActivityCard(activity: a),
+          emptyAction: TextButton(
+            onPressed: () => Navigator.pushNamed(
+              context, AppRoutes.allActivities,
+              arguments: ActivityListType.popular,
+            ),
+            child: Text(
+              AppLocalizations.of(context)!.home_viewallBtn,
+              style: AppTextStyles.label(13, color: Palette.sky),
+            ),
+          ),
         ),
 
         const SizedBox(height: 30),
@@ -1017,6 +1104,16 @@ class _HomeScreenState extends State<HomeScreen> {
             );
           },
           itemBuilder: (a) => ActivityCard(activity: a),
+          emptyAction: TextButton(
+            onPressed: () => Navigator.pushNamed(
+              context, AppRoutes.allActivities,
+              arguments: ActivityListType.newActivity,
+            ),
+            child: Text(
+              AppLocalizations.of(context)!.home_viewallBtn,
+              style: AppTextStyles.label(13, color: Palette.sky),
+            ),
+          ),
         ),
 
         const SizedBox(height: 30),

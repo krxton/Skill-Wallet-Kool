@@ -181,13 +181,11 @@ class _ResultScreenState extends State<ResultScreen>
                 // ▶ ปุ่ม 1: เล่นกิจกรรมนี้อีกครั้ง (PLAY AGAIN)
                 SizedBox(
                   height: 55,
-                  child: ElevatedButton(
+                  child: ElevatedButton.icon(
                     onPressed: activityToReplay != null
                         ? () {
-                            // 🚀 นำทางไปหน้าที่เหมาะสมตาม category
                             final category =
                                 activityToReplay.category.toUpperCase();
-
                             if (category == 'ด้านภาษา' ||
                                 category == 'LANGUAGE') {
                               Navigator.pushReplacementNamed(
@@ -209,7 +207,6 @@ class _ResultScreenState extends State<ResultScreen>
                                 arguments: activityToReplay,
                               );
                             } else {
-                              // Fallback: กลับไป itemIntro
                               Navigator.pushReplacementNamed(
                                 context,
                                 AppRoutes.itemIntro,
@@ -217,41 +214,41 @@ class _ResultScreenState extends State<ResultScreen>
                               );
                             }
                           }
-                        : null, // ถ้าไม่มี activity object ให้ปุ่มถูก disable
+                        : null,
+                    icon: const Icon(Icons.replay, color: Colors.white, size: 22),
+                    label: Text(
+                      AppLocalizations.of(context)!.result_playAgainBtn,
+                      style: AppTextStyles.heading(18, color: Palette.white),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Palette.bluePill,
+                      disabledBackgroundColor:
+                          Palette.bluePill.withValues(alpha: 0.5),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15)),
-                    ),
-                    child: Text(
-                      AppLocalizations.of(context)!.result_playAgainBtn,
-                      style: AppTextStyles.heading(20, color: Palette.white),
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 10),
 
-                // 📘 ปุ่ม 2: กลับไปหน้า Activities (เดิม)
+                // 🏠 ปุ่ม 2: กลับหน้าหลัก (outlined)
                 SizedBox(
                   height: 55,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // กลับไปหน้า Activities list
-                      Navigator.pushNamedAndRemoveUntil(
-                        context,
-                        AppRoutes
-                            .home, // หรือ route ที่เป็นหน้า activities list
-                        (route) => false,
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Palette.deepGrey,
+                  child: OutlinedButton.icon(
+                    onPressed: () => Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      AppRoutes.home,
+                      (route) => false,
+                    ),
+                    icon: Icon(Icons.home_outlined, color: Palette.sky, size: 22),
+                    label: Text(
+                      AppLocalizations.of(context)!.result_backToActivitiesBtn,
+                      style: AppTextStyles.heading(18, color: Palette.sky),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: Palette.sky, width: 2),
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15)),
-                    ),
-                    child: Text(
-                      AppLocalizations.of(context)!.result_backToActivitiesBtn,
-                      style: AppTextStyles.heading(20, color: Palette.white),
                     ),
                   ),
                 ),

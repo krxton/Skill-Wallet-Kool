@@ -40,6 +40,21 @@ class AppLocalizationsEn extends AppLocalizations {
       'No children added yet.\nPlease add a child to start viewing activities.';
 
   @override
+  String get home_switchChild => 'Switch Child';
+
+  @override
+  String get common_discardChanges => 'Discard changes?';
+
+  @override
+  String get common_discardMsg => 'Your unsaved changes will be lost.';
+
+  @override
+  String get common_discard => 'Discard';
+
+  @override
+  String get common_keepEditing => 'Keep Editing';
+
+  @override
   String get home_popularactivityBtn => 'POPULAR ACTIVITIES';
 
   @override
@@ -1629,4 +1644,42 @@ class AppLocalizationsEn extends AppLocalizations {
   String playingresult_questionFallback(int number) {
     return 'Question $number';
   }
+
+  @override
+  String get summary_title => 'Review Your Recording';
+
+  @override
+  String get summary_completeActivity => 'Complete Activity';
+
+  @override
+  String summary_segmentLabel(int n) {
+    return 'Segment $n';
+  }
+
+  @override
+  String summary_pendingAnalysis(int n) {
+    return '$n segment(s) still analyzing…';
+  }
+
+  @override
+  String get summary_reRecord => 'Re-record';
+
+  @override
+  String get summary_notRecorded => 'Not recorded yet';
+
+  @override
+  String get summary_notRecordedShort => '—';
+
+  @override
+  String get summary_analyzing => 'Analyzing…';
+
+  @override
+  String get summary_analysisFailed =>
+      'Analysis failed — tap Re-record to retry';
+
+  @override
+  String get summary_youSaid => 'You said';
+
+  @override
+  String get summary_error => 'Error';
 }

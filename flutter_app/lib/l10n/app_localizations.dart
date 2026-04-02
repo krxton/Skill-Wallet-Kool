@@ -158,6 +158,36 @@ abstract class AppLocalizations {
   /// **'No children added yet.\nPlease add a child to start viewing activities.'**
   String get home_noChildrenMsg;
 
+  /// No description provided for @home_switchChild.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch Child'**
+  String get home_switchChild;
+
+  /// No description provided for @common_discardChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard changes?'**
+  String get common_discardChanges;
+
+  /// No description provided for @common_discardMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Your unsaved changes will be lost.'**
+  String get common_discardMsg;
+
+  /// No description provided for @common_discard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get common_discard;
+
+  /// No description provided for @common_keepEditing.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep Editing'**
+  String get common_keepEditing;
+
   /// No description provided for @home_popularactivityBtn.
   ///
   /// In en, this message translates to:
@@ -3145,6 +3175,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Question {number}'**
   String playingresult_questionFallback(int number);
+
+  /// No description provided for @summary_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Review Your Recording'**
+  String get summary_title;
+
+  /// No description provided for @summary_completeActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Activity'**
+  String get summary_completeActivity;
+
+  /// No description provided for @summary_segmentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Segment {n}'**
+  String summary_segmentLabel(int n);
+
+  /// No description provided for @summary_pendingAnalysis.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} segment(s) still analyzing…'**
+  String summary_pendingAnalysis(int n);
+
+  /// No description provided for @summary_reRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-record'**
+  String get summary_reRecord;
+
+  /// No description provided for @summary_notRecorded.
+  ///
+  /// In en, this message translates to:
+  /// **'Not recorded yet'**
+  String get summary_notRecorded;
+
+  /// No description provided for @summary_notRecordedShort.
+  ///
+  /// In en, this message translates to:
+  /// **'—'**
+  String get summary_notRecordedShort;
+
+  /// No description provided for @summary_analyzing.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyzing…'**
+  String get summary_analyzing;
+
+  /// No description provided for @summary_analysisFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis failed — tap Re-record to retry'**
+  String get summary_analysisFailed;
+
+  /// No description provided for @summary_youSaid.
+  ///
+  /// In en, this message translates to:
+  /// **'You said'**
+  String get summary_youSaid;
+
+  /// No description provided for @summary_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get summary_error;
 }
 
 class _AppLocalizationsDelegate

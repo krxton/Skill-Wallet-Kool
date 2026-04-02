@@ -40,6 +40,21 @@ class AppLocalizationsTh extends AppLocalizations {
       'ยังไม่ได้เพิ่มลูก\nกรุณาเพิ่มลูกเพื่อเริ่มดูกิจกรรม';
 
   @override
+  String get home_switchChild => 'เปลี่ยนลูก';
+
+  @override
+  String get common_discardChanges => 'ยกเลิกการเปลี่ยนแปลง?';
+
+  @override
+  String get common_discardMsg => 'การเปลี่ยนแปลงที่ยังไม่ได้บันทึกจะหายไป';
+
+  @override
+  String get common_discard => 'ยกเลิก';
+
+  @override
+  String get common_keepEditing => 'แก้ไขต่อ';
+
+  @override
   String get home_popularactivityBtn => 'กิจกรรมยอดนิยม';
 
   @override
@@ -1624,4 +1639,42 @@ class AppLocalizationsTh extends AppLocalizations {
   String playingresult_questionFallback(int number) {
     return 'คำถามข้อ $number';
   }
+
+  @override
+  String get summary_title => 'ตรวจสอบการบันทึกเสียง';
+
+  @override
+  String get summary_completeActivity => 'เสร็จสิ้นกิจกรรม';
+
+  @override
+  String summary_segmentLabel(int n) {
+    return 'ประโยคที่ $n';
+  }
+
+  @override
+  String summary_pendingAnalysis(int n) {
+    return 'กำลังวิเคราะห์อีก $n ประโยค…';
+  }
+
+  @override
+  String get summary_reRecord => 'อัดเสียงใหม่';
+
+  @override
+  String get summary_notRecorded => 'ยังไม่ได้บันทึกเสียง';
+
+  @override
+  String get summary_notRecordedShort => '—';
+
+  @override
+  String get summary_analyzing => 'กำลังวิเคราะห์…';
+
+  @override
+  String get summary_analysisFailed =>
+      'วิเคราะห์ไม่สำเร็จ — กดอัดเสียงใหม่เพื่อลองอีกครั้ง';
+
+  @override
+  String get summary_youSaid => 'คุณพูดว่า';
+
+  @override
+  String get summary_error => 'ข้อผิดพลาด';
 }
