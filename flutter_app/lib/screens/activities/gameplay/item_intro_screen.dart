@@ -4,7 +4,6 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart'; // for kIsWeb
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:audioplayers/audioplayers.dart' as ap;
 import 'package:youtube_player_iframe/youtube_player_iframe.dart' as yp;
@@ -15,6 +14,8 @@ import '../../../providers/user_provider.dart';
 import '../../../services/activity_service.dart';
 import '../../../models/activity.dart';
 import '../../../routes/app_routes.dart';
+import '../../../theme/palette.dart';
+import '../../../theme/app_text_styles.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import '../../../utils/activity_l10n.dart';
 
@@ -54,14 +55,6 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
   // 1. CONSTANTS & STATE
   // ----------------------------------------------------
 
-  static const cream = Color(0xFFFFF5CD);
-  static const sky = Color(0xFF0D92F4);
-  static const lilac = Color(0xFFC68AF6);
-  static const sunshine = Color(0xFFF0C44D);
-  static const bluePill = Color(0xFF78BDF1);
-  static const greenPill = Color(0xFF77C58C);
-  static const greyCard = Color(0xFFEDEFF3);
-  static const deepGrey = Color(0xFF5D5D5D);
   static const progressTrack = Color(0xFFE9E0C7);
   static const nextBlue = Color(0xFF1487FF);
   static const prevGrey = Color(0xFFD6D5D3);
@@ -464,7 +457,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
         }
         final fileSize = await audioFile.length();
         if (fileSize < 1000) {
-          throw Exception('ไฟล์เสียงมีขนาดเล็กเกินไป (${fileSize} bytes)');
+          throw Exception('ไฟล์เสียงมีขนาดเล็กเกินไป ($fileSize bytes)');
         }
         debugPrint('📦 Audio file size: $fileSize bytes');
         result = await _activityService.evaluateAudio(
@@ -644,9 +637,9 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
   Widget build(BuildContext context) {
     if (_rawSegments.isEmpty) {
       return Scaffold(
-        backgroundColor: cream,
+        backgroundColor: Colors.transparent,
         appBar: AppBar(
-          backgroundColor: cream,
+          backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
@@ -656,15 +649,13 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
         body: Center(
           child: Text(
             'Error: No segments found for ${widget.activity.name}.',
-            style: GoogleFonts.luckiestGuy(fontSize: 20),
+            style: AppTextStyles.heading(20),
           ),
         ),
       );
     }
 
-    final titleStyle = GoogleFonts.luckiestGuy(
-      color: sky,
-      fontSize: 22,
+    final titleStyle = AppTextStyles.heading(22, color: Palette.sky).copyWith(
       height: 1.05,
       letterSpacing: .3,
     );
@@ -679,7 +670,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
           : Center(
               child: Text(
                 AppLocalizations.of(context)!.itemintro_Videonotavailable,
-                style: GoogleFonts.luckiestGuy(color: Colors.white),
+                style: AppTextStyles.heading(14, color: Palette.white),
               ),
             ),
     );
@@ -697,9 +688,9 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      backgroundColor: cream,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: cream,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
@@ -742,7 +733,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.25),
+                          color: Colors.black.withValues(alpha: 0.25),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
@@ -775,10 +766,10 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
             Container(
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
               decoration: BoxDecoration(
-                color: cream,
+                color: Palette.cream,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
+                    color: Colors.black.withValues(alpha: 0.08),
                     blurRadius: 8,
                     offset: const Offset(0, -2),
                   ),
@@ -790,7 +781,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                     child: _bottomBtn(
                       label: AppLocalizations.of(context)!.itemintro_previous,
                       bg: prevGrey,
-                      fg: deepGrey,
+                      fg: Palette.deepGrey,
                       onTap: current > 1
                           ? () => setState(() {
                                 current--;
@@ -813,13 +804,13 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                       children: [
                         Text(
                           '$completedSegmentsCount/$totalSegments',
-                          style: GoogleFonts.luckiestGuy(fontSize: 14),
+                          style: AppTextStyles.heading(14),
                         ),
                         Text(
                           AppLocalizations.of(context)!.common_done,
                           style: TextStyle(
                             fontSize: 10,
-                            color: deepGrey,
+                            color: Palette.deepGrey,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -845,7 +836,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                                 : 'idle';
                           });
                           debugPrint(
-                              '➡️ Moved to segment $current/${totalSegments}');
+                              '➡️ Moved to segment $current/$totalSegments');
                         } else {
                           _handleFinishQuest();
                         }
@@ -867,7 +858,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
 
   Widget _pillButton(String text, Color bg,
       {bool textDark = false, VoidCallback? onTap}) {
-    final Color actualBg = onTap == null ? bg.withOpacity(0.6) : bg;
+    final Color actualBg = onTap == null ? bg.withValues(alpha: 0.6) : bg;
 
     return Expanded(
       child: InkWell(
@@ -882,10 +873,8 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
           alignment: Alignment.center,
           child: Text(
             text,
-            style: GoogleFonts.luckiestGuy(
-              color: textDark ? Colors.black : Colors.white,
-              fontSize: 14,
-            ),
+            style: AppTextStyles.heading(14,
+                color: textDark ? Colors.black : Colors.white),
           ),
         ),
       ),
@@ -893,7 +882,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
   }
 
   Widget _recordButton({required bool isReviewed}) {
-    final Color bg = _isRecording ? const Color(0xFFE53935) : greenPill;
+    final Color bg = _isRecording ? Palette.errorStrong : Palette.success;
 
     return Expanded(
       child: InkWell(
@@ -915,18 +904,12 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                 const SizedBox(width: 6),
                 Text(
                   '${_recordingDuration.inMinutes.toString().padLeft(2, '0')}:${(_recordingDuration.inSeconds % 60).toString().padLeft(2, '0')}',
-                  style: GoogleFonts.luckiestGuy(
-                    color: Colors.white,
-                    fontSize: 14,
-                  ),
+                  style: AppTextStyles.heading(14, color: Colors.white),
                 ),
               ] else
                 Text(
                   AppLocalizations.of(context)!.itemintro_record,
-                  style: GoogleFonts.luckiestGuy(
-                    color: Colors.white,
-                    fontSize: 14,
-                  ),
+                  style: AppTextStyles.heading(14, color: Colors.white),
                 ),
             ],
           ),
@@ -948,14 +931,14 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
         children: [
           Text(
             '${AppLocalizations.of(context)!.itemintro_speak}: ${text.toUpperCase()}',
-            style: GoogleFonts.luckiestGuy(fontSize: 15, color: deepGrey),
+            style: AppTextStyles.heading(15, color: Palette.deepGrey),
           ),
           const SizedBox(height: 10),
           Row(
             children: [
               _pillButton(
                 AppLocalizations.of(context)!.itemintro_playsection,
-                bluePill,
+                Palette.bluePill,
                 onTap: _isPlayerReady && _rawSegments.isNotEmpty
                     ? _playSection
                     : null,
@@ -970,17 +953,11 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
             children: [
               Text(
                 '${AppLocalizations.of(context)!.itemintro_point}: ${score ?? 0}%',
-                style: GoogleFonts.luckiestGuy(
-                  fontSize: 13,
-                  color: deepGrey,
-                ),
+                style: AppTextStyles.heading(13, color: Palette.deepGrey),
               ),
               Text(
                 '${AppLocalizations.of(context)!.itemintro_completed}: $completedSegmentsCount/$totalSegments',
-                style: GoogleFonts.luckiestGuy(
-                  fontSize: 13,
-                  color: deepGrey,
-                ),
+                style: AppTextStyles.heading(13, color: Palette.deepGrey),
               ),
             ],
           ),
@@ -994,11 +971,11 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
             ),
             child: isReviewed
                 ? FractionallySizedBox(
-                    widthFactor: (score ?? 0) / 100,
+                    widthFactor: score! / 100,
                     alignment: Alignment.centerLeft,
                     child: Container(
                       decoration: BoxDecoration(
-                        color: greenPill,
+                        color: Palette.success,
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
@@ -1027,7 +1004,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: greyCard,
+        color: Palette.greyCard,
         borderRadius: BorderRadius.circular(18),
       ),
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
@@ -1036,11 +1013,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
         children: [
           Text(
             statusText,
-            style: TextStyle(
-              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-              fontSize: 12,
-              color: deepGrey,
-            ),
+            style: AppTextStyles.heading(12, color: Palette.deepGrey),
           ),
           const SizedBox(height: 10),
           Container(
@@ -1053,7 +1026,8 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                 ? Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.volume_up, size: 20, color: deepGrey),
+                      const Icon(Icons.volume_up,
+                          size: 20, color: Palette.deepGrey),
                       const SizedBox(width: 8),
                       Text(
                         _isPlaybackPlaying
@@ -1061,10 +1035,8 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                                 .itemintro_pausePlayback
                             : AppLocalizations.of(context)!
                                 .itemintro_listenRecording,
-                        style: GoogleFonts.luckiestGuy(
-                          fontSize: 13,
-                          color: deepGrey,
-                        ),
+                        style:
+                            AppTextStyles.heading(13, color: Palette.deepGrey),
                       ),
                       const SizedBox(width: 10),
                       IconButton(
@@ -1072,7 +1044,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                           _isPlaybackPlaying
                               ? Icons.pause_circle
                               : Icons.play_circle,
-                          color: sky,
+                          color: Palette.sky,
                           size: 28,
                         ),
                         onPressed: () => _playOwnRecording(result.audioUrl),
@@ -1082,10 +1054,8 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                 : Center(
                     child: Text(
                       AppLocalizations.of(context)!.itemintro_recordToPlayback,
-                      style: GoogleFonts.openSans(
-                        fontSize: 12,
-                        color: deepGrey.withOpacity(0.5),
-                      ),
+                      style: AppTextStyles.body(12,
+                          color: Palette.deepGrey.withValues(alpha: 0.5)),
                     ),
                   ),
           ),
@@ -1100,7 +1070,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
     required Color fg,
     VoidCallback? onTap,
   }) {
-    final Color actualBg = onTap == null ? bg.withOpacity(0.6) : bg;
+    final Color actualBg = onTap == null ? bg.withValues(alpha: 0.6) : bg;
 
     return InkWell(
       onTap: onTap,
@@ -1114,7 +1084,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
         alignment: Alignment.center,
         child: Text(
           label,
-          style: GoogleFonts.luckiestGuy(color: fg, fontSize: 15),
+          style: AppTextStyles.heading(15, color: fg),
         ),
       ),
     );

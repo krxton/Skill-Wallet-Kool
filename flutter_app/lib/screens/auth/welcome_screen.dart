@@ -3,7 +3,6 @@ import 'dart:math' as math;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
@@ -12,7 +11,8 @@ import 'package:skill_wallet_kool/services/api_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../routes/app_routes.dart';
-import '../child/add_child_screen.dart';
+import '../../../theme/palette.dart';
+import '../../../theme/app_text_styles.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -26,10 +26,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   bool _isLoading = false;
   bool _waitingForOAuth = false;
   bool _agreedToTerms = false;
-
-  static const cream = Color(0xFFFFF5CD);
-  static const fbBlue = Color(0xFF1877F2);
-  static const sky = Color(0xFF0D92F4);
 
   static const _privacyPolicyUrl =
       'https://krxton.github.io/Skill-Wallet-Kool/privacy-policy.html';
@@ -68,7 +64,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: cream,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Stack(
           children: [
@@ -106,7 +102,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                           _oauthButton(
                             icon: Icons.facebook,
                             text: l10n.login_facebookBtn,
-                            color: fbBlue,
+                            color: Palette.facebook,
                             onTap: isLoading
                                 ? () {}
                                 : () => _handleOAuth('facebook'),
@@ -145,10 +141,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                         const SizedBox(height: 12),
                         Text(
                           l10n.auth_loading,
-                          style: GoogleFonts.itim(
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
+                          style: AppTextStyles.body(16, color: Colors.white),
                         ),
                       ],
                     ),
@@ -174,7 +167,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
             child: Checkbox(
               value: _agreedToTerms,
               onChanged: (v) => setState(() => _agreedToTerms = v ?? false),
-              activeColor: sky,
+              activeColor: Palette.sky,
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
           ),
@@ -182,15 +175,13 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           Expanded(
             child: RichText(
               text: TextSpan(
-                style: GoogleFonts.itim(fontSize: 14, color: Colors.black87),
+                style: AppTextStyles.body(14, color: Colors.black87),
                 children: [
                   TextSpan(text: l10n.auth_termsAgree),
-                  TextSpan(text: ' '),
+                  const TextSpan(text: ' '),
                   TextSpan(
                     text: l10n.auth_termsOfService,
-                    style: GoogleFonts.itim(
-                      fontSize: 14,
-                      color: sky,
+                    style: AppTextStyles.body(14, color: Palette.sky).copyWith(
                       decoration: TextDecoration.underline,
                     ),
                     recognizer: TapGestureRecognizer()
@@ -199,9 +190,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   TextSpan(text: ' ${l10n.auth_and} '),
                   TextSpan(
                     text: l10n.auth_privacyPolicy,
-                    style: GoogleFonts.itim(
-                      fontSize: 14,
-                      color: sky,
+                    style: AppTextStyles.body(14, color: Palette.sky).copyWith(
                       decoration: TextDecoration.underline,
                     ),
                     recognizer: TapGestureRecognizer()
@@ -244,7 +233,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         content: Text(
           l10n.auth_tosDialogMsg,
-          style: GoogleFonts.itim(fontSize: 15),
+          style: AppTextStyles.body(15),
         ),
         actions: [
           TextButton(
@@ -254,7 +243,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
             },
             child: Text(
               l10n.auth_readTos,
-              style: GoogleFonts.itim(fontSize: 14, color: sky),
+              style: AppTextStyles.body(14, color: Palette.sky),
             ),
           ),
           ElevatedButton(
@@ -267,10 +256,10 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 _handleGoogleSignIn();
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: sky),
+            style: ElevatedButton.styleFrom(backgroundColor: Palette.sky),
             child: Text(
               l10n.auth_enter,
-              style: GoogleFonts.itim(fontSize: 14, color: Colors.white),
+              style: AppTextStyles.body(14, color: Colors.white),
             ),
           ),
         ],
@@ -445,10 +434,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
       if (mounted) {
         setState(() => _isLoading = false);
-        Navigator.pushAndRemoveUntil(
+        Navigator.pushNamedAndRemoveUntil(
           context,
-          MaterialPageRoute(
-              builder: (_) => const AddChildScreen(isRequired: true)),
+          AppRoutes.home,
           (route) => false,
         );
       }
@@ -553,12 +541,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               Expanded(
                 child: Text(
                   text,
-                  style: TextStyle(
-                    fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                    fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                    fontSize: 16,
-                    color: Colors.black87,
-                  ),
+                  style: AppTextStyles.heading(16, color: Colors.black87),
                 ),
               ),
             ],
@@ -594,12 +577,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               Expanded(
                 child: Text(
                   text,
-                  style: TextStyle(
-                    fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                    fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                    fontSize: 16,
-                    color: Colors.black87,
-                  ),
+                  style: AppTextStyles.heading(16, color: Colors.black87),
                 ),
               ),
             ],

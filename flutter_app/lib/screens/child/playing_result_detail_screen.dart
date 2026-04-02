@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import '../../widgets/share_result_helper.dart';
 import '../../theme/palette.dart';
+import '../../theme/app_text_styles.dart';
 
 class PlayingResultDetailScreen extends StatelessWidget {
   final Map<String, dynamic> record;
@@ -15,12 +15,6 @@ class PlayingResultDetailScreen extends StatelessWidget {
     required this.record,
     required this.sessionNumber,
   });
-
-  static const cream = Color(0xFFFFF5CD);
-  static const skyBlue = Color(0xFF5AB2FF);
-  static const redText = Color(0xFFFF8A8A);
-  static const greenColor = Color(0xFF4CAF50);
-  static const orangeColor = Color(0xFFFF9800);
 
   String _formatDate(String? createdAt) {
     if (createdAt == null) return '--';
@@ -100,7 +94,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
     final isAnalysisCategory = category == 'ด้านคำนวณ';
 
     return Scaffold(
-      backgroundColor: cream,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Stack(
           children: [
@@ -124,16 +118,13 @@ class PlayingResultDetailScreen extends StatelessWidget {
                           children: [
                             Text(
                               loc.playingresult_title,
-                              style: GoogleFonts.itim(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: skyBlue,
-                              ),
+                              style: AppTextStyles.body(24,
+                                  color: Palette.blueChip,
+                                  weight: FontWeight.bold),
                             ),
                             Text(
                               '${_formatDate(createdAt)} | ${loc.playingresult_session(sessionNumber)}',
-                              style: GoogleFonts.itim(
-                                  fontSize: 14, color: Colors.grey),
+                              style: AppTextStyles.body(14, color: Colors.grey),
                             ),
                           ],
                         ),
@@ -147,17 +138,14 @@ class PlayingResultDetailScreen extends StatelessWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: skyBlue.withValues(alpha: 0.1),
+                      color: Palette.blueChip.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(15),
-                      border: Border.all(color: skyBlue, width: 2),
+                      border: Border.all(color: Palette.blueChip, width: 2),
                     ),
                     child: Text(
                       activityName,
-                      style: GoogleFonts.itim(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: skyBlue,
-                      ),
+                      style: AppTextStyles.body(18,
+                          color: Palette.blueChip, weight: FontWeight.bold),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -167,15 +155,12 @@ class PlayingResultDetailScreen extends StatelessWidget {
                   Row(
                     children: [
                       const Icon(Icons.emoji_events,
-                          color: Colors.orange, size: 35),
+                          color: Palette.warning, size: 35),
                       const SizedBox(width: 10),
                       Text(
                         loc.playingresult_scoreObtained,
-                        style: GoogleFonts.itim(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.orange,
-                        ),
+                        style: AppTextStyles.body(20,
+                            color: Palette.warning, weight: FontWeight.bold),
                       ),
                       const Spacer(),
                       Container(
@@ -184,12 +169,11 @@ class PlayingResultDetailScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: Colors.orange, width: 2),
+                          border: Border.all(color: Palette.warning, width: 2),
                         ),
                         child: Text(
                           maxScoreInt > 0 ? '$score/$maxScoreInt' : '$score',
-                          style: GoogleFonts.luckiestGuy(
-                              fontSize: 24, color: Colors.black87),
+                          style: AppTextStyles.heading(24, color: Colors.black87),
                         ),
                       )
                     ],
@@ -208,11 +192,8 @@ class PlayingResultDetailScreen extends StatelessWidget {
                     // 2. Diary Section
                     Text(
                       loc.playingresult_diary,
-                      style: GoogleFonts.itim(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: redText,
-                      ),
+                      style: AppTextStyles.body(20,
+                          color: Palette.error, weight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     Container(
@@ -224,11 +205,10 @@ class PlayingResultDetailScreen extends StatelessWidget {
                       ),
                       child: Text(
                         diary.isNotEmpty ? diary : loc.playingresult_noNotes,
-                        style: GoogleFonts.itim(
-                          fontSize: 16,
-                          color:
-                              diary.isNotEmpty ? Colors.black87 : Colors.grey,
-                        ),
+                        style: AppTextStyles.body(16,
+                            color: diary.isNotEmpty
+                                ? Colors.black87
+                                : Colors.grey),
                       ),
                     ),
                     const SizedBox(height: 25),
@@ -236,11 +216,8 @@ class PlayingResultDetailScreen extends StatelessWidget {
                     // 3. Image Section
                     Text(
                       loc.playingresult_image,
-                      style: GoogleFonts.itim(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: redText,
-                      ),
+                      style: AppTextStyles.body(20,
+                          color: Palette.error, weight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     Container(
@@ -258,11 +235,8 @@ class PlayingResultDetailScreen extends StatelessWidget {
                     if (videoPath != null && videoPath.isNotEmpty) ...[
                       Text(
                         loc.playingresult_video,
-                        style: GoogleFonts.itim(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: redText,
-                        ),
+                        style: AppTextStyles.body(20,
+                            color: Palette.error, weight: FontWeight.bold),
                       ),
                       const SizedBox(height: 8),
                       Container(
@@ -281,10 +255,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
                               const SizedBox(height: 8),
                               Text(
                                 loc.playingresult_videoAttached,
-                                style: GoogleFonts.itim(
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                ),
+                                style: AppTextStyles.body(14, color: Colors.grey),
                               ),
                             ],
                           ),
@@ -306,11 +277,8 @@ class PlayingResultDetailScreen extends StatelessWidget {
                       children: [
                         Text(
                           loc.playingresult_timeSpent,
-                          style: GoogleFonts.itim(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: redText,
-                          ),
+                          style: AppTextStyles.body(20,
+                              color: Palette.error, weight: FontWeight.bold),
                         ),
                         const SizedBox(height: 5),
                         Container(
@@ -322,8 +290,8 @@ class PlayingResultDetailScreen extends StatelessWidget {
                           ),
                           child: Text(
                             _formatTime(timespent),
-                            style: GoogleFonts.luckiestGuy(
-                                fontSize: 24, color: skyBlue),
+                            style: AppTextStyles.heading(24,
+                                color: Palette.blueChip),
                           ),
                         ),
                       ],
@@ -357,13 +325,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Colors.white,
                     shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 6,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+                    boxShadow: Palette.softShadow,
                   ),
                   child: const Icon(Icons.share, size: 20, color: Palette.sky),
                 ),
@@ -402,10 +364,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             loc.playingresult_noImage,
-            style: GoogleFonts.itim(
-              fontSize: 14,
-              color: Colors.grey,
-            ),
+            style: AppTextStyles.body(14, color: Colors.grey),
           ),
         ],
       ),
@@ -424,15 +383,12 @@ class PlayingResultDetailScreen extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Icon(Icons.mic, color: skyBlue, size: 28),
+            const Icon(Icons.mic, color: Palette.blueChip, size: 28),
             const SizedBox(width: 10),
             Text(
               loc.playingresult_sentencesSpoken,
-              style: GoogleFonts.itim(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: skyBlue,
-              ),
+              style: AppTextStyles.body(20,
+                  color: Palette.blueChip, weight: FontWeight.bold),
             ),
           ],
         ),
@@ -462,11 +418,11 @@ class PlayingResultDetailScreen extends StatelessWidget {
     // กำหนดสีตามความแม่นยำ
     Color accuracyColor;
     if (accuracy >= 80) {
-      accuracyColor = greenColor;
+      accuracyColor = Palette.success;
     } else if (accuracy >= 50) {
-      accuracyColor = orangeColor;
+      accuracyColor = Palette.warning;
     } else {
-      accuracyColor = redText;
+      accuracyColor = Palette.error;
     }
 
     return Container(
@@ -475,13 +431,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 5,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: Palette.softShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -494,16 +444,13 @@ class PlayingResultDetailScreen extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: skyBlue,
+                  color: Palette.blueChip,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   loc.playingresult_sentence(number),
-                  style: GoogleFonts.itim(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                  style: AppTextStyles.body(14,
+                      color: Colors.white, weight: FontWeight.bold),
                 ),
               ),
               Container(
@@ -516,10 +463,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
                 ),
                 child: Text(
                   '$accuracy%',
-                  style: GoogleFonts.luckiestGuy(
-                    fontSize: 16,
-                    color: accuracyColor,
-                  ),
+                  style: AppTextStyles.heading(16, color: accuracyColor),
                 ),
               ),
             ],
@@ -529,39 +473,26 @@ class PlayingResultDetailScreen extends StatelessWidget {
           // ประโยคที่ต้องพูด
           Text(
             loc.playingresult_sentenceToSpeak,
-            style: GoogleFonts.itim(
-              fontSize: 13,
-              color: Colors.grey.shade600,
-            ),
+            style: AppTextStyles.body(13, color: Colors.grey),
           ),
           const SizedBox(height: 4),
           Text(
             text.isNotEmpty ? text : '-',
-            style: GoogleFonts.itim(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Colors.black87,
-            ),
+            style: AppTextStyles.body(16,
+                color: Colors.black87, weight: FontWeight.w500),
           ),
           const SizedBox(height: 10),
 
           // ประโยคที่พูดได้
           Text(
             loc.playingresult_whatWasSpoken,
-            style: GoogleFonts.itim(
-              fontSize: 13,
-              color: Colors.grey.shade600,
-            ),
+            style: AppTextStyles.body(13, color: Colors.grey),
           ),
           const SizedBox(height: 4),
           Text(
             recognizedText.isNotEmpty ? recognizedText : loc.playingresult_noData,
-            style: GoogleFonts.itim(
-              fontSize: 16,
-              color: recognizedText.isNotEmpty ? Colors.black87 : Colors.grey,
-              fontStyle:
-                  recognizedText.isEmpty ? FontStyle.italic : FontStyle.normal,
-            ),
+            style: AppTextStyles.body(16,
+                color: recognizedText.isNotEmpty ? Colors.black87 : Colors.grey),
           ),
         ],
       ),
@@ -582,7 +513,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               loc.playingresult_noSpeechData,
-              style: GoogleFonts.itim(fontSize: 16, color: Colors.grey),
+              style: AppTextStyles.body(16, color: Colors.grey),
             ),
           ],
         ),
@@ -602,15 +533,12 @@ class PlayingResultDetailScreen extends StatelessWidget {
       children: [
         Row(
           children: [
-            const Icon(Icons.quiz, color: Colors.purple, size: 28),
+            const Icon(Icons.quiz, color: Palette.purple, size: 28),
             const SizedBox(width: 10),
             Text(
               loc.playingresult_answerResults,
-              style: GoogleFonts.itim(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.purple,
-              ),
+              style: AppTextStyles.body(20,
+                  color: Palette.purple, weight: FontWeight.bold),
             ),
           ],
         ),
@@ -627,27 +555,27 @@ class PlayingResultDetailScreen extends StatelessWidget {
   Widget _buildAnalysisQuestionItem(int number, Map<String, dynamic> segment, AppLocalizations loc) {
     final text = segment['text'] as String? ?? loc.playingresult_questionFallback(number);
     final maxScoreRaw = segment['maxScore'];
-    int score = 0;
+    int itemScore = 0;
     if (maxScoreRaw is int) {
-      score = maxScoreRaw;
+      itemScore = maxScoreRaw;
     } else if (maxScoreRaw is double) {
-      score = maxScoreRaw.toInt();
+      itemScore = maxScoreRaw.toInt();
     } else if (maxScoreRaw != null) {
-      score = int.tryParse(maxScoreRaw.toString()) ?? 0;
+      itemScore = int.tryParse(maxScoreRaw.toString()) ?? 0;
     }
 
-    final isCorrect = score > 0;
+    final isCorrect = itemScore > 0;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
         color: isCorrect
-            ? greenColor.withValues(alpha: 0.1)
-            : redText.withValues(alpha: 0.1),
+            ? Palette.success.withValues(alpha: 0.1)
+            : Palette.error.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: isCorrect ? greenColor : redText,
+          color: isCorrect ? Palette.success : Palette.error,
           width: 1.5,
         ),
       ),
@@ -658,7 +586,7 @@ class PlayingResultDetailScreen extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: isCorrect ? greenColor : redText,
+              color: isCorrect ? Palette.success : Palette.error,
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -675,18 +603,12 @@ class PlayingResultDetailScreen extends StatelessWidget {
               children: [
                 Text(
                   loc.playingresult_questionLabel(number),
-                  style: GoogleFonts.itim(
-                    fontSize: 13,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: AppTextStyles.body(13, color: Colors.grey),
                 ),
                 Text(
                   text,
-                  style: GoogleFonts.itim(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black87,
-                  ),
+                  style: AppTextStyles.body(15,
+                      color: Colors.black87, weight: FontWeight.w500),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -696,11 +618,9 @@ class PlayingResultDetailScreen extends StatelessWidget {
           const SizedBox(width: 8),
           // คะแนน
           Text(
-            isCorrect ? '+$score' : '0',
-            style: GoogleFonts.luckiestGuy(
-              fontSize: 18,
-              color: isCorrect ? greenColor : redText,
-            ),
+            isCorrect ? '+$itemScore' : '0',
+            style: AppTextStyles.heading(18,
+                color: isCorrect ? Palette.success : Palette.error),
           ),
         ],
       ),

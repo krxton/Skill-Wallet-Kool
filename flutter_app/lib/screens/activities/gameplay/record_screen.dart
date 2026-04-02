@@ -384,9 +384,9 @@ class _RecordScreenState extends State<RecordScreen> {
     final bool isReadyToPlay = _hasRecorded && !_isPlaying;
 
     return Scaffold(
-      backgroundColor: Palette.cream,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: Palette.cream,
+        backgroundColor: Colors.transparent,
         leading: const BackButton(color: Colors.black87),
         elevation: 0,
         title: Text(

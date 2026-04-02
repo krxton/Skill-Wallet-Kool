@@ -86,7 +86,7 @@ class _EditActivityScreenState extends State<EditActivityScreen> {
     final l = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: Palette.cream,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Palette.sky,
         title: Text(l.profile_editActivity,

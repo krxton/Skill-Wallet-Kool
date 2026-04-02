@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../theme/palette.dart';
+import '../../../theme/app_text_styles.dart';
 
 class CalculateHubScreen extends StatelessWidget {
   const CalculateHubScreen({super.key});
 
-  // 🎨 สีตาม Theme
+  // 🎨 orange button color not in Palette, kept locally
   static const orangeBtn = Color(0xFFEF9C66);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Palette.cream,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -23,9 +23,7 @@ class CalculateHubScreen extends StatelessWidget {
         centerTitle: true,
         title: Text(
           'CALCULATE',
-          style: GoogleFonts.luckiestGuy(
-            fontSize: 32,
-            color: Palette.sky,
+          style: AppTextStyles.heading(32, color: Palette.sky).copyWith(
             letterSpacing: 2,
           ),
         ),
@@ -72,7 +70,7 @@ class CalculateHubScreen extends StatelessWidget {
         onPressed: onTap,
         style: ElevatedButton.styleFrom(
           backgroundColor: orangeBtn,
-          foregroundColor: Colors.white,
+          foregroundColor: Palette.white,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(25),
@@ -84,10 +82,7 @@ class CalculateHubScreen extends StatelessWidget {
           children: [
             Text(
               title,
-              style: GoogleFonts.luckiestGuy(
-                fontSize: 24,
-                color: Colors.white,
-              ),
+              style: AppTextStyles.heading(24, color: Palette.white),
             ),
             const Icon(Icons.chevron_right, size: 30, color: Colors.black87),
           ],

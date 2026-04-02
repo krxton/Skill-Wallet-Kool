@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/palette.dart';
+import '../../../theme/app_text_styles.dart';
 import '../../../widgets/ui.dart';
 import '../../../routes/app_routes.dart';
 import '../../../models/language_flow.dart';
@@ -12,9 +12,9 @@ class LanguageHubScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Palette.cream,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: Palette.cream,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
@@ -34,7 +34,7 @@ class LanguageHubScreen extends StatelessWidget {
               const Icon(Icons.school_outlined, size: 18),
               const SizedBox(width: 8),
               Text(AppLocalizations.of(context)!.languagehub_trainingTitle,
-                  style: GoogleFonts.luckiestGuy(fontSize: 16)),
+                  style: AppTextStyles.heading(16)),
             ],
           ),
           const SizedBox(height: 18),

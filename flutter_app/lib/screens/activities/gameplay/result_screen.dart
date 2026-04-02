@@ -1,9 +1,9 @@
 // lib/screens/result_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/palette.dart';
+import '../../../theme/app_text_styles.dart';
 import '../../../routes/app_routes.dart';
 import '../../../models/activity.dart';
 import '../../../utils/activity_l10n.dart';
@@ -71,9 +71,9 @@ class _ResultScreenState extends State<ResultScreen>
             : Palette.pink;
 
     return Scaffold(
-      backgroundColor: Palette.cream,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: Palette.cream,
+        backgroundColor: Colors.transparent,
         leading: IconButton(
           icon: const Icon(Icons.close, color: Colors.black87),
           onPressed: () => Navigator.pushNamedAndRemoveUntil(
@@ -88,7 +88,7 @@ class _ResultScreenState extends State<ResultScreen>
               ? ActivityL10n.localizedActivityType(
                   context, activityToReplay.category)
               : AppLocalizations.of(context)!.result_resultTitle,
-          style: GoogleFonts.luckiestGuy(color: Colors.black),
+          style: AppTextStyles.heading(18, color: Colors.black),
         ),
         centerTitle: true,
         actions: [
@@ -119,8 +119,7 @@ class _ResultScreenState extends State<ResultScreen>
             Text(
               activityName.toUpperCase(),
               textAlign: TextAlign.center,
-              style: GoogleFonts.luckiestGuy(
-                  fontSize: 22, color: Palette.deepGrey),
+              style: AppTextStyles.heading(22, color: Palette.deepGrey),
             ),
             const SizedBox(height: 20),
 
@@ -130,8 +129,7 @@ class _ResultScreenState extends State<ResultScreen>
               child: Container(
                 padding: const EdgeInsets.all(30),
                 decoration: BoxDecoration(
-                  // ignore: deprecated_member_use
-                  color: scoreColor.withOpacity(0.1),
+                  color: scoreColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: scoreColor, width: 3),
                 ),
@@ -139,22 +137,19 @@ class _ResultScreenState extends State<ResultScreen>
                   children: [
                     Text(
                       AppLocalizations.of(context)!.result_totalScoreTitle,
-                      style: GoogleFonts.luckiestGuy(
-                          fontSize: 18, color: Palette.deepGrey),
+                      style: AppTextStyles.heading(18, color: Palette.deepGrey),
                     ),
                     const SizedBox(height: 10),
                     Text(
                       '$scoreEarned / $maxScore',
-                      style: GoogleFonts.luckiestGuy(
-                          fontSize: 72, color: scoreColor),
+                      style: AppTextStyles.heading(72, color: scoreColor),
                     ),
                     Text(
                       scoreEarned >= (maxScore / 2)
                           ? AppLocalizations.of(context)!.result_greatJobTitle
                           : AppLocalizations.of(context)!
                               .result_keepTryingTitle,
-                      style: GoogleFonts.luckiestGuy(
-                          fontSize: 24, color: scoreColor),
+                      style: AppTextStyles.heading(24, color: scoreColor),
                     ),
                   ],
                 ),
@@ -168,13 +163,11 @@ class _ResultScreenState extends State<ResultScreen>
               children: [
                 Text(
                   AppLocalizations.of(context)!.result_timeSpentPrefix,
-                  style: GoogleFonts.openSans(
-                      fontWeight: FontWeight.w700, fontSize: 16),
+                  style: AppTextStyles.body(16, weight: FontWeight.w700),
                 ),
                 Text(
                   '$mm:$ss',
-                  style: GoogleFonts.openSans(
-                      fontSize: 18, fontWeight: FontWeight.w900),
+                  style: AppTextStyles.body(18, weight: FontWeight.w900),
                 ),
               ],
             ),
@@ -232,8 +225,7 @@ class _ResultScreenState extends State<ResultScreen>
                     ),
                     child: Text(
                       AppLocalizations.of(context)!.result_playAgainBtn,
-                      style: GoogleFonts.luckiestGuy(
-                          fontSize: 20, color: Colors.white),
+                      style: AppTextStyles.heading(20, color: Palette.white),
                     ),
                   ),
                 ),
@@ -259,8 +251,7 @@ class _ResultScreenState extends State<ResultScreen>
                     ),
                     child: Text(
                       AppLocalizations.of(context)!.result_backToActivitiesBtn,
-                      style: GoogleFonts.luckiestGuy(
-                          fontSize: 20, color: Colors.white),
+                      style: AppTextStyles.heading(20, color: Palette.white),
                     ),
                   ),
                 ),

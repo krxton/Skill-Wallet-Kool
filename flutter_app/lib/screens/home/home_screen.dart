@@ -355,11 +355,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           horizontal: 14, vertical: 8),
                       decoration: BoxDecoration(
                         color:
-                            isSelected ? const Color(0xFFFFB74D) : Colors.white,
+                            isSelected ? Palette.warningLight : Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
                           color: isSelected
-                              ? const Color(0xFFFF9800)
+                              ? Palette.warning
                               : Colors.grey.shade300,
                           width: 2,
                         ),
@@ -502,7 +502,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withOpacity(0.7),
+                    Colors.black.withValues(alpha: 0.7),
                   ],
                 ),
               ),
@@ -532,20 +532,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         child: Text(
                           _localizeCategory(context, activity.category),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: AppTextStyles.label(12, color: Colors.white),
                         ),
                       ),
                       const SizedBox(width: 8),
                       Text(
                         'Score: ${activity.maxScore}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.white,
-                        ),
+                        style: AppTextStyles.body(12, color: Colors.white),
                       ),
                     ],
                   ),
@@ -561,7 +554,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 26, 170, 136),
+                  color: Palette.teal,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
@@ -613,16 +606,12 @@ class _HomeScreenState extends State<HomeScreen> {
           return Container(
             height: double.infinity,
             width: double.infinity,
-            color: const Color(0xFFFF9800),
+            color: Palette.warning,
             alignment: Alignment.center,
-            child: const Text(
+            child: Text(
               '+-×÷',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 48,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 4,
-              ),
+              style: AppTextStyles.body(48,
+                  color: Colors.white, weight: FontWeight.bold),
             ),
           );
         },
@@ -634,16 +623,12 @@ class _HomeScreenState extends State<HomeScreen> {
       return Container(
         height: double.infinity,
         width: double.infinity,
-        color: const Color(0xFFFFEB3B), // Yellow
+        color: Palette.languagePlaceholder,
         alignment: Alignment.center,
-        child: const Text(
+        child: Text(
           'ABC',
-          style: TextStyle(
-            color: Colors.black87,
-            fontSize: 48,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 4,
-          ),
+          style: AppTextStyles.body(48,
+              color: Colors.black87, weight: FontWeight.bold),
         ),
       );
     }
@@ -653,7 +638,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return Container(
         height: double.infinity,
         width: double.infinity,
-        color: const Color(0xFFFFAB91), // Pink/Peach
+        color: Palette.physicalPlaceholder,
         alignment: Alignment.center,
         child: const Icon(
           Icons.directions_run,
@@ -671,11 +656,7 @@ class _HomeScreenState extends State<HomeScreen> {
       alignment: Alignment.center,
       child: Text(
         category.isNotEmpty ? category.substring(0, 1) : '?',
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 48,
-          fontWeight: FontWeight.bold,
-        ),
+        style: AppTextStyles.body(48, color: Colors.white, weight: FontWeight.bold),
       ),
     );
   }
@@ -889,7 +870,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           decoration: BoxDecoration(
                             color: _currentCarouselPage == i
                                 ? Palette.sky
-                                : Colors.white.withOpacity(0.5),
+                                : Colors.white.withValues(alpha: 0.5),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -1057,7 +1038,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final int visibleIndex = _selectedTab == 2 ? 1 : 0;
 
     return Scaffold(
-      backgroundColor: Palette.cream,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -1067,10 +1048,7 @@ class _HomeScreenState extends State<HomeScreen> {
         index: visibleIndex,
         children: pages,
       ),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        bottom: false,
-        child: MainBottomNav(
+      bottomNavigationBar: MainBottomNav(
           selectedIndex: _selectedTab,
           onTabSelected: (i) {
             if (i == 1) {
@@ -1099,7 +1077,6 @@ class _HomeScreenState extends State<HomeScreen> {
             setState(() => _selectedTab = i);
           },
         ),
-      ),
     );
   }
 }

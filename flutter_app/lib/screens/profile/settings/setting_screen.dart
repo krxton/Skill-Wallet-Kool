@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
@@ -9,6 +8,8 @@ import 'package:skill_wallet_kool/routes/app_routes.dart';
 // Import Provider
 import '../../../providers/user_provider.dart';
 import '../../../services/api_service.dart';
+import '../../../theme/palette.dart';
+import '../../../theme/app_text_styles.dart';
 
 // Import หน้าย่อยต่างๆ
 import 'profile_setting_screen.dart'; // หน้าแก้ไขโปรไฟล์
@@ -22,13 +23,6 @@ class SettingScreen extends StatefulWidget {
 }
 
 class _SettingScreenState extends State<SettingScreen> {
-  // สี Theme ตามดีไซน์
-  static const cream = Color(0xFFFFF5CD);
-  static const pinkRed = Color(0xFFFF8E8E);
-  static const blueTitle = Color(0xFF4DA9FF);
-  static const textGrey = Color(0xFF8E8E8E);
-  static const buttonYellow = Color(0xFFF6CE78); // สีเหลืองของปุ่มภาษา
-
   // ตัวแปรเก็บค่าภาษาที่เลือก (Default เป็น 'TH')
   String _selectedLanguage = 'TH';
 
@@ -37,7 +31,7 @@ class _SettingScreenState extends State<SettingScreen> {
     final photoUrl = context.watch<UserProvider>().parentPhotoUrl;
 
     return Scaffold(
-      backgroundColor: cream,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Column(
           children: [
@@ -62,22 +56,14 @@ class _SettingScreenState extends State<SettingScreen> {
                                 const SizedBox(width: 4),
                                 Text(
                                   AppLocalizations.of(context)!.setting_backBtn,
-                                  style: TextStyle(
-                                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                                      fontSize: 24,
-                                      color: pinkRed),
+                                  style: AppTextStyles.heading(24, color: Palette.pink),
                                 ),
                               ],
                             ),
                           ),
                           Text(
                             AppLocalizations.of(context)!.setting_settingBtn,
-                            style: TextStyle(
-                                fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                                fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                                fontSize: 24,
-                                color: blueTitle),
+                            style: AppTextStyles.heading(24, color: Palette.sky),
                           ),
                         ],
                       ),
@@ -118,12 +104,7 @@ class _SettingScreenState extends State<SettingScreen> {
                       // --- Section: Personal Information ---
                       Text(
                         AppLocalizations.of(context)!.setting_personalBtn,
-                        style: TextStyle(
-                          fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                          fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                          fontSize: 20,
-                          color: textGrey,
-                        ),
+                        style: AppTextStyles.heading(20, color: Palette.labelGrey),
                       ),
                       const SizedBox(height: 10),
 
@@ -176,11 +157,7 @@ class _SettingScreenState extends State<SettingScreen> {
                       children: [
                         Text(
                           AppLocalizations.of(context)!.setting_logoutBtn,
-                          style: TextStyle(
-                              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                              fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                              fontSize: 24,
-                              color: pinkRed),
+                          style: AppTextStyles.heading(24, color: Palette.pink),
                         ),
                         const SizedBox(width: 8),
                         const Icon(Icons.logout, color: Colors.black87, size: 28),
@@ -194,10 +171,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     onTap: _confirmDeleteAccount,
                     child: Text(
                       AppLocalizations.of(context)!.setting_deleteAccountBtn,
-                      style: TextStyle(
-                        fontFamily: GoogleFonts.itim().fontFamily,
-                        fontSize: 14,
-                        color: Colors.grey,
+                      style: AppTextStyles.body(14, color: Colors.grey).copyWith(
                         decoration: TextDecoration.underline,
                       ),
                     ),
@@ -219,23 +193,23 @@ class _SettingScreenState extends State<SettingScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
           l10n.setting_logoutTitle,
-          style: GoogleFonts.itim(fontSize: 18, fontWeight: FontWeight.bold),
+          style: AppTextStyles.body(18, weight: FontWeight.bold),
         ),
         content: Text(
           l10n.setting_logoutMsg,
-          style: GoogleFonts.itim(fontSize: 14),
+          style: AppTextStyles.body(14),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(l10n.common_cancel,
-                style: GoogleFonts.itim(fontSize: 14, color: Colors.black54)),
+                style: AppTextStyles.body(14, color: Colors.black54)),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: pinkRed),
+            style: ElevatedButton.styleFrom(backgroundColor: Palette.pink),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(l10n.setting_logoutConfirm,
-                style: GoogleFonts.itim(fontSize: 14, color: Colors.white)),
+                style: AppTextStyles.body(14, color: Colors.white)),
           ),
         ],
       ),
@@ -266,24 +240,23 @@ class _SettingScreenState extends State<SettingScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
           l10n.setting_deleteTitle,
-          style: GoogleFonts.itim(
-              fontSize: 18, fontWeight: FontWeight.bold, color: Colors.red),
+          style: AppTextStyles.body(18, weight: FontWeight.bold, color: Palette.errorStrong),
         ),
         content: Text(
           l10n.setting_deleteMsg,
-          style: GoogleFonts.itim(fontSize: 14),
+          style: AppTextStyles.body(14),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(l10n.common_cancel,
-                style: GoogleFonts.itim(fontSize: 14, color: Colors.black54)),
+                style: AppTextStyles.body(14, color: Colors.black54)),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            style: ElevatedButton.styleFrom(backgroundColor: Palette.errorStrong),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(l10n.setting_deleteConfirm,
-                style: GoogleFonts.itim(fontSize: 14, color: Colors.white)),
+                style: AppTextStyles.body(14, color: Colors.white)),
           ),
         ],
       ),
@@ -350,12 +323,7 @@ class _SettingScreenState extends State<SettingScreen> {
             Expanded(
               child: Text(
                 title,
-                style: TextStyle(
-                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                  fontSize: 20,
-                  color: Colors.black87,
-                ),
+                style: AppTextStyles.heading(20, color: Colors.black87),
               ),
             ),
             const Icon(Icons.chevron_right, size: 32, color: Colors.black87),
@@ -394,7 +362,7 @@ class _SettingScreenState extends State<SettingScreen> {
           // Logic ความสว่าง:
           // ถ้าเลือก (Active) -> สีชัด (Opacity 1.0)
           // ถ้าไม่เลือก -> สีจาง (Opacity 0.4)
-          color: isActive ? buttonYellow : buttonYellow.withValues(alpha: 0.4),
+          color: isActive ? Palette.yellow : Palette.yellow.withValues(alpha: 0.4),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
@@ -404,13 +372,9 @@ class _SettingScreenState extends State<SettingScreen> {
             const SizedBox(width: 16),
             Text(
               label,
-              style: TextStyle(
-                fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                fontSize: 22,
-                // ถ้าไม่ Active ให้ตัวหนังสือจางลงด้วยนิดหน่อย เพื่อความสวยงาม
-                color: isActive ? Colors.black87 : Colors.black54,
-              ),
+              style: AppTextStyles.heading(22,
+                  // ถ้าไม่ Active ให้ตัวหนังสือจางลงด้วยนิดหน่อย เพื่อความสวยงาม
+                  color: isActive ? Colors.black87 : Colors.black54),
             ),
           ],
         ),

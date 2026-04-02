@@ -9,9 +9,12 @@ class AppTheme {
   static ThemeData light() {
     final base = ThemeData.light();
 
+    // OLD Thai fallback font: GoogleFonts.itim
     final String thaiFallback = GoogleFonts.itim().fontFamily!;
 
-    TextTheme tt = GoogleFonts.luckiestGuyTextTheme(base.textTheme).apply(
+    // OLD base TextTheme: GoogleFonts.luckiestGuyTextTheme
+    // NEW: Open Sans for all text — matches AppTextStyles.heading/body/label
+    TextTheme tt = GoogleFonts.openSansTextTheme(base.textTheme).apply(
       bodyColor: Colors.black87,
       displayColor: Colors.black87,
     );
@@ -39,7 +42,7 @@ class AppTheme {
     );
 
     return base.copyWith(
-      scaffoldBackgroundColor: Palette.cream,
+      scaffoldBackgroundColor: Colors.transparent,
       colorScheme: ColorScheme.fromSeed(
         seedColor: Palette.yellowBright,
         surface: Palette.cream,
@@ -50,6 +53,8 @@ class AppTheme {
         style: ElevatedButton.styleFrom(
           backgroundColor: Palette.sky,
           foregroundColor: Colors.white,
+          elevation: 4,
+          shadowColor: Palette.sky.withValues(alpha: 0.45),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
@@ -81,14 +86,15 @@ class AppTheme {
         ),
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: Palette.cream,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         foregroundColor: Colors.black87,
         centerTitle: true,
+        // OLD appBar title: GoogleFonts.luckiestGuy(fontSize: 22, fontWeight: FontWeight.w900)
         titleTextStyle: withThaiFallback(
-          GoogleFonts.luckiestGuy(
+          GoogleFonts.openSans(
             fontSize: 22,
-            fontWeight: FontWeight.w900,
+            fontWeight: FontWeight.w700,
             color: Colors.black87,
           ),
         ),

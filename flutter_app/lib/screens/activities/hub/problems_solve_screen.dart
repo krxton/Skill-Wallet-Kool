@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../theme/palette.dart';
+import '../../../theme/app_text_styles.dart';
 
 class ProblemsSolveScreen extends StatelessWidget {
   const ProblemsSolveScreen({super.key});
 
-  // 🎨 สีตาม Theme
+  // 🎨 orange button color not in Palette, kept locally
   static const orangeBtn = Color(0xFFEF9C66);
 
   @override
@@ -37,7 +37,7 @@ class ProblemsSolveScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: Palette.cream,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -48,9 +48,7 @@ class ProblemsSolveScreen extends StatelessWidget {
         centerTitle: true,
         title: Text(
           AppLocalizations.of(context)!.problemplaying_title,
-          style: GoogleFonts.luckiestGuy(
-            fontSize: 28,
-            color: Palette.sky,
+          style: AppTextStyles.heading(28, color: Palette.sky).copyWith(
             letterSpacing: 1.5,
           ),
         ),
@@ -73,7 +71,7 @@ class ProblemsSolveScreen extends StatelessWidget {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: orangeBtn,
-                foregroundColor: Colors.white,
+                foregroundColor: Palette.white,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                 shape: RoundedRectangleBorder(
@@ -86,10 +84,7 @@ class ProblemsSolveScreen extends StatelessWidget {
                 children: [
                   Text(
                     item['title']!,
-                    style: GoogleFonts.luckiestGuy(
-                      fontSize: 20,
-                      color: Colors.white,
-                    ),
+                    style: AppTextStyles.heading(20, color: Palette.white),
                   ),
                   const Icon(Icons.chevron_right,
                       size: 30, color: Colors.black87),

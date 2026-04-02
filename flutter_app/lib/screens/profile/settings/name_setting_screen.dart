@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:skill_wallet_kool/l10n/app_localizations.dart'; // อย่าลืม Import นี้
+import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import '../../../providers/user_provider.dart';
+import '../../../theme/palette.dart';
+import '../../../theme/app_text_styles.dart';
 
 class NameSettingScreen extends StatefulWidget {
   const NameSettingScreen({super.key});
@@ -12,19 +13,11 @@ class NameSettingScreen extends StatefulWidget {
 }
 
 class _NameSettingScreenState extends State<NameSettingScreen> {
-  // ตัวควบคุมข้อความในช่องพิมพ์
   late TextEditingController _nameController;
-
-  // สี Theme
-  static const cream = Color(0xFFFFF5CD);
-  static const pinkRed = Color(0xFFEA5B6F);
-  static const blueTitle = Color(0xFF4DA9FF);
-  static const okGreen = Color(0xFF66BB6A);
 
   @override
   void initState() {
     super.initState();
-    // ดึงชื่อปัจจุบันจาก Provider มาแสดงในช่องพิมพ์ก่อน
     final currentName = context.read<UserProvider>().currentParentName ?? '';
     _nameController = TextEditingController(text: currentName);
   }
@@ -59,7 +52,7 @@ class _NameSettingScreenState extends State<NameSettingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: cream,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
@@ -77,12 +70,7 @@ class _NameSettingScreenState extends State<NameSettingScreen> {
                   const SizedBox(width: 16),
                   Text(
                     AppLocalizations.of(context)!.namesetting_changenameBtn,
-                    style: TextStyle(
-                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                      fontSize: 24,
-                      color: blueTitle,
-                    ),
+                    style: AppTextStyles.heading(24, color: Palette.blueChip),
                   ),
                 ],
               ),
@@ -91,36 +79,19 @@ class _NameSettingScreenState extends State<NameSettingScreen> {
               // --- Input Field Label ---
               Text(
                 AppLocalizations.of(context)!.namesetting_enternewnameBtn,
-                style: TextStyle(
-                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                  fontSize: 16,
-                  color: Colors.grey,
-                ),
+                style: AppTextStyles.body(16, color: Colors.grey),
               ),
               const SizedBox(height: 8),
 
               // --- Input TextField ---
               TextField(
                 controller: _nameController,
-                // Style สำหรับข้อความที่พิมพ์เข้าไป
-                style: TextStyle(
-                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                  fontSize: 20,
-                  color: Colors.black87,
-                ),
+                style: AppTextStyles.heading(20, color: Colors.black87),
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.white,
                   hintText: AppLocalizations.of(context)!.namesetting_hint,
-                  // Style สำหรับ Hint Text (ข้อความจางๆ)
-                  hintStyle: TextStyle(
-                    fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                    fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                    fontSize: 20,
-                    color: Colors.black38,
-                  ),
+                  hintStyle: AppTextStyles.body(20, color: Colors.black38),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
@@ -138,19 +109,14 @@ class _NameSettingScreenState extends State<NameSettingScreen> {
                 child: ElevatedButton(
                   onPressed: _saveName,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: okGreen,
+                    backgroundColor: Palette.successAlt,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
                   child: Text(
                     AppLocalizations.of(context)!.namesetting_saveBtn,
-                    style: TextStyle(
-                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                      fontSize: 22,
-                      color: Colors.white,
-                    ),
+                    style: AppTextStyles.heading(22, color: Colors.white),
                   ),
                 ),
               ),

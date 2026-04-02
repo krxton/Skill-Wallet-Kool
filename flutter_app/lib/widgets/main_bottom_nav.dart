@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import '../theme/palette.dart';
 
-class MainBottomNav extends StatelessWidget {
+class MainBottomNav extends StatefulWidget {
   const MainBottomNav({
     super.key,
     required this.selectedIndex,
@@ -10,42 +11,45 @@ class MainBottomNav extends StatelessWidget {
   final int selectedIndex;
   final ValueChanged<int> onTabSelected;
 
-  static const salmon = Color.fromARGB(255, 45, 163, 248); // แถบชมพู
-  static const yolk = Color.fromARGB(255, 249, 216, 98); // สีเหลืองปุ่มเลือก
+  @override
+  State<MainBottomNav> createState() => _MainBottomNavState();
+}
+
+class _MainBottomNavState extends State<MainBottomNav> {
+  bool _centerPressed = false;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 64,
-      color: salmon,
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          _buildIconButton(
-            index: 0,
-            icon: Icons.home_rounded,
+      decoration: BoxDecoration(gradient: Palette.skyGradient),
+      child: SafeArea(
+        top: false,
+        child: Container(
+          height: 64,
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildIconButton(index: 0, icon: Icons.home_rounded),
+              _buildCenterPlus(),
+              _buildIconButton(index: 2, icon: Icons.person_rounded),
+            ],
           ),
-          _buildCenterPlus(),
-          _buildIconButton(
-            index: 2,
-            icon: Icons.person_rounded,
-          ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildIconButton({required int index, required IconData icon}) {
-    final bool isSelected = selectedIndex == index;
+    final bool isSelected = widget.selectedIndex == index;
     return GestureDetector(
-      onTap: () => onTabSelected(index),
+      onTap: () => widget.onTabSelected(index),
       child: Container(
-        width: 56,
-        height: 56,
+        width: 52,
+        height: 52,
         decoration: BoxDecoration(
-          color: isSelected ? yolk : Colors.transparent,
-          borderRadius: BorderRadius.circular(18),
+          color: isSelected ? Palette.yellow : Colors.transparent,
+          shape: BoxShape.circle,
         ),
         child: Icon(
           icon,
@@ -58,19 +62,26 @@ class MainBottomNav extends StatelessWidget {
 
   Widget _buildCenterPlus() {
     return GestureDetector(
-      onTap: () => onTabSelected(1),
-      child: Container(
+      onTapDown: (_) => setState(() => _centerPressed = true),
+      onTapUp: (_) {
+        setState(() => _centerPressed = false);
+        widget.onTabSelected(1);
+      },
+      onTapCancel: () => setState(() => _centerPressed = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 120),
         width: 52,
         height: 52,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(color: Colors.white, width: 3),
+          color: _centerPressed ? Palette.skyDark : Colors.transparent,
+          boxShadow: _centerPressed ? Palette.buttonShadow : null,
         ),
         child: const Center(
           child: Icon(
             Icons.add,
             color: Colors.white,
-            size: 24,
+            size: 28,
           ),
         ),
       ),

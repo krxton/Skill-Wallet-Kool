@@ -71,7 +71,7 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
         : l10n.home_nonewBtn;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF5CD),
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Column(
           children: [
@@ -254,8 +254,7 @@ class _ActivityGridCard extends StatelessWidget {
                   ),
                   Text(
                     '${AppLocalizations.of(context)!.common_score}: ${activity.maxScore}',
-                    style: TextStyle(
-                        fontSize: 9, color: Colors.grey.shade600),
+                    style: AppTextStyles.body(9, color: Colors.grey.shade600),
                   ),
                 ],
               ),
@@ -293,30 +292,26 @@ class _ActivityGridCard extends StatelessWidget {
       return Image.asset('assets/images/Analysis_img.jpg',
           fit: BoxFit.cover, width: double.infinity, height: double.infinity,
           errorBuilder: (_, __, ___) => Container(
-                color: const Color(0xFFFF9800),
+                color: Palette.warning,
                 alignment: Alignment.center,
-                child: const Text('+-×÷',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold)),
+                child: Text('+-×÷',
+                    style: AppTextStyles.body(20,
+                        color: Colors.white, weight: FontWeight.bold)),
               ));
     }
     if (category == 'ด้านภาษา' ||
         category.toUpperCase() == 'LANGUAGE') {
       return Container(
-        color: const Color(0xFFFFEB3B),
+        color: Palette.languagePlaceholder,
         alignment: Alignment.center,
-        child: const Text('ABC',
-            style: TextStyle(
-                color: Colors.black87,
-                fontSize: 24,
-                fontWeight: FontWeight.bold)),
+        child: Text('ABC',
+            style: AppTextStyles.body(24,
+                color: Colors.black87, weight: FontWeight.bold)),
       );
     }
     if (category == 'ด้านร่างกาย') {
       return Container(
-        color: const Color(0xFFFFAB91),
+        color: Palette.physicalPlaceholder,
         alignment: Alignment.center,
         child: const Icon(Icons.directions_run, color: Colors.white, size: 36),
       );
@@ -326,8 +321,7 @@ class _ActivityGridCard extends StatelessWidget {
       alignment: Alignment.center,
       child: Text(
         category.isNotEmpty ? category.substring(0, 1) : '?',
-        style: const TextStyle(
-            color: Colors.white, fontSize: 30, fontWeight: FontWeight.bold),
+        style: AppTextStyles.body(30, color: Colors.white, weight: FontWeight.bold),
       ),
     );
   }

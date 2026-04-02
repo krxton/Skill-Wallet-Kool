@@ -319,7 +319,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
     final elapsedSeconds = _activityStopwatch.elapsed.inSeconds;
 
     return Scaffold(
-      backgroundColor: Palette.cream,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

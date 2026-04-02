@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
+import '../../../theme/palette.dart';
+import '../../../theme/app_text_styles.dart';
 
 class NotificationSettingScreen extends StatefulWidget {
   const NotificationSettingScreen({super.key});
@@ -11,13 +12,6 @@ class NotificationSettingScreen extends StatefulWidget {
 }
 
 class _NotificationSettingScreenState extends State<NotificationSettingScreen> {
-  // สี Theme
-  static const cream = Color(0xFFFFF5CD);
-  static const blueTitle = Color(0xFF4DA9FF);
-  static const pinkSwitch = Color(0xFFFF8E8E);
-  static const greySwitch = Color(0xFFD9D9D9);
-  static const textGrey = Color(0xFF8E8E8E);
-
   // สถานะของปุ่มต่างๆ
   bool _allNotifications = true;
   bool _likeNotification = true;
@@ -28,7 +22,7 @@ class _NotificationSettingScreenState extends State<NotificationSettingScreen> {
     final bool isSubOptionsEnabled = _allNotifications;
 
     return Scaffold(
-      backgroundColor: cream,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
@@ -50,12 +44,7 @@ class _NotificationSettingScreenState extends State<NotificationSettingScreen> {
                   Text(
                     AppLocalizations.of(context)!
                         .notificationsetting_notificationBtn,
-                    style: TextStyle(
-                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                      fontSize: 24,
-                      color: blueTitle,
-                    ),
+                    style: AppTextStyles.heading(24, color: Palette.blueChip),
                   ),
                 ],
               ),
@@ -69,7 +58,6 @@ class _NotificationSettingScreenState extends State<NotificationSettingScreen> {
                 onChanged: (val) {
                   setState(() {
                     _allNotifications = val;
-                    // สั่งให้ตัวลูก (Like/Comment) มีค่าเท่ากับตัวแม่เสมอ
                     _likeNotification = val;
                     _commentNotification = val;
                   });
@@ -82,12 +70,7 @@ class _NotificationSettingScreenState extends State<NotificationSettingScreen> {
               // --- 3. POST Category ---
               Text(
                 AppLocalizations.of(context)!.notificationsetting_postBtn,
-                style: TextStyle(
-                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                  fontSize: 20,
-                  color: textGrey,
-                ),
+                style: AppTextStyles.heading(20, color: Palette.labelGrey),
               ),
               const SizedBox(height: 16),
 
@@ -141,12 +124,8 @@ class _NotificationSettingScreenState extends State<NotificationSettingScreen> {
         Expanded(
           child: Text(
             title,
-            style: TextStyle(
-              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-              fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-              fontSize: 20,
-              color: isEnabled ? Colors.black87 : Colors.grey.shade400,
-            ),
+            style: AppTextStyles.heading(20,
+                color: isEnabled ? Colors.black87 : Colors.grey.shade400),
           ),
         ),
         Transform.scale(
@@ -155,9 +134,9 @@ class _NotificationSettingScreenState extends State<NotificationSettingScreen> {
             value: value,
             onChanged: onChanged,
             activeThumbColor: Colors.white,
-            activeTrackColor: pinkSwitch,
+            activeTrackColor: Palette.error,
             inactiveThumbColor: Colors.white,
-            inactiveTrackColor: greySwitch,
+            inactiveTrackColor: Palette.greyCard,
             trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
           ),
         ),

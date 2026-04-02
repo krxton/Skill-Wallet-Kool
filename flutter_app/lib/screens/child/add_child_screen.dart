@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../services/child_service.dart';
 import '../../routes/app_routes.dart';
+import '../../theme/palette.dart';
+import '../../theme/app_text_styles.dart';
 
 class AddChildScreen extends StatefulWidget {
   const AddChildScreen({super.key, this.isRequired = false});
@@ -20,15 +21,11 @@ class AddChildScreen extends StatefulWidget {
 class _AddChildScreenState extends State<AddChildScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _birthDayController = TextEditingController();
+  final TextEditingController _relationController = TextEditingController();
   DateTime? _selectedBirthday;
   String? _selectedRelation;
   bool _isLoading = false;
 
-  static const cream = Color(0xFFFFF5CD);
-  static const sky = Color(0xFF5AB2FF);
-  static const blueInput = Color(0xFFBBDEFB);
-  static const greenBtn = Color(0xFF88C273);
-  static const redLabel = Color(0xFFFF8A80);
 
   List<String> _relationOptions(AppLocalizations l10n) => [
         l10n.relation_parent,
@@ -50,7 +47,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
-              primary: sky,
+              primary: Palette.blueChip,
               onPrimary: Colors.white,
               onSurface: Colors.black,
             ),
@@ -73,53 +70,57 @@ class _AddChildScreenState extends State<AddChildScreen> {
     final options = _relationOptions(l10n);
     await showModalBottomSheet<void>(
       context: context,
-      backgroundColor: cream,
+      backgroundColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 8),
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.black26,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              child: Text(
-                l10n.relation_label,
-                style: TextStyle(
-                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                  fontSize: 18,
-                  color: redLabel,
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.black26,
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
-            ),
-            ...options.map((option) => ListTile(
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 2),
-                  title: Text(
-                    option,
-                    style: GoogleFonts.itim(fontSize: 16, color: Colors.black87),
-                  ),
-                  trailing: _selectedRelation == option
-                      ? const Icon(Icons.check, color: sky)
-                      : null,
-                  onTap: () {
-                    setState(() => _selectedRelation = option);
-                    Navigator.pop(ctx);
-                  },
-                )),
-            const SizedBox(height: 8),
-          ],
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                child: Text(
+                  l10n.relation_label,
+                  style: AppTextStyles.heading(18, color: Palette.error),
+                ),
+              ),
+              ...options.map((option) => ListTile(
+                    contentPadding:
+                        const EdgeInsets.symmetric(horizontal: 24, vertical: 2),
+                    title: Text(
+                      option,
+                      style: AppTextStyles.body(16, color: Colors.black87),
+                    ),
+                    trailing: _selectedRelation == option
+                        ? const Icon(Icons.check, color: Palette.blueChip)
+                        : null,
+                    onTap: () {
+                      setState(() {
+                        _selectedRelation = option;
+                        _relationController.text = option;
+                      });
+                      Navigator.pop(ctx);
+                    },
+                  )),
+              const SizedBox(height: 8),
+            ],
+          ),
         ),
       ),
     );
@@ -136,25 +137,25 @@ class _AddChildScreenState extends State<AddChildScreen> {
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
           l10n.addchild_logoutTitle,
-          style: GoogleFonts.luckiestGuy(fontSize: 18),
+          style: AppTextStyles.heading(18),
         ),
         content: Text(
           l10n.addchild_logoutMsg,
-          style: GoogleFonts.itim(fontSize: 14),
+          style: AppTextStyles.body(14),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(
               l10n.common_cancel,
-              style: GoogleFonts.itim(fontSize: 14, color: Colors.black54),
+              style: AppTextStyles.body(14, color: Colors.black54),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(
               l10n.setting_logoutBtn,
-              style: GoogleFonts.itim(fontSize: 14, color: Colors.red),
+              style: AppTextStyles.body(14, color: Palette.pink),
             ),
           ),
         ],
@@ -181,7 +182,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(
           l10n.addchild_errorRequiredFields,
-          style: GoogleFonts.itim(),
+          style: AppTextStyles.body(14),
         ),
       ));
       return;
@@ -205,7 +206,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           content: Text(
             l10n.register_Anerroroccurredplstry,
-            style: GoogleFonts.itim(),
+            style: AppTextStyles.body(14),
           ),
         ));
       }
@@ -213,7 +214,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(e.toString(), style: GoogleFonts.itim()),
+          content: Text(e.toString(), style: AppTextStyles.body(14)),
         ));
       }
     }
@@ -223,6 +224,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
   void dispose() {
     _nameController.dispose();
     _birthDayController.dispose();
+    _relationController.dispose();
     super.dispose();
   }
 
@@ -236,7 +238,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
         if (!didPop && widget.isRequired) _showLogoutDialog();
       },
       child: Scaffold(
-        backgroundColor: cream,
+        backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -249,13 +251,8 @@ class _AddChildScreenState extends State<AddChildScreen> {
           centerTitle: true,
           title: Text(
             l10n.register_registerBtn,
-            style: TextStyle(
-              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-              fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-              fontSize: 28,
-              color: sky,
-              letterSpacing: 1.5,
-            ),
+            style: AppTextStyles.heading(28, color: Palette.blueChip)
+                .copyWith(letterSpacing: 1.5),
           ),
         ),
         body: SingleChildScrollView(
@@ -266,12 +263,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
               Center(
                 child: Text(
                   l10n.register_additionalBtn,
-                  style: TextStyle(
-                    fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                    fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                    fontSize: 20,
-                    color: sky,
-                  ),
+                  style: AppTextStyles.heading(20, color: Palette.blueChip),
                 ),
               ),
               const SizedBox(height: 30),
@@ -279,18 +271,14 @@ class _AddChildScreenState extends State<AddChildScreen> {
               // ── Name ─────────────────────────────────────────────────────
               Text(
                 l10n.addchild_namesurnameBtn,
-                style: TextStyle(
-                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                  fontSize: 16,
-                  color: redLabel,
-                ),
+                style: AppTextStyles.heading(16, color: Palette.error),
               ),
               const SizedBox(height: 5),
               _inputContainer(
                 child: TextField(
                   controller: _nameController,
-                  style: GoogleFonts.itim(fontSize: 15, color: Colors.black87),
+                  style: AppTextStyles.body(15, color: Colors.black87),
+                  textAlignVertical: TextAlignVertical.center,
                   decoration: const InputDecoration(
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(horizontal: 20),
@@ -303,12 +291,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
               // ── Birthday ──────────────────────────────────────────────────
               Text(
                 l10n.addchild_birthdayBtn,
-                style: TextStyle(
-                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                  fontSize: 16,
-                  color: redLabel,
-                ),
+                style: AppTextStyles.heading(16, color: Palette.error),
               ),
               const SizedBox(height: 5),
               GestureDetector(
@@ -317,15 +300,15 @@ class _AddChildScreenState extends State<AddChildScreen> {
                   child: AbsorbPointer(
                     child: TextField(
                       controller: _birthDayController,
-                      style:
-                          GoogleFonts.itim(fontSize: 15, color: Colors.black87),
+                      style: AppTextStyles.body(15, color: Colors.black87),
+                      textAlignVertical: TextAlignVertical.center,
                       decoration: InputDecoration(
                         border: InputBorder.none,
                         contentPadding:
                             const EdgeInsets.symmetric(horizontal: 20),
                         hintText: l10n.register_pickbirthday,
                         hintStyle:
-                            GoogleFonts.itim(fontSize: 15, color: Colors.grey),
+                            AppTextStyles.body(15, color: Colors.grey),
                         suffixIcon: const Icon(Icons.calendar_today,
                             color: Colors.grey),
                       ),
@@ -339,37 +322,27 @@ class _AddChildScreenState extends State<AddChildScreen> {
               // ── Relationship ──────────────────────────────────────────────
               Text(
                 l10n.relation_label,
-                style: TextStyle(
-                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                  fontSize: 16,
-                  color: redLabel,
-                ),
+                style: AppTextStyles.heading(16, color: Palette.error),
               ),
               const SizedBox(height: 5),
               GestureDetector(
                 onTap: () => _pickRelation(l10n),
                 child: _inputContainer(
-                  child: Row(
-                    children: [
-                      const SizedBox(width: 20),
-                      Expanded(
-                        child: Text(
-                          _selectedRelation ?? l10n.relation_hint,
-                          style: GoogleFonts.itim(
-                            fontSize: 15,
-                            color: _selectedRelation != null
-                                ? Colors.black87
-                                : Colors.grey,
-                          ),
-                        ),
+                  child: AbsorbPointer(
+                    child: TextField(
+                      controller: _relationController,
+                      style: AppTextStyles.body(15, color: Colors.black87),
+                      textAlignVertical: TextAlignVertical.center,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 20),
+                        hintText: l10n.relation_hint,
+                        hintStyle: AppTextStyles.body(15, color: Colors.grey),
+                        suffixIcon: const Icon(Icons.arrow_drop_down,
+                            color: Colors.black54),
                       ),
-                      const Padding(
-                        padding: EdgeInsets.only(right: 12),
-                        child:
-                            Icon(Icons.arrow_drop_down, color: Colors.black54),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
@@ -394,13 +367,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
                                 SnackBar(
                                   content: Text(
                                     l10n.addchild_errorName,
-                                    style: TextStyle(
-                                      fontFamily:
-                                          GoogleFonts.luckiestGuy().fontFamily,
-                                      fontFamilyFallback: [
-                                        GoogleFonts.itim().fontFamily!
-                                      ],
-                                    ),
+                                    style: AppTextStyles.heading(14),
                                   ),
                                 ),
                               );
@@ -415,7 +382,8 @@ class _AddChildScreenState extends State<AddChildScreen> {
                           }
                         },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: _isLoading ? Colors.grey : greenBtn,
+                    backgroundColor:
+                        _isLoading ? Colors.grey : Palette.success,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
@@ -433,14 +401,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
                         )
                       : Text(
                           l10n.addchild_okBtn,
-                          style: TextStyle(
-                            fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                            fontFamilyFallback: [
-                              GoogleFonts.itim().fontFamily!
-                            ],
-                            fontSize: 24,
-                            color: Colors.white,
-                          ),
+                          style: AppTextStyles.heading(24, color: Colors.white),
                         ),
                 ),
               ),
@@ -455,7 +416,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
     return Container(
       height: 50,
       decoration: BoxDecoration(
-        color: blueInput,
+        color: Palette.lightBlue,
         borderRadius: BorderRadius.circular(25),
       ),
       child: child,

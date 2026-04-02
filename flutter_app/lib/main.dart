@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'routes/app_routes.dart';
 import 'theme/app_theme.dart';
+import 'theme/palette.dart';
 import 'providers/user_provider.dart';
 import 'services/deep_link_service.dart';
 import 'services/storage_service.dart';
@@ -178,6 +179,10 @@ class _SWKAppState extends State<SWKApp> {
       supportedLocales: AppLocalizations.supportedLocales,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
+      builder: (context, child) => Container(
+        decoration: BoxDecoration(gradient: Palette.appBackground),
+        child: child!,
+      ),
       home: const AuthWrapper(), // ✅ ใช้ home แทน initialRoute
       routes: appRoutes, // ✅ ใช้ routes ที่ลบ '/' ออกแล้ว
     );

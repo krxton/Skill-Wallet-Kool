@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import '../../services/child_service.dart';
 import '../../routes/app_routes.dart';
+import '../../theme/palette.dart';
+import '../../theme/app_text_styles.dart';
 
 class ChildrenInfoScreen extends StatefulWidget {
   const ChildrenInfoScreen({super.key});
@@ -14,13 +15,6 @@ class ChildrenInfoScreen extends StatefulWidget {
 class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
   final ChildService childService = ChildService();
   bool _isLoading = false;
-
-  static const cream = Color(0xFFFFF5CD);
-  static const sky = Color(0xFF0D92F4);
-  static const redLabel = Color(0xFFE54D4D);
-  static const fieldBg = Color(0xFFBBDEFB);
-  static const okGreen = Color(0xFF66BB6A);
-  static const backPink = Color(0xFFEA5B6F);
 
   final List<_ChildFields> _children = [_ChildFields()];
 
@@ -46,33 +40,22 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: cream,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Column(
           children: [
-            // Scrollable content
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(24, 10, 24, 16),
                 children: [
                   Text(
                     l10n.register_registerBtn,
-                    style: TextStyle(
-                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                      fontSize: 28,
-                      color: sky,
-                    ),
+                    style: AppTextStyles.heading(28, color: Palette.sky),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     l10n.register_additionalBtn,
-                    style: TextStyle(
-                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                      fontSize: 22,
-                      color: sky,
-                    ),
+                    style: AppTextStyles.heading(22, color: Palette.sky),
                   ),
                   const SizedBox(height: 20),
                   ..._children.asMap().entries.map((e) {
@@ -90,8 +73,8 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
                               Expanded(
                                 child: Text(
                                   l10n.register_namesurnamechildBtn(i + 1),
-                                  style: GoogleFonts.luckiestGuy(
-                                      fontSize: 16, color: redLabel),
+                                  style: AppTextStyles.heading(16,
+                                      color: Palette.errorStrong),
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
@@ -114,20 +97,14 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
                             decoration: _dec(hint: l10n.register_childNameHint),
                             keyboardType: TextInputType.text,
                             textInputAction: TextInputAction.next,
-                            style: GoogleFonts.itim(
-                                fontSize: 14, color: Colors.black87),
+                            style:
+                                AppTextStyles.body(14, color: Colors.black87),
                           ),
                           const SizedBox(height: 14),
                           Text(
                             l10n.register_birthdayBtn,
-                            style: TextStyle(
-                              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                              fontFamilyFallback: [
-                                GoogleFonts.itim().fontFamily!
-                              ],
-                              fontSize: 16,
-                              color: redLabel,
-                            ),
+                            style: AppTextStyles.heading(16,
+                                color: Palette.errorStrong),
                           ),
                           const SizedBox(height: 6),
                           GestureDetector(
@@ -137,22 +114,16 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
                                 controller: c.birthCtrl,
                                 decoration:
                                     _dec(hint: l10n.register_birthdayHint),
-                                style: GoogleFonts.itim(
-                                    fontSize: 14, color: Colors.black87),
+                                style: AppTextStyles.body(14,
+                                    color: Colors.black87),
                               ),
                             ),
                           ),
                           const SizedBox(height: 14),
                           Text(
                             l10n.relation_label,
-                            style: TextStyle(
-                              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                              fontFamilyFallback: [
-                                GoogleFonts.itim().fontFamily!
-                              ],
-                              fontSize: 16,
-                              color: redLabel,
-                            ),
+                            style: AppTextStyles.heading(16,
+                                color: Palette.errorStrong),
                           ),
                           const SizedBox(height: 6),
                           GestureDetector(
@@ -162,7 +133,7 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 20, vertical: 16),
                               decoration: BoxDecoration(
-                                color: fieldBg,
+                                color: const Color(0xFFBBDEFB),
                                 borderRadius: BorderRadius.circular(26),
                               ),
                               child: Row(
@@ -170,8 +141,8 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
                                   Expanded(
                                     child: Text(
                                       c.selectedRelation ?? l10n.relation_hint,
-                                      style: GoogleFonts.itim(
-                                        fontSize: 14,
+                                      style: AppTextStyles.body(
+                                        14,
                                         color: c.selectedRelation != null
                                             ? Colors.black87
                                             : Colors.black38,
@@ -209,16 +180,15 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
               ),
             ),
 
-            // Sticky bottom bar: Back + Confirm
+            // Sticky bottom bar
             Container(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
               decoration: const BoxDecoration(
-                color: cream,
+                color: Palette.cream,
                 border: Border(top: BorderSide(color: Colors.black12)),
               ),
               child: Row(
                 children: [
-                  // Back button
                   InkWell(
                     onTap: _isLoading ? null : () => Navigator.pop(context),
                     borderRadius: BorderRadius.circular(8),
@@ -230,32 +200,26 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
                         children: [
                           Icon(
                             Icons.arrow_back,
-                            color: _isLoading ? Colors.grey : backPink,
+                            color: _isLoading ? Colors.grey : Palette.pink,
                             size: 26,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             l10n.register_backBtn,
-                            style: TextStyle(
-                              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                              fontFamilyFallback: [
-                                GoogleFonts.itim().fontFamily!
-                              ],
-                              fontSize: 22,
-                              color: _isLoading ? Colors.grey : backPink,
-                            ),
+                            style: AppTextStyles.heading(22,
+                                color:
+                                    _isLoading ? Colors.grey : Palette.pink),
                           ),
                         ],
                       ),
                     ),
                   ),
                   const SizedBox(width: 12),
-                  // Confirm button
                   Expanded(
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : () => _submit(context),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: okGreen,
+                        backgroundColor: Palette.successAlt,
                         disabledBackgroundColor: Colors.grey,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
@@ -269,20 +233,14 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
                               width: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white),
                               ),
                             )
                           : Text(
                               l10n.common_ok,
-                              style: TextStyle(
-                                fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                                fontFamilyFallback: [
-                                  GoogleFonts.itim().fontFamily!
-                                ],
-                                fontSize: 20,
-                                color: Colors.white,
-                              ),
+                              style: AppTextStyles.heading(20,
+                                  color: Colors.white),
                             ),
                     ),
                   ),
@@ -299,53 +257,55 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
     final options = _relationOptions(l10n);
     await showModalBottomSheet<void>(
       context: context,
-      backgroundColor: cream,
+      backgroundColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 8),
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.black26,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              child: Text(
-                l10n.relation_label,
-                style: TextStyle(
-                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                  fontSize: 18,
-                  color: redLabel,
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 12),
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.black26,
+                  borderRadius: BorderRadius.circular(2),
                 ),
               ),
-            ),
-            ...options.map((option) => ListTile(
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 2),
-                  title: Text(
-                    option,
-                    style:
-                        GoogleFonts.itim(fontSize: 16, color: Colors.black87),
-                  ),
-                  trailing: _children[index].selectedRelation == option
-                      ? const Icon(Icons.check, color: Color(0xFF0D92F4))
-                      : null,
-                  onTap: () {
-                    setState(() => _children[index].selectedRelation = option);
-                    Navigator.pop(ctx);
-                  },
-                )),
-            const SizedBox(height: 8),
-          ],
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                child: Text(
+                  l10n.relation_label,
+                  style: AppTextStyles.heading(18, color: Palette.errorStrong),
+                ),
+              ),
+              ...options.map((option) => ListTile(
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 2),
+                    title: Text(
+                      option,
+                      style: AppTextStyles.body(16, color: Colors.black87),
+                    ),
+                    trailing: _children[index].selectedRelation == option
+                        ? const Icon(Icons.check, color: Palette.sky)
+                        : null,
+                    onTap: () {
+                      setState(
+                          () => _children[index].selectedRelation = option);
+                      Navigator.pop(ctx);
+                    },
+                  )),
+              const SizedBox(height: 8),
+            ],
+          ),
         ),
       ),
     );
@@ -403,7 +363,6 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
           .toList();
 
       final addedChildren = await childService.addChildren(childrenData);
-
       setState(() => _isLoading = false);
 
       if (addedChildren.isNotEmpty) {
@@ -427,9 +386,9 @@ class _ChildrenInfoScreenState extends State<ChildrenInfoScreen> {
 
   InputDecoration _dec({String? hint}) => InputDecoration(
         filled: true,
-        fillColor: fieldBg,
+        fillColor: const Color(0xFFBBDEFB),
         hintText: hint,
-        hintStyle: GoogleFonts.itim(color: Colors.black38, fontSize: 14),
+        hintStyle: AppTextStyles.body(14, color: Colors.black38),
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
         border: OutlineInputBorder(

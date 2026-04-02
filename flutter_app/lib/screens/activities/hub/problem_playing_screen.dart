@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../theme/palette.dart';
+import '../../../theme/app_text_styles.dart';
 
 class ProblemPlayingScreen extends StatefulWidget {
   const ProblemPlayingScreen({super.key});
@@ -13,12 +13,6 @@ class ProblemPlayingScreen extends StatefulWidget {
 }
 
 class _ProblemPlayingScreenState extends State<ProblemPlayingScreen> {
-  // 🎨 สีตาม Theme
-  static const blueBtn = Color(0xFFA2D2FF);
-  static const greenBtn = Color(0xFF88C273);
-  static const redText = Color(0xFFFF8A8A); // สีหัวข้อ Diary/Image
-  static const yellowBadge = Color(0xFFFFD93D); // สีป้ายชื่อ
-
   // Logic ตัวแปร
   int medals = 0;
   Timer? _timer;
@@ -57,7 +51,7 @@ class _ProblemPlayingScreenState extends State<ProblemPlayingScreen> {
     final args = ModalRoute.of(context)?.settings.arguments;
 
     return Scaffold(
-      backgroundColor: Palette.cream,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -68,9 +62,7 @@ class _ProblemPlayingScreenState extends State<ProblemPlayingScreen> {
         centerTitle: true,
         title: Text(
           AppLocalizations.of(context)!.problemplaying_title,
-          style: GoogleFonts.luckiestGuy(
-            fontSize: 26,
-            color: Palette.sky,
+          style: AppTextStyles.heading(26, color: Palette.sky).copyWith(
             letterSpacing: 1.5,
           ),
         ),
@@ -89,7 +81,7 @@ class _ProblemPlayingScreenState extends State<ProblemPlayingScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: yellowBadge,
+                    color: Palette.yellow,
                     borderRadius: BorderRadius.circular(30),
                   ),
                   child: Row(
@@ -102,10 +94,7 @@ class _ProblemPlayingScreenState extends State<ProblemPlayingScreen> {
                       const SizedBox(width: 8),
                       Text(
                         'KRATON',
-                        style: GoogleFonts.luckiestGuy(
-                          fontSize: 18,
-                          color: Colors.black,
-                        ),
+                        style: AppTextStyles.heading(18, color: Colors.black),
                       ),
                     ],
                   ),
@@ -122,17 +111,14 @@ class _ProblemPlayingScreenState extends State<ProblemPlayingScreen> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: blueBtn,
+                    backgroundColor: Palette.lightBlue,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
                   ),
                   child: Text(
                     AppLocalizations.of(context)!.problemplaying_answerBtn,
-                    style: GoogleFonts.luckiestGuy(
-                      fontSize: 16,
-                      color: Colors.white,
-                    ),
+                    style: AppTextStyles.heading(16, color: Palette.white),
                   ),
                 ),
               ],
@@ -142,10 +128,7 @@ class _ProblemPlayingScreenState extends State<ProblemPlayingScreen> {
 
             Text(
               AppLocalizations.of(context)!.problemplaying_resultsTitle,
-              style: GoogleFonts.luckiestGuy(
-                fontSize: 20,
-                color: Colors.black54,
-              ),
+              style: AppTextStyles.heading(20, color: Colors.black54),
             ),
 
             const SizedBox(height: 10),
@@ -157,16 +140,13 @@ class _ProblemPlayingScreenState extends State<ProblemPlayingScreen> {
                 const SizedBox(width: 8),
                 Text(
                   AppLocalizations.of(context)!.problemplaying_medalsLabel,
-                  style: GoogleFonts.luckiestGuy(
-                    fontSize: 20,
-                    color: Colors.orange,
-                  ),
+                  style: AppTextStyles.heading(20, color: Colors.orange),
                 ),
                 const Spacer(),
                 // ตัวปรับลดเพิ่มเหรียญ
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Palette.white,
                     borderRadius: BorderRadius.circular(15),
                   ),
                   child: Row(
@@ -179,7 +159,7 @@ class _ProblemPlayingScreenState extends State<ProblemPlayingScreen> {
                       ),
                       Text(
                         '$medals',
-                        style: GoogleFonts.luckiestGuy(fontSize: 20),
+                        style: AppTextStyles.heading(20),
                       ),
                       IconButton(
                         onPressed: () => setState(() {
@@ -198,13 +178,13 @@ class _ProblemPlayingScreenState extends State<ProblemPlayingScreen> {
             // DIARY Input
             Text(
               AppLocalizations.of(context)!.problemplaying_diaryLabel,
-              style: GoogleFonts.luckiestGuy(fontSize: 20, color: redText),
+              style: AppTextStyles.heading(20, color: Palette.error),
             ),
             const SizedBox(height: 5),
             Container(
               height: 120,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Palette.white,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: TextField(
@@ -223,14 +203,14 @@ class _ProblemPlayingScreenState extends State<ProblemPlayingScreen> {
             // IMAGE Input
             Text(
               AppLocalizations.of(context)!.problemplaying_imageLabel,
-              style: GoogleFonts.luckiestGuy(fontSize: 20, color: redText),
+              style: AppTextStyles.heading(20, color: Palette.error),
             ),
             const SizedBox(height: 5),
             Container(
               height: 120,
               width: double.infinity,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Palette.white,
                 borderRadius: BorderRadius.circular(20),
               ),
               child: IconButton(
@@ -249,23 +229,19 @@ class _ProblemPlayingScreenState extends State<ProblemPlayingScreen> {
                 children: [
                   Text(
                     AppLocalizations.of(context)!.problemplaying_timeLabel,
-                    style:
-                        GoogleFonts.luckiestGuy(fontSize: 20, color: redText),
+                    style: AppTextStyles.heading(20, color: Palette.error),
                   ),
                   Container(
                     margin: const EdgeInsets.only(top: 5),
                     padding: const EdgeInsets.symmetric(
                         horizontal: 40, vertical: 10),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Palette.white,
                       borderRadius: BorderRadius.circular(30),
                     ),
                     child: Text(
                       _formatTime(_seconds),
-                      style: GoogleFonts.luckiestGuy(
-                        fontSize: 24,
-                        color: Palette.sky,
-                      ),
+                      style: AppTextStyles.heading(24, color: Palette.sky),
                     ),
                   ),
                 ],
@@ -284,7 +260,7 @@ class _ProblemPlayingScreenState extends State<ProblemPlayingScreen> {
                       Navigator.pop(context); // กลับหน้าเดิม
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: greenBtn,
+                      backgroundColor: Palette.success,
                       padding: const EdgeInsets.symmetric(vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
@@ -292,10 +268,7 @@ class _ProblemPlayingScreenState extends State<ProblemPlayingScreen> {
                     ),
                     child: Text(
                       AppLocalizations.of(context)!.problemplaying_finishBtn,
-                      style: GoogleFonts.luckiestGuy(
-                        fontSize: 20,
-                        color: Colors.white,
-                      ),
+                      style: AppTextStyles.heading(20, color: Palette.white),
                     ),
                   ),
                 ),

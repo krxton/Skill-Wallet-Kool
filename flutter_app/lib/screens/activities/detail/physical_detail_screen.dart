@@ -287,8 +287,7 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
       // สำหรับวิดีโอ (แสดงไอคอน)
       return Center(child: Icon(icon, size: 50, color: Palette.sky));
     }
-    // ignore: deprecated_member_use
-    return Icon(Icons.add, size: 50, color: Palette.deepGrey.withOpacity(0.5));
+    return Icon(Icons.add, size: 50, color: Palette.deepGrey.withValues(alpha: 0.5));
   }
 
   // ── Score Section: แสดงคะแนนแยกต่อเด็กแต่ละคน ──
@@ -446,9 +445,9 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
     final bool isEvidenceAttached = _videoPath != null || _imagePath != null;
 
     return Scaffold(
-      backgroundColor: Palette.cream,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: Palette.cream,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),

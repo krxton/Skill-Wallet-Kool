@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../theme/palette.dart';
+import '../../../theme/app_text_styles.dart';
 
 class PlusScreen extends StatelessWidget {
   const PlusScreen({super.key});
 
-  // 🎨 สีตาม Theme
+  // 🎨 colors not in Palette, kept locally
   static const orangeItem = Color(0xFFEF9C66); // สีพื้นหลังโจทย์
-  static const greenBtn = Color(0xFF88C273); // สีปุ่ม Start
   static const purpleBtn = Color(0xFFCD9EFF); // สีปุ่ม Cast
-  static const blueBtn = Color(0xFFA2D2FF); // สีปุ่ม Answer
+  // light blue header label not in Palette, kept locally
+  static const headerBlue = Color(0xFF8ECDF7); // สีฟ้าอ่อนตามรูป
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +30,7 @@ class PlusScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: Palette.cream,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -41,9 +41,7 @@ class PlusScreen extends StatelessWidget {
         centerTitle: true,
         title: Text(
           AppLocalizations.of(context)!.plus_title,
-          style: GoogleFonts.luckiestGuy(
-            fontSize: 32,
-            color: Palette.sky,
+          style: AppTextStyles.heading(32, color: Palette.sky).copyWith(
             letterSpacing: 2,
           ),
         ),
@@ -56,10 +54,7 @@ class PlusScreen extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
             child: Text(
               AppLocalizations.of(context)!.plus_questionTitle,
-              style: GoogleFonts.luckiestGuy(
-                fontSize: 24,
-                color: const Color(0xFF8ECDF7), // สีฟ้าอ่อนตามรูป
-              ),
+              style: AppTextStyles.heading(24, color: headerBlue),
             ),
           ),
 
@@ -79,11 +74,8 @@ class PlusScreen extends StatelessWidget {
                   ),
                   child: Text(
                     questions[index],
-                    style: GoogleFonts.luckiestGuy(
-                      fontSize: 24,
-                      color: Colors.white,
-                      letterSpacing: 1.5,
-                    ),
+                    style: AppTextStyles.heading(24, color: Palette.white)
+                        .copyWith(letterSpacing: 1.5),
                   ),
                 );
               },
@@ -105,7 +97,7 @@ class PlusScreen extends StatelessWidget {
                           // TODO: ใส่ Logic เริ่มเกมตรงนี้
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: greenBtn,
+                          backgroundColor: Palette.success,
                           padding: const EdgeInsets.symmetric(vertical: 15),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
@@ -113,10 +105,7 @@ class PlusScreen extends StatelessWidget {
                         ),
                         child: Text(
                           AppLocalizations.of(context)!.plus_startBtn,
-                          style: GoogleFonts.luckiestGuy(
-                            fontSize: 20,
-                            color: Colors.white,
-                          ),
+                          style: AppTextStyles.heading(20, color: Palette.white),
                         ),
                       ),
                     ),
@@ -137,10 +126,7 @@ class PlusScreen extends StatelessWidget {
                         ),
                         child: Text(
                           AppLocalizations.of(context)!.plus_castToTvBtn,
-                          style: GoogleFonts.luckiestGuy(
-                            fontSize: 18,
-                            color: Colors.white,
-                          ),
+                          style: AppTextStyles.heading(18, color: Palette.white),
                         ),
                       ),
                     ),
@@ -156,7 +142,7 @@ class PlusScreen extends StatelessWidget {
                       Navigator.pushNamed(context, AppRoutes.answerPlus);
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: blueBtn,
+                      backgroundColor: Palette.lightBlue,
                       padding: const EdgeInsets.symmetric(vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
@@ -164,10 +150,7 @@ class PlusScreen extends StatelessWidget {
                     ),
                     child: Text(
                       'ANSWER',
-                      style: GoogleFonts.luckiestGuy(
-                        fontSize: 20,
-                        color: Colors.white,
-                      ),
+                      style: AppTextStyles.heading(20, color: Palette.white),
                     ),
                   ),
                 ),

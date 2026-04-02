@@ -125,7 +125,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (ctx, setDialogState) => Dialog(
-          backgroundColor: Palette.cream,
+          backgroundColor: Colors.transparent,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           insetPadding:
@@ -332,7 +332,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (ctx, setDialogState) => Dialog(
-          backgroundColor: Palette.cream,
+          backgroundColor: Colors.transparent,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           insetPadding:
@@ -956,7 +956,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
     }
 
     return Scaffold(
-      backgroundColor: Palette.cream,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -1063,7 +1063,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
     final color = AgreementHelper.colorFor(_sessionType);
 
     return Scaffold(
-      backgroundColor: Palette.cream,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Center(
           child: Padding(

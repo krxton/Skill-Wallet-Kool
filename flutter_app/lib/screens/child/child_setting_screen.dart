@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 
@@ -18,11 +17,6 @@ class ChildSettingScreen extends StatefulWidget {
 }
 
 class _ChildSettingScreenState extends State<ChildSettingScreen> {
-  // 🎨 สีตาม Theme
-  static const cream = Color(0xFFFFF5CD);
-  static const sky = Color(0xFF5AB2FF);
-  static const greenIcon = Color(0xFF88C273);
-
   bool _isLoading = false;
 
   @override
@@ -73,9 +67,7 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
           SnackBar(
             content: Text(
               AppLocalizations.of(context)!.childsetting_addSuccess,
-              style: TextStyle(
-                fontFamily: GoogleFonts.itim().fontFamily,
-              ),
+              style: AppTextStyles.body(14),
             ),
           ),
         );
@@ -117,9 +109,7 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
           SnackBar(
             content: Text(
               AppLocalizations.of(context)!.childsetting_deleteSuccess,
-              style: TextStyle(
-                fontFamily: GoogleFonts.itim().fontFamily,
-              ),
+              style: AppTextStyles.body(14),
             ),
           ),
         );
@@ -146,9 +136,7 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
         SnackBar(
           content: Text(
             AppLocalizations.of(context)!.childsetting_selectSuccess,
-            style: TextStyle(
-              fontFamily: GoogleFonts.itim().fontFamily,
-            ),
+            style: AppTextStyles.body(14),
           ),
           duration: const Duration(seconds: 1),
         ),
@@ -159,7 +147,7 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: cream,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -170,19 +158,14 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
         centerTitle: true,
         title: Text(
           AppLocalizations.of(context)!.childsetting_childsettingBtn,
-          style: TextStyle(
-            fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-            fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-            fontSize: 24,
-            color: sky,
-            letterSpacing: 1.5,
-          ),
+          style: AppTextStyles.heading(24, color: Palette.sky)
+              .copyWith(letterSpacing: 1.5),
         ),
         // ปุ่ม + สำหรับเพิ่มเด็ก
         actions: [
           IconButton(
             onPressed: _addNewChild,
-            icon: const Icon(Icons.add_circle, color: greenIcon, size: 35),
+            icon: const Icon(Icons.add_circle, color: Palette.success, size: 35),
           ),
           const SizedBox(width: 16),
         ],
@@ -194,7 +177,7 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
 
           if (_isLoading) {
             return const Center(
-              child: CircularProgressIndicator(color: sky),
+              child: CircularProgressIndicator(color: Palette.sky),
             );
           }
 
@@ -253,7 +236,9 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                 decoration: BoxDecoration(
                   color: isSelected ? const Color(0xFFE3F2FD) : Colors.white,
                   borderRadius: BorderRadius.circular(25),
-                  border: isSelected ? Border.all(color: sky, width: 3) : null,
+                  border: isSelected
+                      ? Border.all(color: Palette.sky, width: 3)
+                      : null,
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.05),
@@ -270,22 +255,22 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                         CircleAvatar(
                           radius: 35,
                           backgroundColor: Colors.grey.shade200,
-                          backgroundImage: (childInfo['photo_url'] as String? ?? '').isNotEmpty
-                              ? NetworkImage(childInfo['photo_url'] as String)
-                              : null,
-                          child: (childInfo['photo_url'] as String? ?? '').isEmpty
-                              ? Text(
-                                  childName.isNotEmpty
-                                      ? childName[0].toUpperCase()
-                                      : '?',
-                                  style: TextStyle(
-                                    fontFamily:
-                                        GoogleFonts.luckiestGuy().fontFamily,
-                                    fontSize: 28,
-                                    color: sky,
-                                  ),
-                                )
-                              : null,
+                          backgroundImage:
+                              (childInfo['photo_url'] as String? ?? '')
+                                      .isNotEmpty
+                                  ? NetworkImage(
+                                      childInfo['photo_url'] as String)
+                                  : null,
+                          child:
+                              (childInfo['photo_url'] as String? ?? '').isEmpty
+                                  ? Text(
+                                      childName.isNotEmpty
+                                          ? childName[0].toUpperCase()
+                                          : '?',
+                                      style: AppTextStyles.heading(28,
+                                          color: Palette.sky),
+                                    )
+                                  : null,
                         ),
                         const SizedBox(width: 16),
                         Expanded(
@@ -297,15 +282,8 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                                   Expanded(
                                     child: Text(
                                       childName,
-                                      style: TextStyle(
-                                        fontFamily: GoogleFonts.luckiestGuy()
-                                            .fontFamily,
-                                        fontFamilyFallback: [
-                                          GoogleFonts.itim().fontFamily!
-                                        ],
-                                        fontSize: 22,
-                                        color: Colors.black87,
-                                      ),
+                                      style: AppTextStyles.heading(22,
+                                          color: Palette.text),
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
@@ -314,18 +292,14 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 8, vertical: 4),
                                       decoration: BoxDecoration(
-                                        color: greenIcon,
+                                        color: Palette.success,
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Text(
                                         AppLocalizations.of(context)!
                                             .childsetting_active,
-                                        style: TextStyle(
-                                          fontFamily: GoogleFonts.luckiestGuy()
-                                              .fontFamily,
-                                          fontSize: 10,
-                                          color: Colors.white,
-                                        ),
+                                        style: AppTextStyles.heading(10,
+                                            color: Colors.white),
                                       ),
                                     ),
                                 ],
@@ -333,15 +307,8 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                               const SizedBox(height: 4),
                               Text(
                                 '${AppLocalizations.of(context)!.childsetting_scoreBtn} : $childWallet',
-                                style: TextStyle(
-                                  fontFamily:
-                                      GoogleFonts.luckiestGuy().fontFamily,
-                                  fontFamilyFallback: [
-                                    GoogleFonts.itim().fontFamily!
-                                  ],
-                                  fontSize: 14,
-                                  color: Colors.grey,
-                                ),
+                                style: AppTextStyles.body(14,
+                                    color: Colors.grey),
                               ),
                             ],
                           ),
@@ -361,7 +328,7 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                               child: ElevatedButton(
                                 onPressed: () => _selectChild(childId),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: sky,
+                                  backgroundColor: Palette.sky,
                                   foregroundColor: Colors.white,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(15),
@@ -370,14 +337,8 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                                 child: Text(
                                   AppLocalizations.of(context)!
                                       .childsetting_select,
-                                  style: TextStyle(
-                                    fontFamily:
-                                        GoogleFonts.luckiestGuy().fontFamily,
-                                    fontFamilyFallback: [
-                                      GoogleFonts.itim().fontFamily!
-                                    ],
-                                    fontSize: 14,
-                                  ),
+                                  style: AppTextStyles.heading(14,
+                                      color: Colors.white),
                                 ),
                               ),
                             ),
@@ -396,7 +357,9 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                                     builder: (context) => ChildProfileScreen(
                                       childId: childId,
                                       name: childName,
-                                      imageUrl: childInfo['photo_url'] as String? ?? '',
+                                      imageUrl: childInfo['photo_url']
+                                              as String? ??
+                                          '',
                                       points: childWallet,
                                     ),
                                   ),
@@ -412,15 +375,8 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                               child: Text(
                                 AppLocalizations.of(context)!
                                     .childsetting_viewprofileBtn,
-                                style: TextStyle(
-                                  fontFamily:
-                                      GoogleFonts.luckiestGuy().fontFamily,
-                                  fontFamilyFallback: [
-                                    GoogleFonts.itim().fontFamily!
-                                  ],
-                                  fontSize: 14,
-                                  color: Colors.black,
-                                ),
+                                style: AppTextStyles.heading(14,
+                                    color: Colors.black),
                               ),
                             ),
                           ),
@@ -443,15 +399,8 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                               child: Text(
                                 AppLocalizations.of(context)!
                                     .childsetting_manageBtn,
-                                style: TextStyle(
-                                  fontFamily:
-                                      GoogleFonts.luckiestGuy().fontFamily,
-                                  fontFamilyFallback: [
-                                    GoogleFonts.itim().fontFamily!
-                                  ],
-                                  fontSize: 14,
-                                  color: Colors.black,
-                                ),
+                                style: AppTextStyles.heading(14,
+                                    color: Colors.black),
                               ),
                             ),
                           ),

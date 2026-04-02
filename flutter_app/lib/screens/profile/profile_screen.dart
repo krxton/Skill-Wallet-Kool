@@ -167,14 +167,12 @@ class ProfileScreenState extends State<ProfileScreen> {
     final photoUrl = userProvider.parentPhotoUrl;
     final l = AppLocalizations.of(context)!;
 
-    return Container(
-      color: Palette.cream,
-      child: SafeArea(
-        top: true,
-        bottom: false,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+    return SafeArea(
+      top: true,
+      bottom: false,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
             const SizedBox(height: 16),
             // ── Header ───────────────────────────────
             Padding(
@@ -297,8 +295,7 @@ class ProfileScreenState extends State<ProfileScreen> {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 
   // ── Activity Card ──────────────────────────────────────

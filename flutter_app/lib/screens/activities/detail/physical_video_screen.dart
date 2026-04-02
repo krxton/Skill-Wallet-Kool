@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
 import '../../../l10n/app_localizations.dart';
@@ -200,7 +199,7 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
     debugPrint('🎬 Physical Video Screen - ${activity.name}');
 
     return Scaffold(
-      backgroundColor: Palette.cream,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: Text(
             ActivityL10n.localizedActivityType(context, activity.category),
@@ -458,7 +457,7 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
           if (videoUrl.isNotEmpty) ...[
             Text(
               AppLocalizations.of(context)!.videodetail_openInBrowser,
-              style: GoogleFonts.openSans(color: Colors.white70, fontSize: 12),
+              style: AppTextStyles.body(12, color: Colors.white70),
             ),
             const SizedBox(height: 16),
             ElevatedButton.icon(
@@ -481,7 +480,7 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
           ] else
             Text(
               AppLocalizations.of(context)!.videodetail_noVideoUrl,
-              style: GoogleFonts.openSans(color: Colors.white70, fontSize: 12),
+              style: AppTextStyles.body(12, color: Colors.white70),
             ),
         ],
       ),

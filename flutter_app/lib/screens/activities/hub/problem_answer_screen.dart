@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../theme/palette.dart';
+import '../../../theme/app_text_styles.dart';
 
 class ProblemAnswerScreen extends StatelessWidget {
   const ProblemAnswerScreen({super.key});
 
-  // 🎨 สีตาม Theme
-  static const textBlue = Color(0xFF5AB2FF);
+  // 🎨 colors not in Palette, kept locally
   static const limeGreen = Color(0xFFDCE775); // สีพื้นหลังเฉลย (เขียวอ่อน)
-  static const darkText = Color(0xFF555555); // สีตัวหนังสือเฉลย
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +21,7 @@ class ProblemAnswerScreen extends StatelessWidget {
     final String answer = args['answer'] ?? "THERE ARE 8 CATS IN TOTAL.";
 
     return Scaffold(
-      backgroundColor: Palette.cream,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -34,9 +32,7 @@ class ProblemAnswerScreen extends StatelessWidget {
         centerTitle: true,
         title: Text(
           AppLocalizations.of(context)!.problemanswer_title,
-          style: GoogleFonts.luckiestGuy(
-            fontSize: 28,
-            color: Palette.sky,
+          style: AppTextStyles.heading(28, color: Palette.sky).copyWith(
             letterSpacing: 2,
           ),
         ),
@@ -50,11 +46,11 @@ class ProblemAnswerScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(30),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Palette.white,
                 borderRadius: BorderRadius.circular(30),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 5),
                   ),
@@ -63,9 +59,7 @@ class ProblemAnswerScreen extends StatelessWidget {
               child: Text(
                 question,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.luckiestGuy(
-                  fontSize: 22,
-                  color: textBlue,
+                style: AppTextStyles.heading(22, color: Palette.blueChip).copyWith(
                   height: 1.4,
                 ),
               ),
@@ -84,10 +78,8 @@ class ProblemAnswerScreen extends StatelessWidget {
               child: Text(
                 answer,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.luckiestGuy(
-                  fontSize: 22,
-                  color: darkText, // สีเทาเข้มเพื่อให้ตัดกับพื้นหลัง
-                ),
+                style: AppTextStyles.heading(22,
+                    color: Palette.deepGrey), // สีเทาเข้มเพื่อให้ตัดกับพื้นหลัง
               ),
             ),
           ],

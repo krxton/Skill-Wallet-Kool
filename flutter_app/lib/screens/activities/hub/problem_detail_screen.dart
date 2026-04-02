@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../../routes/app_routes.dart';
 import '../../../theme/palette.dart';
+import '../../../theme/app_text_styles.dart';
 
 class ProblemDetailScreen extends StatelessWidget {
   const ProblemDetailScreen({super.key});
 
-  // 🎨 สีตาม Theme
-  static const greenBtn = Color(0xFF88C273);
+  // 🎨 colors not in Palette, kept locally
   static const purpleBtn = Color(0xFFCD9EFF);
-  static const blueBtn = Color(0xFFA2D2FF);
-  static const textBlue = Color(0xFF5AB2FF); // สีตัวหนังสือในโจทย์
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +21,7 @@ class ProblemDetailScreen extends StatelessWidget {
         "THERE ARE 6 CATS IN THE FIELD.\nANOTHER 2 CATS WALK INTO THE FIELD.\nHOW MANY CATS ARE THERE IN TOTAL ?";
 
     return Scaffold(
-      backgroundColor: Palette.cream,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -35,9 +32,7 @@ class ProblemDetailScreen extends StatelessWidget {
         centerTitle: true,
         title: Text(
           AppLocalizations.of(context)!.problemdetail_title,
-          style: GoogleFonts.luckiestGuy(
-            fontSize: 26,
-            color: Palette.sky,
+          style: AppTextStyles.heading(26, color: Palette.sky).copyWith(
             letterSpacing: 1.5,
           ),
         ),
@@ -51,11 +46,11 @@ class ProblemDetailScreen extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(30),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Palette.white,
                 borderRadius: BorderRadius.circular(30),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 5),
                   ),
@@ -64,9 +59,7 @@ class ProblemDetailScreen extends StatelessWidget {
               child: Text(
                 question,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.luckiestGuy(
-                  fontSize: 22,
-                  color: textBlue,
+                style: AppTextStyles.heading(22, color: Palette.blueChip).copyWith(
                   height: 1.4, // ระยะห่างบรรทัด
                 ),
               ),
@@ -89,7 +82,7 @@ class ProblemDetailScreen extends StatelessWidget {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: greenBtn,
+                      backgroundColor: Palette.success,
                       padding: const EdgeInsets.symmetric(vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
@@ -97,10 +90,7 @@ class ProblemDetailScreen extends StatelessWidget {
                     ),
                     child: Text(
                       AppLocalizations.of(context)!.common_start,
-                      style: GoogleFonts.luckiestGuy(
-                        fontSize: 20,
-                        color: Colors.white,
-                      ),
+                      style: AppTextStyles.heading(20, color: Palette.white),
                     ),
                   ),
                 ),
@@ -121,10 +111,7 @@ class ProblemDetailScreen extends StatelessWidget {
                     ),
                     child: Text(
                       AppLocalizations.of(context)!.problemdetail_castToTvBtn,
-                      style: GoogleFonts.luckiestGuy(
-                        fontSize: 18,
-                        color: Colors.white,
-                      ),
+                      style: AppTextStyles.heading(18, color: Palette.white),
                     ),
                   ),
                 ),
@@ -144,7 +131,7 @@ class ProblemDetailScreen extends StatelessWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: blueBtn,
+                  backgroundColor: Palette.lightBlue,
                   padding: const EdgeInsets.symmetric(vertical: 15),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
@@ -152,10 +139,7 @@ class ProblemDetailScreen extends StatelessWidget {
                 ),
                 child: Text(
                   AppLocalizations.of(context)!.problemdetail_answerBtn,
-                  style: GoogleFonts.luckiestGuy(
-                    fontSize: 20,
-                    color: Colors.white,
-                  ),
+                  style: AppTextStyles.heading(20, color: Palette.white),
                 ),
               ),
             ),

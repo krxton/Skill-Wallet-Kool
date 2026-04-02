@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
+import '../../theme/palette.dart';
+import '../../theme/app_text_styles.dart';
 
 import '../../providers/user_provider.dart';
 import 'child_name_setting_screen.dart';
@@ -31,12 +32,6 @@ class _ManageChildScreenState extends State<ManageChildScreen> {
   String? _currentImageUrl;
   bool _isUploading = false;
   final ImagePicker _picker = ImagePicker();
-
-  // 🎨 Palette
-  static const cream = Color(0xFFFFF5CD);
-  static const deepGrey = Color(0xFF000000);
-  static const deleteRed = Color(0xFFFF6B6B);
-  static const labelGrey = Color(0xFF9E9E9E);
 
   @override
   void initState() {
@@ -106,29 +101,18 @@ class _ManageChildScreenState extends State<ManageChildScreen> {
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: Text(
             AppLocalizations.of(context)!.dialog_deleteTitle,
-            style: TextStyle(
-              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-              fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-            ),
+            style: AppTextStyles.heading(18),
           ),
           content: Text(
             AppLocalizations.of(context)!.dialog_deleteContent,
-            style: TextStyle(
-              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-              fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-              fontSize: 16,
-            ),
+            style: AppTextStyles.body(16),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: Text(
                 AppLocalizations.of(context)!.dialog_cancel,
-                style: TextStyle(
-                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                  color: Colors.grey,
-                ),
+                style: AppTextStyles.body(14, color: Colors.grey),
               ),
             ),
             TextButton(
@@ -138,11 +122,7 @@ class _ManageChildScreenState extends State<ManageChildScreen> {
               },
               child: Text(
                 AppLocalizations.of(context)!.dialog_confirmDelete,
-                style: TextStyle(
-                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                  color: deleteRed,
-                ),
+                style: AppTextStyles.body(14, color: Palette.deleteRed),
               ),
             ),
           ],
@@ -170,7 +150,7 @@ class _ManageChildScreenState extends State<ManageChildScreen> {
     }
 
     return Scaffold(
-      backgroundColor: cream,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Column(
           children: [
@@ -194,12 +174,7 @@ class _ManageChildScreenState extends State<ManageChildScreen> {
                   const Spacer(),
                   Text(
                     AppLocalizations.of(context)!.managechild_manageprofileBtn,
-                    style: TextStyle(
-                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                      fontSize: 24,
-                      color: Colors.black87,
-                    ),
+                    style: AppTextStyles.heading(24, color: Colors.black87),
                   ),
                   const Spacer(),
                   const SizedBox(width: 46),
@@ -229,9 +204,9 @@ class _ManageChildScreenState extends State<ManageChildScreen> {
                       child: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                            color: const Color(0xFFFFC107),
+                            color: Palette.yellow,
                             shape: BoxShape.circle,
-                            border: Border.all(color: cream, width: 2)),
+                            border: Border.all(color: Palette.cream, width: 2)),
                         child: const Icon(Icons.camera_alt,
                             color: Colors.black87, size: 20),
                       ),
@@ -264,15 +239,8 @@ class _ManageChildScreenState extends State<ManageChildScreen> {
                               Text(
                                 AppLocalizations.of(context)!
                                     .managechild_nameBtn,
-                                style: TextStyle(
-                                  fontFamily:
-                                      GoogleFonts.luckiestGuy().fontFamily,
-                                  fontFamilyFallback: [
-                                    GoogleFonts.itim().fontFamily!
-                                  ],
-                                  fontSize: 16,
-                                  color: labelGrey,
-                                ),
+                                style: AppTextStyles.body(16,
+                                    color: Palette.labelGrey),
                               ),
                               const SizedBox(height: 4),
                               Row(
@@ -281,18 +249,11 @@ class _ManageChildScreenState extends State<ManageChildScreen> {
                                 children: [
                                   Text(
                                     _currentName,
-                                    style: TextStyle(
-                                      fontFamily:
-                                          GoogleFonts.luckiestGuy().fontFamily,
-                                      fontFamilyFallback: [
-                                        GoogleFonts.itim().fontFamily!
-                                      ],
-                                      fontSize: 24,
-                                      color: deepGrey,
-                                    ),
+                                    style: AppTextStyles.heading(24,
+                                        color: Colors.black87),
                                   ),
                                   const Icon(Icons.chevron_right,
-                                      size: 32, color: deepGrey),
+                                      size: 32, color: Colors.black87),
                                 ],
                               ),
                             ],
@@ -324,25 +285,18 @@ class _ManageChildScreenState extends State<ManageChildScreen> {
                           child: Row(
                             children: [
                               const Icon(Icons.emoji_events,
-                                  color: Color(0xFFFFC107), size: 30),
+                                  color: Palette.yellow, size: 30),
                               const SizedBox(width: 16),
                               Expanded(
                                 child: Text(
                                   AppLocalizations.of(context)!
                                       .managechild_medalsandredemptionBtn,
-                                  style: TextStyle(
-                                    fontFamily:
-                                        GoogleFonts.luckiestGuy().fontFamily,
-                                    fontFamilyFallback: [
-                                      GoogleFonts.itim().fontFamily!
-                                    ],
-                                    fontSize: 20,
-                                    color: deepGrey,
-                                  ),
+                                  style: AppTextStyles.heading(20,
+                                      color: Colors.black87),
                                 ),
                               ),
                               const Icon(Icons.chevron_right,
-                                  size: 32, color: deepGrey),
+                                  size: 32, color: Colors.black87),
                             ],
                           ),
                         ),
@@ -360,12 +314,7 @@ class _ManageChildScreenState extends State<ManageChildScreen> {
                 onPressed: _showDeleteConfirmationDialog,
                 child: Text(
                   AppLocalizations.of(context)!.managechild_deleteprofileBtn,
-                  style: TextStyle(
-                    fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                    fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                    fontSize: 20,
-                    color: deleteRed,
-                  ),
+                  style: AppTextStyles.heading(20, color: Palette.deleteRed),
                 ),
               ),
             ),

@@ -79,7 +79,7 @@ class _LanguageDetailScreenState extends State<LanguageDetailScreen> {
     required Widget? videoWidget,
   }) {
     return Scaffold(
-      backgroundColor: Palette.cream,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: Text(
             ActivityL10n.localizedActivityType(

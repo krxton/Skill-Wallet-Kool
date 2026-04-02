@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
@@ -7,6 +6,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../providers/user_provider.dart';
 import '../../../routes/app_routes.dart';
+import '../../../theme/palette.dart';
+import '../../../theme/app_text_styles.dart';
 import 'name_setting_screen.dart';
 
 class ProfileSettingScreen extends StatefulWidget {
@@ -17,11 +18,6 @@ class ProfileSettingScreen extends StatefulWidget {
 }
 
 class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
-  static const cream = Color(0xFFFFF5CD);
-  static const pinkRed = Color(0xFFEA5B6F);
-  static const textGrey = Color(0xFF8E8E8E);
-  static const yellowBadge = Color(0xFFFFD54F);
-
   bool _uploading = false;
 
   void _showPhotoOptions() {
@@ -137,22 +133,12 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           title: Text(
             AppLocalizations.of(context)!.profileSet_deleteDialogTitle,
-            style: TextStyle(
-              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-              fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-              fontSize: 24,
-              color: pinkRed,
-            ),
+            style: AppTextStyles.heading(24, color: Palette.pink),
             textAlign: TextAlign.center,
           ),
           content: Text(
             AppLocalizations.of(context)!.profilesetting_areusureBtn,
-            style: TextStyle(
-              fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-              fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-              fontSize: 16,
-              color: Colors.black87,
-            ),
+            style: AppTextStyles.heading(16, color: Colors.black87),
             textAlign: TextAlign.center,
           ),
           actionsAlignment: MainAxisAlignment.center,
@@ -162,12 +148,7 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
               onPressed: () => Navigator.pop(ctx),
               child: Text(
                 AppLocalizations.of(context)!.profilesetting_cancelBtn,
-                style: TextStyle(
-                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                  fontSize: 18,
-                  color: Colors.grey,
-                ),
+                style: AppTextStyles.heading(18, color: Colors.grey),
               ),
             ),
             const SizedBox(width: 10),
@@ -179,12 +160,7 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
               },
               child: Text(
                 AppLocalizations.of(context)!.profilesetting_deleteBtn,
-                style: TextStyle(
-                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                  fontSize: 18,
-                  color: pinkRed,
-                ),
+                style: AppTextStyles.heading(18, color: Palette.pink),
               ),
             ),
           ],
@@ -213,7 +189,7 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
     final parentName = userProvider.currentParentName ?? 'SWK';
 
     return Scaffold(
-      backgroundColor: cream,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
@@ -264,9 +240,9 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: yellowBadge,
+                            color: Palette.yellow,
                             shape: BoxShape.circle,
-                            border: Border.all(color: cream, width: 3),
+                            border: Border.all(color: Palette.cream, width: 3),
                           ),
                           child: const Icon(
                             Icons.camera_alt,
@@ -285,11 +261,7 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
               // --- Name Label ---
               Text(
                 AppLocalizations.of(context)!.profilesetting_nameBtn,
-                style: TextStyle(
-                    fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                    fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                    fontSize: 20,
-                    color: textGrey),
+                style: AppTextStyles.heading(20, color: Palette.labelGrey),
               ),
 
               const SizedBox(height: 12),
@@ -311,12 +283,7 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
                     children: [
                       Text(
                         parentName,
-                        style: TextStyle(
-                          fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                          fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                          fontSize: 24,
-                          color: Colors.black87,
-                        ),
+                        style: AppTextStyles.heading(24, color: Colors.black87),
                       ),
                       const Icon(
                         Icons.chevron_right,
@@ -337,11 +304,7 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
               //   },
               //   child: Text(
               //     AppLocalizations.of(context)!.profilesetting_deleteaccoutBtn,
-              //     style: TextStyle(
-              //         fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-              //         fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-              //         fontSize: 20,
-              //         color: pinkRed),
+              //     style: AppTextStyles.heading(20, color: Palette.pink),
               //   ),
               // ),
             ],

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import 'package:skill_wallet_kool/providers/user_provider.dart';
@@ -9,7 +8,8 @@ import 'package:skill_wallet_kool/services/api_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../routes/app_routes.dart';
-import '../child/add_child_screen.dart';
+import '../../../theme/palette.dart';
+import '../../../theme/app_text_styles.dart';
 
 enum _AuthMode { login, register }
 
@@ -33,9 +33,6 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
   final _nameController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  static const cream = Color(0xFFFFF5CD);
-  static const sky = Color(0xFF0D92F4);
-
   static const _privacyPolicyUrl =
       'https://krxton.github.io/Skill-Wallet-Kool/privacy-policy.html';
   static const _termsOfServiceUrl =
@@ -56,19 +53,14 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
     final isRegister = _mode == _AuthMode.register;
 
     return Scaffold(
-      backgroundColor: cream,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: cream,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: const BackButton(color: Colors.black87),
         title: Text(
           isRegister ? l10n.email_registerTitle : l10n.email_loginTitle,
-          style: TextStyle(
-            fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-            fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-            fontSize: 20,
-            color: Colors.black87,
-          ),
+          style: AppTextStyles.heading(20, color: Colors.black87),
         ),
       ),
       body: SafeArea(
@@ -175,7 +167,7 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                           : ElevatedButton(
                               onPressed: _submit,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: sky,
+                                backgroundColor: Palette.sky,
                                 padding:
                                     const EdgeInsets.symmetric(vertical: 16),
                                 shape: RoundedRectangleBorder(
@@ -186,15 +178,7 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                                 isRegister
                                     ? l10n.email_registerBtn
                                     : l10n.email_loginBtn,
-                                style: TextStyle(
-                                  fontFamily:
-                                      GoogleFonts.luckiestGuy().fontFamily,
-                                  fontFamilyFallback: [
-                                    GoogleFonts.itim().fontFamily!
-                                  ],
-                                  fontSize: 16,
-                                  color: Colors.white,
-                                ),
+                                style: AppTextStyles.heading(16, color: Colors.white),
                               ),
                             ),
 
@@ -207,7 +191,7 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                             onPressed: _showForgotPasswordDialog,
                             child: Text(
                               l10n.email_forgotPassword,
-                              style: GoogleFonts.itim(fontSize: 14, color: sky),
+                              style: AppTextStyles.body(14, color: Palette.sky),
                             ),
                           ),
                         ),
@@ -228,8 +212,7 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                             isRegister
                                 ? l10n.email_hasAccount
                                 : l10n.email_noAccount,
-                            style: GoogleFonts.itim(
-                                fontSize: 14, color: Colors.black54),
+                            style: AppTextStyles.body(14, color: Colors.black54),
                           ),
                         ),
                       ),
@@ -258,10 +241,10 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
       keyboardType: keyboardType,
       obscureText: obscure,
       validator: validator,
-      style: GoogleFonts.itim(fontSize: 16, color: Colors.black87),
+      style: AppTextStyles.body(16, color: Colors.black87),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: GoogleFonts.itim(fontSize: 16, color: Colors.black38),
+        hintStyle: AppTextStyles.body(16, color: Colors.black38),
         prefixIcon: Icon(icon, color: Colors.black54),
         suffixIcon: suffixIcon,
         filled: true,
@@ -272,7 +255,7 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
         ),
-        errorStyle: GoogleFonts.itim(fontSize: 12),
+        errorStyle: AppTextStyles.body(12),
       ),
     );
   }
@@ -287,7 +270,7 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
           child: Checkbox(
             value: _agreedToTerms,
             onChanged: (v) => setState(() => _agreedToTerms = v ?? false),
-            activeColor: sky,
+            activeColor: Palette.sky,
             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
         ),
@@ -295,15 +278,13 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
         Expanded(
           child: RichText(
             text: TextSpan(
-              style: GoogleFonts.itim(fontSize: 14, color: Colors.black87),
+              style: AppTextStyles.body(14, color: Colors.black87),
               children: [
                 TextSpan(text: l10n.auth_termsAgree),
                 const TextSpan(text: ' '),
                 TextSpan(
                   text: l10n.auth_termsOfService,
-                  style: GoogleFonts.itim(
-                    fontSize: 14,
-                    color: sky,
+                  style: AppTextStyles.body(14, color: Palette.sky).copyWith(
                     decoration: TextDecoration.underline,
                   ),
                   recognizer: TapGestureRecognizer()
@@ -312,9 +293,7 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                 TextSpan(text: ' ${l10n.auth_and} '),
                 TextSpan(
                   text: l10n.auth_privacyPolicy,
-                  style: GoogleFonts.itim(
-                    fontSize: 14,
-                    color: sky,
+                  style: AppTextStyles.body(14, color: Palette.sky).copyWith(
                     decoration: TextDecoration.underline,
                   ),
                   recognizer: TapGestureRecognizer()
@@ -418,10 +397,9 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
       );
       if (mounted) {
         setState(() => _isLoading = false);
-        Navigator.pushAndRemoveUntil(
+        Navigator.pushNamedAndRemoveUntil(
           context,
-          MaterialPageRoute(
-              builder: (_) => const AddChildScreen(isRequired: true)),
+          AppRoutes.home,
           (route) => false,
         );
       }
@@ -495,19 +473,19 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(l10n.email_forgotTitle,
-            style: GoogleFonts.itim(fontSize: 18, fontWeight: FontWeight.bold)),
+            style: AppTextStyles.body(18, weight: FontWeight.bold)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(l10n.email_forgotMsg, style: GoogleFonts.itim(fontSize: 14)),
+            Text(l10n.email_forgotMsg, style: AppTextStyles.body(14)),
             const SizedBox(height: 12),
             TextField(
               controller: emailController,
               keyboardType: TextInputType.emailAddress,
-              style: GoogleFonts.itim(fontSize: 15),
+              style: AppTextStyles.body(15),
               decoration: InputDecoration(
                 hintText: l10n.email_emailHint,
-                hintStyle: GoogleFonts.itim(color: Colors.black38),
+                hintStyle: AppTextStyles.body(15, color: Colors.black38),
                 border:
                     OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
               ),
@@ -518,10 +496,10 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text(l10n.common_cancel,
-                style: GoogleFonts.itim(fontSize: 14, color: Colors.black54)),
+                style: AppTextStyles.body(14, color: Colors.black54)),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: sky),
+            style: ElevatedButton.styleFrom(backgroundColor: Palette.sky),
             onPressed: () async {
               final email = emailController.text.trim();
               if (email.isEmpty) return;
@@ -535,7 +513,7 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
               }
             },
             child: Text(l10n.email_sendReset,
-                style: GoogleFonts.itim(fontSize: 14, color: Colors.white)),
+                style: AppTextStyles.body(14, color: Colors.white)),
           ),
         ],
       ),

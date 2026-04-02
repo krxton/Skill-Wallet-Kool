@@ -1,8 +1,8 @@
 // lib/screens/language_list_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/palette.dart';
+import '../../../theme/app_text_styles.dart';
 import '../../../widgets/ui.dart';
 import '../../../models/language_flow.dart';
 import '../../../models/activity.dart';
@@ -64,17 +64,17 @@ class _LanguageListScreenState extends State<LanguageListScreen> {
       });
 
       // Debug: แสดงข้อมูลที่ได้
-      print(
+      debugPrint(
           '📚 Loaded ${activities.length} activities for ${args.topic} ($level)');
       if (activities.isNotEmpty) {
-        print('📋 First activity: ${activities.first.name}');
+        debugPrint('📋 First activity: ${activities.first.name}');
       }
     } catch (e) {
       setState(() {
         _isLoading = false;
         _errorMessage = 'ไม่สามารถโหลดข้อมูลได้: $e';
       });
-      print('❌ Error loading activities: $e');
+      debugPrint('❌ Error loading activities: $e');
     }
   }
 
@@ -83,9 +83,9 @@ class _LanguageListScreenState extends State<LanguageListScreen> {
     final args = ModalRoute.of(context)!.settings.arguments as LangListArgs;
 
     return Scaffold(
-      backgroundColor: Palette.cream,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: Palette.cream,
+        backgroundColor: Colors.transparent,
         elevation: 0,
         leading: const BackButton(color: Colors.black87),
         centerTitle: true,
@@ -113,7 +113,7 @@ class _LanguageListScreenState extends State<LanguageListScreen> {
               const SizedBox(height: 16),
               Text(
                 _errorMessage!,
-                style: GoogleFonts.itim(fontSize: 16),
+                style: AppTextStyles.body(16),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
@@ -138,7 +138,7 @@ class _LanguageListScreenState extends State<LanguageListScreen> {
               const SizedBox(height: 16),
               Text(
                 'ยังไม่มีกิจกรรมในหมวดนี้',
-                style: GoogleFonts.itim(fontSize: 16, color: Colors.grey),
+                style: AppTextStyles.body(16, color: Colors.grey),
               ),
             ],
           ),
@@ -154,7 +154,6 @@ class _LanguageListScreenState extends State<LanguageListScreen> {
         final activity = _activities[i];
         return OutlineCard(
           onTap: () {
-            // ✅ Navigate ไป LanguageDetailScreen พร้อม Activity object
             Navigator.pushNamed(
               context,
               AppRoutes.languageDetail,
@@ -169,7 +168,7 @@ class _LanguageListScreenState extends State<LanguageListScreen> {
                   children: [
                     Text(
                       activity.name.toUpperCase(),
-                      style: GoogleFonts.luckiestGuy(fontSize: 16),
+                      style: AppTextStyles.heading(16),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -177,10 +176,7 @@ class _LanguageListScreenState extends State<LanguageListScreen> {
                       const SizedBox(height: 4),
                       Text(
                         activity.description!,
-                        style: GoogleFonts.itim(
-                          fontSize: 12,
-                          color: Colors.black54,
-                        ),
+                        style: AppTextStyles.body(12, color: Colors.black54),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -202,11 +198,8 @@ class _LanguageListScreenState extends State<LanguageListScreen> {
                     ),
                     child: Text(
                       activity.difficulty,
-                      style: GoogleFonts.itim(
-                        fontSize: 10,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: AppTextStyles.body(10,
+                          color: Colors.white, weight: FontWeight.bold),
                     ),
                   ),
                   const Icon(

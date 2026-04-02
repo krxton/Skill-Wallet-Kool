@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
+import '../../theme/palette.dart';
+import '../../theme/app_text_styles.dart';
 
 class ChildNameSettingScreen extends StatefulWidget {
   final String currentName;
@@ -13,10 +14,6 @@ class ChildNameSettingScreen extends StatefulWidget {
 
 class _ChildNameSettingScreenState extends State<ChildNameSettingScreen> {
   late TextEditingController _nameController;
-
-  static const cream = Color(0xFFFFF5CD);
-  static const blueTitle = Color(0xFF4DA9FF);
-  static const okGreen = Color(0xFF66BB6A);
 
   @override
   void initState() {
@@ -40,7 +37,7 @@ class _ChildNameSettingScreenState extends State<ChildNameSettingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: cream,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
@@ -53,13 +50,7 @@ class _ChildNameSettingScreenState extends State<ChildNameSettingScreen> {
                 children: [
                   Text(
                     AppLocalizations.of(context)!.childnamesetting_editnameBtn,
-                    style: TextStyle(
-                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                      fontSize: 28,
-                      color: blueTitle,
-                      letterSpacing: 1.5,
-                    ),
+                    style: AppTextStyles.heading(28, color: Palette.blueChip),
                   ),
                   Align(
                     alignment: Alignment.centerLeft,
@@ -76,21 +67,12 @@ class _ChildNameSettingScreenState extends State<ChildNameSettingScreen> {
               // --- Text Field ---
               TextField(
                 controller: _nameController,
-                style: TextStyle(
-                  fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                  fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                  fontSize: 20,
-                  color: Colors.black87,
-                ),
+                style: AppTextStyles.heading(20, color: Colors.black87),
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.white,
                   hintText: AppLocalizations.of(context)!.namesetting_hint,
-                  hintStyle: TextStyle(
-                    fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                    fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                    color: Colors.grey.shade400,
-                  ),
+                  hintStyle: AppTextStyles.body(14, color: Colors.grey),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(20),
                     borderSide: BorderSide.none,
@@ -108,20 +90,14 @@ class _ChildNameSettingScreenState extends State<ChildNameSettingScreen> {
                 child: ElevatedButton(
                   onPressed: _saveName,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: okGreen,
+                    backgroundColor: Palette.successAlt,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30)),
                     elevation: 5,
                   ),
                   child: Text(
                     AppLocalizations.of(context)!.childnamesetting_saveBtn,
-                    style: TextStyle(
-                      fontFamily: GoogleFonts.luckiestGuy().fontFamily,
-                      fontFamilyFallback: [GoogleFonts.itim().fontFamily!],
-                      fontSize: 24,
-                      color: Colors.white,
-                      letterSpacing: 1.5,
-                    ),
+                    style: AppTextStyles.heading(24, color: Colors.white),
                   ),
                 ),
               ),

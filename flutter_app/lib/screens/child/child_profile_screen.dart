@@ -1,11 +1,12 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import '../../providers/user_provider.dart';
 import '../../services/child_service.dart';
+import '../../theme/palette.dart';
+import '../../theme/app_text_styles.dart';
 import 'activity_history_screen.dart';
 
 class ChildProfileScreen extends StatefulWidget {
@@ -27,15 +28,6 @@ class ChildProfileScreen extends StatefulWidget {
 }
 
 class _ChildProfileScreenState extends State<ChildProfileScreen> {
-  // --- Theme Colors ---
-  static const creamBg = Color(0xFFFFF5CD);
-  static const deepGrey = Color(0xFF000000);
-  static const goldText = Color(0xFFFFC107);
-  static const orangeBtn = Color(0xFFFFCC80);
-  static const yellowBtn = Color(0xFFFFEE58);
-  static const pinkBtn = Color(0xFFFFAB91);
-  static const sky = Color(0xFF87CEEB);
-
   // --- Category Constants (Thai names used in database) ---
   static const String _categoryLanguage = 'ด้านภาษา';
   static const String _categoryPhysical = 'ด้านร่างกาย';
@@ -132,9 +124,9 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
     final imageUrl = widget.imageUrl ?? '';
 
     return Scaffold(
-      backgroundColor: creamBg,
+      backgroundColor: Colors.transparent,
       bottomNavigationBar: Container(
-        color: const Color.fromARGB(255, 45, 163, 248), // salmon color
+        decoration: BoxDecoration(gradient: Palette.skyGradient),
         child: SafeArea(
           child: Container(
             height: 64,
@@ -144,12 +136,11 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
                 onTap: () =>
                     Navigator.popUntil(context, (route) => route.isFirst),
                 child: Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(
-                        255, 249, 216, 98), // yolk color - selected
-                    borderRadius: BorderRadius.circular(18),
+                  width: 52,
+                  height: 52,
+                  decoration: const BoxDecoration(
+                    color: Palette.yellow,
+                    shape: BoxShape.circle,
                   ),
                   child: const Icon(
                     Icons.home_rounded,
@@ -164,7 +155,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
       ),
       body: SafeArea(
         child: _isLoading
-            ? const Center(child: CircularProgressIndicator(color: sky))
+            ? const Center(child: CircularProgressIndicator(color: Palette.sky))
             : RefreshIndicator(
                 onRefresh: _loadActivityData,
                 child: SingleChildScrollView(
@@ -190,7 +181,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
                                       Border.all(color: Colors.white, width: 6),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withOpacity(0.15),
+                                      color: Colors.black.withValues(alpha: 0.15),
                                       blurRadius: 10,
                                       offset: const Offset(0, 5),
                                     ),
@@ -227,11 +218,8 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
                       // --- 2. Name ---
                       Text(
                         childName,
-                        style: GoogleFonts.luckiestGuy(
-                          fontSize: 36,
-                          color: deepGrey,
-                          letterSpacing: 1.2,
-                        ),
+                        style: AppTextStyles.heading(36, color: Palette.text)
+                            .copyWith(letterSpacing: 1.2),
                         textAlign: TextAlign.center,
                       ),
 
@@ -249,10 +237,8 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
                           const SizedBox(width: 10),
                           Text(
                             '$childWallet',
-                            style: GoogleFonts.luckiestGuy(
-                              fontSize: 40,
-                              color: goldText,
-                            ),
+                            style: AppTextStyles.heading(40,
+                                color: Palette.yellow),
                           ),
                         ],
                       ),
@@ -276,7 +262,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 24.0),
                         child: Divider(
-                          color: Colors.grey.withOpacity(0.4),
+                          color: Colors.grey.withValues(alpha: 0.4),
                           thickness: 1,
                         ),
                       ),
@@ -344,21 +330,21 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
         width: 70,
         height: 70,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(15),
+          shape: BoxShape.circle,
           color:
-              isSelected ? Colors.white.withOpacity(0.5) : Colors.transparent,
+              isSelected ? Colors.white.withValues(alpha: 0.5) : Colors.transparent,
           border: isSelected ? Border.all(color: Colors.white, width: 2) : null,
         ),
         padding: const EdgeInsets.all(10),
         child: Image.asset(
           assetPath,
           fit: BoxFit.contain,
-          color: isSelected ? null : Colors.white.withOpacity(0.6),
+          color: isSelected ? null : Colors.white.withValues(alpha: 0.6),
           colorBlendMode: isSelected ? null : BlendMode.modulate,
           errorBuilder: (_, __, ___) => Icon(
             index == 0 ? Icons.bar_chart : Icons.emoji_events,
             size: 40,
-            color: isSelected ? deepGrey : Colors.grey,
+            color: isSelected ? Palette.text : Colors.grey,
           ),
         ),
       ),
@@ -378,18 +364,12 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
             const SizedBox(height: 16),
             Text(
               AppLocalizations.of(context)!.childprofile_noHistory,
-              style: GoogleFonts.itim(
-                fontSize: 20,
-                color: Colors.grey.shade600,
-              ),
+              style: AppTextStyles.body(20, color: Colors.grey.shade600),
             ),
             const SizedBox(height: 8),
             Text(
               AppLocalizations.of(context)!.childprofile_startPlaying,
-              style: GoogleFonts.itim(
-                fontSize: 16,
-                color: Colors.grey.shade500,
-              ),
+              style: AppTextStyles.body(16, color: Colors.grey.shade500),
             ),
           ],
         ),
@@ -408,7 +388,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.08),
+                  color: Colors.black.withValues(alpha: 0.08),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -418,25 +398,16 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
               children: [
                 Text(
                   AppLocalizations.of(context)!.childprofile_totalActivities,
-                  style: GoogleFonts.itim(
-                    fontSize: 18,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: AppTextStyles.body(18, color: Colors.grey.shade600),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   '$totalActivities',
-                  style: GoogleFonts.luckiestGuy(
-                    fontSize: 48,
-                    color: sky,
-                  ),
+                  style: AppTextStyles.heading(48, color: Palette.sky),
                 ),
                 Text(
                   AppLocalizations.of(context)!.childprofile_times,
-                  style: GoogleFonts.itim(
-                    fontSize: 16,
-                    color: Colors.grey.shade500,
-                  ),
+                  style: AppTextStyles.body(16, color: Colors.grey.shade500),
                 ),
               ],
             ),
@@ -448,15 +419,15 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
           Row(
             children: [
               _buildStatCard(AppLocalizations.of(context)!.childprofile_language,
-                  _categoryStats[_categoryLanguage] ?? 0, yellowBtn,
+                  _categoryStats[_categoryLanguage] ?? 0, Palette.languagePlaceholder,
                   icon: Icons.abc),
               const SizedBox(width: 12),
               _buildStatCard(AppLocalizations.of(context)!.childprofile_physical,
-                  _categoryStats[_categoryPhysical] ?? 0, pinkBtn,
+                  _categoryStats[_categoryPhysical] ?? 0, Palette.physicalPlaceholder,
                   icon: Icons.directions_run),
               const SizedBox(width: 12),
               _buildStatCard(AppLocalizations.of(context)!.childprofile_calculation,
-                  _categoryStats[_categoryCalculate] ?? 0, orangeBtn,
+                  _categoryStats[_categoryCalculate] ?? 0, Palette.warningLight,
                   imagePath: 'assets/images/Analysis_img.jpg'),
             ],
           ),
@@ -475,7 +446,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 6,
               offset: const Offset(0, 3),
             ),
@@ -494,17 +465,11 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
             const SizedBox(height: 8),
             Text(
               '$count',
-              style: GoogleFonts.luckiestGuy(
-                fontSize: 24,
-                color: Colors.black87,
-              ),
+              style: AppTextStyles.heading(24, color: Palette.text),
             ),
             Text(
               title.replaceAll('ด้าน', ''),
-              style: GoogleFonts.itim(
-                fontSize: 12,
-                color: Colors.black54,
-              ),
+              style: AppTextStyles.body(12, color: Colors.black54),
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -523,7 +488,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
         children: [
           _buildCategoryButton(
             AppLocalizations.of(context)!.childprofile_language,
-            yellowBtn,
+            Palette.languagePlaceholder,
             _categoryStats[_categoryLanguage] ?? 0,
             () => _navigateToHistory(_categoryLanguage),
             icon: Icons.abc,
@@ -531,7 +496,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
           const SizedBox(height: 16),
           _buildCategoryButton(
             AppLocalizations.of(context)!.childprofile_physical,
-            pinkBtn,
+            Palette.physicalPlaceholder,
             _categoryStats[_categoryPhysical] ?? 0,
             () => _navigateToHistory(_categoryPhysical),
             icon: Icons.directions_run,
@@ -539,7 +504,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
           const SizedBox(height: 16),
           _buildCategoryButton(
             AppLocalizations.of(context)!.childprofile_calculation,
-            orangeBtn,
+            Palette.warningLight,
             _categoryStats[_categoryCalculate] ?? 0,
             () => _navigateToHistory(_categoryCalculate),
             imagePath: 'assets/images/Analysis_img.jpg',
@@ -583,7 +548,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
           borderRadius: BorderRadius.circular(25),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               offset: const Offset(0, 4),
               blurRadius: 6,
             )
@@ -609,25 +574,19 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
             Expanded(
               child: Text(
                 title,
-                style: GoogleFonts.itim(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
+                style: AppTextStyles.body(20,
+                    color: Palette.text, weight: FontWeight.bold),
               ),
             ),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.7),
+                color: Colors.white.withValues(alpha: 0.7),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
                 '$count ${AppLocalizations.of(context)!.childprofile_times}',
-                style: GoogleFonts.itim(
-                  fontSize: 14,
-                  color: Colors.black87,
-                ),
+                style: AppTextStyles.body(14, color: Palette.text),
               ),
             ),
             const SizedBox(width: 8),

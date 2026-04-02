@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import '../../services/child_service.dart';
+import '../../theme/palette.dart';
+import '../../theme/app_text_styles.dart';
 import 'daily_activity_screen.dart';
 
 class ActivityHistoryScreen extends StatefulWidget {
@@ -20,11 +21,6 @@ class ActivityHistoryScreen extends StatefulWidget {
 }
 
 class _ActivityHistoryScreenState extends State<ActivityHistoryScreen> {
-  static const cream = Color(0xFFFFF5CD);
-  static const skyBlue = Color(0xFF5AB2FF);
-  static const cardBlue = Color(0xFF90CAF9);
-  static const pinkNum = Color(0xFFFF8A80);
-
   final ChildService _childService = ChildService();
   bool _isLoading = true;
 
@@ -103,7 +99,7 @@ class _ActivityHistoryScreenState extends State<ActivityHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: cream,
+      backgroundColor: Colors.transparent,
       body: SafeArea(
         child: Column(
           children: [
@@ -121,11 +117,9 @@ class _ActivityHistoryScreenState extends State<ActivityHistoryScreen> {
                   Expanded(
                     child: Text(
                       widget.gameName,
-                      style: GoogleFonts.itim(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: skyBlue,
-                      ),
+                      style: AppTextStyles.body(24,
+                          color: Palette.blueChip,
+                          weight: FontWeight.bold),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -135,7 +129,7 @@ class _ActivityHistoryScreenState extends State<ActivityHistoryScreen> {
 
             Text(
               AppLocalizations.of(context)!.activityhistory_selectDate,
-              style: GoogleFonts.itim(fontSize: 18, color: Colors.grey),
+              style: AppTextStyles.body(18, color: Colors.grey),
             ),
             const SizedBox(height: 20),
 
@@ -143,7 +137,7 @@ class _ActivityHistoryScreenState extends State<ActivityHistoryScreen> {
             Expanded(
               child: _isLoading
                   ? const Center(
-                      child: CircularProgressIndicator(color: skyBlue))
+                      child: CircularProgressIndicator(color: Palette.blueChip))
                   : _groupedByDate.isEmpty
                       ? _buildEmptyState()
                       : RefreshIndicator(
@@ -176,13 +170,7 @@ class _ActivityHistoryScreenState extends State<ActivityHistoryScreen> {
                                   decoration: BoxDecoration(
                                     color: Colors.white,
                                     borderRadius: BorderRadius.circular(20),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.05),
-                                        blurRadius: 5,
-                                        offset: const Offset(0, 3),
-                                      ),
-                                    ],
+                                    boxShadow: Palette.softShadow,
                                   ),
                                   child: Row(
                                     mainAxisAlignment:
@@ -191,15 +179,13 @@ class _ActivityHistoryScreenState extends State<ActivityHistoryScreen> {
                                       Row(
                                         children: [
                                           const Icon(Icons.calendar_today,
-                                              color: pinkNum),
+                                              color: Palette.error),
                                           const SizedBox(width: 15),
                                           Text(
                                             dateKey,
-                                            style: GoogleFonts.itim(
-                                              fontSize: 18,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.black87,
-                                            ),
+                                            style: AppTextStyles.body(18,
+                                                color: Colors.black87,
+                                                weight: FontWeight.bold),
                                           ),
                                         ],
                                       ),
@@ -208,17 +194,15 @@ class _ActivityHistoryScreenState extends State<ActivityHistoryScreen> {
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 12, vertical: 6),
                                         decoration: BoxDecoration(
-                                          color: cardBlue,
+                                          color: Palette.lightBlue,
                                           borderRadius:
                                               BorderRadius.circular(15),
                                         ),
                                         child: Text(
                                           AppLocalizations.of(context)!.activityhistory_times(records.length),
-                                          style: GoogleFonts.itim(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                          ),
+                                          style: AppTextStyles.body(14,
+                                              color: Colors.white,
+                                              weight: FontWeight.bold),
                                         ),
                                       ),
                                     ],
@@ -244,18 +228,12 @@ class _ActivityHistoryScreenState extends State<ActivityHistoryScreen> {
           const SizedBox(height: 16),
           Text(
             AppLocalizations.of(context)!.activityhistory_noHistory,
-            style: GoogleFonts.itim(
-              fontSize: 20,
-              color: Colors.grey.shade600,
-            ),
+            style: AppTextStyles.body(20, color: Colors.grey),
           ),
           const SizedBox(height: 8),
           Text(
             AppLocalizations.of(context)!.activityhistory_inCategory(widget.gameName),
-            style: GoogleFonts.itim(
-              fontSize: 16,
-              color: Colors.grey.shade500,
-            ),
+            style: AppTextStyles.body(16, color: Colors.grey),
           ),
         ],
       ),

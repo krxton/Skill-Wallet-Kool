@@ -130,13 +130,7 @@ class ActivityCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 5,
-              offset: const Offset(0, 3),
-            ),
-          ],
+          boxShadow: Palette.cardShadow,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -235,7 +229,7 @@ class ActivityCard extends StatelessWidget {
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
             return Container(
-              color: const Color(0xFFFF9800),
+              color: Palette.warning,
               alignment: Alignment.center,
               child: const Text(
                 '+-×÷',
@@ -257,7 +251,7 @@ class ActivityCard extends StatelessWidget {
       return Container(
         width: double.infinity,
         height: double.infinity,
-        color: const Color(0xFFFFEB3B), // Yellow
+        color: Palette.languagePlaceholder,
         alignment: Alignment.center,
         child: const Text(
           'ABC',
@@ -276,7 +270,7 @@ class ActivityCard extends StatelessWidget {
       return Container(
         width: double.infinity,
         height: double.infinity,
-        color: const Color(0xFFFFAB91), // Pink/Peach
+        color: Palette.physicalPlaceholder,
         alignment: Alignment.center,
         child: const Icon(
           Icons.directions_run,

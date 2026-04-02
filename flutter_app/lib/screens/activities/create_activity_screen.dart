@@ -160,7 +160,7 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
     final l = AppLocalizations.of(context)!;
 
     return Scaffold(
-      backgroundColor: Palette.cream,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Palette.sky,
         title: Text(l.createActivity_title,

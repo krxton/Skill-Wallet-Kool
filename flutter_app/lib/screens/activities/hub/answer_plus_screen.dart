@@ -1,14 +1,16 @@
 // lib/screens/activities/hub/answer_plus_page.dart
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/palette.dart';
+import '../../../theme/app_text_styles.dart';
 
 class AnswerPlusScreen extends StatelessWidget {
   const AnswerPlusScreen({super.key});
 
-  // 🎨 สีตาม Theme
+  // 🎨 สีตาม Theme — orange item color not in Palette, kept locally
   static const orangeItem = Color(0xFFEF9C66);
+  // light blue header label not in Palette, kept locally
+  static const headerBlue = Color(0xFF8ECDF7);
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +29,7 @@ class AnswerPlusScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      backgroundColor: Palette.cream,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -38,9 +40,7 @@ class AnswerPlusScreen extends StatelessWidget {
         centerTitle: true,
         title: Text(
           'ANSWER PLUS +', // ชื่อหัวข้อเปลี่ยนเป็น ANSWER PLUS +
-          style: GoogleFonts.luckiestGuy(
-            fontSize: 28,
-            color: Palette.sky,
+          style: AppTextStyles.heading(28, color: Palette.sky).copyWith(
             letterSpacing: 2,
           ),
         ),
@@ -55,17 +55,11 @@ class AnswerPlusScreen extends StatelessWidget {
               children: [
                 Text(
                   'QUESTION',
-                  style: GoogleFonts.luckiestGuy(
-                    fontSize: 22,
-                    color: const Color(0xFF8ECDF7),
-                  ),
+                  style: AppTextStyles.heading(22, color: headerBlue),
                 ),
                 Text(
                   'ANSWER',
-                  style: GoogleFonts.luckiestGuy(
-                    fontSize: 22,
-                    color: const Color(0xFF8ECDF7),
-                  ),
+                  style: AppTextStyles.heading(22, color: headerBlue),
                 ),
               ],
             ),
@@ -92,19 +86,13 @@ class AnswerPlusScreen extends StatelessWidget {
                       // ส่วนโจทย์
                       Text(
                         item['q']!,
-                        style: GoogleFonts.luckiestGuy(
-                          fontSize: 24,
-                          color: Colors.white,
-                          letterSpacing: 1.5,
-                        ),
+                        style: AppTextStyles.heading(24, color: Palette.white)
+                            .copyWith(letterSpacing: 1.5),
                       ),
                       // ส่วนคำตอบ
                       Text(
                         item['a']!,
-                        style: GoogleFonts.luckiestGuy(
-                          fontSize: 24,
-                          color: Colors.white,
-                        ),
+                        style: AppTextStyles.heading(24, color: Palette.white),
                       ),
                     ],
                   ),
