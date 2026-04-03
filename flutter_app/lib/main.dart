@@ -11,6 +11,7 @@ import 'theme/app_theme.dart';
 import 'theme/palette.dart';
 import 'providers/user_provider.dart';
 import 'services/deep_link_service.dart';
+import 'services/route_observer.dart';
 import 'services/storage_service.dart';
 import 'services/mock_auth_service.dart';
 import 'screens/auth/welcome_screen.dart';

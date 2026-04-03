@@ -43,6 +43,43 @@ class AppLocalizationsEn extends AppLocalizations {
   String get home_switchChild => 'Switch Child';
 
   @override
+  String get draft_bannerTitle => 'Activity in progress';
+
+  @override
+  String get draft_bannerResume => 'Continue';
+
+  @override
+  String get draft_bannerDiscard => 'Discard';
+
+  @override
+  String get draft_discardTitle => 'Discard progress?';
+
+  @override
+  String get draft_discardMsg =>
+      'Your saved progress for this activity will be deleted.';
+
+  @override
+  String get draft_leaveTitle => 'Leave activity?';
+
+  @override
+  String get draft_leaveMsg =>
+      'Your progress will be saved. You can continue later from the home screen.';
+
+  @override
+  String get draft_leaveBtn => 'Save & Leave';
+
+  @override
+  String get draft_conflictTitle => 'Active saved progress';
+
+  @override
+  String draft_conflictMsg(String name) {
+    return 'You have saved progress for \"$name\". Starting a new activity will discard it, or you can cancel and resume.';
+  }
+
+  @override
+  String get draft_conflictPlay => 'Start New';
+
+  @override
   String get common_discardChanges => 'Discard changes?';
 
   @override
@@ -1682,4 +1719,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get summary_error => 'Error';
+
+  @override
+  String get summary_reviewShort => 'Review';
+
+  @override
+  String get summary_stopRecord => 'Stop';
 }

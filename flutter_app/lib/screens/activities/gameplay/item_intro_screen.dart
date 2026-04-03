@@ -13,6 +13,7 @@ import 'package:path_provider/path_provider.dart';
 import '../../../providers/user_provider.dart';
 import '../../../services/activity_service.dart';
 import '../../../services/audio_evaluation_queue.dart';
+import '../../../services/draft_service.dart';
 import '../../../models/activity.dart';
 import '../../../routes/app_routes.dart';
 import '../../../theme/palette.dart';
@@ -52,7 +53,8 @@ class ItemIntroScreen extends StatefulWidget {
   State<ItemIntroScreen> createState() => _ItemIntroScreenState();
 }
 
-class _ItemIntroScreenState extends State<ItemIntroScreen> {
+class _ItemIntroScreenState extends State<ItemIntroScreen>
+    with SingleTickerProviderStateMixin {
   // ----------------------------------------------------
   // 1. CONSTANTS & STATE
   // ----------------------------------------------------
@@ -75,6 +77,10 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
   String _recordedFilePath = '';
   BytesBuilder? _webBytesBuilder;
   StreamSubscription<List<int>>? _webAudioSub;
+
+  // 🔔 Shake animation for record button (triggered when nav attempted during recording)
+  late final AnimationController _shakeController;
+  late final Animation<double> _shakeAnimation;
 
   // ⏱️ Stopwatch สำหรับจับเวลาทำกิจกรรม
   final Stopwatch _activityStopwatch = Stopwatch();
@@ -106,6 +112,19 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
   @override
   void initState() {
     super.initState();
+
+    // 0. Shake animation init
+    _shakeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 350),
+    );
+    _shakeAnimation = TweenSequence<double>([
+      TweenSequenceItem(tween: Tween(begin: 0.0, end: -7.0), weight: 1),
+      TweenSequenceItem(tween: Tween(begin: -7.0, end: 7.0), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 7.0, end: -7.0), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: -7.0, end: 7.0), weight: 2),
+      TweenSequenceItem(tween: Tween(begin: 7.0, end: 0.0), weight: 1),
+    ]).animate(_shakeController);
 
     // 1. เตรียม Segment Data
     _rawSegments = (widget.activity.segments as List<dynamic>?)
@@ -170,9 +189,10 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
       });
     }
 
-    // 5. โหลด childId
+    // 5. โหลด childId + restore draft
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _childId = context.read<UserProvider>().currentChildId;
+      _restoreDraft();
     });
 
     // 6. Listener เมื่อไฟล์เสียงเล่นจบ
@@ -187,8 +207,83 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
     debugPrint('⏱️ Activity timer started');
   }
 
+  Future<void> _restoreDraft() async {
+    if (_childId == null) return;
+    final draft = await DraftService.loadDraft(_childId!);
+    if (draft == null ||
+        draft['type'] != DraftService.typeLanguage ||
+        draft['activityId'] != widget.activity.id) return;
+    final data = draft['data'] as Map<String, dynamic>? ?? {};
+    if (!mounted) return;
+    final savedCurrent = data['current'] as int? ?? 1;
+    final savedSegments =
+        (data['segmentResults'] as List<dynamic>?)
+            ?.map((e) => SegmentResult.fromDraftJson(e as Map<String, dynamic>))
+            .map((r) => r.status == SegmentStatus.processing
+                ? r.copyWith(status: SegmentStatus.idle)
+                : r)
+            .toList() ??
+        _segmentResults;
+    setState(() {
+      current = savedCurrent.clamp(1, totalSegments);
+      _segmentResults
+        ..clear()
+        ..addAll(savedSegments);
+      _resultsNotifier.value = List.from(_segmentResults);
+      final r = _segmentResults[current - 1];
+      state = switch (r.status) {
+        SegmentStatus.done => 'reviewed',
+        _ => 'idle',
+      };
+      point = r.maxScore;
+    });
+  }
+
+  Future<void> _saveDraft() async {
+    if (_childId == null) return;
+    await DraftService.saveDraft(
+      childId: _childId!,
+      type: DraftService.typeLanguage,
+      activityId: widget.activity.id,
+      activityJson: widget.activity.toJson(),
+      data: {
+        'current': current,
+        'segmentResults':
+            _segmentResults.map((r) => r.toDraftJson()).toList(),
+      },
+    );
+  }
+
+  Future<bool> _onWillPop() async {
+    final l = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.draft_leaveTitle, style: AppTextStyles.heading(18)),
+        content: Text(l.draft_leaveMsg, style: AppTextStyles.body(14)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l.common_cancel, style: AppTextStyles.body(14)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l.draft_leaveBtn,
+                style: AppTextStyles.body(14, color: Palette.sky)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await _saveDraft();
+      if (mounted) Navigator.popUntil(context, (r) => r.isFirst);
+    }
+    return false;
+  }
+
   @override
   void dispose() {
+    _shakeController.dispose();
     _ytController?.close();
     _playbackPlayer.dispose();
     _audioRecorder.dispose();
@@ -197,6 +292,10 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
     _resultsNotifier.dispose();
     _isSubmitting.dispose();
     super.dispose();
+  }
+
+  void _triggerShake() {
+    _shakeController.forward(from: 0);
   }
 
   // ----------------------------------------------------
@@ -583,6 +682,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
       );
 
       await _cleanupAudioFiles();
+      if (_childId != null) await DraftService.clearDraft(_childId!);
 
       if (!mounted) return;
       // Pop summary screen if it's on the stack, then go to result
@@ -617,6 +717,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
         builder: (_) => ActivitySummaryScreen(
           resultsNotifier: _resultsNotifier,
           activity: widget.activity,
+          rawSegments: _rawSegments,
           isSubmitting: _isSubmitting,
           onComplete: _handleFinishQuest,
         ),
@@ -678,17 +779,25 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
 
     final hasVideo = _ytController != null && _youtubeVideoId.isNotEmpty;
 
-    return _buildScaffold(
-      context,
-      titleStyle: titleStyle,
-      videoWidget: hasVideo
-          ? yp.YoutubePlayer(controller: _ytController!)
-          : Center(
-              child: Text(
-                AppLocalizations.of(context)!.itemintro_Videonotavailable,
-                style: AppTextStyles.heading(14, color: Palette.white),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        final shouldPop = await _onWillPop();
+        if (shouldPop && mounted) Navigator.pop(context);
+      },
+      child: _buildScaffold(
+        context,
+        titleStyle: titleStyle,
+        videoWidget: hasVideo
+            ? yp.YoutubePlayer(controller: _ytController!)
+            : Center(
+                child: Text(
+                  AppLocalizations.of(context)!.itemintro_Videonotavailable,
+                  style: AppTextStyles.heading(14, color: Palette.white),
+                ),
               ),
-            ),
+      ),
     );
   }
 
@@ -710,7 +819,10 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () async {
+            final shouldPop = await _onWillPop();
+            if (shouldPop && mounted) Navigator.pop(context);
+          },
         ),
         title: Text(
           ActivityL10n.localizedActivityType(context, widget.activity.category),
@@ -718,6 +830,15 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
           textAlign: TextAlign.center,
         ),
         centerTitle: true,
+        actions: [
+          TextButton(
+            onPressed: _openSummary,
+            child: Text(
+              AppLocalizations.of(context)!.summary_reviewShort,
+              style: AppTextStyles.body(14, color: Palette.sky),
+            ),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Column(
@@ -799,7 +920,12 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                       bg: prevGrey,
                       fg: Palette.deepGrey,
                       onTap: current > 1
-                          ? () => setState(() {
+                          ? () {
+                              if (_isRecording) {
+                                _triggerShake();
+                                return;
+                              }
+                              setState(() {
                                 current--;
                                 final r = _segmentResults[current - 1];
                                 state = switch (r.status) {
@@ -808,7 +934,8 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                                   _ => 'idle',
                                 };
                                 point = r.maxScore;
-                              })
+                              });
+                            }
                           : null,
                     ),
                   ),
@@ -843,11 +970,15 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
                   Expanded(
                     child: _bottomBtn(
                       label: current == totalSegments
-                          ? AppLocalizations.of(context)!.summary_title
+                          ? AppLocalizations.of(context)!.summary_reviewShort
                           : AppLocalizations.of(context)!.itemintro_next,
                       bg: nextBlue,
                       fg: Colors.white,
                       onTap: () {
+                        if (_isRecording) {
+                          _triggerShake();
+                          return;
+                        }
                         if (current < totalSegments) {
                           setState(() {
                             current++;
@@ -907,33 +1038,40 @@ class _ItemIntroScreenState extends State<ItemIntroScreen> {
     final Color bg = _isRecording ? Palette.errorStrong : Palette.success;
 
     return Expanded(
-      child: InkWell(
-        onTap: _handleRecord,
-        borderRadius: BorderRadius.circular(14),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          height: 42,
-          decoration: BoxDecoration(
-            color: bg,
-            borderRadius: BorderRadius.circular(14),
-          ),
-          alignment: Alignment.center,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (_isRecording) ...[
-                const Icon(Icons.mic, color: Colors.white, size: 18),
-                const SizedBox(width: 6),
-                Text(
-                  '${_recordingDuration.inMinutes.toString().padLeft(2, '0')}:${(_recordingDuration.inSeconds % 60).toString().padLeft(2, '0')}',
-                  style: AppTextStyles.heading(14, color: Colors.white),
-                ),
-              ] else
-                Text(
-                  AppLocalizations.of(context)!.itemintro_record,
-                  style: AppTextStyles.heading(14, color: Colors.white),
-                ),
-            ],
+      child: AnimatedBuilder(
+        animation: _shakeAnimation,
+        builder: (context, child) => Transform.translate(
+          offset: Offset(_shakeAnimation.value, 0),
+          child: child,
+        ),
+        child: InkWell(
+          onTap: _handleRecord,
+          borderRadius: BorderRadius.circular(14),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            height: 42,
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            alignment: Alignment.center,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (_isRecording) ...[
+                  const Icon(Icons.mic, color: Colors.white, size: 18),
+                  const SizedBox(width: 6),
+                  Text(
+                    '${_recordingDuration.inMinutes.toString().padLeft(2, '0')}:${(_recordingDuration.inSeconds % 60).toString().padLeft(2, '0')}',
+                    style: AppTextStyles.heading(14, color: Colors.white),
+                  ),
+                ] else
+                  Text(
+                    AppLocalizations.of(context)!.itemintro_record,
+                    style: AppTextStyles.heading(14, color: Colors.white),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

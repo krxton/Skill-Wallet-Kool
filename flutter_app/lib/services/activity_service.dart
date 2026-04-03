@@ -52,6 +52,27 @@ class SegmentResult {
         'maxScore': maxScore,
         'recognizedText': recognizedText,
       };
+
+  /// Used only for local draft persistence — includes status field.
+  Map<String, dynamic> toDraftJson() => {
+        'id': id,
+        'text': text,
+        'maxScore': maxScore,
+        'status': status.name,
+        'recognizedText': recognizedText,
+      };
+
+  factory SegmentResult.fromDraftJson(Map<String, dynamic> json) =>
+      SegmentResult(
+        id: json['id'] as String? ?? '',
+        text: json['text'] as String? ?? '',
+        maxScore: json['maxScore'] as int? ?? 0,
+        status: SegmentStatus.values.firstWhere(
+          (s) => s.name == (json['status'] as String? ?? 'idle'),
+          orElse: () => SegmentStatus.idle,
+        ),
+        recognizedText: json['recognizedText'] as String?,
+      );
 }
 
 class ActivityService {

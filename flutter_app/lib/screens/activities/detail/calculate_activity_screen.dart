@@ -11,6 +11,7 @@ import '../../../models/activity.dart';
 import '../../../providers/user_provider.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/activity_service.dart';
+import '../../../services/draft_service.dart';
 import '../../../theme/app_text_styles.dart';
 import '../../../theme/palette.dart';
 import '../../../widgets/info_badges.dart';
@@ -43,7 +44,6 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
   _Phase _phase = _Phase.ready;
 
   // Timer
-  final Stopwatch _activityStopwatch = Stopwatch();
   Timer? _uiUpdateTimer;
 
   // Evidence
@@ -58,16 +58,18 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
   final Map<int, bool?> _answerStatus = {};
 
   bool _isSubmitting = false;
+  DateTime? _startTime;
+  int _baseElapsedSeconds = 0;
 
   @override
   void initState() {
     super.initState();
     _loadSegments();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _restoreDraft());
   }
 
   @override
   void dispose() {
-    _activityStopwatch.stop();
     _uiUpdateTimer?.cancel();
     _descriptionController.dispose();
     super.dispose();
@@ -103,10 +105,16 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
 
   // ── Timer ──────────────────────────────────────────────
 
+  int get _elapsedSeconds {
+    final running = _startTime != null
+        ? DateTime.now().difference(_startTime!).inSeconds
+        : 0;
+    return _baseElapsedSeconds + running;
+  }
+
   void _startTimer() {
+    _startTime = DateTime.now();
     setState(() => _phase = _Phase.running);
-    _activityStopwatch.reset();
-    _activityStopwatch.start();
     _uiUpdateTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) setState(() {});
     });
@@ -129,8 +137,9 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
-              _activityStopwatch.stop();
               _uiUpdateTimer?.cancel();
+              _baseElapsedSeconds = _elapsedSeconds;
+              _startTime = null;
               setState(() => _phase = _Phase.answering);
             },
             child: Text(AppLocalizations.of(context)!.common_finish,
@@ -158,9 +167,9 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(ctx);
-              _activityStopwatch.stop();
               _uiUpdateTimer?.cancel();
-              _activityStopwatch.reset();
+              _startTime = null;
+              _baseElapsedSeconds = 0;
               setState(() {
                 _phase = _Phase.ready;
                 _answerStatus.clear();
@@ -175,6 +184,105 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
         ],
       ),
     );
+  }
+
+  // ── Draft ──────────────────────────────────────────────
+
+  Future<void> _restoreDraft() async {
+    final childId = context.read<UserProvider>().currentChildId;
+    if (childId == null) return;
+    final draft = await DraftService.loadDraft(childId);
+    if (draft == null ||
+        draft['type'] != DraftService.typeCalculate ||
+        draft['activityId'] != widget.activity.id) return;
+    final data = draft['data'] as Map<String, dynamic>? ?? {};
+    if (!mounted) return;
+    final savedStart = data['startTime'] as String?;
+    final phaseStr = data['phase'] as String? ?? 'ready';
+    final restoredPhase = _Phase.values.firstWhere((p) => p.name == phaseStr,
+        orElse: () => _Phase.ready);
+    // Restore accumulated seconds
+    _baseElapsedSeconds = data['elapsedSeconds'] as int? ?? 0;
+    if (savedStart != null && restoredPhase == _Phase.running) {
+      // Add time elapsed while app was closed
+      final closedAt = DateTime.parse(savedStart);
+      _baseElapsedSeconds += DateTime.now().difference(closedAt).inSeconds;
+    }
+    // Always restore as paused — user presses start to continue
+    if (restoredPhase == _Phase.running) {
+      _uiUpdateTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (mounted) setState(() {});
+      });
+    }
+    setState(() {
+      _phase = restoredPhase;
+      _descriptionController.text = data['description'] as String? ?? '';
+      final scores = data['scores'] as Map<String, dynamic>? ?? {};
+      scores.forEach((k, v) {
+        final idx = int.tryParse(k);
+        if (idx != null) {
+          _segmentResults[idx] =
+              _segmentResults[idx].copyWith(maxScore: (v as num).toInt());
+        }
+      });
+      final answers = data['answerStatus'] as Map<String, dynamic>? ?? {};
+      answers.forEach((k, v) {
+        final idx = int.tryParse(k);
+        if (idx != null) _answerStatus[idx] = v as bool?;
+      });
+    });
+  }
+
+  Future<void> _saveDraft() async {
+    final childId = context.read<UserProvider>().currentChildId;
+    if (childId == null) return;
+    final scores = <String, int>{};
+    for (int i = 0; i < _segmentResults.length; i++) {
+      scores['$i'] = _segmentResults[i].maxScore;
+    }
+    final answers = <String, bool?>{};
+    _answerStatus.forEach((k, v) => answers['$k'] = v);
+    await DraftService.saveDraft(
+      childId: childId,
+      type: DraftService.typeCalculate,
+      activityId: widget.activity.id,
+      activityJson: widget.activity.toJson(),
+      data: {
+        'phase': _phase.name,
+        'elapsedSeconds': _elapsedSeconds,
+        'startTime': _phase == _Phase.running ? DateTime.now().toIso8601String() : null,
+        'description': _descriptionController.text,
+        'scores': scores,
+        'answerStatus': answers,
+      },
+    );
+  }
+
+  Future<bool> _onWillPop() async {
+    final l = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.draft_leaveTitle, style: AppTextStyles.heading(18)),
+        content: Text(l.draft_leaveMsg, style: AppTextStyles.body(14)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l.common_cancel, style: AppTextStyles.body(14)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l.draft_leaveBtn,
+                style: AppTextStyles.body(14, color: Palette.sky)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await _saveDraft();
+      if (mounted) Navigator.popUntil(context, (r) => r.isFirst);
+    }
+    return false;
   }
 
   String _formatTime(int seconds) {
@@ -262,7 +370,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
       return;
     }
 
-    final timeSpentSeconds = _activityStopwatch.elapsed.inSeconds;
+    final timeSpentSeconds = _elapsedSeconds;
     setState(() => _isSubmitting = true);
 
     final evidencePayload = {
@@ -284,6 +392,8 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
         timeSpent: timeSpentSeconds,
         useDirectScore: true,
       );
+
+      await DraftService.clearDraft(childId);
 
       if (mounted) {
         Navigator.pushReplacementNamed(
@@ -316,16 +426,26 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final elapsedSeconds = _activityStopwatch.elapsed.inSeconds;
+    final elapsedSeconds = _elapsedSeconds;
 
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        final shouldPop = await _onWillPop();
+        if (shouldPop && mounted) Navigator.pop(context);
+      },
+      child: Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black, size: 30),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () async {
+            final shouldPop = await _onWillPop();
+            if (shouldPop && mounted) Navigator.pop(context);
+          },
         ),
         centerTitle: true,
         title: Text(
@@ -430,7 +550,8 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                   ),
               ],
             ),
-    );
+    ), // Scaffold
+    ); // PopScope
   }
 
   // ── Timer controls by phase ───────────────────────────

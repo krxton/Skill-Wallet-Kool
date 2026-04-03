@@ -43,6 +43,42 @@ class AppLocalizationsTh extends AppLocalizations {
   String get home_switchChild => 'เปลี่ยนลูก';
 
   @override
+  String get draft_bannerTitle => 'กิจกรรมค้างอยู่';
+
+  @override
+  String get draft_bannerResume => 'ทำต่อ';
+
+  @override
+  String get draft_bannerDiscard => 'ลบทิ้ง';
+
+  @override
+  String get draft_discardTitle => 'ลบ progress ทิ้ง?';
+
+  @override
+  String get draft_discardMsg => 'ความคืบหน้าของกิจกรรมนี้จะถูกลบ';
+
+  @override
+  String get draft_leaveTitle => 'ออกจากกิจกรรม?';
+
+  @override
+  String get draft_leaveMsg =>
+      'ความคืบหน้าจะถูกบันทึกไว้ คุณสามารถกลับมาทำต่อได้จากหน้าหลัก';
+
+  @override
+  String get draft_leaveBtn => 'บันทึกและออก';
+
+  @override
+  String get draft_conflictTitle => 'มีการบันทึกค้างอยู่';
+
+  @override
+  String draft_conflictMsg(String name) {
+    return 'คุณมี progress ที่บันทึกไว้ของ \"$name\" อยู่ หากเริ่มกิจกรรมใหม่จะลบ progress นั้น';
+  }
+
+  @override
+  String get draft_conflictPlay => 'เริ่มใหม่';
+
+  @override
   String get common_discardChanges => 'ยกเลิกการเปลี่ยนแปลง?';
 
   @override
@@ -1677,4 +1713,10 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get summary_error => 'ข้อผิดพลาด';
+
+  @override
+  String get summary_reviewShort => 'ตรวจสอบ';
+
+  @override
+  String get summary_stopRecord => 'หยุด';
 }

@@ -12,6 +12,7 @@ import '../../utils/youtube_helper.dart';
 
 import '../../theme/app_text_styles.dart';
 import '../../widgets/activity_card.dart';
+import '../../widgets/draft_banner.dart';
 import '../../widgets/scrollable_activity_list.dart';
 import '../../widgets/main_bottom_nav.dart';
 import '../profile/profile_screen.dart';
@@ -887,6 +888,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         const SizedBox(height: 20),
+
+        // Draft banner — shows if there's an in-progress activity
+        const DraftBanner(),
 
         // Top Carousel - แสดงกิจกรรมแนะนำตามหมวดที่เคยเล่น
         Container(

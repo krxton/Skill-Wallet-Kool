@@ -164,6 +164,72 @@ abstract class AppLocalizations {
   /// **'Switch Child'**
   String get home_switchChild;
 
+  /// No description provided for @draft_bannerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity in progress'**
+  String get draft_bannerTitle;
+
+  /// No description provided for @draft_bannerResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get draft_bannerResume;
+
+  /// No description provided for @draft_bannerDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get draft_bannerDiscard;
+
+  /// No description provided for @draft_discardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard progress?'**
+  String get draft_discardTitle;
+
+  /// No description provided for @draft_discardMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Your saved progress for this activity will be deleted.'**
+  String get draft_discardMsg;
+
+  /// No description provided for @draft_leaveTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave activity?'**
+  String get draft_leaveTitle;
+
+  /// No description provided for @draft_leaveMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Your progress will be saved. You can continue later from the home screen.'**
+  String get draft_leaveMsg;
+
+  /// No description provided for @draft_leaveBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Save & Leave'**
+  String get draft_leaveBtn;
+
+  /// No description provided for @draft_conflictTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Active saved progress'**
+  String get draft_conflictTitle;
+
+  /// No description provided for @draft_conflictMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'You have saved progress for \"{name}\". Starting a new activity will discard it, or you can cancel and resume.'**
+  String draft_conflictMsg(String name);
+
+  /// No description provided for @draft_conflictPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Start New'**
+  String get draft_conflictPlay;
+
   /// No description provided for @common_discardChanges.
   ///
   /// In en, this message translates to:
@@ -3241,6 +3307,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error'**
   String get summary_error;
+
+  /// No description provided for @summary_reviewShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get summary_reviewShort;
+
+  /// No description provided for @summary_stopRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get summary_stopRecord;
 }
 
 class _AppLocalizationsDelegate

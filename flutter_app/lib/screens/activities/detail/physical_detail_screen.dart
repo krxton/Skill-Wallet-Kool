@@ -11,6 +11,7 @@ import '../../../models/activity.dart';
 import '../../../providers/user_provider.dart';
 import '../../../routes/app_routes.dart';
 import '../../../services/activity_service.dart';
+import '../../../services/draft_service.dart';
 import '../../../theme/app_text_styles.dart';
 import '../../../theme/palette.dart';
 import '../../../l10n/app_localizations.dart';
@@ -41,7 +42,6 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
   String? _imagePath;
 
   // ⏱️ เปลี่ยนจาก Timer เป็น Stopwatch (แม่นยำกว่า)
-  final Stopwatch _activityStopwatch = Stopwatch();
   Timer? _uiUpdateTimer; // Timer สำหรับอัพเดท UI เท่านั้น
   bool _isPlaying = false;
 
@@ -49,6 +49,10 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
   bool _isSubmitting = false;
   bool _initialized = false;
   final TextEditingController _descriptionController = TextEditingController();
+
+  // Timer: use _startTime + _baseElapsed so pause/restore keeps correct value
+  DateTime? _startTime;
+  int _baseElapsedSeconds = 0;
 
   @override
   void initState() {
@@ -66,12 +70,82 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
       for (final id in widget.extraChildIds) {
         _childScores.putIfAbsent(id, () => 0);
       }
+      _restoreDraft(childId);
     }
+  }
+
+  Future<void> _restoreDraft(String? childId) async {
+    if (childId == null) return;
+    final draft = await DraftService.loadDraft(childId);
+    if (draft == null ||
+        draft['type'] != DraftService.typePhysical ||
+        draft['activityId'] != widget.activity.id) return;
+    final data = draft['data'] as Map<String, dynamic>? ?? {};
+    if (!mounted) return;
+    // Restore accumulated seconds first
+    _baseElapsedSeconds = data['elapsedSeconds'] as int? ?? 0;
+    final savedStart = data['startTime'] as String?;
+    final wasPlaying = data['isPlaying'] as bool? ?? false;
+    if (wasPlaying && savedStart != null) {
+      // Add time that passed while app was closed
+      final closedAt = DateTime.parse(savedStart);
+      _baseElapsedSeconds += DateTime.now().difference(closedAt).inSeconds;
+    }
+    setState(() {
+      _isPlaying = false; // always resume as paused — user decides to restart
+      _descriptionController.text = data['description'] as String? ?? '';
+      final scores = data['childScores'] as Map<String, dynamic>? ?? {};
+      scores.forEach((k, v) => _childScores[k] = (v as num).toInt());
+    });
+  }
+
+  Future<void> _saveDraft() async {
+    final childId = context.read<UserProvider>().currentChildId;
+    if (childId == null) return;
+    await DraftService.saveDraft(
+      childId: childId,
+      type: DraftService.typePhysical,
+      activityId: widget.activity.id,
+      activityJson: widget.activity.toJson(),
+      data: {
+        'elapsedSeconds': _elapsedSeconds, // snapshot current total
+        'startTime': _isPlaying ? DateTime.now().toIso8601String() : null,
+        'isPlaying': _isPlaying,
+        'description': _descriptionController.text,
+        'childScores': _childScores,
+      },
+    );
+  }
+
+  Future<bool> _onWillPop() async {
+    final l = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.draft_leaveTitle, style: AppTextStyles.heading(18)),
+        content: Text(l.draft_leaveMsg, style: AppTextStyles.body(14)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l.common_cancel, style: AppTextStyles.body(14)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l.draft_leaveBtn,
+                style: AppTextStyles.body(14, color: Palette.sky)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await _saveDraft();
+      if (mounted) Navigator.popUntil(context, (r) => r.isFirst);
+    }
+    return false; // always return false — we handle pop manually
   }
 
   @override
   void dispose() {
-    _activityStopwatch.stop();
     _uiUpdateTimer?.cancel();
     _descriptionController.dispose();
     super.dispose();
@@ -83,35 +157,25 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
 
   void _handleStart() {
     if (_isPlaying) return;
-
-    setState(() {
-      _isPlaying = true;
+    _startTime = DateTime.now();
+    setState(() => _isPlaying = true);
+    _uiUpdateTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
     });
-
-    // เริ่ม Stopwatch
-    _activityStopwatch.reset();
-    _activityStopwatch.start();
-
-    // เริ่ม Timer เพื่ออัพเดท UI ทุกวินาที
-    _uiUpdateTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (mounted && _isPlaying) {
-        setState(() {}); // บังคับให้ rebuild เพื่ออัพเดทเวลา
-      }
-    });
-
-    debugPrint('⏱️ Stopwatch started');
   }
 
   void _handleFinish() {
-    _activityStopwatch.stop();
     _uiUpdateTimer?.cancel();
+    _baseElapsedSeconds = _elapsedSeconds; // snapshot before clearing startTime
+    _startTime = null;
+    setState(() => _isPlaying = false);
+  }
 
-    setState(() {
-      _isPlaying = false;
-    });
-
-    debugPrint(
-        '⏱️ Stopwatch stopped at ${_activityStopwatch.elapsed.inSeconds}s');
+  int get _elapsedSeconds {
+    final running = _startTime != null
+        ? DateTime.now().difference(_startTime!).inSeconds
+        : 0;
+    return _baseElapsedSeconds + running;
   }
 
   // 🆕 Logic: เลือก Video/Image จาก Camera หรือ Gallery
@@ -211,9 +275,9 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
     }
 
     // หยุดจับเวลา
+    final timeSpentSeconds = _elapsedSeconds;
     _handleFinish();
-    final timeSpentSeconds = _activityStopwatch.elapsed.inSeconds;
-    debugPrint('⏱️ Physical activity completed in $timeSpentSeconds seconds');
+    debugPrint('⏱️ Physical activity completed in ${timeSpentSeconds}s');
 
     setState(() => _isSubmitting = true);
 
@@ -247,6 +311,9 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
       );
 
       debugPrint('✅ Submitted for ${results.length} children');
+
+      // Clear draft on successful submit
+      await DraftService.clearDraft(childId);
 
       if (mounted) {
         final currentScore = _childScores[childId] ?? 0;
@@ -441,20 +508,29 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // แสดงเวลาจาก Stopwatch
     String two(int n) => n.toString().padLeft(2, '0');
-    final int elapsedSeconds = _activityStopwatch.elapsed.inSeconds;
+    final int elapsedSeconds = _elapsedSeconds;
     final mm = two(elapsedSeconds ~/ 60), ss = two(elapsedSeconds % 60);
     final bool isEvidenceAttached = _videoPath != null || _imagePath != null;
 
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        final shouldPop = await _onWillPop();
+        if (shouldPop && mounted) Navigator.pop(context);
+      },
+      child: Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () async {
+            final shouldPop = await _onWillPop();
+            if (shouldPop && mounted) Navigator.pop(context);
+          },
         ),
         title: Text(
             ActivityL10n.localizedActivityType(
@@ -749,6 +825,7 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
           ),
         ],
       ),
-    );
+    ), // Scaffold
+    ); // PopScope
   }
 }

@@ -1,38 +1,267 @@
+import 'dart:async';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:record/record.dart';
+import 'package:path_provider/path_provider.dart';
+
 import '../../../models/activity.dart';
 import '../../../services/activity_service.dart';
+import '../../../services/audio_evaluation_queue.dart';
 import '../../../theme/palette.dart';
 import '../../../theme/app_text_styles.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 
 /// Summary page shown before final submission.
 ///
-/// Displays every segment's result (recognised text + score).
-/// User can:
-///   • Re-record a segment (pops with [_SummaryAction.reRecord] + index)
-///   • Jump to a segment's Play Section (pops with [_SummaryAction.playSection] + index)
-///   • Complete the activity (calls [onComplete])
-///
 /// Navigation contract with [ItemIntroScreen]:
-///   pop result = null           → user just went back normally
-///   pop result = {'reRecord': N}  → jump to segment N (0-indexed)
-class ActivitySummaryScreen extends StatelessWidget {
+///   pop result = null              → user just went back normally
+///   pop result = {'playSection': N} → jump to segment N (0-indexed) and play
+class ActivitySummaryScreen extends StatefulWidget {
   const ActivitySummaryScreen({
     super.key,
     required this.resultsNotifier,
     required this.activity,
+    required this.rawSegments,
     required this.onComplete,
     required this.isSubmitting,
   });
 
   final ValueNotifier<List<SegmentResult>> resultsNotifier;
   final Activity activity;
-
-  /// Called when user taps "Complete Activity".
+  final List<dynamic> rawSegments;
   final VoidCallback onComplete;
-
-  /// True while [ItemIntroScreen] is calling finalizeQuest.
   final ValueNotifier<bool> isSubmitting;
+
+  @override
+  State<ActivitySummaryScreen> createState() => _ActivitySummaryScreenState();
+}
+
+class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> {
+  final AudioRecorder _audioRecorder = AudioRecorder();
+  final AudioEvaluationQueue _evaluationQueue = AudioEvaluationQueue();
+  final ActivityService _activityService = ActivityService();
+  final List<String> _tempAudioFiles = [];
+
+  int? _recordingIndex;
+  bool _isRecording = false;
+  Duration _recordingDuration = Duration.zero;
+  Timer? _recordingTimer;
+  String _recordedFilePath = '';
+  BytesBuilder? _webBytesBuilder;
+  StreamSubscription<List<int>>? _webAudioSub;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _audioRecorder.dispose();
+    _recordingTimer?.cancel();
+    _webAudioSub?.cancel();
+    for (final path in _tempAudioFiles) {
+      try {
+        File(path).deleteSync();
+      } catch (_) {}
+    }
+    super.dispose();
+  }
+
+  // ── Recording logic ────────────────────────────────────────────────────────
+
+  Future<void> _handleRecord(int index) async {
+    if (_isRecording) {
+      if (_recordingIndex == index) {
+        await _stopRecording(index);
+      }
+      return;
+    }
+    await _startRecording(index);
+  }
+
+  Future<void> _startRecording(int index) async {
+    final hasPermission = await _audioRecorder.hasPermission();
+    if (!hasPermission) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(AppLocalizations.of(context)!.itemintro_micPermission),
+        ));
+      }
+      return;
+    }
+
+    try {
+      if (kIsWeb) {
+        _webBytesBuilder = BytesBuilder(copy: false);
+        final stream = await _audioRecorder.startStream(
+          const RecordConfig(encoder: AudioEncoder.pcm16bits),
+        );
+        _webAudioSub = stream.listen((chunk) => _webBytesBuilder?.add(chunk));
+      } else {
+        final tempDir = await getTemporaryDirectory();
+        _recordedFilePath =
+            '${tempDir.path}/summary_rec_${DateTime.now().millisecondsSinceEpoch}.m4a';
+        await _audioRecorder.start(
+          const RecordConfig(encoder: AudioEncoder.aacLc),
+          path: _recordedFilePath,
+        );
+        _tempAudioFiles.add(_recordedFilePath);
+      }
+
+      setState(() {
+        _isRecording = true;
+        _recordingIndex = index;
+        _recordingDuration = Duration.zero;
+      });
+
+      _recordingTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (mounted) setState(() => _recordingDuration += const Duration(seconds: 1));
+      });
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+              AppLocalizations.of(context)!.itemintro_recordStartError(e.toString())),
+        ));
+      }
+    }
+  }
+
+  Future<void> _stopRecording(int index) async {
+    _recordingTimer?.cancel();
+    await _audioRecorder.stop();
+    setState(() => _isRecording = false);
+
+    if (_recordingDuration.inSeconds < 1) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(AppLocalizations.of(context)!.itemintro_recordTooShort),
+        ));
+      }
+      return;
+    }
+
+    Uint8List? webBytes;
+    String mobilePath = '';
+
+    if (kIsWeb) {
+      await _webAudioSub?.cancel();
+      _webAudioSub = null;
+      final pcm = _webBytesBuilder?.toBytes();
+      _webBytesBuilder = null;
+      if (pcm == null || pcm.isEmpty || pcm.length < 8000) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('ข้อมูลเสียงสั้นเกินไป — ลองอีกครั้ง')),
+          );
+        }
+        return;
+      }
+      webBytes = _pcm16ToWav(pcm, sampleRate: 44100, channels: 1);
+    } else {
+      mobilePath = _recordedFilePath;
+      final f = File(mobilePath);
+      if (!await f.exists() || await f.length() < 1000) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('ไม่พบไฟล์เสียง — ลองอีกครั้ง')),
+          );
+        }
+        return;
+      }
+    }
+
+    final segMap = widget.rawSegments[index] as Map<String, dynamic>;
+    final segText = segMap['text'] as String? ?? '';
+    final segId = widget.resultsNotifier.value[index].id;
+
+    // Mark processing
+    final processing = List<SegmentResult>.from(widget.resultsNotifier.value);
+    processing[index] = processing[index].copyWith(
+      status: SegmentStatus.processing,
+      audioUrl: kIsWeb ? '' : mobilePath,
+    );
+    widget.resultsNotifier.value = processing;
+
+    _evaluationQueue.enqueue(() async {
+      if (kIsWeb) {
+        return _activityService.evaluateAudioBytes(
+          audioBytes: webBytes!,
+          originalText: segText,
+          filename: 'recording.wav',
+        );
+      } else {
+        return _activityService.evaluateAudio(
+          audioFile: File(mobilePath),
+          originalText: segText,
+        );
+      }
+    }).then((result) {
+      if (!mounted) return;
+      final score = result['score'] as int? ?? 0;
+      final recognized = result['text'] as String? ?? '';
+      final updated = List<SegmentResult>.from(widget.resultsNotifier.value);
+      updated[index] = SegmentResult(
+        id: segId,
+        text: segText,
+        maxScore: score,
+        status: SegmentStatus.done,
+        recognizedText: recognized,
+        audioUrl: kIsWeb ? '' : mobilePath,
+      );
+      widget.resultsNotifier.value = updated;
+    }).catchError((e) {
+      if (!mounted) return;
+      final errList = List<SegmentResult>.from(widget.resultsNotifier.value);
+      errList[index] = errList[index].copyWith(status: SegmentStatus.error);
+      widget.resultsNotifier.value = errList;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: const Text('วิเคราะห์ไม่สำเร็จ — ลองอีกครั้ง'),
+        backgroundColor: Palette.errorStrong,
+      ));
+    });
+  }
+
+  // ── WAV helpers (Web only) ─────────────────────────────────────────────────
+
+  Uint8List _pcm16ToWav(Uint8List pcmData,
+      {required int sampleRate, required int channels}) {
+    final int byteRate = sampleRate * channels * 2;
+    final int blockAlign = channels * 2;
+    final int subchunk2Size = pcmData.lengthInBytes;
+    final int chunkSize = 36 + subchunk2Size;
+    final bytes = BytesBuilder();
+    bytes.add(_ascii('RIFF'));
+    bytes.add(_le32(chunkSize));
+    bytes.add(_ascii('WAVE'));
+    bytes.add(_ascii('fmt '));
+    bytes.add(_le32(16));
+    bytes.add(_le16(1));
+    bytes.add(_le16(channels));
+    bytes.add(_le32(sampleRate));
+    bytes.add(_le32(byteRate));
+    bytes.add(_le16(blockAlign));
+    bytes.add(_le16(16));
+    bytes.add(_ascii('data'));
+    bytes.add(_le32(subchunk2Size));
+    bytes.add(pcmData);
+    return bytes.toBytes();
+  }
+
+  Uint8List _ascii(String s) => Uint8List.fromList(s.codeUnits);
+  Uint8List _le16(int v) => Uint8List.fromList([v & 0xFF, (v >> 8) & 0xFF]);
+  Uint8List _le32(int v) => Uint8List.fromList([
+        v & 0xFF,
+        (v >> 8) & 0xFF,
+        (v >> 16) & 0xFF,
+        (v >> 24) & 0xFF,
+      ]);
+
+  // ── Build ─────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -57,21 +286,25 @@ class ActivitySummaryScreen extends StatelessWidget {
         children: [
           Expanded(
             child: ValueListenableBuilder<List<SegmentResult>>(
-              valueListenable: resultsNotifier,
+              valueListenable: widget.resultsNotifier,
               builder: (context, results, _) {
                 return ListView.separated(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
                   itemCount: results.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 10),
-                  itemBuilder: (context, i) =>
-                      _SegmentCard(
-                    index: i,
-                    result: results[i],
-                    onReRecord: () =>
-                        Navigator.pop(context, {'reRecord': i}),
-                    onPlaySection: () =>
-                        Navigator.pop(context, {'playSection': i}),
-                  ),
+                  itemBuilder: (context, i) {
+                    final thisRecording = _isRecording && _recordingIndex == i;
+                    final otherRecording = _isRecording && _recordingIndex != i;
+                    return _SegmentCard(
+                      index: i,
+                      result: results[i],
+                      isRecording: thisRecording,
+                      recordingDuration: _recordingDuration,
+                      onToggleRecord: otherRecording ? null : () => _handleRecord(i),
+                      onPlaySection: _isRecording ? null : () =>
+                          Navigator.pop(context, {'playSection': i}),
+                    );
+                  },
                 );
               },
             ),
@@ -79,14 +312,14 @@ class ActivitySummaryScreen extends StatelessWidget {
 
           // ── Sticky Complete Activity button ──────────────────────────
           ValueListenableBuilder<List<SegmentResult>>(
-            valueListenable: resultsNotifier,
+            valueListenable: widget.resultsNotifier,
             builder: (context, results, _) {
               final pendingCount = results
                   .where((r) => r.status == SegmentStatus.processing)
                   .length;
 
               return ValueListenableBuilder<bool>(
-                valueListenable: isSubmitting,
+                valueListenable: widget.isSubmitting,
                 builder: (context, submitting, _) {
                   return Container(
                     padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
@@ -109,8 +342,7 @@ class ActivitySummaryScreen extends StatelessWidget {
                                     width: 14,
                                     height: 14,
                                     child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Palette.sky),
+                                        strokeWidth: 2, color: Palette.sky),
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
@@ -125,10 +357,9 @@ class ActivitySummaryScreen extends StatelessWidget {
                             width: double.infinity,
                             height: 52,
                             child: ElevatedButton(
-                              onPressed:
-                                  (submitting || pendingCount > 0)
-                                      ? null
-                                      : onComplete,
+                              onPressed: (submitting || pendingCount > 0 || _isRecording)
+                                  ? null
+                                  : widget.onComplete,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Palette.successAlt,
                                 disabledBackgroundColor:
@@ -143,8 +374,7 @@ class ActivitySummaryScreen extends StatelessWidget {
                                       width: 22,
                                       height: 22,
                                       child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Colors.white),
+                                          strokeWidth: 2, color: Colors.white),
                                     )
                                   : Text(
                                       l10n.summary_completeActivity,
@@ -174,14 +404,18 @@ class _SegmentCard extends StatelessWidget {
   const _SegmentCard({
     required this.index,
     required this.result,
-    required this.onReRecord,
+    required this.isRecording,
+    required this.recordingDuration,
+    required this.onToggleRecord,
     required this.onPlaySection,
   });
 
   final int index;
   final SegmentResult result;
-  final VoidCallback onReRecord;
-  final VoidCallback onPlaySection;
+  final bool isRecording;
+  final Duration recordingDuration;
+  final VoidCallback? onToggleRecord;
+  final VoidCallback? onPlaySection;
 
   @override
   Widget build(BuildContext context) {
@@ -248,13 +482,11 @@ class _SegmentCard extends StatelessWidget {
           // ── Action buttons ──────────────────────────────────────
           Row(
             children: [
-              _ActionBtn(
-                icon: Icons.mic,
-                label: result.status == SegmentStatus.done
-                    ? l10n.summary_reRecord
-                    : l10n.itemintro_record,
-                color: Palette.sky,
-                onTap: onReRecord,
+              _RecordBtn(
+                isRecording: isRecording,
+                duration: recordingDuration,
+                status: result.status,
+                onTap: onToggleRecord,
               ),
               const SizedBox(width: 8),
               _ActionBtn(
@@ -313,6 +545,70 @@ class _SegmentCard extends StatelessWidget {
   }
 }
 
+// ── Record button (inline in summary) ────────────────────────────────────────
+
+class _RecordBtn extends StatelessWidget {
+  const _RecordBtn({
+    required this.isRecording,
+    required this.duration,
+    required this.status,
+    required this.onTap,
+  });
+
+  final bool isRecording;
+  final Duration duration;
+  final SegmentStatus status;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final bool disabled = onTap == null;
+    final Color fg = isRecording
+        ? Colors.white
+        : disabled
+            ? Palette.labelGrey
+            : Palette.sky;
+    final Color bg = isRecording
+        ? Palette.errorStrong
+        : disabled
+            ? Palette.labelGrey.withValues(alpha: 0.08)
+            : Palette.sky.withValues(alpha: 0.12);
+    final String label = isRecording
+        ? '${l10n.summary_stopRecord}  '
+            '${duration.inMinutes.toString().padLeft(2, '0')}:'
+            '${(duration.inSeconds % 60).toString().padLeft(2, '0')}'
+        : (status == SegmentStatus.done
+            ? l10n.summary_reRecord
+            : l10n.itemintro_record);
+    final IconData icon = isRecording ? Icons.stop : Icons.mic;
+
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          height: 38,
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 16, color: fg),
+              const SizedBox(width: 5),
+              Text(label, style: AppTextStyles.label(12, color: fg)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Shared widgets ────────────────────────────────────────────────────────────
+
 class _StatusBadge extends StatelessWidget {
   const _StatusBadge({required this.status, required this.score});
   final SegmentStatus status;
@@ -344,8 +640,7 @@ class _StatusBadge extends StatelessWidget {
           color: color.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(20),
         ),
-        child: Text(text,
-            style: AppTextStyles.label(12, color: color)),
+        child: Text(text, style: AppTextStyles.label(12, color: color)),
       );
 }
 
@@ -359,26 +654,29 @@ class _ActionBtn extends StatelessWidget {
   final IconData icon;
   final String label;
   final Color color;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
+    final bool disabled = onTap == null;
+    final Color fg = disabled ? Palette.labelGrey : color;
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
         child: Container(
           height: 38,
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.12),
+            color: disabled
+                ? Palette.labelGrey.withValues(alpha: 0.08)
+                : color.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 16, color: color),
+              Icon(icon, size: 16, color: fg),
               const SizedBox(width: 5),
-              Text(label,
-                  style: AppTextStyles.label(12, color: color)),
+              Text(label, style: AppTextStyles.label(12, color: fg)),
             ],
           ),
         ),

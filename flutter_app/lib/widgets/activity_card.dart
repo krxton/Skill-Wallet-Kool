@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../models/activity.dart';
 import '../providers/user_provider.dart';
 import '../routes/app_routes.dart';
+import '../services/draft_service.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/palette.dart';
 import '../utils/youtube_helper.dart';
@@ -86,39 +87,73 @@ class ActivityCard extends StatelessWidget {
       );
     }
 
-    void navigate() {
-      // ✅ ตรวจสอบว่าเลือกเด็กแล้วหรือยัง
+    void doNavigate() {
+      if (category == 'ด้านภาษา' || category == 'LANGUAGE') {
+        Navigator.pushNamed(context, AppRoutes.languageDetail, arguments: activity);
+      } else if (shouldGoToVideoDetail) {
+        Navigator.pushNamed(context, AppRoutes.videoDetail, arguments: activity);
+      } else if (category == 'ด้านคำนวณ') {
+        Navigator.pushNamed(context, AppRoutes.calculateActivity, arguments: activity);
+      } else {
+        Navigator.pushNamed(context, AppRoutes.itemIntro, arguments: activity);
+      }
+    }
+
+    Future<void> navigate() async {
       final userProvider = context.read<UserProvider>();
       if (userProvider.currentChildId == null) {
         showSelectChildDialog();
         return;
       }
 
-      if (category == 'ด้านภาษา' || category == 'LANGUAGE') {
-        Navigator.pushNamed(
-          context,
-          AppRoutes.languageDetail,
-          arguments: activity,
+      // Check if there's a saved draft for a DIFFERENT activity
+      final childId = userProvider.currentChildId!;
+      final draft = await DraftService.loadDraft(childId);
+      if (draft != null && draft['activityId'] != activity.id) {
+        // There's a draft for a different activity — warn user
+        final draftName =
+            (draft['activityJson'] as Map<String, dynamic>?)?['name_activity']
+                as String? ??
+                '—';
+        if (!context.mounted) return;
+        final l10n = AppLocalizations.of(context)!;
+        final choice = await showDialog<String>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: Text(l10n.draft_conflictTitle, style: AppTextStyles.heading(18)),
+            content: Text(
+              l10n.draft_conflictMsg(draftName),
+              style: AppTextStyles.body(14),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, 'cancel'),
+                child: Text(l10n.common_cancel, style: AppTextStyles.body(14)),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, 'discard'),
+                child: Text(l10n.draft_bannerDiscard,
+                    style: AppTextStyles.body(14, color: Palette.pink)),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(ctx, 'play'),
+                style: ElevatedButton.styleFrom(backgroundColor: Palette.sky),
+                child: Text(l10n.draft_conflictPlay,
+                    style: AppTextStyles.label(14, color: Colors.white)),
+              ),
+            ],
+          ),
         );
-      } else if (shouldGoToVideoDetail) {
-        Navigator.pushNamed(
-          context,
-          AppRoutes.videoDetail,
-          arguments: activity,
-        );
-      } else if (category == 'ด้านคำนวณ') {
-        Navigator.pushNamed(
-          context,
-          AppRoutes.calculateActivity,
-          arguments: activity,
-        );
-      } else {
-        Navigator.pushNamed(
-          context,
-          AppRoutes.itemIntro,
-          arguments: activity,
-        );
+        if (!context.mounted) return;
+        if (choice == 'cancel') return;
+        if (choice == 'discard') {
+          await DraftService.clearDraft(childId);
+        }
+        // 'play' or 'discard' → proceed to navigate
       }
+
+      if (!context.mounted) return;
+      doNavigate();
     }
 
     return GestureDetector(

@@ -11,6 +11,20 @@
   "home_nonewBtn": "ไม่มีกิจกรรมใหม่เกิดขึ้น",
   "home_noChildrenMsg": "ยังไม่ได้เพิ่มลูก\nกรุณาเพิ่มลูกเพื่อเริ่มดูกิจกรรม",
   "home_switchChild": "เปลี่ยนลูก",
+  "draft_bannerTitle": "กิจกรรมค้างอยู่",
+  "draft_bannerResume": "ทำต่อ",
+  "draft_bannerDiscard": "ลบทิ้ง",
+  "draft_discardTitle": "ลบ progress ทิ้ง?",
+  "draft_discardMsg": "ความคืบหน้าของกิจกรรมนี้จะถูกลบ",
+  "draft_leaveTitle": "ออกจากกิจกรรม?",
+  "draft_leaveMsg": "ความคืบหน้าจะถูกบันทึกไว้ คุณสามารถกลับมาทำต่อได้จากหน้าหลัก",
+  "draft_leaveBtn": "บันทึกและออก",
+  "draft_conflictTitle": "มีการบันทึกค้างอยู่",
+  "draft_conflictMsg": "คุณมี progress ที่บันทึกไว้ของ \"{name}\" อยู่ หากเริ่มกิจกรรมใหม่จะลบ progress นั้น",
+  "@draft_conflictMsg": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "draft_conflictPlay": "เริ่มใหม่",
   "common_discardChanges": "ยกเลิกการเปลี่ยนแปลง?",
   "common_discardMsg": "การเปลี่ยนแปลงที่ยังไม่ได้บันทึกจะหายไป",
   "common_discard": "ยกเลิก",
@@ -750,5 +764,7 @@
   "summary_analyzing": "กำลังวิเคราะห์…",
   "summary_analysisFailed": "วิเคราะห์ไม่สำเร็จ — กดอัดเสียงใหม่เพื่อลองอีกครั้ง",
   "summary_youSaid": "คุณพูดว่า",
-  "summary_error": "ข้อผิดพลาด"
+  "summary_error": "ข้อผิดพลาด",
+  "summary_reviewShort": "ตรวจสอบ",
+  "summary_stopRecord": "หยุด"
 }
