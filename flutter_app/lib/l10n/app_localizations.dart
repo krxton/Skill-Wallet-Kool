@@ -3349,6 +3349,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Stop'**
   String get summary_stopRecord;
+
+  /// No description provided for @profile_gallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Select an image from your gallery'**
+  String get profile_gallery;
+
+  /// No description provided for @profile_google.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a Google profile picture'**
+  String get profile_google;
+
+  /// No description provided for @profile_facebook.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a Facebook profile picture'**
+  String get profile_facebook;
 }
 
 class _AppLocalizationsDelegate

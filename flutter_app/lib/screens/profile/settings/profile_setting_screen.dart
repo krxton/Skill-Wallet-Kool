@@ -104,7 +104,9 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
       setState(() => _uploading = false);
       if (!ok) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.common_uploadPhotoFailed)),
+          SnackBar(
+              content:
+                  Text(AppLocalizations.of(context)!.common_uploadPhotoFailed)),
         );
       }
     }
@@ -117,7 +119,9 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
       setState(() => _uploading = false);
       if (!ok) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.common_photoNotFound(provider))),
+          SnackBar(
+              content: Text(AppLocalizations.of(context)!
+                  .common_photoNotFound(provider))),
         );
       }
     }

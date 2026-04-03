@@ -776,5 +776,9 @@
   "summary_youSaid": "คุณพูดว่า",
   "summary_error": "ข้อผิดพลาด",
   "summary_reviewShort": "ตรวจสอบ",
-  "summary_stopRecord": "หยุด"
+  "summary_stopRecord": "หยุด",
+
+  "profile_gallery" : "เลือกรูปจากคลัง / Gallery",
+  "profile_google" : "ใช้รูปโปรไฟล์ Google",
+  "profile_facebook" : "ใช้รูปโปลไฟล์ Facebook"
 }
