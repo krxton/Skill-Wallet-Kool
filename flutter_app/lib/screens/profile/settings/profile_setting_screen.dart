@@ -25,6 +25,7 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
     final identities = supabase.auth.currentUser?.identities ?? [];
     final hasGoogle = identities.any((i) => i.provider == 'google');
     final hasFacebook = identities.any((i) => i.provider == 'facebook');
+    final l = AppLocalizations.of(context)!;
 
     showModalBottomSheet(
       context: context,
@@ -48,7 +49,7 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
             const SizedBox(height: 8),
             ListTile(
               leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('เลือกรูปจากคลัง / Gallery'),
+              title: Text(l.common_pickFromGallery),
               onTap: () {
                 Navigator.pop(ctx);
                 _pickFromGallery();
@@ -64,7 +65,7 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
                     color: Color(0xFF4285F4),
                   ),
                 ),
-                title: const Text('ใช้รูปโปรไฟล์ Google'),
+                title: Text(l.common_useGooglePhoto),
                 onTap: () {
                   Navigator.pop(ctx);
                   _useOAuthPhoto('google');
@@ -74,7 +75,7 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
               ListTile(
                 leading: const Icon(Icons.facebook,
                     color: Color(0xFF1877F2), size: 28),
-                title: const Text('ใช้รูปโปรไฟล์ Facebook'),
+                title: Text(l.common_useFacebookPhoto),
                 onTap: () {
                   Navigator.pop(ctx);
                   _useOAuthPhoto('facebook');
@@ -103,7 +104,7 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
       setState(() => _uploading = false);
       if (!ok) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('อัปโหลดรูปไม่สำเร็จ / Upload failed')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.common_uploadPhotoFailed)),
         );
       }
     }
@@ -116,7 +117,7 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
       setState(() => _uploading = false);
       if (!ok) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('ไม่พบรูปโปรไฟล์จาก $provider')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.common_photoNotFound(provider))),
         );
       }
     }

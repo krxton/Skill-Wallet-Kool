@@ -558,6 +558,16 @@
   "common_selectSource": "Select Source",
   "common_camera": "Camera",
   "common_gallery": "Gallery",
+  "common_pickFromGallery": "Pick from gallery",
+  "common_useGooglePhoto": "Use Google profile photo",
+  "common_useFacebookPhoto": "Use Facebook profile photo",
+  "common_uploadPhotoFailed": "Photo upload failed",
+  "common_photoNotFound": "No profile photo found from {provider}",
+  "@common_photoNotFound": {
+    "placeholders": {
+      "provider": { "type": "String" }
+    }
+  },
   "common_ok": "OK",
   "common_submit": "SUBMIT",
   "common_addImage": "Add Image",

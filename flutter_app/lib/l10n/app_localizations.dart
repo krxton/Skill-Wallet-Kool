@@ -2438,6 +2438,36 @@ abstract class AppLocalizations {
   /// **'Gallery'**
   String get common_gallery;
 
+  /// No description provided for @common_pickFromGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick from gallery'**
+  String get common_pickFromGallery;
+
+  /// No description provided for @common_useGooglePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Google profile photo'**
+  String get common_useGooglePhoto;
+
+  /// No description provided for @common_useFacebookPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Facebook profile photo'**
+  String get common_useFacebookPhoto;
+
+  /// No description provided for @common_uploadPhotoFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo upload failed'**
+  String get common_uploadPhotoFailed;
+
+  /// No description provided for @common_photoNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No profile photo found from {provider}'**
+  String common_photoNotFound(String provider);
+
   /// No description provided for @common_ok.
   ///
   /// In en, this message translates to:

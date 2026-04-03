@@ -560,6 +560,16 @@
   "common_selectSource": "เลือกแหล่ง",
   "common_camera": "กล้อง",
   "common_gallery": "แกลเลอรี",
+  "common_pickFromGallery": "เลือกรูปจากแกลเลอรี",
+  "common_useGooglePhoto": "ใช้รูปโปรไฟล์ Google",
+  "common_useFacebookPhoto": "ใช้รูปโปรไฟล์ Facebook",
+  "common_uploadPhotoFailed": "อัปโหลดรูปไม่สำเร็จ",
+  "common_photoNotFound": "ไม่พบรูปโปรไฟล์จาก {provider}",
+  "@common_photoNotFound": {
+    "placeholders": {
+      "provider": { "type": "String" }
+    }
+  },
   "common_ok": "ตกลง",
   "common_submit": "ส่ง",
   "common_addImage": "เพิ่มรูป",

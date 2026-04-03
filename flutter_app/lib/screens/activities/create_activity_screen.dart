@@ -209,6 +209,8 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Palette.sky,
+          elevation: 4,
+          shadowColor: Colors.black38,
           title: Text(l.createActivity_title,
               style: AppTextStyles.heading(20, color: Colors.white)),
           centerTitle: true,
@@ -403,11 +405,14 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12)),
                 ),
-                child: Text(
-                  _isSubmitting
-                      ? l.createActivity_creating
-                      : l.createActivity_submit,
-                  style: AppTextStyles.heading(18, color: Colors.white),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    _isSubmitting
+                        ? l.createActivity_creating
+                        : l.createActivity_submit,
+                    style: AppTextStyles.heading(18, color: Colors.white),
+                  ),
                 ),
               ),
             ),

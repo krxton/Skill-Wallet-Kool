@@ -45,9 +45,12 @@ class StickyBottomButton extends StatelessWidget {
           ),
           child: isLoading
               ? const CircularProgressIndicator(color: Colors.white)
-              : Text(
-                  label,
-                  style: AppTextStyles.heading(20, color: Colors.white),
+              : FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    label,
+                    style: AppTextStyles.heading(20, color: Colors.white),
+                  ),
                 ),
         ),
       ),

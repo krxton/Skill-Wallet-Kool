@@ -988,9 +988,13 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
                         final parentName =
                             context.watch<UserProvider>().currentParentName;
                         if (parentName != null && parentName.isNotEmpty) {
-                          return Text(parentName,
-                              style: AppTextStyles.heading(18,
-                                  color: Palette.deepGrey));
+                          return Text(
+                            parentName,
+                            style: AppTextStyles.heading(16,
+                                color: Palette.deepGrey),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          );
                         }
                         return const SizedBox.shrink();
                       }),
@@ -1274,9 +1278,15 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 24.0),
           child: Row(
             children: [
-              Text(loc.medalredemption_rewardshopBtn,
-                  style: AppTextStyles.heading(24)),
-              const Spacer(),
+              Flexible(
+                child: Text(
+                  loc.medalredemption_rewardshopBtn,
+                  style: AppTextStyles.heading(20),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 8),
               // EDIT toggle
               GestureDetector(
                 onTap: () => setState(() => _isEditMode = !_isEditMode),

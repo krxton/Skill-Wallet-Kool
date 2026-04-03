@@ -1255,6 +1255,23 @@ class AppLocalizationsTh extends AppLocalizations {
   String get common_gallery => 'แกลเลอรี';
 
   @override
+  String get common_pickFromGallery => 'เลือกรูปจากแกลเลอรี';
+
+  @override
+  String get common_useGooglePhoto => 'ใช้รูปโปรไฟล์ Google';
+
+  @override
+  String get common_useFacebookPhoto => 'ใช้รูปโปรไฟล์ Facebook';
+
+  @override
+  String get common_uploadPhotoFailed => 'อัปโหลดรูปไม่สำเร็จ';
+
+  @override
+  String common_photoNotFound(String provider) {
+    return 'ไม่พบรูปโปรไฟล์จาก $provider';
+  }
+
+  @override
   String get common_ok => 'ตกลง';
 
   @override

@@ -1258,6 +1258,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get common_gallery => 'Gallery';
 
   @override
+  String get common_pickFromGallery => 'Pick from gallery';
+
+  @override
+  String get common_useGooglePhoto => 'Use Google profile photo';
+
+  @override
+  String get common_useFacebookPhoto => 'Use Facebook profile photo';
+
+  @override
+  String get common_uploadPhotoFailed => 'Photo upload failed';
+
+  @override
+  String common_photoNotFound(String provider) {
+    return 'No profile photo found from $provider';
+  }
+
+  @override
   String get common_ok => 'OK';
 
   @override
