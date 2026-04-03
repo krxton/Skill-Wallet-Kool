@@ -408,7 +408,10 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
           ),
         ],
       ),
-    ).then((_) => tempController.dispose());
+    ).then((_) {
+      // Delay dispose until after the dialog dismiss animation completes
+      Future.delayed(const Duration(milliseconds: 400), tempController.dispose);
+    });
   }
 
   void _updateChildScore(String childId, String value) {

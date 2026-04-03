@@ -356,7 +356,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                               AppLocalizations.of(context)!
                                   .calculate_descriptionLabel,
                               style: AppTextStyles.heading(18,
-                                  color: Palette.deepGrey)),
+                                  color: Palette.sky)),
                           const SizedBox(height: 8),
                           Container(
                             width: double.infinity,

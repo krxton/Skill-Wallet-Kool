@@ -218,7 +218,10 @@ export async function POST(request: NextRequest) {
         // 2. ส่งต่อ Request Payload ไปยัง Backend CMS
         const cmsResponse = await fetch(CMS_EVAL_URL, {
             method: 'POST',
-            body: formData, 
+            body: formData,
+            headers: {
+                'x-api-key': request.headers.get('x-api-key') ?? '',
+            },
         });
 
         // 3. จัดการ Response จาก CMS

@@ -126,24 +126,6 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
     await _loadChildren();
   }
 
-  // ✅ เลือกเด็กเป็น active child
-  void _selectChild(String childId) {
-    final userProvider = context.read<UserProvider>();
-    userProvider.selectChild(childId);
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            AppLocalizations.of(context)!.childsetting_selectSuccess,
-            style: AppTextStyles.body(14),
-          ),
-          duration: const Duration(seconds: 1),
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -320,31 +302,6 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                     // Buttons Row
                     Row(
                       children: [
-                        // SELECT Button (เฉพาะเมื่อไม่ใช่ child ที่เลือกอยู่)
-                        if (!isSelected)
-                          Expanded(
-                            child: SizedBox(
-                              height: 45,
-                              child: ElevatedButton(
-                                onPressed: () => _selectChild(childId),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Palette.sky,
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
-                                  ),
-                                ),
-                                child: Text(
-                                  AppLocalizations.of(context)!
-                                      .childsetting_select,
-                                  style: AppTextStyles.heading(14,
-                                      color: Colors.white),
-                                ),
-                              ),
-                            ),
-                          ),
-                        if (!isSelected) const SizedBox(width: 10),
-
                         // View Profile Button
                         Expanded(
                           child: SizedBox(

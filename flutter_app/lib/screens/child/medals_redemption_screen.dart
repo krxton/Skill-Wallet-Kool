@@ -125,7 +125,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (ctx, setDialogState) => Dialog(
-          backgroundColor: Colors.transparent,
+          backgroundColor: Colors.white,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           insetPadding:
@@ -332,7 +332,7 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (ctx, setDialogState) => Dialog(
-          backgroundColor: Colors.transparent,
+          backgroundColor: Colors.white,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
           insetPadding:

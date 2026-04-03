@@ -27,6 +27,7 @@ class LanguageDetailScreen extends StatefulWidget {
 class _LanguageDetailScreenState extends State<LanguageDetailScreen> {
   YoutubePlayerController? _ytController;
   String _videoId = '';
+  bool _descExpanded = false;
 
   @override
   void initState() {
@@ -55,27 +56,23 @@ class _LanguageDetailScreenState extends State<LanguageDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final String name = widget.activity.name;
-    final String description =
-        widget.activity.description ?? 'No description provided.';
 
     if (_ytController != null) {
       return YoutubePlayerScaffold(
         controller: _ytController!,
         aspectRatio: 16 / 9,
         builder: (context, player) {
-          return _buildScaffold(context, name, description,
-              videoWidget: player);
+          return _buildScaffold(context, name, videoWidget: player);
         },
       );
     }
 
-    return _buildScaffold(context, name, description, videoWidget: null);
+    return _buildScaffold(context, name, videoWidget: null);
   }
 
   Widget _buildScaffold(
     BuildContext context,
-    String name,
-    String description, {
+    String name, {
     required Widget? videoWidget,
   }) {
     return Scaffold(
@@ -135,14 +132,63 @@ class _LanguageDetailScreenState extends State<LanguageDetailScreen> {
                       .languagedetail_activityTitleLabel),
                   _buildContentCard(name),
 
-                  const SizedBox(height: 10),
-
-                  // Description
-                  _buildSectionTitle(AppLocalizations.of(context)!
-                      .languagedetail_descriptionLabel),
-                  _buildContentCard(description),
-
                   const SizedBox(height: 16),
+
+                  // Description — collapsible (หุบไว้ก่อน)
+                  if ((widget.activity.description ?? '').isNotEmpty)
+                    StatefulBuilder(
+                      builder: (_, setLocal) => Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          GestureDetector(
+                            onTap: () =>
+                                setLocal(() => _descExpanded = !_descExpanded),
+                            child: Row(
+                              children: [
+                                Text(
+                                  AppLocalizations.of(context)!
+                                      .languagedetail_descriptionLabel,
+                                  style: AppTextStyles.heading(18,
+                                      color: Palette.sky),
+                                ),
+                                const SizedBox(width: 4),
+                                AnimatedRotation(
+                                  turns: _descExpanded ? 0.5 : 0.0,
+                                  duration: const Duration(milliseconds: 200),
+                                  child: const Icon(
+                                    Icons.keyboard_arrow_down,
+                                    color: Palette.sky,
+                                    size: 24,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          AnimatedSize(
+                            duration: const Duration(milliseconds: 250),
+                            curve: Curves.easeInOut,
+                            child: _descExpanded
+                                ? Container(
+                                    width: double.infinity,
+                                    margin: const EdgeInsets.only(top: 8),
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                          color: Palette.sky, width: 1),
+                                    ),
+                                    child: Text(
+                                      widget.activity.description!,
+                                      style: AppTextStyles.body(15),
+                                    ),
+                                  )
+                                : const SizedBox.shrink(),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -167,7 +213,7 @@ class _LanguageDetailScreenState extends State<LanguageDetailScreen> {
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Text(
         title,
-        style: AppTextStyles.heading(18, color: Palette.deepGrey),
+        style: AppTextStyles.heading(18, color: Palette.sky),
       ),
     );
   }

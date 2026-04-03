@@ -233,6 +233,7 @@ class ActivityService {
     try {
       final uri = Uri.parse('$API_BASE_URL/evaluate');
       final request = http.MultipartRequest('POST', uri);
+      request.headers['X-API-Key'] = dotenv.env['API_SECRET_KEY'] ?? '';
       request.files.add(
         await http.MultipartFile.fromPath(
           'file',
@@ -272,6 +273,7 @@ class ActivityService {
       final uri = Uri.parse('$API_BASE_URL/evaluate');
 
       final request = http.MultipartRequest('POST', uri);
+      request.headers['X-API-Key'] = dotenv.env['API_SECRET_KEY'] ?? '';
 
       request.files.add(
         http.MultipartFile.fromBytes(
