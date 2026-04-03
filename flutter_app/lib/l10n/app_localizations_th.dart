@@ -1719,4 +1719,13 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get summary_stopRecord => 'หยุด';
+
+  @override
+  String get profile_gallery => 'เลือกรูปจากคลัง / Gallery';
+
+  @override
+  String get profile_google => 'ใช้รูปโปรไฟล์ Google';
+
+  @override
+  String get profile_facebook => 'ใช้รูปโปลไฟล์ Facebook';
 }

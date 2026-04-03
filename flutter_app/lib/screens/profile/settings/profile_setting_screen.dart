@@ -48,7 +48,7 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
             const SizedBox(height: 8),
             ListTile(
               leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('เลือกรูปจากคลัง / Gallery'),
+              title: Text(AppLocalizations.of(context)!.profile_gallery),
               onTap: () {
                 Navigator.pop(ctx);
                 _pickFromGallery();
@@ -64,7 +64,7 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
                     color: Color(0xFF4285F4),
                   ),
                 ),
-                title: const Text('ใช้รูปโปรไฟล์ Google'),
+                title: Text(AppLocalizations.of(context)!.profile_google),
                 onTap: () {
                   Navigator.pop(ctx);
                   _useOAuthPhoto('google');
@@ -74,7 +74,7 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
               ListTile(
                 leading: const Icon(Icons.facebook,
                     color: Color(0xFF1877F2), size: 28),
-                title: const Text('ใช้รูปโปรไฟล์ Facebook'),
+                title: Text(AppLocalizations.of(context)!.profile_facebook),
                 onTap: () {
                   Navigator.pop(ctx);
                   _useOAuthPhoto('facebook');

@@ -1725,4 +1725,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get summary_stopRecord => 'Stop';
+
+  @override
+  String get profile_gallery => 'Select an image from your gallery';
+
+  @override
+  String get profile_google => 'Use a Google profile picture';
+
+  @override
+  String get profile_facebook => 'Use a Facebook profile picture';
 }

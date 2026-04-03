@@ -769,5 +769,9 @@
   "summary_youSaid": "You said",
   "summary_error": "Error",
   "summary_reviewShort": "Review",
-  "summary_stopRecord": "Stop"
+  "summary_stopRecord": "Stop",
+
+  "profile_gallery" : "Select an image from your gallery",
+  "profile_google" : "Use a Google profile picture",
+  "profile_facebook" : "Use a Facebook profile picture"
 }
