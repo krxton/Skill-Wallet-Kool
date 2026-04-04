@@ -21,7 +21,10 @@ class _MainBottomNavState extends State<MainBottomNav> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(gradient: Palette.skyGradient),
+      decoration: BoxDecoration(
+        gradient: Palette.skyGradient,
+        boxShadow: Palette.buttonShadow,
+      ),
       child: SafeArea(
         top: false,
         child: Container(

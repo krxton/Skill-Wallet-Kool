@@ -78,6 +78,23 @@ class Palette {
         colors: [Color(0xFFFF6B6B), Color(0xFFD32F2F)],
       );
 
+  /// Orange / child nav bar gradient (warm light → deep orange)
+  static LinearGradient get orangeGradient => const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [Color(0xFFFFB74D), Color(0xFFE65100)],
+      );
+
+  /// Orange nav bar shadow — upward glow for bottom nav elevation
+  static List<BoxShadow> get orangeButtonShadow => [
+        BoxShadow(
+          color: Color(0xFFFF9800).withValues(alpha: 0.45),
+          blurRadius: 12,
+          spreadRadius: 0,
+          offset: const Offset(0, -3),
+        ),
+      ];
+
   /// Facebook button gradient
   static LinearGradient get facebookGradient => const LinearGradient(
         begin: Alignment.topLeft,

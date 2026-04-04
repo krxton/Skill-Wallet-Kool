@@ -151,6 +151,38 @@ class _ManageChildScreenState extends State<ManageChildScreen> {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          gradient: Palette.orangeGradient,
+          boxShadow: Palette.orangeButtonShadow,
+        ),
+        child: SafeArea(
+          top: false,
+          child: Container(
+            height: 64,
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Center(
+              child: GestureDetector(
+                onTap: () => Navigator.pushNamedAndRemoveUntil(
+                    context, '/', (_) => false),
+                child: Container(
+                  width: 52,
+                  height: 52,
+                  decoration: const BoxDecoration(
+                    color: Palette.yellow,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.home_rounded,
+                    color: Colors.white,
+                    size: 28,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
       body: SafeArea(
         child: Column(
           children: [
@@ -174,7 +206,7 @@ class _ManageChildScreenState extends State<ManageChildScreen> {
                   const Spacer(),
                   Text(
                     AppLocalizations.of(context)!.managechild_manageprofileBtn,
-                    style: AppTextStyles.heading(24, color: Colors.black87),
+                    style: AppTextStyles.heading(24, color: Palette.sky),
                   ),
                   const Spacer(),
                   const SizedBox(width: 46),

@@ -126,15 +126,19 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
     return Scaffold(
       backgroundColor: Colors.transparent,
       bottomNavigationBar: Container(
-        decoration: BoxDecoration(gradient: Palette.skyGradient),
+        decoration: BoxDecoration(
+          gradient: Palette.orangeGradient,
+          boxShadow: Palette.orangeButtonShadow,
+        ),
         child: SafeArea(
+          top: false,
           child: Container(
             height: 64,
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Center(
               child: GestureDetector(
-                onTap: () =>
-                    Navigator.popUntil(context, (route) => route.isFirst),
+                onTap: () => Navigator.pushNamedAndRemoveUntil(
+                    context, '/', (_) => false),
                 child: Container(
                   width: 52,
                   height: 52,
@@ -163,7 +167,23 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 30),
+                      // --- Back Button ---
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8.0, vertical: 4.0),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: GestureDetector(
+                            onTap: () => Navigator.pop(context),
+                            child: Container(
+                              padding: const EdgeInsets.all(8.0),
+                              color: Colors.transparent,
+                              child: const Icon(Icons.arrow_back,
+                                  size: 30, color: Colors.black87),
+                            ),
+                          ),
+                        ),
+                      ),
 
                       // --- 1. Profile Image ---
                       Center(

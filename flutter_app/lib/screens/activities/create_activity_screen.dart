@@ -207,19 +207,39 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
       },
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          backgroundColor: Palette.sky,
-          elevation: 4,
-          shadowColor: Colors.black38,
-          title: Text(l.createActivity_title,
-              style: AppTextStyles.heading(20, color: Colors.white)),
-          centerTitle: true,
-          leading: IconButton(
-            icon: const Icon(Icons.close, color: Colors.white),
-            onPressed: () async {
-              final nav = Navigator.of(context);
-              if (await _confirmDiscard() && mounted) nav.pop();
-            },
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Palette.sky,
+              boxShadow: Palette.buttonShadow,
+            ),
+            child: SafeArea(
+              bottom: false,
+              child: SizedBox(
+                height: kToolbarHeight,
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white),
+                      onPressed: () async {
+                        final nav = Navigator.of(context);
+                        if (await _confirmDiscard() && mounted) nav.pop();
+                      },
+                    ),
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          l.createActivity_title,
+                          style: AppTextStyles.heading(20, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 48),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
         body: _selectedCategory == null ? _buildCategoryPicker(l) : _buildForm(l),

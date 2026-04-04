@@ -1042,18 +1042,23 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
 
           // Bottom Nav
           Container(
-            height: 85,
-            decoration: const BoxDecoration(
-              color: Color(0xFFF2C46F),
-              border: Border(top: BorderSide(color: Colors.black12, width: 1)),
+            decoration: BoxDecoration(
+              gradient: Palette.orangeGradient,
+              boxShadow: Palette.orangeButtonShadow,
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildBottomBtn('assets/icons/coin.png', 0),
-                _buildBottomBtn('assets/icons/ticket.png', 1),
-                _buildBottomBtn('assets/icons/history-book.png', 2),
-              ],
+            child: SafeArea(
+              top: false,
+              child: SizedBox(
+                height: 64,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildBottomBtn('assets/icons/coin.png', 0),
+                    _buildBottomBtn('assets/icons/ticket.png', 1),
+                    _buildBottomBtn('assets/icons/history-book.png', 2),
+                  ],
+                ),
+              ),
             ),
           ),
         ],
