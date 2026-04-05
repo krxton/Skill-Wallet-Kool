@@ -298,94 +298,146 @@ class ProfileScreenState extends State<ProfileScreen> {
       );
   }
 
+  // ── Category helpers ───────────────────────────────────
+
+  static Color _categoryAccent(String category) {
+    switch (category) {
+      case 'ด้านภาษา':
+        return const Color(0xFFFFB300);
+      case 'ด้านร่างกาย':
+        return Palette.pink;
+      case 'ด้านคำนวณ':
+        return Palette.sky;
+      default:
+        return Palette.teal;
+    }
+  }
+
+  static IconData _categoryIcon(String category) {
+    switch (category) {
+      case 'ด้านภาษา':
+        return Icons.menu_book_rounded;
+      case 'ด้านร่างกาย':
+        return Icons.directions_run_rounded;
+      case 'ด้านคำนวณ':
+        return Icons.calculate_rounded;
+      default:
+        return Icons.star_rounded;
+    }
+  }
+
+  static String _categoryLabel(String category, AppLocalizations l) {
+    switch (category) {
+      case 'ด้านภาษา':
+        return l.home_languageBtn;
+      case 'ด้านร่างกาย':
+        return l.home_physicalBtn;
+      case 'ด้านคำนวณ':
+        return l.home_calculationBtn;
+      default:
+        return category;
+    }
+  }
+
   // ── Activity Card ──────────────────────────────────────
 
   Widget _buildActivityCard(Activity activity, AppLocalizations l) {
-    final isPhysical = activity.category == 'ด้านร่างกาย';
-    final categoryColor =
-        isPhysical ? Palette.physicalPlaceholder : Palette.blueChip;
+    final accent = _categoryAccent(activity.category);
+    final icon = _categoryIcon(activity.category);
 
-    return Card(
+    return Container(
       margin: const EdgeInsets.only(bottom: 10),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: _isEditMode
-            ? () => _openEdit(activity)
-            : () => _playActivity(activity),
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(
-            children: [
-              // Category icon
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: categoryColor.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(
-                  isPhysical ? Icons.directions_run : Icons.psychology,
-                  color: categoryColor,
-                ),
-              ),
-              const SizedBox(width: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: Palette.cardShadow,
+      ),
+      clipBehavior: Clip.hardEdge,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Left accent strip
+            Container(width: 4, color: accent),
 
-              // Name + meta
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(activity.name,
-                        style: AppTextStyles.label(14),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis),
-                    const SizedBox(height: 4),
-                    Wrap(
-                      spacing: 6,
-                      runSpacing: 4,
-                      children: [
-                        _chipLabel(
-                          isPhysical
-                              ? l.createActivity_physical
-                              : l.createActivity_calculate,
-                          categoryColor,
+            // Content
+            Expanded(
+              child: InkWell(
+                onTap: _isEditMode
+                    ? () => _openEdit(activity)
+                    : () => _playActivity(activity),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 12, 10, 12),
+                  child: Row(
+                    children: [
+                      // Category icon circle
+                      Container(
+                        width: 44,
+                        height: 44,
+                        decoration: BoxDecoration(
+                          color: accent.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        _chipLabel(
-                          _translateDifficulty(activity.difficulty, l),
-                          Palette.warning,
+                        child: Icon(icon, color: accent, size: 22),
+                      ),
+                      const SizedBox(width: 12),
+
+                      // Name + chips
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(activity.name,
+                                style: AppTextStyles.label(14),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis),
+                            const SizedBox(height: 5),
+                            Wrap(
+                              spacing: 5,
+                              runSpacing: 4,
+                              children: [
+                                _chipLabel(
+                                    _categoryLabel(activity.category, l),
+                                    accent),
+                                _chipLabel(
+                                    _translateDifficulty(
+                                        activity.difficulty, l),
+                                    Palette.warning),
+                                _chipLabel(
+                                    '★ ${activity.maxScore}',
+                                    Palette.successAlt),
+                              ],
+                            ),
+                          ],
                         ),
-                        _chipLabel(
-                          '${activity.maxScore} pt',
-                          Palette.success,
+                      ),
+
+                      // Edit/delete
+                      if (_isEditMode) ...[
+                        IconButton(
+                          icon: const Icon(Icons.edit_rounded,
+                              size: 20, color: Palette.sky),
+                          onPressed: () => _openEdit(activity),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(
+                              minWidth: 36, minHeight: 36),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline_rounded,
+                              size: 20, color: Palette.deleteRed),
+                          onPressed: () => _showDeleteDialog(activity),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(
+                              minWidth: 36, minHeight: 36),
                         ),
                       ],
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-
-              // Edit/delete buttons
-              if (_isEditMode) ...[
-                IconButton(
-                  icon: const Icon(Icons.edit, size: 20, color: Palette.sky),
-                  onPressed: () => _openEdit(activity),
-                  padding: EdgeInsets.zero,
-                  constraints:
-                      const BoxConstraints(minWidth: 36, minHeight: 36),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline,
-                      size: 20, color: Palette.deleteRed),
-                  onPressed: () => _showDeleteDialog(activity),
-                  padding: EdgeInsets.zero,
-                  constraints:
-                      const BoxConstraints(minWidth: 36, minHeight: 36),
-                ),
-              ],
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -393,13 +445,13 @@ class ProfileScreenState extends State<ProfileScreen> {
 
   Widget _chipLabel(String text, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(6),
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(8),
       ),
       child: Text(text,
-          style: AppTextStyles.body(10, color: color, weight: FontWeight.w600)),
+          style: AppTextStyles.label(10, color: color)),
     );
   }
 }

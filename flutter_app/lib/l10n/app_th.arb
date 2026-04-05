@@ -351,7 +351,6 @@
   "calculate_multiplyBtn": "คูณ *",
   "calculate_divideBtn": "หาร /",
   "calculate_mixBtn": "ผสม + - * /",
-  "calculate_problemsSolveBtn": "โจทย์ปัญหา",
 
 
   "languagehub_searchHint": "ค้นหา...",
@@ -364,15 +363,6 @@
   "plus_castToTvBtn": "ขึ้นจอทีวี",
   "plus_answerBtn": "ดูเฉลย",
 
-  "problemdetail_title": "โจทย์ปัญหา",
-  "problemdetail_castToTvBtn": "ขึ้นจอทีวี",
-  "problemdetail_answerBtn": "ดูเฉลย",
-
-  "problemanswer_title": "เฉลย",
-  "problemanswer_defaultQuestion": "มีแมว 6 ตัวในสนาม\nเดินเข้ามาอีก 2 ตัว\nรวมมีแมวทั้งหมดกี่ตัว ?",
-  "problemanswer_defaultAnswer": "รวมมีแมวทั้งหมด 8 ตัว",
-
-  "problemplaying_finishBtn": "เสร็จสิ้น",
 
   "createpost_sharesus":"แชร์โพสต์เรียบร้อย!",
   "createpost_error":"เกิดข้อผิดพลาด:",
@@ -468,6 +458,10 @@
   "common_retry": "ลองอีกครั้ง",
   "common_cancel": "ยกเลิก",
   "common_close": "ปิด",
+  "common_noServer": "ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์",
+  "audio_tooShort": "ข้อมูลเสียงสั้นเกินไป — ลองอีกครั้ง",
+  "audio_notFound": "ไม่พบไฟล์เสียง — ลองอีกครั้ง",
+  "audio_analyseFailed": "วิเคราะห์ไม่สำเร็จ — ลองอีกครั้ง",
 
   "calculate_restartTitle": "เริ่มใหม่?",
   "calculate_restartMsg": "เวลาและคำตอบจะถูกรีเซ็ต",
@@ -627,14 +621,6 @@
   "languagehub_appTitle": "กระท่อน",
   "languagehub_fillInBlanksTitle": "เติมคำในช่องว่าง",
 
-  "problemplaying_title": "โจทย์ปัญหา",
-  "problemplaying_resultsTitle": "ผลการเล่น",
-  "problemplaying_medalsLabel": "เหรียญรางวัล",
-  "problemplaying_diaryLabel": "บันทึก",
-  "problemplaying_diaryHint": "เขียนบันทึก...",
-  "problemplaying_imageLabel": "รูปภาพ",
-  "problemplaying_timeLabel": "เวลา",
-  "problemplaying_answerBtn": "ดูเฉลย",
 
   "result_resultTitle": "ผลลัพธ์",
   "result_totalScoreTitle": "คะแนนรวม",

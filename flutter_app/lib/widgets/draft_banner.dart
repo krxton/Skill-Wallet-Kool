@@ -98,6 +98,20 @@ class _DraftBannerState extends State<DraftBanner> {
     // clearDraft bumps versionNotifier → _onVersionChange reloads
   }
 
+  static Color _categoryAccent(String category) {
+    switch (category) {
+      case 'ด้านภาษา':
+      case 'LANGUAGE':
+        return const Color(0xFFFFB300);
+      case 'ด้านร่างกาย':
+        return Palette.pink;
+      case 'ด้านคำนวณ':
+        return Palette.sky;
+      default:
+        return Palette.teal;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_draft == null) return const SizedBox.shrink();
@@ -107,59 +121,144 @@ class _DraftBannerState extends State<DraftBanner> {
         _draft!['activityJson'] as Map<String, dynamic>? ?? {};
     final activityName = activityJson['name_activity'] as String? ?? '—';
     final category = activityJson['category'] as String? ?? '';
+    final Color accent = _categoryAccent(category);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Palette.sky.withValues(alpha: 0.08),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Palette.sky, width: 1.5),
+        boxShadow: Palette.cardShadow,
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      child: Row(
-        children: [
-          const Icon(Icons.schedule_rounded, color: Palette.sky, size: 26),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(l.draft_bannerTitle,
-                    style: AppTextStyles.label(12, color: Palette.deepGrey)),
-                Text(
-                  activityName,
-                  style: AppTextStyles.heading(14, color: Palette.text),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+      clipBehavior: Clip.hardEdge,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // ── Left category accent strip ───────────────
+            Container(width: 4, color: accent),
+
+            // ── Main content ─────────────────────────────
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 10, 10, 10),
+                child: Row(
+                  children: [
+                    // Icon circle
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: accent.withValues(alpha: 0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.play_circle_rounded,
+                        color: accent,
+                        size: 26,
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+
+                    // Text info
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  l.draft_bannerTitle,
+                                  style: AppTextStyles.label(
+                                      11, color: Palette.deepGrey),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: accent.withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    ActivityL10n.localizedActivityType(
+                                        context, category),
+                                    style: AppTextStyles.label(10,
+                                        color: accent),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            activityName,
+                            style:
+                                AppTextStyles.heading(14, color: Palette.text),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(width: 8),
+
+                    // Resume button with gradient
+                    GestureDetector(
+                      onTap: _resume,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 9),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Color.lerp(Colors.white, accent, 0.55)!,
+                              accent,
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: accent.withValues(alpha: 0.35),
+                              blurRadius: 6,
+                              offset: const Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          l.draft_bannerResume,
+                          style:
+                              AppTextStyles.label(13, color: Colors.white),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(width: 8),
+
+                    // Discard X
+                    GestureDetector(
+                      onTap: _discard,
+                      child: Icon(
+                        Icons.close_rounded,
+                        size: 18,
+                        color: Colors.grey.shade400,
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  ActivityL10n.localizedActivityType(context, category),
-                  style: AppTextStyles.body(12, color: Palette.deepGrey),
-                ),
-              ],
+              ),
             ),
-          ),
-          const SizedBox(width: 8),
-          ElevatedButton(
-            onPressed: _resume,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Palette.sky,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            child: Text(l.draft_bannerResume,
-                style: AppTextStyles.label(13, color: Colors.white)),
-          ),
-          const SizedBox(width: 6),
-          GestureDetector(
-            onTap: _discard,
-            child: const Icon(Icons.close, size: 20, color: Palette.deepGrey),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

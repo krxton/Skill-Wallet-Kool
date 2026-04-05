@@ -15,6 +15,19 @@ class DailyActivityScreen extends StatelessWidget {
     required this.records,
   });
 
+  static Color _categoryAccent(String? category) {
+    switch (category) {
+      case 'ด้านภาษา':
+        return const Color(0xFFFFB300);
+      case 'ด้านร่างกาย':
+        return Palette.pink;
+      case 'ด้านคำนวณ':
+        return Palette.sky;
+      default:
+        return Palette.teal;
+    }
+  }
+
   String _formatTime(String? createdAt) {
     if (createdAt == null) return '--:--';
     final dateTime = DateTime.tryParse(createdAt);
@@ -98,6 +111,10 @@ class DailyActivityScreen extends StatelessWidget {
                                 AppLocalizations.of(context)!
                                     .dailyactivity_activity;
 
+                        final category = record['activity']?['category']
+                            as String?;
+                        final accent = _categoryAccent(category);
+
                         return GestureDetector(
                           onTap: () {
                             Navigator.push(
@@ -112,96 +129,102 @@ class DailyActivityScreen extends StatelessWidget {
                             );
                           },
                           child: Container(
-                            margin: const EdgeInsets.only(bottom: 15),
-                            child: Row(
-                              children: [
-                                // Circle number
-                                Container(
-                                  width: 50,
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                    color: Palette.error,
-                                    shape: BoxShape.circle,
-                                    boxShadow: Palette.softShadow,
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    '${index + 1}',
-                                    style: AppTextStyles.heading(24,
-                                        color: Colors.white),
-                                  ),
-                                ),
-                                const SizedBox(width: 15),
+                            margin: const EdgeInsets.only(bottom: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: Palette.cardShadow,
+                            ),
+                            clipBehavior: Clip.hardEdge,
+                            child: IntrinsicHeight(
+                              child: Row(
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.stretch,
+                                children: [
+                                  // Left accent strip
+                                  Container(width: 4, color: accent),
 
-                                // Detail card
-                                Expanded(
-                                  child: Container(
+                                  // Session number circle
+                                  Padding(
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 16, vertical: 12),
-                                    decoration: BoxDecoration(
-                                      color: Palette.lightBlue,
-                                      borderRadius:
-                                          BorderRadius.circular(20),
-                                      boxShadow: Palette.softShadow,
+                                        horizontal: 14, vertical: 12),
+                                    child: Container(
+                                      width: 40,
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        color: accent
+                                            .withValues(alpha: 0.12),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        '${index + 1}',
+                                        style: AppTextStyles.heading(18,
+                                            color: accent),
+                                      ),
                                     ),
+                                  ),
+
+                                  // Detail
+                                  Expanded(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 12),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            activityName,
+                                            style: AppTextStyles.label(15,
+                                                color: Palette.text),
+                                            maxLines: 1,
+                                            overflow:
+                                                TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Row(
+                                            children: [
+                                              Icon(Icons.access_time,
+                                                  color: Palette.labelGrey,
+                                                  size: 14),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                _formatTime(createdAt),
+                                                style: AppTextStyles.body(
+                                                    13,
+                                                    color:
+                                                        Palette.labelGrey),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+
+                                  // Score badge
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 14, vertical: 12),
                                     child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
+                                        Icon(Icons.star_rounded,
+                                            color: accent, size: 18),
                                         Text(
-                                          activityName,
-                                          style: AppTextStyles.body(16,
-                                              color: Colors.white,
-                                              weight: FontWeight.bold),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment
-                                                  .spaceBetween,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                const Icon(
-                                                    Icons.access_time,
-                                                    color: Colors.white70,
-                                                    size: 16),
-                                                const SizedBox(width: 4),
-                                                Text(
-                                                  _formatTime(createdAt),
-                                                  style: AppTextStyles
-                                                      .body(14,
-                                                          color: Colors
-                                                              .white70),
-                                                ),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                const Icon(
-                                                    Icons.emoji_events,
-                                                    color: Colors.yellow,
-                                                    size: 20),
-                                                const SizedBox(width: 5),
-                                                Text(
-                                                  '$score',
-                                                  style:
-                                                      AppTextStyles.heading(
-                                                          18,
-                                                          color:
-                                                              Colors.white),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
+                                          '$score',
+                                          style: AppTextStyles.heading(16,
+                                              color: accent),
                                         ),
                                       ],
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         );

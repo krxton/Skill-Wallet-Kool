@@ -1,6 +1,7 @@
 // lib/screens/language_list_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import '../../../theme/palette.dart';
 import '../../../theme/app_text_styles.dart';
 import '../../../widgets/ui.dart';
@@ -119,7 +120,7 @@ class _LanguageListScreenState extends State<LanguageListScreen> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _loadActivities,
-                child: const Text('ลองใหม่'),
+                child: Text(AppLocalizations.of(context)!.common_retry),
               ),
             ],
           ),

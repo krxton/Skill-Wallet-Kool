@@ -1694,12 +1694,6 @@ abstract class AppLocalizations {
   /// **'MIX + - * /'**
   String get calculate_mixBtn;
 
-  /// No description provided for @calculate_problemsSolveBtn.
-  ///
-  /// In en, this message translates to:
-  /// **'PROBLEMS SOLVE'**
-  String get calculate_problemsSolveBtn;
-
   /// No description provided for @languagehub_searchHint.
   ///
   /// In en, this message translates to:
@@ -1747,48 +1741,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'ANSWER'**
   String get plus_answerBtn;
-
-  /// No description provided for @problemdetail_title.
-  ///
-  /// In en, this message translates to:
-  /// **'PROBLEMS SOLVE'**
-  String get problemdetail_title;
-
-  /// No description provided for @problemdetail_castToTvBtn.
-  ///
-  /// In en, this message translates to:
-  /// **'CAST TO TV'**
-  String get problemdetail_castToTvBtn;
-
-  /// No description provided for @problemdetail_answerBtn.
-  ///
-  /// In en, this message translates to:
-  /// **'ANSWER'**
-  String get problemdetail_answerBtn;
-
-  /// No description provided for @problemanswer_title.
-  ///
-  /// In en, this message translates to:
-  /// **'ANSWER'**
-  String get problemanswer_title;
-
-  /// No description provided for @problemanswer_defaultQuestion.
-  ///
-  /// In en, this message translates to:
-  /// **'THERE ARE 6 CATS IN THE FIELD.\nANOTHER 2 CATS WALK INTO THE FIELD.\nHOW MANY CATS ARE THERE IN TOTAL ?'**
-  String get problemanswer_defaultQuestion;
-
-  /// No description provided for @problemanswer_defaultAnswer.
-  ///
-  /// In en, this message translates to:
-  /// **'THERE ARE 8 CATS IN TOTAL.'**
-  String get problemanswer_defaultAnswer;
-
-  /// No description provided for @problemplaying_finishBtn.
-  ///
-  /// In en, this message translates to:
-  /// **'FINISH'**
-  String get problemplaying_finishBtn;
 
   /// No description provided for @createpost_sharesus.
   ///
@@ -2185,6 +2137,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close'**
   String get common_close;
+
+  /// No description provided for @common_noServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot connect to server'**
+  String get common_noServer;
+
+  /// No description provided for @audio_tooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio data too short — try again'**
+  String get audio_tooShort;
+
+  /// No description provided for @audio_notFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio file not found — try again'**
+  String get audio_notFound;
+
+  /// No description provided for @audio_analyseFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Analysis failed — try again'**
+  String get audio_analyseFailed;
 
   /// No description provided for @calculate_restartTitle.
   ///
@@ -2737,54 +2713,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'FILL IN THE BLANKS'**
   String get languagehub_fillInBlanksTitle;
-
-  /// No description provided for @problemplaying_title.
-  ///
-  /// In en, this message translates to:
-  /// **'PROBLEMS SOLVE'**
-  String get problemplaying_title;
-
-  /// No description provided for @problemplaying_resultsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'PLAYING RESULTS'**
-  String get problemplaying_resultsTitle;
-
-  /// No description provided for @problemplaying_medalsLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'MEDALS'**
-  String get problemplaying_medalsLabel;
-
-  /// No description provided for @problemplaying_diaryLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'DIARY'**
-  String get problemplaying_diaryLabel;
-
-  /// No description provided for @problemplaying_diaryHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Write something...'**
-  String get problemplaying_diaryHint;
-
-  /// No description provided for @problemplaying_imageLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'IMAGE'**
-  String get problemplaying_imageLabel;
-
-  /// No description provided for @problemplaying_timeLabel.
-  ///
-  /// In en, this message translates to:
-  /// **'TIME'**
-  String get problemplaying_timeLabel;
-
-  /// No description provided for @problemplaying_answerBtn.
-  ///
-  /// In en, this message translates to:
-  /// **'ANSWER'**
-  String get problemplaying_answerBtn;
 
   /// No description provided for @result_resultTitle.
   ///

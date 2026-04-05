@@ -349,8 +349,6 @@
   "calculate_multiplyBtn": "MULTIPLY *",
   "calculate_divideBtn": "DEVIDE /",
   "calculate_mixBtn": "MIX + - * /",
-  "calculate_problemsSolveBtn": "PROBLEMS SOLVE",
-  
 
   "languagehub_searchHint": "search...",
   "languagehub_trainingTitle": "LANGUAGE TRAINING",
@@ -362,15 +360,6 @@
   "plus_castToTvBtn": "CAST TO TV",
   "plus_answerBtn": "ANSWER",
 
-  "problemdetail_title": "PROBLEMS SOLVE",
-  "problemdetail_castToTvBtn": "CAST TO TV",
-  "problemdetail_answerBtn": "ANSWER",
-  
-  "problemanswer_title": "ANSWER",
-  "problemanswer_defaultQuestion": "THERE ARE 6 CATS IN THE FIELD.\nANOTHER 2 CATS WALK INTO THE FIELD.\nHOW MANY CATS ARE THERE IN TOTAL ?",
-  "problemanswer_defaultAnswer": "THERE ARE 8 CATS IN TOTAL.",
-
-  "problemplaying_finishBtn": "FINISH",
 
   "createpost_sharesus":"Post shared successfully!",
   "createpost_error":"An error occurred:",
@@ -466,6 +455,10 @@
   "common_retry": "Retry",
   "common_cancel": "Cancel",
   "common_close": "Close",
+  "common_noServer": "Cannot connect to server",
+  "audio_tooShort": "Audio data too short — try again",
+  "audio_notFound": "Audio file not found — try again",
+  "audio_analyseFailed": "Analysis failed — try again",
 
   "calculate_restartTitle": "Restart?",
   "calculate_restartMsg": "Time and answers will be reset",
@@ -630,14 +623,6 @@
   "languagehub_appTitle": "KRATON",
   "languagehub_fillInBlanksTitle": "FILL IN THE BLANKS",
 
-  "problemplaying_title": "PROBLEMS SOLVE",
-  "problemplaying_resultsTitle": "PLAYING RESULTS",
-  "problemplaying_medalsLabel": "MEDALS",
-  "problemplaying_diaryLabel": "DIARY",
-  "problemplaying_diaryHint": "Write something...",
-  "problemplaying_imageLabel": "IMAGE",
-  "problemplaying_timeLabel": "TIME",
-  "problemplaying_answerBtn": "ANSWER",
 
   "result_resultTitle": "RESULT",
   "result_totalScoreTitle": "TOTAL SCORE",

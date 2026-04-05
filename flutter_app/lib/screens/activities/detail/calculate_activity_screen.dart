@@ -18,6 +18,7 @@ import '../../../widgets/info_badges.dart';
 import '../../../widgets/sticky_bottom_button.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import '../../../utils/activity_l10n.dart';
+import '../../../utils/math_op_detector.dart';
 
 /// Activity phases
 enum _Phase { ready, running, answering }
@@ -645,9 +646,11 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
   List<Widget> _buildQuestionCards() {
     return List.generate(_segments.length, (index) {
       final segment = _segments[index];
-      final question = segment['question']?.toString() ??
-          segment['text']?.toString() ??
-          AppLocalizations.of(context)!.calculate_solutionTitle(index + 1);
+      final question = MathOpDetector.normalizeQuestion(
+        segment['question']?.toString() ??
+            segment['text']?.toString() ??
+            AppLocalizations.of(context)!.calculate_solutionTitle(index + 1),
+      );
       final answer = segment['answer']?.toString() ?? '';
       final solution = segment['solution']?.toString() ?? '';
       final status = _answerStatus[index];

@@ -852,9 +852,6 @@ class AppLocalizationsTh extends AppLocalizations {
   String get calculate_mixBtn => 'ผสม + - * /';
 
   @override
-  String get calculate_problemsSolveBtn => 'โจทย์ปัญหา';
-
-  @override
   String get languagehub_searchHint => 'ค้นหา...';
 
   @override
@@ -877,28 +874,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get plus_answerBtn => 'ดูเฉลย';
-
-  @override
-  String get problemdetail_title => 'โจทย์ปัญหา';
-
-  @override
-  String get problemdetail_castToTvBtn => 'ขึ้นจอทีวี';
-
-  @override
-  String get problemdetail_answerBtn => 'ดูเฉลย';
-
-  @override
-  String get problemanswer_title => 'เฉลย';
-
-  @override
-  String get problemanswer_defaultQuestion =>
-      'มีแมว 6 ตัวในสนาม\nเดินเข้ามาอีก 2 ตัว\nรวมมีแมวทั้งหมดกี่ตัว ?';
-
-  @override
-  String get problemanswer_defaultAnswer => 'รวมมีแมวทั้งหมด 8 ตัว';
-
-  @override
-  String get problemplaying_finishBtn => 'เสร็จสิ้น';
 
   @override
   String get createpost_sharesus => 'แชร์โพสต์เรียบร้อย!';
@@ -1106,6 +1081,18 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get common_close => 'ปิด';
+
+  @override
+  String get common_noServer => 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์';
+
+  @override
+  String get audio_tooShort => 'ข้อมูลเสียงสั้นเกินไป — ลองอีกครั้ง';
+
+  @override
+  String get audio_notFound => 'ไม่พบไฟล์เสียง — ลองอีกครั้ง';
+
+  @override
+  String get audio_analyseFailed => 'วิเคราะห์ไม่สำเร็จ — ลองอีกครั้ง';
 
   @override
   String get calculate_restartTitle => 'เริ่มใหม่?';
@@ -1411,30 +1398,6 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get languagehub_fillInBlanksTitle => 'เติมคำในช่องว่าง';
-
-  @override
-  String get problemplaying_title => 'โจทย์ปัญหา';
-
-  @override
-  String get problemplaying_resultsTitle => 'ผลการเล่น';
-
-  @override
-  String get problemplaying_medalsLabel => 'เหรียญรางวัล';
-
-  @override
-  String get problemplaying_diaryLabel => 'บันทึก';
-
-  @override
-  String get problemplaying_diaryHint => 'เขียนบันทึก...';
-
-  @override
-  String get problemplaying_imageLabel => 'รูปภาพ';
-
-  @override
-  String get problemplaying_timeLabel => 'เวลา';
-
-  @override
-  String get problemplaying_answerBtn => 'ดูเฉลย';
 
   @override
   String get result_resultTitle => 'ผลลัพธ์';

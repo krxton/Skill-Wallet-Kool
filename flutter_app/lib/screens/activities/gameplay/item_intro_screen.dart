@@ -518,8 +518,8 @@ class _ItemIntroScreenState extends State<ItemIntroScreen>
       _webBytesBuilder = null;
       if (pcm == null || pcm.isEmpty || pcm.length < 8000) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text('ข้อมูลเสียงสั้นเกินไป — ลองอีกครั้ง')));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(AppLocalizations.of(context)!.audio_tooShort)));
           setState(() => state = 'idle');
         }
         return;
@@ -530,8 +530,8 @@ class _ItemIntroScreenState extends State<ItemIntroScreen>
       final f = File(mobilePath);
       if (!await f.exists() || await f.length() < 1000) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text('ไม่พบไฟล์เสียง — ลองอีกครั้ง')));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text(AppLocalizations.of(context)!.audio_notFound)));
           setState(() => state = 'idle');
         }
         return;
@@ -596,9 +596,10 @@ class _ItemIntroScreenState extends State<ItemIntroScreen>
         _resultsNotifier.value = List.from(_segmentResults);
         if (current - 1 == segIdx) state = 'idle';
       });
-      String msg = e.toString().contains('SocketException')
-          ? 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์'
-          : 'วิเคราะห์ไม่สำเร็จ — ลองอีกครั้ง';
+      final l = AppLocalizations.of(context)!;
+      final msg = e.toString().contains('SocketException')
+          ? l.common_noServer
+          : l.audio_analyseFailed;
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(msg), backgroundColor: Palette.errorStrong));
     });

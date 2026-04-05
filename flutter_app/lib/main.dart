@@ -144,8 +144,8 @@ class _SWKAppState extends State<SWKApp> {
       }).catchError((e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่อีกครั้ง'),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.common_loginFailed),
               backgroundColor: Colors.red,
             ),
           );

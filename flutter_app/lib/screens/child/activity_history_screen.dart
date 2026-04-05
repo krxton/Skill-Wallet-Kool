@@ -28,6 +28,19 @@ class _ActivityHistoryScreenState extends State<ActivityHistoryScreen> {
   // key = date string, value = list of activity records
   Map<String, List<Map<String, dynamic>>> _groupedByDate = {};
 
+  Color get _accent {
+    switch (widget.gameName) {
+      case 'ด้านภาษา':
+        return const Color(0xFFFFB300);
+      case 'ด้านร่างกาย':
+        return Palette.pink;
+      case 'ด้านคำนวณ':
+        return Palette.sky;
+      default:
+        return Palette.teal;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -163,48 +176,45 @@ class _ActivityHistoryScreenState extends State<ActivityHistoryScreen> {
                                   );
                                 },
                                 child: Container(
-                                  margin: const EdgeInsets.only(bottom: 15),
-                                  height: 70,
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 20),
+                                  margin: const EdgeInsets.only(bottom: 12),
+                                  height: 64,
                                   decoration: BoxDecoration(
                                     color: Colors.white,
-                                    borderRadius: BorderRadius.circular(20),
-                                    boxShadow: Palette.softShadow,
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: Palette.cardShadow,
                                   ),
+                                  clipBehavior: Clip.hardEdge,
                                   child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Row(
-                                        children: [
-                                          const Icon(Icons.calendar_today,
-                                              color: Palette.error),
-                                          const SizedBox(width: 15),
-                                          Text(
-                                            dateKey,
-                                            style: AppTextStyles.body(18,
-                                                color: Colors.black87,
-                                                weight: FontWeight.bold),
-                                          ),
-                                        ],
-                                      ),
-                                      // Badge แสดงจำนวนครั้ง
                                       Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 12, vertical: 6),
-                                        decoration: BoxDecoration(
-                                          color: Palette.lightBlue,
-                                          borderRadius:
-                                              BorderRadius.circular(15),
-                                        ),
+                                          width: 4, color: _accent),
+                                      const SizedBox(width: 14),
+                                      Icon(Icons.calendar_today_rounded,
+                                          color: _accent, size: 20),
+                                      const SizedBox(width: 12),
+                                      Expanded(
                                         child: Text(
-                                          AppLocalizations.of(context)!.activityhistory_times(records.length),
-                                          style: AppTextStyles.body(14,
-                                              color: Colors.white,
+                                          dateKey,
+                                          style: AppTextStyles.body(16,
+                                              color: Colors.black87,
                                               weight: FontWeight.bold),
                                         ),
                                       ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 5),
+                                        decoration: BoxDecoration(
+                                          color: _accent,
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                        ),
+                                        child: Text(
+                                          AppLocalizations.of(context)!.activityhistory_times(records.length),
+                                          style: AppTextStyles.label(13,
+                                              color: Colors.white),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 14),
                                     ],
                                   ),
                                 ),

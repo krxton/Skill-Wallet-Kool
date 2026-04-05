@@ -21,14 +21,6 @@ import '../screens/activities/detail/language_detail_screen.dart';
 import '../screens/activities/detail/physical_detail_screen.dart';
 import '../screens/activities/detail/calculate_activity_screen.dart';
 
-// --- Calculation Screens ---
-import '../screens/activities/hub/calculate_hub_screen.dart';
-import '../screens/activities/hub/plus_screen.dart';
-import '../screens/activities/hub/answer_plus_screen.dart';
-import '../screens/activities/hub/problems_solve_screen.dart';
-import '../screens/activities/hub/problem_detail_screen.dart';
-import '../screens/activities/hub/problem_answer_screen.dart';
-import '../screens/activities/hub/problem_playing_screen.dart';
 
 // --- Child Management Screens ---
 import '../screens/child/child_setting_screen.dart';
@@ -53,19 +45,6 @@ class AppRoutes {
   static const String languageDetail = '/language-detail';
   static const String physicalActivity = '/physical-activity';
   static const String calculateActivity = '/calculate-activity';
-
-  // --- Calculation Hub Routes ---
-  static const String calculateHub = '/calculate-hub';
-
-  // Plus (Math) Routes
-  static const String plusPage = '/plus-page';
-  static const String answerPlus = '/answer-plus';
-
-  // Problems Solve Routes
-  static const String problemsSolve = '/problems-solve';
-  static const String problemDetail = '/problem-detail';
-  static const String problemAnswer = '/problem-answer';
-  static const String problemPlaying = '/problem-playing';
 
   // --- All Activities Routes ---
   static const String allActivities = '/all-activities';
@@ -130,15 +109,6 @@ class AppRoutes {
               ModalRoute.of(context)!.settings.arguments as Activity;
           return CalculateActivityScreen(activity: activity);
         },
-
-        // --- Calculation Section ---
-        calculateHub: (_) => const CalculateHubScreen(),
-        plusPage: (_) => const PlusScreen(),
-        answerPlus: (_) => const AnswerPlusScreen(),
-        problemsSolve: (_) => const ProblemsSolveScreen(),
-        problemDetail: (_) => const ProblemDetailScreen(),
-        problemAnswer: (_) => const ProblemAnswerScreen(),
-        problemPlaying: (_) => const ProblemPlayingScreen(),
 
         // --- All Activities ---
         allActivities: (context) {

@@ -855,9 +855,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get calculate_mixBtn => 'MIX + - * /';
 
   @override
-  String get calculate_problemsSolveBtn => 'PROBLEMS SOLVE';
-
-  @override
   String get languagehub_searchHint => 'search...';
 
   @override
@@ -880,28 +877,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get plus_answerBtn => 'ANSWER';
-
-  @override
-  String get problemdetail_title => 'PROBLEMS SOLVE';
-
-  @override
-  String get problemdetail_castToTvBtn => 'CAST TO TV';
-
-  @override
-  String get problemdetail_answerBtn => 'ANSWER';
-
-  @override
-  String get problemanswer_title => 'ANSWER';
-
-  @override
-  String get problemanswer_defaultQuestion =>
-      'THERE ARE 6 CATS IN THE FIELD.\nANOTHER 2 CATS WALK INTO THE FIELD.\nHOW MANY CATS ARE THERE IN TOTAL ?';
-
-  @override
-  String get problemanswer_defaultAnswer => 'THERE ARE 8 CATS IN TOTAL.';
-
-  @override
-  String get problemplaying_finishBtn => 'FINISH';
 
   @override
   String get createpost_sharesus => 'Post shared successfully!';
@@ -1109,6 +1084,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get common_close => 'Close';
+
+  @override
+  String get common_noServer => 'Cannot connect to server';
+
+  @override
+  String get audio_tooShort => 'Audio data too short — try again';
+
+  @override
+  String get audio_notFound => 'Audio file not found — try again';
+
+  @override
+  String get audio_analyseFailed => 'Analysis failed — try again';
 
   @override
   String get calculate_restartTitle => 'Restart?';
@@ -1413,30 +1400,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get languagehub_fillInBlanksTitle => 'FILL IN THE BLANKS';
-
-  @override
-  String get problemplaying_title => 'PROBLEMS SOLVE';
-
-  @override
-  String get problemplaying_resultsTitle => 'PLAYING RESULTS';
-
-  @override
-  String get problemplaying_medalsLabel => 'MEDALS';
-
-  @override
-  String get problemplaying_diaryLabel => 'DIARY';
-
-  @override
-  String get problemplaying_diaryHint => 'Write something...';
-
-  @override
-  String get problemplaying_imageLabel => 'IMAGE';
-
-  @override
-  String get problemplaying_timeLabel => 'TIME';
-
-  @override
-  String get problemplaying_answerBtn => 'ANSWER';
 
   @override
   String get result_resultTitle => 'RESULT';

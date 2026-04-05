@@ -128,28 +128,49 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black, size: 30),
+          icon: const Icon(Icons.arrow_back, color: Colors.black87, size: 26),
           onPressed: () => Navigator.pop(context),
         ),
         centerTitle: true,
         title: Text(
-          AppLocalizations.of(context)!.childsetting_childsettingBtn,
-          style: AppTextStyles.heading(24, color: Palette.sky)
-              .copyWith(letterSpacing: 1.5),
+          l.childsetting_childsettingBtn,
+          style: AppTextStyles.heading(22, color: Palette.sky),
         ),
-        // ปุ่ม + สำหรับเพิ่มเด็ก
         actions: [
-          IconButton(
-            onPressed: _addNewChild,
-            icon: const Icon(Icons.add_circle, color: Palette.success, size: 35),
+          GestureDetector(
+            onTap: _addNewChild,
+            child: Container(
+              margin: const EdgeInsets.only(right: 16),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+              decoration: BoxDecoration(
+                gradient: Palette.skyGradient,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: Palette.buttonShadow,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.add_rounded,
+                      color: Colors.white, size: 16),
+                  const SizedBox(width: 4),
+                  Text(
+                    Localizations.localeOf(context).languageCode == 'th'
+                        ? 'เพิ่ม'
+                        : 'Add',
+                    style: AppTextStyles.label(13, color: Colors.white),
+                  ),
+                ],
+              ),
+            ),
           ),
-          const SizedBox(width: 16),
         ],
       ),
       body: Consumer<UserProvider>(
@@ -166,33 +187,48 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
           if (children.isEmpty) {
             return Center(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 32),
+                padding: const EdgeInsets.symmetric(horizontal: 40),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(Icons.child_care_rounded,
-                        size: 80, color: Colors.black26),
+                    Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        color: Palette.sky.withValues(alpha: 0.08),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.child_care_rounded,
+                          size: 56, color: Palette.sky),
+                    ),
                     const SizedBox(height: 24),
                     Text(
-                      AppLocalizations.of(context)!.childsetting_noChildren,
+                      l.childsetting_noChildren,
                       textAlign: TextAlign.center,
                       style: AppTextStyles.body(16, color: Colors.black54),
                     ),
                     const SizedBox(height: 28),
-                    ElevatedButton.icon(
-                      onPressed: _addNewChild,
-                      icon: const Icon(Icons.add, color: Colors.white, size: 20),
-                      label: Text(
-                        AppLocalizations.of(context)!.childsetting_addChild,
-                        style: AppTextStyles.label(16, color: Colors.white),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Palette.sky,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
+                    GestureDetector(
+                      onTap: _addNewChild,
+                      child: Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 14),
+                            horizontal: 28, vertical: 14),
+                        decoration: BoxDecoration(
+                          gradient: Palette.skyGradient,
+                          borderRadius: BorderRadius.circular(30),
+                          boxShadow: Palette.buttonShadow,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.add_rounded,
+                                color: Colors.white, size: 20),
+                            const SizedBox(width: 8),
+                            Text(l.childsetting_addChild,
+                                style: AppTextStyles.label(16,
+                                    color: Colors.white)),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -202,7 +238,7 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
             itemCount: children.length,
             itemBuilder: (context, index) {
               final childData = children[index];
@@ -210,160 +246,202 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
               final childId = childInfo['child_id'] as String;
               final childName = childInfo['name_surname'] as String;
               final childWallet = childInfo['wallet'] as int? ?? 0;
+              final photoUrl = childInfo['photo_url'] as String? ?? '';
               final isSelected = currentChildId == childId;
 
               return Container(
-                margin: const EdgeInsets.only(bottom: 20),
-                padding: const EdgeInsets.all(16),
+                margin: const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
-                  color: isSelected ? const Color(0xFFE3F2FD) : Colors.white,
-                  borderRadius: BorderRadius.circular(25),
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: isSelected
+                      ? Palette.buttonShadow
+                      : Palette.cardShadow,
                   border: isSelected
-                      ? Border.all(color: Palette.sky, width: 3)
+                      ? Border.all(
+                          color: Palette.sky.withValues(alpha: 0.35),
+                          width: 1.5)
                       : null,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
                 ),
                 child: Column(
                   children: [
-                    // Profile Row
-                    Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 35,
-                          backgroundColor: Colors.grey.shade200,
-                          backgroundImage:
-                              (childInfo['photo_url'] as String? ?? '')
-                                      .isNotEmpty
-                                  ? NetworkImage(
-                                      childInfo['photo_url'] as String)
-                                  : null,
-                          child:
-                              (childInfo['photo_url'] as String? ?? '').isEmpty
-                                  ? Text(
-                                      childName.isNotEmpty
-                                          ? childName[0].toUpperCase()
-                                          : '?',
-                                      style: AppTextStyles.heading(28,
-                                          color: Palette.sky),
-                                    )
-                                  : null,
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                    // ── Profile Row ───────────────────────────
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                      child: Row(
+                        children: [
+                          // Avatar with optional sky ring behind
+                          Stack(
+                            alignment: Alignment.center,
                             children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      childName,
-                                      style: AppTextStyles.heading(22,
-                                          color: Palette.text),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
+                              if (isSelected)
+                                Container(
+                                  width: 72,
+                                  height: 72,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: Palette.skyGradient,
                                   ),
-                                  if (isSelected)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 8, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: Palette.success,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                      child: Text(
-                                        AppLocalizations.of(context)!
-                                            .childsetting_active,
-                                        style: AppTextStyles.heading(10,
-                                            color: Colors.white),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '${AppLocalizations.of(context)!.childsetting_scoreBtn} : $childWallet',
-                                style: AppTextStyles.body(14,
-                                    color: Colors.grey),
+                                ),
+                              CircleAvatar(
+                                radius: 32,
+                                backgroundColor:
+                                    Palette.sky.withValues(alpha: 0.10),
+                                backgroundImage: photoUrl.isNotEmpty
+                                    ? NetworkImage(photoUrl)
+                                    : null,
+                                child: photoUrl.isEmpty
+                                    ? Text(
+                                        childName.isNotEmpty
+                                            ? childName[0].toUpperCase()
+                                            : '?',
+                                        style: AppTextStyles.heading(26,
+                                            color: Palette.sky),
+                                      )
+                                    : null,
                               ),
                             ],
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
+                          const SizedBox(width: 14),
 
-                    // Buttons Row
-                    Row(
-                      children: [
-                        // View Profile Button
-                        Expanded(
-                          child: SizedBox(
-                            height: 45,
-                            child: OutlinedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ChildProfileScreen(
-                                      childId: childId,
-                                      name: childName,
-                                      imageUrl: childInfo['photo_url']
-                                              as String? ??
-                                          '',
-                                      points: childWallet,
+                          // Name + wallet
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        childName,
+                                        style: AppTextStyles.heading(20,
+                                            color: Palette.text),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
-                                  ),
-                                );
-                              },
-                              style: OutlinedButton.styleFrom(
-                                side: const BorderSide(
-                                    color: Colors.black, width: 2),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15),
+                                    if (isSelected) ...[
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 3),
+                                        decoration: BoxDecoration(
+                                          color: Palette.successAlt,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                        child: Text(
+                                          l.childsetting_active,
+                                          style: AppTextStyles.label(10,
+                                              color: Colors.white),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
                                 ),
-                              ),
-                              child: Text(
-                                AppLocalizations.of(context)!
-                                    .childsetting_viewprofileBtn,
-                                style: AppTextStyles.heading(14,
-                                    color: Colors.black),
-                              ),
+                                const SizedBox(height: 5),
+                                Row(
+                                  children: [
+                                    const Icon(Icons.star_rounded,
+                                        color: Color(0xFFFFB300), size: 16),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      '$childWallet ${l.childsetting_scoreBtn}',
+                                      style: AppTextStyles.label(14,
+                                          color: const Color(0xFFFFB300)),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 10),
+                        ],
+                      ),
+                    ),
 
-                        // Manage Button
-                        Expanded(
-                          child: SizedBox(
-                            height: 45,
-                            child: OutlinedButton(
-                              onPressed: () => _manageChild(childData),
-                              style: OutlinedButton.styleFrom(
-                                side: const BorderSide(
-                                    color: Colors.black, width: 2),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15),
+                    // ── Divider ───────────────────────────────
+                    Divider(
+                        height: 1,
+                        thickness: 1,
+                        color: Colors.grey.shade100),
+
+                    // ── Action Buttons ────────────────────────
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+                      child: Row(
+                        children: [
+                          // View Profile — filled sky gradient
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ChildProfileScreen(
+                                    childId: childId,
+                                    name: childName,
+                                    imageUrl: photoUrl,
+                                    points: childWallet,
+                                  ),
                                 ),
                               ),
-                              child: Text(
-                                AppLocalizations.of(context)!
-                                    .childsetting_manageBtn,
-                                style: AppTextStyles.heading(14,
-                                    color: Colors.black),
+                              child: Container(
+                                height: 42,
+                                decoration: BoxDecoration(
+                                  gradient: Palette.skyGradient,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: Palette.buttonShadow,
+                                ),
+                                alignment: Alignment.center,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.person_rounded,
+                                        color: Colors.white, size: 16),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      l.childsetting_viewprofileBtn,
+                                      style: AppTextStyles.label(13,
+                                          color: Colors.white),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
-                    )
+                          const SizedBox(width: 10),
+
+                          // Manage — outlined sky
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () => _manageChild(childData),
+                              child: Container(
+                                height: 42,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                      color: Palette.sky, width: 1.5),
+                                ),
+                                alignment: Alignment.center,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.settings_rounded,
+                                        color: Palette.sky, size: 16),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      l.childsetting_manageBtn,
+                                      style: AppTextStyles.label(13,
+                                          color: Palette.sky),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               );

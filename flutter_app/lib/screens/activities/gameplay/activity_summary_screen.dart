@@ -156,7 +156,7 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> {
       if (pcm == null || pcm.isEmpty || pcm.length < 8000) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('ข้อมูลเสียงสั้นเกินไป — ลองอีกครั้ง')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.audio_tooShort)),
           );
         }
         return;
@@ -168,7 +168,7 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> {
       if (!await f.exists() || await f.length() < 1000) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('ไม่พบไฟล์เสียง — ลองอีกครั้ง')),
+            SnackBar(content: Text(AppLocalizations.of(context)!.audio_notFound)),
           );
         }
         return;
@@ -220,7 +220,7 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> {
       errList[index] = errList[index].copyWith(status: SegmentStatus.error);
       widget.resultsNotifier.value = errList;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: const Text('วิเคราะห์ไม่สำเร็จ — ลองอีกครั้ง'),
+        content: Text(AppLocalizations.of(context)!.audio_analyseFailed),
         backgroundColor: Palette.errorStrong,
       ));
     });

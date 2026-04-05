@@ -7,6 +7,7 @@ import '../routes/app_routes.dart';
 import '../services/draft_service.dart';
 import '../theme/app_text_styles.dart';
 import '../theme/palette.dart';
+import '../utils/math_op_detector.dart';
 import '../utils/youtube_helper.dart';
 
 class ActivityCard extends StatelessWidget {
@@ -156,6 +157,9 @@ class ActivityCard extends StatelessWidget {
       doNavigate();
     }
 
+    // Category accent color for info strip & score badge
+    final Color accentColor = _categoryAccent(category);
+
     return GestureDetector(
       onTap: navigate,
       child: Container(
@@ -181,24 +185,33 @@ class ActivityCard extends StatelessWidget {
                 ),
               ),
             ),
+            // Thin category color accent line
+            Container(height: 2.5, color: accentColor),
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 6.0, vertical: 4.0),
+              padding: const EdgeInsets.fromLTRB(6, 3, 6, 4),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     activity.name,
-                    style: AppTextStyles.heading(11, color: Colors.black),
+                    style: AppTextStyles.heading(11, color: Colors.black87),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  Text(
-                    '${AppLocalizations.of(context)!.common_score}: ${activity.maxScore}',
-                    style: TextStyle(
-                      fontSize: 9,
-                      color: Colors.grey.shade600,
-                    ),
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      Icon(Icons.star_rounded, size: 10, color: accentColor),
+                      const SizedBox(width: 2),
+                      Text(
+                        '${activity.maxScore}',
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w600,
+                          color: accentColor,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -207,6 +220,20 @@ class ActivityCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  static Color _categoryAccent(String category) {
+    switch (category) {
+      case 'ด้านภาษา':
+      case 'LANGUAGE':
+        return const Color(0xFFFFB300); // amber
+      case 'ด้านร่างกาย':
+        return Palette.pink;
+      case 'ด้านคำนวณ':
+        return Palette.sky;
+      default:
+        return Palette.teal;
+    }
   }
 
   Widget _buildThumbnail({
@@ -254,31 +281,9 @@ class ActivityCard extends StatelessWidget {
     // กำหนดสีและไอคอนตามประเภทกิจกรรม
     final category = activity.category;
 
-    // ด้านคำนวณ = ใช้รูป Analysis_img
+    // ด้านคำนวณ = dynamic operator cover
     if (category == 'ด้านคำนวณ') {
-      return SizedBox(
-        width: double.infinity,
-        height: double.infinity,
-        child: Image.asset(
-          'assets/images/Analysis_img.jpg',
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) {
-            return Container(
-              color: Palette.warning,
-              alignment: Alignment.center,
-              child: const Text(
-                '+-×÷',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 2,
-                ),
-              ),
-            );
-          },
-        ),
-      );
+      return _buildCalculateCover();
     }
 
     // ด้านภาษา = ABC with yellow background
@@ -330,5 +335,92 @@ class ActivityCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  /// Builds the calculate-activity cover by scanning segment questions
+  /// for math operators and showing them as seamless coloured blocks.
+  Widget _buildCalculateCover() {
+    final ops = MathOpDetector.detect(activity.segments);
+    final display = ops.isEmpty
+        ? [
+            MathOpDetector.plus,
+            MathOpDetector.minus,
+            MathOpDetector.multiply,
+            MathOpDetector.divide,
+          ]
+        : ops.take(4).toList();
+
+    Color opColor(String op) =>
+        Color(MathOpDetector.opColorValue[op] ?? 0xFF0D92F4);
+
+    const symStyle = TextStyle(
+      color: Colors.white,
+      fontWeight: FontWeight.bold,
+      shadows: [Shadow(color: Colors.black26, blurRadius: 6, offset: Offset(1, 2))],
+    );
+
+    Widget symTile(String op, Color color) => Expanded(
+          child: Container(
+            color: color,
+            alignment: Alignment.center,
+            child: Text(op, style: symStyle.copyWith(fontSize: 30)),
+          ),
+        );
+
+    // ── 1 operator: full gradient cover ───────────────
+    if (display.length == 1) {
+      final c = opColor(display[0]);
+      return Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color.lerp(Colors.white, c, 0.55)!,
+              c,
+              Color.lerp(c, Colors.black, 0.20)!,
+            ],
+            stops: const [0.0, 0.5, 1.0],
+          ),
+        ),
+        alignment: Alignment.center,
+        child: Text(
+          display[0],
+          style: symStyle.copyWith(fontSize: 46),
+        ),
+      );
+    }
+
+    // ── 2 operators: left / right halves ──────────────
+    if (display.length == 2) {
+      return Row(children: display.map((op) => symTile(op, opColor(op))).toList());
+    }
+
+    // ── 3 operators: top full + bottom split ──────────
+    if (display.length == 3) {
+      return Column(children: [
+        symTile(display[0], opColor(display[0])),
+        Expanded(
+          child: Row(children: [
+            symTile(display[1], opColor(display[1])),
+            symTile(display[2], opColor(display[2])),
+          ]),
+        ),
+      ]);
+    }
+
+    // ── 4 operators: 2×2 seamless grid ────────────────
+    return Column(children: [
+      Expanded(child: Row(children: [
+        symTile(display[0], opColor(display[0])),
+        symTile(display[1], opColor(display[1])),
+      ])),
+      Expanded(child: Row(children: [
+        symTile(display[2], opColor(display[2])),
+        symTile(display[3], opColor(display[3])),
+      ])),
+    ]);
   }
 }

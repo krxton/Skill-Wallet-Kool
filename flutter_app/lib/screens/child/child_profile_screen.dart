@@ -438,17 +438,23 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
           // Category breakdown
           Row(
             children: [
-              _buildStatCard(AppLocalizations.of(context)!.childprofile_language,
-                  _categoryStats[_categoryLanguage] ?? 0, Palette.languagePlaceholder,
-                  icon: Icons.abc),
+              _buildStatCard(
+                  AppLocalizations.of(context)!.childprofile_language,
+                  _categoryStats[_categoryLanguage] ?? 0,
+                  const Color(0xFFFFB300),
+                  icon: Icons.menu_book_rounded),
               const SizedBox(width: 12),
-              _buildStatCard(AppLocalizations.of(context)!.childprofile_physical,
-                  _categoryStats[_categoryPhysical] ?? 0, Palette.physicalPlaceholder,
-                  icon: Icons.directions_run),
+              _buildStatCard(
+                  AppLocalizations.of(context)!.childprofile_physical,
+                  _categoryStats[_categoryPhysical] ?? 0,
+                  Palette.pink,
+                  icon: Icons.directions_run_rounded),
               const SizedBox(width: 12),
-              _buildStatCard(AppLocalizations.of(context)!.childprofile_calculation,
-                  _categoryStats[_categoryCalculate] ?? 0, Palette.warningLight,
-                  imagePath: 'assets/images/Analysis_img.jpg'),
+              _buildStatCard(
+                  AppLocalizations.of(context)!.childprofile_calculation,
+                  _categoryStats[_categoryCalculate] ?? 0,
+                  Palette.sky,
+                  icon: Icons.calculate_rounded),
             ],
           ),
         ],
@@ -456,40 +462,37 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
     );
   }
 
-  Widget _buildStatCard(String title, int count, Color color,
-      {IconData? icon, String? imagePath}) {
+  Widget _buildStatCard(String title, int count, Color accent,
+      {IconData? icon}) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
         decoration: BoxDecoration(
-          color: color,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 6,
-              offset: const Offset(0, 3),
-            ),
-          ],
+          boxShadow: Palette.cardShadow,
         ),
         child: Column(
           children: [
-            if (imagePath != null)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.asset(imagePath,
-                    width: 32, height: 32, fit: BoxFit.cover),
-              )
-            else
-              Icon(icon, size: 28, color: Colors.black87),
+            Container(
+              width: 46,
+              height: 46,
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: icon != null
+                  ? Icon(icon, size: 24, color: accent)
+                  : Icon(Icons.calculate_rounded, size: 24, color: accent),
+            ),
             const SizedBox(height: 8),
             Text(
               '$count',
-              style: AppTextStyles.heading(24, color: Palette.text),
+              style: AppTextStyles.heading(22, color: accent),
             ),
             Text(
               title.replaceAll('ด้าน', ''),
-              style: AppTextStyles.body(12, color: Colors.black54),
+              style: AppTextStyles.label(11, color: Palette.labelGrey),
               textAlign: TextAlign.center,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -508,26 +511,26 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
         children: [
           _buildCategoryButton(
             AppLocalizations.of(context)!.childprofile_language,
-            Palette.languagePlaceholder,
+            const Color(0xFFFFB300),
             _categoryStats[_categoryLanguage] ?? 0,
             () => _navigateToHistory(_categoryLanguage),
-            icon: Icons.abc,
+            icon: Icons.menu_book_rounded,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           _buildCategoryButton(
             AppLocalizations.of(context)!.childprofile_physical,
-            Palette.physicalPlaceholder,
+            Palette.pink,
             _categoryStats[_categoryPhysical] ?? 0,
             () => _navigateToHistory(_categoryPhysical),
-            icon: Icons.directions_run,
+            icon: Icons.directions_run_rounded,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 12),
           _buildCategoryButton(
             AppLocalizations.of(context)!.childprofile_calculation,
-            Palette.warningLight,
+            Palette.sky,
             _categoryStats[_categoryCalculate] ?? 0,
             () => _navigateToHistory(_categoryCalculate),
-            imagePath: 'assets/images/Analysis_img.jpg',
+            icon: Icons.calculate_rounded,
           ),
         ],
       ),
@@ -552,65 +555,63 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
 
   Widget _buildCategoryButton(
     String title,
-    Color color,
+    Color accent,
     int count,
     VoidCallback onTap, {
     IconData? icon,
-    String? imagePath,
   }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 80,
-        padding: const EdgeInsets.symmetric(horizontal: 20),
+        height: 70,
         decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(25),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              offset: const Offset(0, 4),
-              blurRadius: 6,
-            )
-          ],
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: Palette.cardShadow,
         ),
+        clipBehavior: Clip.hardEdge,
         child: Row(
           children: [
+            // Left accent strip
+            Container(width: 4, color: accent),
+            const SizedBox(width: 14),
+            // Icon circle
             Container(
-              width: 50,
-              height: 50,
-              decoration: const BoxDecoration(
-                color: Colors.white,
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: accent.withValues(alpha: 0.12),
                 shape: BoxShape.circle,
               ),
-              child: imagePath != null
-                  ? ClipOval(
-                      child: Image.asset(imagePath,
-                          width: 50, height: 50, fit: BoxFit.cover),
-                    )
-                  : Icon(icon, color: Colors.black87, size: 30),
+              child: Icon(icon ?? Icons.star_rounded,
+                  color: accent, size: 22),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 14),
+            // Title
             Expanded(
               child: Text(
                 title,
-                style: AppTextStyles.body(20,
-                    color: Palette.text, weight: FontWeight.bold),
+                style: AppTextStyles.heading(16, color: Palette.text),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
+            // Count badge
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.7),
+                color: accent,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
                 '$count ${AppLocalizations.of(context)!.childprofile_times}',
-                style: AppTextStyles.body(14, color: Palette.text),
+                style: AppTextStyles.label(12, color: Colors.white),
               ),
             ),
-            const SizedBox(width: 8),
-            const Icon(Icons.chevron_right, size: 36, color: Colors.black54),
+            const SizedBox(width: 10),
+            Icon(Icons.chevron_right_rounded, size: 22, color: accent),
+            const SizedBox(width: 10),
           ],
         ),
       ),

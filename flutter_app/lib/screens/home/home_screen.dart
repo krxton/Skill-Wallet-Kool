@@ -8,6 +8,7 @@ import '../../providers/user_provider.dart';
 import '../../routes/app_routes.dart';
 import '../../services/activity_service.dart';
 import '../../theme/palette.dart';
+import '../../utils/math_op_detector.dart';
 import '../../utils/youtube_helper.dart';
 
 import '../../theme/app_text_styles.dart';
@@ -213,6 +214,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // ✅ แสดง dialog แจ้งเตือนให้เลือกเด็กก่อน
   void _showSelectChildDialog() {
+    final l = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -222,18 +224,18 @@ class _HomeScreenState extends State<HomeScreen> {
             const Icon(Icons.warning_amber_rounded,
                 color: Colors.orange, size: 28),
             const SizedBox(width: 8),
-            Text('กรุณาเลือกเด็ก', style: AppTextStyles.heading(20)),
+            Text(l.activityCard_selectChild, style: AppTextStyles.heading(20)),
           ],
         ),
         content: Text(
-          'คุณต้องเลือกเด็กก่อนจึงจะสามารถเล่นกิจกรรมได้',
+          l.activityCard_selectChildMsg,
           style: AppTextStyles.body(16),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child:
-                Text('ปิด', style: AppTextStyles.label(14, color: Colors.grey)),
+            child: Text(l.common_close,
+                style: AppTextStyles.label(14, color: Colors.grey)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -243,7 +245,7 @@ class _HomeScreenState extends State<HomeScreen> {
             style: ElevatedButton.styleFrom(
               backgroundColor: Palette.sky,
             ),
-            child: Text('ไปเลือกเด็ก',
+            child: Text(l.activityCard_goSelect,
                 style: AppTextStyles.label(14, color: Colors.white)),
           ),
         ],
@@ -321,133 +323,183 @@ class _HomeScreenState extends State<HomeScreen> {
   // 🆕 แสดง Filter Bottom Sheet
   void _showFilterBottomSheet() {
     final l = AppLocalizations.of(context)!;
+
+    // Category options: label / value / accent color / icon
+    final categories = [
+      {'label': l.home_filterAll, 'value': null, 'color': Palette.sky, 'icon': Icons.grid_view_rounded},
+      {'label': l.home_languageBtn, 'value': 'ด้านภาษา', 'color': const Color(0xFFFFB300), 'icon': Icons.menu_book_rounded},
+      {'label': l.home_physicalBtn, 'value': 'ด้านร่างกาย', 'color': Palette.pink, 'icon': Icons.directions_run_rounded},
+      {'label': l.home_calculationBtn, 'value': 'ด้านคำนวณ', 'color': Palette.sky, 'icon': Icons.calculate_rounded},
+    ];
+
+    // Level options: label / value / accent color
+    final levels = [
+      {'label': l.home_filterAll, 'value': null, 'color': Palette.sky},
+      {'label': l.home_filterEasy, 'value': 'ง่าย', 'color': Palette.successAlt},
+      {'label': l.home_filterMedium, 'value': 'กลาง', 'color': Palette.warning},
+      {'label': l.home_filterHard, 'value': 'ยาก', 'color': Palette.pink},
+    ];
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) => StatefulBuilder(
-        builder: (context, setModalState) => Container(
-          decoration: BoxDecoration(
-            color: Palette.cream,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(25)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 10,
-                offset: const Offset(0, -2),
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(l.home_filterTitle,
-                      style: AppTextStyles.heading(20, color: Palette.sky)),
-                  IconButton(
-                    icon: const Icon(Icons.close,
-                        color: Colors.black87, size: 20),
-                    onPressed: () => Navigator.pop(context),
+        builder: (context, setModalState) {
+          final hasActive =
+              _selectedCategory != null || _selectedLevel != null;
+
+          Widget filterChip({
+            required String label,
+            required bool isSelected,
+            required Color accent,
+            required VoidCallback onTap,
+            IconData? icon,
+          }) {
+            return GestureDetector(
+              onTap: onTap,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 160),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                decoration: BoxDecoration(
+                  color: isSelected ? accent : Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isSelected ? accent : Colors.grey.shade200,
+                    width: 1.5,
                   ),
-                ],
+                  boxShadow: isSelected
+                      ? [BoxShadow(color: accent.withValues(alpha: 0.25), blurRadius: 6, offset: const Offset(0, 2))]
+                      : Palette.softShadow,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (icon != null) ...[
+                      Icon(icon, size: 14, color: isSelected ? Colors.white : accent),
+                      const SizedBox(width: 5),
+                    ],
+                    Text(
+                      label,
+                      style: AppTextStyles.label(13,
+                          color: isSelected ? Colors.white : Colors.black87),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 16),
+            );
+          }
 
-              // Category Filter
-              Text(l.home_filterCategory,
-                  style: AppTextStyles.heading(14, color: Colors.black54)),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  {'label': l.home_filterAll, 'value': null},
-                  {'label': l.home_languageBtn, 'value': 'ด้านภาษา'},
-                  {'label': l.home_physicalBtn, 'value': 'ด้านร่างกาย'},
-                  {'label': l.home_calculationBtn, 'value': 'ด้านคำนวณ'},
-                ].map((cat) {
-                  final isSelected = _selectedCategory == cat['value'];
-                  return GestureDetector(
-                    onTap: () {
-                      _onCategoryFilterChanged(cat['value']);
-                      setModalState(() {});
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: isSelected ? Palette.sky : Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color:
-                              isSelected ? Palette.sky : Colors.grey.shade300,
-                          width: 2,
+          return Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Drag handle
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        child: Container(
+                          width: 36,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: Colors.black12,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
                         ),
                       ),
-                      child: Text(
-                        cat['label'] as String,
-                        style: AppTextStyles.label(14,
-                            color: isSelected ? Colors.white : Colors.black87),
-                      ),
                     ),
-                  );
-                }).toList(),
-              ),
 
-              const SizedBox(height: 20),
-
-              // Level Filter
-              Text(l.home_filterLevel,
-                  style: AppTextStyles.heading(14, color: Colors.black54)),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  {'label': l.home_filterAll, 'value': null},
-                  {'label': l.home_filterEasy, 'value': 'ง่าย'},
-                  {'label': l.home_filterMedium, 'value': 'กลาง'},
-                  {'label': l.home_filterHard, 'value': 'ยาก'},
-                ].map((level) {
-                  final isSelected = _selectedLevel == level['value'];
-                  return GestureDetector(
-                    onTap: () {
-                      _onLevelFilterChanged(level['value']);
-                      setModalState(() {});
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 8),
-                      decoration: BoxDecoration(
-                        color:
-                            isSelected ? Palette.warningLight : Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: isSelected
-                              ? Palette.warning
-                              : Colors.grey.shade300,
-                          width: 2,
-                        ),
-                      ),
-                      child: Text(
-                        level['label'] as String,
-                        style: AppTextStyles.label(14,
-                            color: isSelected ? Colors.white : Colors.black87),
-                      ),
+                    // Header row
+                    Row(
+                      children: [
+                        const Icon(Icons.tune_rounded,
+                            color: Palette.sky, size: 20),
+                        const SizedBox(width: 8),
+                        Text(l.home_filterTitle,
+                            style:
+                                AppTextStyles.heading(18, color: Palette.text)),
+                        const Spacer(),
+                        if (hasActive)
+                          GestureDetector(
+                            onTap: () {
+                              _onCategoryFilterChanged(null);
+                              _onLevelFilterChanged(null);
+                              setModalState(() {});
+                            },
+                            child: Text(
+                              l.home_filterAll,
+                              style: AppTextStyles.body(13, color: Palette.sky),
+                            ),
+                          ),
+                      ],
                     ),
-                  );
-                }).toList(),
-              ),
 
-              const SizedBox(height: 16),
-            ],
-          ),
-        ),
+                    const SizedBox(height: 20),
+
+                    // ── Category ──────────────────────────────
+                    Text(l.home_filterCategory,
+                        style: AppTextStyles.label(12,
+                            color: Palette.labelGrey)),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: categories.map((cat) {
+                        final isSelected = _selectedCategory == cat['value'];
+                        return filterChip(
+                          label: cat['label'] as String,
+                          isSelected: isSelected,
+                          accent: cat['color'] as Color,
+                          icon: cat['icon'] as IconData,
+                          onTap: () {
+                            _onCategoryFilterChanged(
+                                cat['value'] as String?);
+                            setModalState(() {});
+                          },
+                        );
+                      }).toList(),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // ── Level ─────────────────────────────────
+                    Text(l.home_filterLevel,
+                        style: AppTextStyles.label(12,
+                            color: Palette.labelGrey)),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: levels.map((lv) {
+                        final isSelected = _selectedLevel == lv['value'];
+                        return filterChip(
+                          label: lv['label'] as String,
+                          isSelected: isSelected,
+                          accent: lv['color'] as Color,
+                          onTap: () {
+                            _onLevelFilterChanged(lv['value'] as String?);
+                            setModalState(() {});
+                          },
+                        );
+                      }).toList(),
+                    ),
+
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -551,7 +603,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   thumbnailUrl,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
-                    return _buildPlaceholder(activity.category);
+                    return _buildPlaceholder(activity);
                   },
                 ),
               )
@@ -560,11 +612,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 thumbnailUrl,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
-                  return _buildPlaceholder(activity.category);
+                  return _buildPlaceholder(activity);
                 },
               )
             else
-              _buildPlaceholder(activity.category),
+              _buildPlaceholder(activity),
             Container(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
@@ -578,7 +630,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
             Positioned(
-              bottom: 16,
+              bottom: 20,
               left: 16,
               right: 16,
               child: Column(
@@ -586,29 +638,35 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Text(
                     activity.name,
-                    style: AppTextStyles.heading(20, color: Colors.white),
+                    style: AppTextStyles.heading(22, color: Colors.white),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   Row(
                     children: [
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
+                            horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Palette.sky,
-                          borderRadius: BorderRadius.circular(8),
+                          color: _categoryAccent(activity.category),
+                          borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
                           _localizeCategory(context, activity.category),
-                          style: AppTextStyles.label(12, color: Colors.white),
+                          style: AppTextStyles.label(13, color: Colors.white),
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 10),
+                      Icon(
+                        Icons.star_rounded,
+                        size: 16,
+                        color: _categoryAccent(activity.category),
+                      ),
+                      const SizedBox(width: 3),
                       Text(
-                        'Score: ${activity.maxScore}',
-                        style: AppTextStyles.body(12, color: Colors.white),
+                        '${activity.maxScore}',
+                        style: AppTextStyles.label(14, color: Colors.white),
                       ),
                     ],
                   ),
@@ -650,6 +708,20 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  static Color _categoryAccent(String category) {
+    switch (category) {
+      case 'ด้านภาษา':
+      case 'LANGUAGE':
+        return const Color(0xFFFFB300); // amber
+      case 'ด้านร่างกาย':
+        return Palette.pink;
+      case 'ด้านคำนวณ':
+        return Palette.sky;
+      default:
+        return Palette.teal;
+    }
+  }
+
   String _localizeCategory(BuildContext context, String category) {
     final l10n = AppLocalizations.of(context)!;
     switch (category) {
@@ -664,28 +736,12 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  Widget _buildPlaceholder(String category) {
-    // ด้านคำนวณ = ใช้รูป Calculate
+  Widget _buildPlaceholder(Activity activity) {
+    final category = activity.category;
+
+    // ด้านคำนวณ = dynamic operator cover (same as activity_card.dart)
     if (category == 'ด้านคำนวณ') {
-      return Image.asset(
-        'assets/images/Analysis_img.jpg',
-        fit: BoxFit.cover,
-        height: double.infinity,
-        width: double.infinity,
-        errorBuilder: (context, error, stackTrace) {
-          return Container(
-            height: double.infinity,
-            width: double.infinity,
-            color: Palette.warning,
-            alignment: Alignment.center,
-            child: Text(
-              '+-×÷',
-              style: AppTextStyles.body(48,
-                  color: Colors.white, weight: FontWeight.bold),
-            ),
-          );
-        },
-      );
+      return _buildCalculateCover(activity);
     }
 
     // ด้านภาษา = ABC with yellow background
@@ -729,6 +785,86 @@ class _HomeScreenState extends State<HomeScreen> {
         style: AppTextStyles.body(48, color: Colors.white, weight: FontWeight.bold),
       ),
     );
+  }
+
+  Widget _buildCalculateCover(Activity activity) {
+    final ops = MathOpDetector.detect(activity.segments);
+    final display = ops.isEmpty
+        ? [
+            MathOpDetector.plus,
+            MathOpDetector.minus,
+            MathOpDetector.multiply,
+            MathOpDetector.divide,
+          ]
+        : ops.take(4).toList();
+
+    Color opColor(String op) =>
+        Color(MathOpDetector.opColorValue[op] ?? 0xFF0D92F4);
+
+    const symStyle = TextStyle(
+      color: Colors.white,
+      fontWeight: FontWeight.bold,
+      shadows: [Shadow(color: Colors.black26, blurRadius: 8, offset: Offset(1, 3))],
+    );
+
+    Widget symTile(String op, Color color) => Expanded(
+          child: Container(
+            color: color,
+            alignment: Alignment.center,
+            child: Text(op, style: symStyle.copyWith(fontSize: 52)),
+          ),
+        );
+
+    // ── 1 operator: full gradient cover ───────────────
+    if (display.length == 1) {
+      final c = opColor(display[0]);
+      return Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color.lerp(Colors.white, c, 0.55)!,
+              c,
+              Color.lerp(c, Colors.black, 0.20)!,
+            ],
+            stops: const [0.0, 0.5, 1.0],
+          ),
+        ),
+        alignment: Alignment.center,
+        child: Text(display[0], style: symStyle.copyWith(fontSize: 72)),
+      );
+    }
+
+    // ── 2 operators: left / right halves ──────────────
+    if (display.length == 2) {
+      return Row(children: display.map((op) => symTile(op, opColor(op))).toList());
+    }
+
+    // ── 3 operators: top full + bottom split ──────────
+    if (display.length == 3) {
+      return Column(children: [
+        symTile(display[0], opColor(display[0])),
+        Expanded(child: Row(children: [
+          symTile(display[1], opColor(display[1])),
+          symTile(display[2], opColor(display[2])),
+        ])),
+      ]);
+    }
+
+    // ── 4 operators: 2×2 seamless grid ────────────────
+    return Column(children: [
+      Expanded(child: Row(children: [
+        symTile(display[0], opColor(display[0])),
+        symTile(display[1], opColor(display[1])),
+      ])),
+      Expanded(child: Row(children: [
+        symTile(display[2], opColor(display[2])),
+        symTile(display[3], opColor(display[3])),
+      ])),
+    ]);
   }
 
   Widget _buildNoChildrenPlaceholder() {
@@ -808,97 +944,122 @@ class _HomeScreenState extends State<HomeScreen> {
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-        // Filter button
-        GestureDetector(
-          onTap: _showFilterBottomSheet,
-          child: Container(
-            height: 48,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: (_selectedCategory != null || _selectedLevel != null)
-                  ? Palette.sky
-                  : Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: Palette.sky, width: 2),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.tune,
-                    size: 20,
-                    color: (_selectedCategory != null || _selectedLevel != null)
-                        ? Colors.white
-                        : Palette.sky),
-                const SizedBox(width: 8),
-                Text(
-                  AppLocalizations.of(context)!.home_filterTitle,
-                  style: AppTextStyles.label(14,
-                      color:
-                          (_selectedCategory != null || _selectedLevel != null)
-                              ? Colors.white
-                              : Palette.sky),
-                ),
-                if (_selectedCategory != null || _selectedLevel != null) ...[
-                  const SizedBox(width: 8),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      '${(_selectedCategory != null ? 1 : 0) + (_selectedLevel != null ? 1 : 0)}',
-                      style: AppTextStyles.label(12, color: Palette.sky),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 20),
-
-        // Parent + Child name
-        if (parentName != null && parentName.isNotEmpty)
-          Text(
-            parentName,
-            style: AppTextStyles.heading(24, color: Palette.deepGrey),
-          ),
-        if (childName != null && childName.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 2),
-            child: GestureDetector(
-              onTap: userProvider.children.length > 1 ? _showChildSwitcher : null,
-              child: Row(
+        // Header row: names (left) + filter button (right)
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Names column — takes remaining space, clips if too long
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.child_care, size: 20, color: Palette.sky),
-                  const SizedBox(width: 6),
-                  Text(
-                    childName,
-                    style: AppTextStyles.label(16, color: Palette.sky),
-                  ),
-                  if (userProvider.children.length > 1) ...[
-                    const SizedBox(width: 4),
-                    Icon(Icons.arrow_drop_down, size: 20, color: Palette.sky),
-                  ],
+                  if (parentName != null && parentName.isNotEmpty)
+                    Text(
+                      parentName,
+                      style: AppTextStyles.heading(26, color: Palette.deepGrey),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  if (childName != null && childName.isNotEmpty)
+                    GestureDetector(
+                      onTap: userProvider.children.length > 1
+                          ? _showChildSwitcher
+                          : null,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.child_care, size: 18, color: Palette.sky),
+                          const SizedBox(width: 5),
+                          Flexible(
+                            child: Text(
+                              childName,
+                              style: AppTextStyles.label(19, color: Palette.sky),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (userProvider.children.length > 1) ...[
+                            const SizedBox(width: 2),
+                            Icon(Icons.arrow_drop_down,
+                                size: 20, color: Palette.sky),
+                          ],
+                        ],
+                      ),
+                    ),
                 ],
               ),
             ),
-          ),
-        const SizedBox(height: 20),
+
+            const SizedBox(width: 12),
+
+            // Filter button — compact
+            GestureDetector(
+              onTap: _showFilterBottomSheet,
+              child: () {
+                final active =
+                    _selectedCategory != null || _selectedLevel != null;
+                final count = (_selectedCategory != null ? 1 : 0) +
+                    (_selectedLevel != null ? 1 : 0);
+                return Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                  decoration: BoxDecoration(
+                    color: active ? Palette.sky : Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: active ? Palette.sky : Colors.grey.shade300,
+                      width: 1.5,
+                    ),
+                    boxShadow:
+                        active ? Palette.buttonShadow : Palette.softShadow,
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.tune_rounded,
+                          size: 16,
+                          color: active ? Colors.white : Palette.sky),
+                      const SizedBox(width: 6),
+                      Text(
+                        AppLocalizations.of(context)!.home_filterTitle,
+                        style: AppTextStyles.label(13,
+                            color: active ? Colors.white : Palette.sky),
+                      ),
+                      if (active) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          width: 18,
+                          height: 18,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            '$count',
+                            style: AppTextStyles.label(11, color: Palette.sky),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                );
+              }(),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
 
         // Draft banner — shows if there's an in-progress activity
         const DraftBanner(),
 
         // Top Carousel - แสดงกิจกรรมแนะนำตามหมวดที่เคยเล่น
         Container(
-          height: 280,
+          height: 320,
           decoration: BoxDecoration(
             color: Colors.grey.shade200,
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: Palette.sky, width: 3),
           ),
           child: FutureBuilder<List<Activity>>(
             future: _recommendedActivitiesFuture,
@@ -937,22 +1098,23 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   Positioned(
-                    bottom: 16,
+                    bottom: 10,
                     left: 0,
                     right: 0,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(
                         topActivities.length,
-                        (i) => Container(
-                          margin: const EdgeInsets.symmetric(horizontal: 4),
-                          width: _currentCarouselPage == i ? 24 : 8,
-                          height: 8,
+                        (i) => AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          margin: const EdgeInsets.symmetric(horizontal: 2.5),
+                          width: _currentCarouselPage == i ? 14 : 5,
+                          height: 5,
                           decoration: BoxDecoration(
                             color: _currentCarouselPage == i
-                                ? Palette.sky
-                                : Colors.white.withValues(alpha: 0.5),
-                            borderRadius: BorderRadius.circular(4),
+                                ? Colors.white
+                                : Colors.white.withValues(alpha: 0.4),
+                            borderRadius: BorderRadius.circular(3),
                           ),
                         ),
                       ),
