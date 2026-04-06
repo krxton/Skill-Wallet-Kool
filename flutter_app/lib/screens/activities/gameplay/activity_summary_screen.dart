@@ -322,14 +322,12 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> {
                 valueListenable: widget.isSubmitting,
                 builder: (context, submitting, _) {
                   return Container(
-                    padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.85),
-                      boxShadow: Palette.headerShadow,
-                    ),
+                    color: Palette.cream,
                     child: SafeArea(
                       top: false,
-                      child: Column(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+                        child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           if (pendingCount > 0)
@@ -386,6 +384,7 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> {
                           const SizedBox(height: 8),
                         ],
                       ),
+                      ),
                     ),
                   );
                 },
@@ -428,76 +427,88 @@ class _SegmentCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: Palette.cardShadow,
       ),
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // ── Header row ──────────────────────────────────────────
-          Row(
-            children: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                decoration: BoxDecoration(
-                  color: Palette.blueChip.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(20),
+      clipBehavior: Clip.hardEdge,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // ── Left accent strip ──────────────────────────────────
+            Container(width: 4, color: statusColor),
+            // ── Card content ───────────────────────────────────────
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header row
+                    Row(
+                      children: [
+                        Icon(Icons.record_voice_over_rounded,
+                            color: Palette.sky, size: 16),
+                        const SizedBox(width: 6),
+                        Text(
+                          l10n.summary_segmentLabel(index + 1),
+                          style: AppTextStyles.label(13, color: Palette.sky),
+                        ),
+                        const Spacer(),
+                        _StatusBadge(
+                            status: result.status, score: result.maxScore),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+
+                    // Target text
+                    Text(
+                      '${l10n.itemintro_speak.toUpperCase()}: ${result.text}',
+                      style: AppTextStyles.body(14,
+                          color: Palette.deepGrey, weight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 6),
+
+                    // Recognised text / status message
+                    _buildResultRow(context, l10n),
+                    const SizedBox(height: 10),
+
+                    // Score bar (only when done)
+                    if (result.status == SegmentStatus.done) ...[
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: LinearProgressIndicator(
+                          value: result.maxScore / 100,
+                          backgroundColor: Palette.progressBg,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(statusColor),
+                          minHeight: 8,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                    ],
+
+                    // Action buttons
+                    Row(
+                      children: [
+                        _RecordBtn(
+                          isRecording: isRecording,
+                          duration: recordingDuration,
+                          status: result.status,
+                          onTap: onToggleRecord,
+                        ),
+                        const SizedBox(width: 8),
+                        _ActionBtn(
+                          icon: Icons.play_circle_outline,
+                          label: l10n.itemintro_playsection,
+                          color: Palette.bluePill,
+                          onTap: onPlaySection,
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                child: Text(
-                  l10n.summary_segmentLabel(index + 1),
-                  style: AppTextStyles.label(12, color: Palette.blueChip),
-                ),
-              ),
-              const Spacer(),
-              _StatusBadge(status: result.status, score: result.maxScore),
-            ],
-          ),
-          const SizedBox(height: 10),
-
-          // ── Target text ─────────────────────────────────────────
-          Text(
-            '${l10n.itemintro_speak.toUpperCase()}: ${result.text}',
-            style: AppTextStyles.body(14,
-                color: Palette.deepGrey, weight: FontWeight.w600),
-          ),
-          const SizedBox(height: 6),
-
-          // ── Recognised text / status message ────────────────────
-          _buildResultRow(context, l10n),
-          const SizedBox(height: 10),
-
-          // ── Score bar (only when done) ───────────────────────────
-          if (result.status == SegmentStatus.done) ...[
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: LinearProgressIndicator(
-                value: result.maxScore / 100,
-                backgroundColor: Palette.progressBg,
-                valueColor: AlwaysStoppedAnimation<Color>(statusColor),
-                minHeight: 8,
               ),
             ),
-            const SizedBox(height: 10),
           ],
-
-          // ── Action buttons ──────────────────────────────────────
-          Row(
-            children: [
-              _RecordBtn(
-                isRecording: isRecording,
-                duration: recordingDuration,
-                status: result.status,
-                onTap: onToggleRecord,
-              ),
-              const SizedBox(width: 8),
-              _ActionBtn(
-                icon: Icons.play_circle_outline,
-                label: l10n.itemintro_playsection,
-                color: Palette.bluePill,
-                onTap: onPlaySection,
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }

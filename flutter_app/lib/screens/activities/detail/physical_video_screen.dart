@@ -216,6 +216,47 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  // Open in TikTok (TV) button
+                  if (videoUrl.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: GestureDetector(
+                        onTap: () async {
+                          final appUri = Uri.parse(videoUrl);
+                          if (await canLaunchUrl(appUri)) {
+                            await launchUrl(appUri,
+                                mode: LaunchMode.externalApplication);
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 8),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.06),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                                color: Colors.black.withValues(alpha: 0.2),
+                                width: 1),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.tv_rounded,
+                                  color: Colors.black54, size: 16),
+                              const SizedBox(width: 6),
+                              Text(
+                                AppLocalizations.of(context)!
+                                    .videodetail_openInTiktokTV,
+                                style: AppTextStyles.label(13,
+                                    color: Colors.black54),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
                   AspectRatio(
                     aspectRatio: 9 / 16,
                     child: ClipRRect(
@@ -294,78 +335,120 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  Text(
-                    AppLocalizations.of(context)!.videodetail_activityNameLabel,
-                    style: AppTextStyles.heading(18, color: Palette.sky),
-                  ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 16),
+
+                  // ── Activity name card (left strip) ──
                   Container(
-                    padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Palette.sky, width: 1),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: Palette.cardShadow,
                     ),
-                    child: Text(
-                      name,
-                      style: AppTextStyles.heading(20, color: Colors.black),
-                      textAlign: TextAlign.center,
+                    clipBehavior: Clip.hardEdge,
+                    child: IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Container(width: 4, color: Palette.sky),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 14),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.fitness_center_rounded,
+                                          color: Palette.sky, size: 18),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        AppLocalizations.of(context)!
+                                            .videodetail_activityNameLabel,
+                                        style: AppTextStyles.label(13,
+                                            color: Palette.sky),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    name,
+                                    style: AppTextStyles.heading(18,
+                                        color: Palette.text),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 12),
+
+                  // ── How to play (collapsible) ──
                   GestureDetector(
                     onTap: () => setState(
                         () => _howToPlayExpanded = !_howToPlayExpanded),
-                    child: Row(
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!
-                              .videodetail_howToPlayLabel,
-                          style: AppTextStyles.heading(18, color: Palette.sky),
-                        ),
-                        const SizedBox(width: 4),
-                        AnimatedRotation(
-                          turns: _howToPlayExpanded ? 0.5 : 0.0,
-                          duration: const Duration(milliseconds: 200),
-                          child: const Icon(
-                            Icons.keyboard_arrow_down,
-                            color: Palette.sky,
-                            size: 24,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: Palette.cardShadow,
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.help_outline_rounded,
+                              color: Palette.sky, size: 18),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              AppLocalizations.of(context)!
+                                  .videodetail_howToPlayLabel,
+                              style:
+                                  AppTextStyles.heading(16, color: Palette.sky),
+                            ),
                           ),
-                        ),
-                      ],
+                          AnimatedRotation(
+                            turns: _howToPlayExpanded ? 0.5 : 0.0,
+                            duration: const Duration(milliseconds: 200),
+                            child: const Icon(Icons.keyboard_arrow_down,
+                                color: Palette.sky, size: 22),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   AnimatedCrossFade(
                     firstChild: const SizedBox.shrink(),
                     secondChild: Container(
                       width: double.infinity,
-                      margin: const EdgeInsets.only(top: 8),
-                      padding: const EdgeInsets.all(12),
+                      margin: const EdgeInsets.only(top: 6),
+                      padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Palette.sky, width: 1),
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: Palette.cardShadow,
+                        border: Border.all(
+                            color: Palette.sky.withValues(alpha: 0.25)),
                       ),
-                      child: Text(
-                        content,
-                        style: AppTextStyles.body(15),
-                      ),
+                      child: Text(content, style: AppTextStyles.body(15)),
                     ),
                     crossFadeState: _howToPlayExpanded
                         ? CrossFadeState.showSecond
                         : CrossFadeState.showFirst,
                     duration: const Duration(milliseconds: 200),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 16),
                   InfoBadges(activity: activity),
                   const SizedBox(height: 16),
                 ],
               ),
             ),
           ),
-          // Sticky START/ADD buttons
+          // Sticky bottom buttons
           Container(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
             decoration: BoxDecoration(
@@ -380,52 +463,87 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
             ),
             child: Row(
               children: [
+                // START — pink gradient
                 Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.pushNamed(
-                        context,
-                        AppRoutes.physicalActivity,
-                        arguments: {
-                          'activity': activity,
-                          'extraChildIds': _extraChildIds,
-                        },
-                      );
-                    },
-                    icon: const Icon(Icons.play_arrow),
-                    label: Text(AppLocalizations.of(context)!.common_start,
-                        style: AppTextStyles.heading(20, color: Colors.white)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Palette.sky,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: GestureDetector(
+                    onTap: () => Navigator.pushNamed(
+                      context,
+                      AppRoutes.physicalActivity,
+                      arguments: {
+                        'activity': activity,
+                        'extraChildIds': _extraChildIds,
+                      },
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Palette.sky, Color(0xFF0DA8F4)],
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: Palette.buttonShadow,
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.play_arrow_rounded,
+                              color: Colors.white, size: 22),
+                          const SizedBox(width: 6),
+                          Text(AppLocalizations.of(context)!.common_start,
+                              style: AppTextStyles.heading(18,
+                                  color: Colors.white)),
+                        ],
+                      ),
                     ),
                   ),
                 ),
                 const SizedBox(width: 10),
+                // ADD CHILD — outlined or filled
                 Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: _showChildPicker,
-                    icon: Icon(_extraChildIds.isEmpty
-                        ? Icons.group_add_outlined
-                        : Icons.group),
-                    label: _extraChildIds.isEmpty
-                        ? Text(AppLocalizations.of(context)!.videodetail_addBtn,
-                            style: AppTextStyles.heading(20,
-                                color: Palette.deepGrey))
-                        : Text(
-                            AppLocalizations.of(context)!
-                                .physical_childrenAdded(_extraChildIds.length),
-                            style:
-                                AppTextStyles.heading(16, color: Colors.white)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _extraChildIds.isEmpty
-                          ? Colors.grey.shade400
-                          : Palette.sky,
-                      foregroundColor: _extraChildIds.isEmpty
-                          ? Palette.deepGrey
-                          : Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
+                  child: GestureDetector(
+                    onTap: _showChildPicker,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      decoration: BoxDecoration(
+                        color: _extraChildIds.isEmpty
+                            ? Colors.white
+                            : Palette.sky.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: _extraChildIds.isEmpty
+                              ? Colors.grey.shade300
+                              : Palette.sky,
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            _extraChildIds.isEmpty
+                                ? Icons.group_add_outlined
+                                : Icons.group_rounded,
+                            color: _extraChildIds.isEmpty
+                                ? Colors.grey
+                                : Palette.sky,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            _extraChildIds.isEmpty
+                                ? AppLocalizations.of(context)!
+                                    .videodetail_addBtn
+                                : AppLocalizations.of(context)!
+                                    .physical_childrenAdded(
+                                        _extraChildIds.length),
+                            style: AppTextStyles.heading(16,
+                                color: _extraChildIds.isEmpty
+                                    ? Colors.grey
+                                    : Palette.sky),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

@@ -310,6 +310,7 @@
   "languagedetail_difficultyPrefix": "ความยาก: ",
   "languagedetail_maxScorePrefix": "คะแนนสูงสุด: ",
   "languagedetail_startBtn": "เริ่ม",
+  "languagedetail_openInYoutube": "เปิดใน YouTube (ทีวี)",
 
   "itemintro_recordToEnable": "กดบันทึกเสียงเพื่อฟังเสียงของคุณ",
   "itemintro_listenExampleBtn": "ฟังตัวอย่าง",
@@ -616,7 +617,13 @@
   "videodetail_previewNotAvailable": "ไม่สามารถแสดงตัวอย่างวิดีโอได้",
   "videodetail_openInBrowser": "เปิดในเบราว์เซอร์เพื่อรับชม",
   "videodetail_openTiktok": "เปิด TIKTOK",
+  "videodetail_openInTiktokTV": "เปิดใน TikTok (ทีวี)",
   "videodetail_noVideoUrl": "ไม่มีลิงก์วิดีโอ",
+  "calculate_tvMode": "โหมดทีวี",
+  "calculate_tvModeHint": "เลื่อนเพื่อดูข้อถัดไป",
+  "calculate_questionsCount": "ข้อ",
+  "calculate_tvModeBannerTitle": "แชร์ไปทีวี",
+  "calculate_tvModeBannerSub": "แสดงโจทย์บนหน้าจอใหญ่",
 
   "languagehub_appTitle": "กระท่อน",
   "languagehub_fillInBlanksTitle": "เติมคำในช่องว่าง",

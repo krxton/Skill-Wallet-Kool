@@ -308,6 +308,7 @@
   "languagedetail_difficultyPrefix": "Difficulty: ",
   "languagedetail_maxScorePrefix": "Max Score: ",
   "languagedetail_startBtn": "START",
+  "languagedetail_openInYoutube": "Open in YouTube (TV)",
 
   "itemintro_recordToEnable": "Record to enable playback",
   "itemintro_listenExampleBtn": "LISTEN TO EXAMPLE",
@@ -618,7 +619,13 @@
   "videodetail_previewNotAvailable": "Video Preview Not Available",
   "videodetail_openInBrowser": "Open in Browser to Watch",
   "videodetail_openTiktok": "OPEN TIKTOK",
+  "videodetail_openInTiktokTV": "Open in TikTok (TV)",
   "videodetail_noVideoUrl": "No video URL available",
+  "calculate_tvMode": "TV Mode",
+  "calculate_tvModeHint": "Swipe to see next problem",
+  "calculate_questionsCount": "questions",
+  "calculate_tvModeBannerTitle": "Share to TV",
+  "calculate_tvModeBannerSub": "Show problems on big screen",
 
   "languagehub_appTitle": "KRATON",
   "languagehub_fillInBlanksTitle": "FILL IN THE BLANKS",

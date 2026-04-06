@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart'; // for kIsWeb
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
 import 'package:audioplayers/audioplayers.dart' as ap;
 import 'package:youtube_player_iframe/youtube_player_iframe.dart' as yp;
@@ -59,7 +60,6 @@ class _ItemIntroScreenState extends State<ItemIntroScreen>
   // 1. CONSTANTS & STATE
   // ----------------------------------------------------
 
-  static const progressTrack = Color(0xFFE9E0C7);
   static const nextBlue = Color(0xFF1487FF);
   static const prevGrey = Color(0xFFD6D5D3);
 
@@ -319,6 +319,17 @@ class _ItemIntroScreenState extends State<ItemIntroScreen>
     return (_rawSegments[current - 1] as Map<String, dynamic>)['text']
             as String? ??
         'Text not found.';
+  }
+
+  Future<void> _openInYouTube() async {
+    if (_youtubeVideoId.isEmpty) return;
+    final appUri = Uri.parse('youtube://watch?v=$_youtubeVideoId');
+    final webUri = Uri.parse('https://www.youtube.com/watch?v=$_youtubeVideoId');
+    if (await canLaunchUrl(appUri)) {
+      await launchUrl(appUri);
+    } else {
+      await launchUrl(webUri, mode: LaunchMode.externalApplication);
+    }
   }
 
   // 🔊 เล่น Section ด้วย youtube_player_iframe: seekTo + playVideo + pauseVideo
@@ -841,10 +852,11 @@ class _ItemIntroScreenState extends State<ItemIntroScreen>
           ),
         ],
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
+      body: Column(
+        children: [
+          Expanded(
+            child: SafeArea(
+              bottom: false,
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
@@ -852,40 +864,88 @@ class _ItemIntroScreenState extends State<ItemIntroScreen>
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // 🎥 Video Player
-                    Container(
-                      height: 250,
-                      decoration: BoxDecoration(
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(18),
+                      child: Container(
+                        height: 220,
                         color: Colors.black,
-                        borderRadius: BorderRadius.circular(18),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(18),
                         child: videoWidget,
                       ),
                     ),
                     const SizedBox(height: 8),
 
-                    // Caption segment
-                    Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.25),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Text(
-                          AppLocalizations.of(context)!
-                              .itemintro_segmentOf(current, totalSegments),
-                          style: const TextStyle(
+                    // Open in YouTube (TV) banner
+                    if (_youtubeVideoId.isNotEmpty)
+                      GestureDetector(
+                        onTap: _openInYouTube,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 10),
+                          decoration: BoxDecoration(
                             color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 14,
+                            borderRadius: BorderRadius.circular(14),
+                            boxShadow: Palette.cardShadow,
+                            border: Border.all(
+                                color: const Color(0xFFFF0000)
+                                    .withValues(alpha: 0.2)),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 34,
+                                height: 34,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFF0000),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(Icons.tv_rounded,
+                                    color: Colors.white, size: 18),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text(
+                                  AppLocalizations.of(context)!
+                                      .languagedetail_openInYoutube,
+                                  style: AppTextStyles.label(13,
+                                      color: const Color(0xFFFF0000)),
+                                ),
+                              ),
+                              const Icon(Icons.arrow_forward_ios,
+                                  color: Color(0xFFFF0000), size: 13),
+                            ],
                           ),
                         ),
                       ),
+                    const SizedBox(height: 10),
+
+                    // Progress bar + segment counter
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: LinearProgressIndicator(
+                              value: totalSegments > 0
+                                  ? current / totalSegments
+                                  : 0,
+                              backgroundColor:
+                                  Palette.sky.withValues(alpha: 0.15),
+                              valueColor: const AlwaysStoppedAnimation<Color>(
+                                  Palette.sky),
+                              minHeight: 5,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          AppLocalizations.of(context)!
+                              .itemintro_segmentOf(current, totalSegments),
+                          style: AppTextStyles.label(13,
+                              color: Palette.sky),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 12),
 
                     // การ์ดเนื้อหา (Segment Controls)
                     _contentCard(
@@ -900,20 +960,15 @@ class _ItemIntroScreenState extends State<ItemIntroScreen>
                 ),
               ),
             ),
-            // Sticky bottom navigation
-            Container(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
-              decoration: BoxDecoration(
-                color: Palette.cream,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
-                    blurRadius: 8,
-                    offset: const Offset(0, -2),
-                  ),
-                ],
-              ),
-              child: Row(
+          ),
+          // Sticky bottom navigation
+          Container(
+              color: Palette.cream,
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+                  child: Row(
                 children: [
                   Expanded(
                     child: _bottomBtn(
@@ -946,21 +1001,24 @@ class _ItemIntroScreenState extends State<ItemIntroScreen>
                     height: 48,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: Palette.sky.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                          color: Palette.sky.withValues(alpha: 0.3)),
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           '$completedSegmentsCount/$totalSegments',
-                          style: AppTextStyles.heading(14),
+                          style: AppTextStyles.heading(14,
+                              color: Palette.sky),
                         ),
                         Text(
                           AppLocalizations.of(context)!.common_done,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 10,
-                            color: Palette.deepGrey,
+                            color: Palette.sky,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -1000,9 +1058,10 @@ class _ItemIntroScreenState extends State<ItemIntroScreen>
                 ],
               ),
             ),
+          ),
+        ),
           ],
         ),
-      ),
     );
   }
 
@@ -1081,155 +1140,228 @@ class _ItemIntroScreenState extends State<ItemIntroScreen>
 
   Widget _contentCard({required String text, int? score}) {
     final isReviewed = score != null && score > 0;
+    const accent = Palette.sky;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
+        boxShadow: Palette.cardShadow,
       ),
-      padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            '${AppLocalizations.of(context)!.itemintro_speak}: ${text.toUpperCase()}',
-            style: AppTextStyles.heading(15, color: Palette.deepGrey),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              _pillButton(
-                AppLocalizations.of(context)!.itemintro_playsection,
-                Palette.bluePill,
-                onTap: _isPlayerReady && _rawSegments.isNotEmpty
-                    ? _playSection
-                    : null,
-              ),
-              const SizedBox(width: 10),
-              _recordButton(isReviewed: isReviewed),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '${AppLocalizations.of(context)!.itemintro_point}: ${score ?? 0}%',
-                style: AppTextStyles.heading(13, color: Palette.deepGrey),
-              ),
-              Text(
-                '${AppLocalizations.of(context)!.itemintro_completed}: $completedSegmentsCount/$totalSegments',
-                style: AppTextStyles.heading(13, color: Palette.deepGrey),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          // Progress Bar
-          Container(
-            height: 16,
-            decoration: BoxDecoration(
-              color: progressTrack,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: isReviewed
-                ? FractionallySizedBox(
-                    widthFactor: score / 100,
-                    alignment: Alignment.centerLeft,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Palette.success,
-                        borderRadius: BorderRadius.circular(12),
+      clipBehavior: Clip.hardEdge,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(width: 4, color: accent),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Phrase label
+                    Row(
+                      children: [
+                        const Icon(Icons.record_voice_over_rounded,
+                            color: accent, size: 16),
+                        const SizedBox(width: 6),
+                        Text(
+                          AppLocalizations.of(context)!.itemintro_speak,
+                          style: AppTextStyles.label(12, color: accent),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      text.toUpperCase(),
+                      style: AppTextStyles.heading(16, color: Palette.text),
+                    ),
+                    const SizedBox(height: 12),
+                    // Buttons row
+                    Row(
+                      children: [
+                        _pillButton(
+                          AppLocalizations.of(context)!.itemintro_playsection,
+                          Palette.bluePill,
+                          onTap: _isPlayerReady && _rawSegments.isNotEmpty
+                              ? _playSection
+                              : null,
+                        ),
+                        const SizedBox(width: 10),
+                        _recordButton(isReviewed: isReviewed),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    // Score row
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.star_rounded,
+                                color: accent, size: 14),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${score ?? 0}%',
+                              style: AppTextStyles.label(13, color: accent),
+                            ),
+                          ],
+                        ),
+                        Text(
+                          '$completedSegmentsCount/$totalSegments ${AppLocalizations.of(context)!.common_done}',
+                          style: AppTextStyles.body(12,
+                              color: Palette.labelGrey),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    // Progress bar
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: LinearProgressIndicator(
+                        value: isReviewed ? score / 100 : 0,
+                        backgroundColor:
+                            accent.withValues(alpha: 0.12),
+                        valueColor:
+                            const AlwaysStoppedAnimation<Color>(accent),
+                        minHeight: 7,
                       ),
                     ),
-                  )
-                : null,
-          ),
-        ],
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _statusCard(SegmentResult result) {
-    final String recognizedTextDisplay = result.recognizedText?.trim() ?? 'N/A';
+    final String recognizedTextDisplay = result.recognizedText?.trim() ?? '';
+    const accent = Palette.sky;
 
-    final statusText = switch (state) {
-      'processing' => null, // handled by inline spinner widget below
-      'reviewed' =>
-        'STATUS AI: "$recognizedTextDisplay" ✅ CORRECTNESS : ${result.maxScore}%',
-      'finished' => 'STATUS: ALL SEGMENTS COMPLETED ✅',
-      _ =>
-        'STATUS: Ready to record Segment $current${!_isPlayerReady ? ' (Player Loading)' : ''}',
-    };
-
+    final bool isProcessing = state == 'processing';
+    final bool isReviewed = state == 'reviewed';
     final bool isRecordingAvailable =
         result.audioUrl != null && result.audioUrl!.isNotEmpty;
 
+    Color statusColor;
+    IconData statusIcon;
+    String statusLabel;
+    if (isProcessing) {
+      statusColor = Palette.sky;
+      statusIcon = Icons.hourglass_top_rounded;
+      statusLabel = AppLocalizations.of(context)!.summary_analyzing;
+    } else if (isReviewed) {
+      statusColor = Palette.success;
+      statusIcon = Icons.check_circle_rounded;
+      statusLabel = '${result.maxScore}%';
+    } else if (state == 'finished') {
+      statusColor = Palette.success;
+      statusIcon = Icons.task_alt_rounded;
+      statusLabel = AppLocalizations.of(context)!.itemintro_completed;
+    } else {
+      statusColor = accent;
+      statusIcon = Icons.mic_none_rounded;
+      statusLabel = _isPlayerReady
+          ? AppLocalizations.of(context)!.itemintro_recordToEnable
+          : AppLocalizations.of(context)!.itemintro_Videonotavailable;
+    }
+
     return Container(
       decoration: BoxDecoration(
-        color: Palette.greyCard,
-        borderRadius: BorderRadius.circular(18),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: Palette.cardShadow,
+        border: Border.all(color: statusColor.withValues(alpha: 0.2)),
       ),
-      padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
+      padding: const EdgeInsets.all(14),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (state == 'processing')
-            Row(children: [
-              const SizedBox(
-                width: 13, height: 13,
-                child: CircularProgressIndicator(strokeWidth: 2, color: Palette.sky),
-              ),
+          // Status row
+          Row(
+            children: [
+              if (isProcessing)
+                SizedBox(
+                  width: 14,
+                  height: 14,
+                  child: CircularProgressIndicator(
+                      strokeWidth: 2, color: statusColor),
+                )
+              else
+                Icon(statusIcon, color: statusColor, size: 16),
               const SizedBox(width: 8),
-              Text(AppLocalizations.of(context)!.summary_analyzing,
-                  style: AppTextStyles.body(12, color: Palette.sky)),
-            ])
-          else
+              Expanded(
+                child: Text(
+                  statusLabel,
+                  style: AppTextStyles.body(12, color: statusColor),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+          // "You said" display when reviewed
+          if (isReviewed && recognizedTextDisplay.isNotEmpty) ...[
+            const SizedBox(height: 6),
             Text(
-              statusText ?? '',
-              style: AppTextStyles.heading(12, color: Palette.deepGrey),
+              '${AppLocalizations.of(context)!.summary_youSaid}: "$recognizedTextDisplay"',
+              style: AppTextStyles.body(13, color: Colors.black87),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
+          ],
           const SizedBox(height: 10),
-          Container(
-            height: 40,
-            decoration: BoxDecoration(
-              color: isRecordingAvailable ? Colors.white : Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: isRecordingAvailable
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.volume_up,
-                          size: 20, color: Palette.deepGrey),
-                      const SizedBox(width: 8),
-                      Text(
-                        _isPlaybackPlaying
+          // Playback button
+          GestureDetector(
+            onTap: isRecordingAvailable
+                ? () => _playOwnRecording(result.audioUrl)
+                : null,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              height: 42,
+              decoration: BoxDecoration(
+                color: isRecordingAvailable
+                    ? (_isPlaybackPlaying
+                        ? accent.withValues(alpha: 0.12)
+                        : Colors.grey.shade50)
+                    : Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: isRecordingAvailable
+                      ? (_isPlaybackPlaying ? accent : Colors.grey.shade300)
+                      : Colors.grey.shade200,
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    _isPlaybackPlaying
+                        ? Icons.pause_circle_rounded
+                        : Icons.play_circle_rounded,
+                    color: isRecordingAvailable ? accent : Colors.grey.shade400,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    isRecordingAvailable
+                        ? (_isPlaybackPlaying
                             ? AppLocalizations.of(context)!
                                 .itemintro_pausePlayback
                             : AppLocalizations.of(context)!
-                                .itemintro_listenRecording,
-                        style:
-                            AppTextStyles.heading(13, color: Palette.deepGrey),
-                      ),
-                      const SizedBox(width: 10),
-                      IconButton(
-                        icon: Icon(
-                          _isPlaybackPlaying
-                              ? Icons.pause_circle
-                              : Icons.play_circle,
-                          color: Palette.sky,
-                          size: 28,
-                        ),
-                        onPressed: () => _playOwnRecording(result.audioUrl),
-                      ),
-                    ],
-                  )
-                : Center(
-                    child: Text(
-                      AppLocalizations.of(context)!.itemintro_recordToPlayback,
-                      style: AppTextStyles.body(12,
-                          color: Palette.deepGrey.withValues(alpha: 0.5)),
-                    ),
+                                .itemintro_listenRecording)
+                        : AppLocalizations.of(context)!.itemintro_recordToPlayback,
+                    style: AppTextStyles.label(13,
+                        color: isRecordingAvailable
+                            ? accent
+                            : Colors.grey.shade400),
                   ),
+                ],
+              ),
+            ),
           ),
         ],
       ),

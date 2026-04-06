@@ -760,6 +760,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get languagedetail_startBtn => 'START';
 
   @override
+  String get languagedetail_openInYoutube => 'Open in YouTube (TV)';
+
+  @override
   String get itemintro_recordToEnable => 'Record to enable playback';
 
   @override
@@ -1393,7 +1396,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get videodetail_openTiktok => 'OPEN TIKTOK';
 
   @override
+  String get videodetail_openInTiktokTV => 'Open in TikTok (TV)';
+
+  @override
   String get videodetail_noVideoUrl => 'No video URL available';
+
+  @override
+  String get calculate_tvMode => 'TV Mode';
+
+  @override
+  String get calculate_tvModeHint => 'Swipe to see next problem';
+
+  @override
+  String get calculate_questionsCount => 'questions';
+
+  @override
+  String get calculate_tvModeBannerTitle => 'Share to TV';
+
+  @override
+  String get calculate_tvModeBannerSub => 'Show problems on big screen';
 
   @override
   String get languagehub_appTitle => 'KRATON';

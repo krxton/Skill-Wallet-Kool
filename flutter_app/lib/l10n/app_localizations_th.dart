@@ -757,6 +757,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get languagedetail_startBtn => 'เริ่ม';
 
   @override
+  String get languagedetail_openInYoutube => 'เปิดใน YouTube (ทีวี)';
+
+  @override
   String get itemintro_recordToEnable => 'กดบันทึกเสียงเพื่อฟังเสียงของคุณ';
 
   @override
@@ -1391,7 +1394,25 @@ class AppLocalizationsTh extends AppLocalizations {
   String get videodetail_openTiktok => 'เปิด TIKTOK';
 
   @override
+  String get videodetail_openInTiktokTV => 'เปิดใน TikTok (ทีวี)';
+
+  @override
   String get videodetail_noVideoUrl => 'ไม่มีลิงก์วิดีโอ';
+
+  @override
+  String get calculate_tvMode => 'โหมดทีวี';
+
+  @override
+  String get calculate_tvModeHint => 'เลื่อนเพื่อดูข้อถัดไป';
+
+  @override
+  String get calculate_questionsCount => 'ข้อ';
+
+  @override
+  String get calculate_tvModeBannerTitle => 'แชร์ไปทีวี';
+
+  @override
+  String get calculate_tvModeBannerSub => 'แสดงโจทย์บนหน้าจอใหญ่';
 
   @override
   String get languagehub_appTitle => 'กระท่อน';

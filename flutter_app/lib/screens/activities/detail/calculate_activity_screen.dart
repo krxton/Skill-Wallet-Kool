@@ -453,6 +453,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
           ActivityL10n.localizedActivityType(context, widget.activity.category),
           style: AppTextStyles.heading(24, color: Colors.black),
         ),
+        actions: const [],
       ),
       body: _segments.isEmpty
           ? Center(
@@ -485,6 +486,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(14),
+                              boxShadow: Palette.cardShadow,
                             ),
                             child: Text(widget.activity.content,
                                 style: AppTextStyles.body(14)),
@@ -492,23 +494,9 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                           const SizedBox(height: 16),
                         ],
 
-                        // ── Timer ──
-                        Center(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 40, vertical: 10),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: Text(
-                              _formatTime(elapsedSeconds),
-                              style:
-                                  AppTextStyles.heading(24, color: Palette.sky),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
+                        // ── Timer card ──
+                        _buildTimerCard(elapsedSeconds),
+                        const SizedBox(height: 14),
 
                         // ── Timer controls ──
                         _buildTimerControls(),
@@ -517,10 +505,36 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                         // ── Questions (visible during running & answering) ──
                         if (_phase == _Phase.running ||
                             _phase == _Phase.answering) ...[
-                          Text(AppLocalizations.of(context)!.common_questions,
-                              style: AppTextStyles.heading(24,
-                                  color: Palette.sky)),
-                          const SizedBox(height: 10),
+                          // TV Mode banner
+                          _buildTvModeBanner(),
+                          const SizedBox(height: 16),
+
+                          Row(
+                            children: [
+                              const Icon(Icons.quiz_rounded,
+                                  color: Palette.sky, size: 22),
+                              const SizedBox(width: 8),
+                              Text(
+                                  AppLocalizations.of(context)!.common_questions,
+                                  style: AppTextStyles.heading(22,
+                                      color: Palette.sky)),
+                              const Spacer(),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Palette.sky.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  '${_segments.length} ${AppLocalizations.of(context)!.calculate_questionsCount}',
+                                  style: AppTextStyles.label(13,
+                                      color: Palette.sky),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
                           ..._buildQuestionCards(),
                           const SizedBox(height: 30),
                         ],
@@ -614,6 +628,96 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
     }
   }
 
+  // ── Timer card ───────────────────────────────────────
+
+  Widget _buildTimerCard(int elapsedSeconds) {
+    final isRunning = _phase == _Phase.running;
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 14),
+        decoration: BoxDecoration(
+          gradient: isRunning ? Palette.skyGradient : null,
+          color: isRunning ? null : Colors.white,
+          borderRadius: BorderRadius.circular(32),
+          boxShadow: isRunning ? Palette.buttonShadow : Palette.cardShadow,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              isRunning ? Icons.timer : Icons.timer_outlined,
+              color: isRunning ? Colors.white : Palette.sky,
+              size: 22,
+            ),
+            const SizedBox(width: 10),
+            Text(
+              _formatTime(elapsedSeconds),
+              style: AppTextStyles.heading(30,
+                  color: isRunning ? Colors.white : Palette.sky),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── TV Mode banner ────────────────────────────────────
+
+  Widget _buildTvModeBanner() {
+    final l = AppLocalizations.of(context)!;
+    return GestureDetector(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          fullscreenDialog: true,
+          builder: (_) => _TvModeScreen(segments: _segments),
+        ),
+      ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: Palette.cardShadow,
+          border: Border.all(
+              color: Palette.sky.withValues(alpha: 0.25), width: 1),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                gradient: Palette.skyGradient,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: Palette.buttonShadow,
+              ),
+              alignment: Alignment.center,
+              child: const Icon(Icons.tv_rounded,
+                  color: Colors.white, size: 22),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l.calculate_tvModeBannerTitle,
+                      style: AppTextStyles.label(15, color: Palette.sky)),
+                  const SizedBox(height: 2),
+                  Text(l.calculate_tvModeBannerSub,
+                      style: AppTextStyles.body(12,
+                          color: Palette.labelGrey)),
+                ],
+              ),
+            ),
+            const Icon(Icons.arrow_forward_ios,
+                color: Palette.sky, size: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
   // ── Phase messages ────────────────────────────────────
 
   Widget _buildReadyMessage() {
@@ -655,280 +759,295 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
       final solution = segment['solution']?.toString() ?? '';
       final status = _answerStatus[index];
 
-      Color cardColor;
-      Color borderColor;
-      IconData statusIcon;
-      if (status == true) {
-        cardColor = const Color(0xFFE8F5E9);
-        borderColor = Palette.success;
-        statusIcon = Icons.check_circle;
-      } else if (status == false) {
-        cardColor = const Color(0xFFFFEBEE);
-        borderColor = Colors.red.shade300;
-        statusIcon = Icons.cancel;
-      } else {
-        cardColor = Colors.white;
-        borderColor = Palette.sky.withValues(alpha: 0.3);
-        statusIcon = Icons.help_outline;
-      }
+      final Color accentColor = status == true
+          ? Palette.success
+          : status == false
+              ? Palette.pink
+              : Palette.sky;
 
       return Container(
-        margin: const EdgeInsets.only(bottom: 16),
+        margin: const EdgeInsets.only(bottom: 14),
         decoration: BoxDecoration(
-          color: cardColor,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: borderColor, width: 2),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: status != null ? Palette.buttonShadow : Palette.cardShadow,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header with question number + status
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: status == true
-                    ? Palette.success
-                    : status == false
-                        ? Colors.red.shade400
-                        : Palette.sky,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(18),
-                  topRight: Radius.circular(18),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.25),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(statusIcon, color: Colors.white, size: 20),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                        AppLocalizations.of(context)!
-                            .calculate_solutionTitle(index + 1),
-                        style: AppTextStyles.heading(16, color: Colors.white)),
-                  ),
-                ],
-              ),
-            ),
+        clipBehavior: Clip.hardEdge,
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Left accent strip
+              Container(width: 4, color: accentColor),
 
-            // Question text — larger, prominent
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(16),
-              margin: const EdgeInsets.fromLTRB(14, 14, 14, 6),
-              decoration: BoxDecoration(
-                color: Palette.sky.withValues(alpha: 0.06),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Palette.sky.withValues(alpha: 0.15)),
-              ),
-              child: Text(question,
-                  style: AppTextStyles.body(17, color: Colors.black87)),
-            ),
-
-            // Answering phase: show answer + solution + correct/incorrect buttons
-            if (_phase == _Phase.answering) ...[
-              // Answer box
-              if (answer.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 8, 14, 6),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: Palette.success.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                          color: Palette.success.withValues(alpha: 0.5)),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(Icons.check_circle,
-                                color: Palette.success, size: 18),
-                            const SizedBox(width: 6),
-                            Text(
-                                AppLocalizations.of(context)!
-                                    .calculate_answerLabel,
-                                style: AppTextStyles.label(13,
-                                    color: Palette.success)),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Text(answer,
-                            style: AppTextStyles.body(15,
-                                weight: FontWeight.w600)),
-                      ],
-                    ),
-                  ),
-                ),
-
-              // Solution box
-              if (solution.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(14, 4, 14, 6),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: Palette.sky.withValues(alpha: 0.06),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.lightbulb,
-                                color: Colors.amber, size: 18),
-                            const SizedBox(width: 6),
-                            Text(
-                                AppLocalizations.of(context)!
-                                    .calculate_solutionLabel,
-                                style: AppTextStyles.label(13,
-                                    color: Palette.sky)),
-                          ],
-                        ),
-                        const SizedBox(height: 6),
-                        Text(solution, style: AppTextStyles.body(14)),
-                      ],
-                    ),
-                  ),
-                ),
-
-              // Correct / Incorrect toggle buttons
-              Padding(
-                padding: const EdgeInsets.fromLTRB(14, 8, 14, 16),
-                child: Row(
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _answerStatus[index] = true;
-                            _segmentResults[index] = _segmentResults[index]
-                                .copyWith(maxScore: _originalScores[index] ?? 100);
-                          });
-                        },
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          decoration: BoxDecoration(
-                            color:
-                                status == true ? Palette.success : Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: Palette.success,
-                              width: status == true ? 2.5 : 1.5,
+                    // ── Header row ──
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(14, 12, 14, 0),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 30,
+                            height: 30,
+                            decoration: BoxDecoration(
+                              color: accentColor.withValues(alpha: 0.12),
+                              shape: BoxShape.circle,
                             ),
-                            boxShadow: status == true
-                                ? [
-                                    BoxShadow(
-                                      color: Palette.success
-                                          .withValues(alpha: 0.3),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 2),
-                                    )
-                                  ]
-                                : [],
+                            alignment: Alignment.center,
+                            child: Text(
+                              '${index + 1}',
+                              style: AppTextStyles.heading(15,
+                                  color: accentColor),
+                            ),
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.check_circle_rounded,
-                                  size: 22,
-                                  color: status == true
-                                      ? Colors.white
-                                      : Palette.success),
-                              const SizedBox(width: 8),
-                              Text(
-                                AppLocalizations.of(context)!.calculate_correct,
-                                style: AppTextStyles.heading(15,
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              AppLocalizations.of(context)!
+                                  .calculate_solutionTitle(index + 1),
+                              style: AppTextStyles.label(14,
+                                  color: accentColor),
+                            ),
+                          ),
+                          if (status != null)
+                            Icon(
+                              status == true
+                                  ? Icons.check_circle_rounded
+                                  : Icons.cancel_rounded,
+                              color: accentColor,
+                              size: 20,
+                            ),
+                        ],
+                      ),
+                    ),
+
+                    // ── Question text ──
+                    Container(
+                      width: double.infinity,
+                      margin: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: accentColor.withValues(alpha: 0.05),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                            color: accentColor.withValues(alpha: 0.18)),
+                      ),
+                      child: Text(question,
+                          style: AppTextStyles.body(17,
+                              color: Colors.black87,
+                              weight: FontWeight.w600)),
+                    ),
+
+                    // ── Answering phase content ──
+                    if (_phase == _Phase.answering) ...[
+                      if (answer.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Palette.success.withValues(alpha: 0.07),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                  color:
+                                      Palette.success.withValues(alpha: 0.4)),
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(Icons.check_circle,
+                                    color: Palette.success, size: 16),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                          AppLocalizations.of(context)!
+                                              .calculate_answerLabel,
+                                          style: AppTextStyles.label(11,
+                                              color: Palette.success)),
+                                      const SizedBox(height: 2),
+                                      Text(answer,
+                                          style: AppTextStyles.body(15,
+                                              weight: FontWeight.w600)),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                      if (solution.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(14, 0, 14, 8),
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF8E1),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                  color: Colors.amber.withValues(alpha: 0.4)),
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Icon(Icons.lightbulb_rounded,
+                                    color: Colors.amber, size: 16),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                          AppLocalizations.of(context)!
+                                              .calculate_solutionLabel,
+                                          style: AppTextStyles.label(11,
+                                              color: Colors.amber.shade700)),
+                                      const SizedBox(height: 2),
+                                      Text(solution,
+                                          style: AppTextStyles.body(14)),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+
+                      // Correct / Incorrect buttons
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(14, 4, 14, 14),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () => setState(() {
+                                  _answerStatus[index] = true;
+                                  _segmentResults[index] =
+                                      _segmentResults[index].copyWith(
+                                          maxScore:
+                                              _originalScores[index] ?? 100);
+                                }),
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 12),
+                                  decoration: BoxDecoration(
                                     color: status == true
-                                        ? Colors.white
-                                        : Palette.success),
+                                        ? Palette.success
+                                        : Colors.white,
+                                    borderRadius: BorderRadius.circular(14),
+                                    border: Border.all(
+                                        color: Palette.success,
+                                        width: status == true ? 0 : 1.5),
+                                    boxShadow: status == true
+                                        ? [
+                                            BoxShadow(
+                                              color: Palette.success
+                                                  .withValues(alpha: 0.3),
+                                              blurRadius: 6,
+                                              offset: const Offset(0, 2),
+                                            )
+                                          ]
+                                        : [],
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.check_circle_rounded,
+                                          size: 20,
+                                          color: status == true
+                                              ? Colors.white
+                                              : Palette.success),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        AppLocalizations.of(context)!
+                                            .calculate_correct,
+                                        style: AppTextStyles.heading(14,
+                                            color: status == true
+                                                ? Colors.white
+                                                : Palette.success),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _answerStatus[index] = false;
-                            _segmentResults[index] = _segmentResults[index].copyWith(maxScore: 0);
-                          });
-                        },
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          decoration: BoxDecoration(
-                            color: status == false
-                                ? Colors.red.shade400
-                                : Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: Colors.red.shade400,
-                              width: status == false ? 2.5 : 1.5,
                             ),
-                            boxShadow: status == false
-                                ? [
-                                    BoxShadow(
-                                      color: Colors.red.withValues(alpha: 0.3),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 2),
-                                    )
-                                  ]
-                                : [],
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.cancel_rounded,
-                                  size: 22,
-                                  color: status == false
-                                      ? Colors.white
-                                      : Colors.red.shade400),
-                              const SizedBox(width: 8),
-                              Text(
-                                AppLocalizations.of(context)!
-                                    .calculate_incorrect,
-                                style: AppTextStyles.heading(15,
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () => setState(() {
+                                  _answerStatus[index] = false;
+                                  _segmentResults[index] =
+                                      _segmentResults[index]
+                                          .copyWith(maxScore: 0);
+                                }),
+                                child: AnimatedContainer(
+                                  duration: const Duration(milliseconds: 200),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 12),
+                                  decoration: BoxDecoration(
                                     color: status == false
-                                        ? Colors.white
-                                        : Colors.red.shade400),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ] else ...[
-              const SizedBox(height: 8),
-            ],
-          ],
-        ),
-      );
+                                        ? Palette.pink
+                                        : Colors.white,
+                                    borderRadius: BorderRadius.circular(14),
+                                    border: Border.all(
+                                        color: Palette.pink,
+                                        width: status == false ? 0 : 1.5),
+                                    boxShadow: status == false
+                                        ? [
+                                            BoxShadow(
+                                              color: Palette.pink
+                                                  .withValues(alpha: 0.3),
+                                              blurRadius: 6,
+                                              offset: const Offset(0, 2),
+                                            )
+                                          ]
+                                        : [],
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.cancel_rounded,
+                                          size: 20,
+                                          color: status == false
+                                              ? Colors.white
+                                              : Palette.pink),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        AppLocalizations.of(context)!
+                                            .calculate_incorrect,
+                                        style: AppTextStyles.heading(14,
+                                            color: status == false
+                                                ? Colors.white
+                                                : Palette.pink),
+                                      ),
+                                    ],           // inner Row children
+                                  ),             // inner Row
+                                ),               // AnimatedContainer
+                              ),                 // GestureDetector (incorrect)
+                            ),                   // Expanded (incorrect)
+                          ],                     // Row children [correct,SizedBox,incorrect]
+                        ),                       // Row (buttons)
+                      ),                         // Padding (buttons)
+                    ],                           // if answering spread
+                  ],                             // Column children
+                ),                               // Column
+              ),                                 // Expanded
+            ],                                   // Row children [strip, Expanded]
+          ),                                     // Row
+        ),                                       // IntrinsicHeight
+      );                                         // Container
     });
   }
 
@@ -1105,6 +1224,314 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
           ),
         ),
       ],
+    );
+  }
+}
+
+// ── TV Mode Screen ─────────────────────────────────────────────────────────
+
+class _TvModeScreen extends StatefulWidget {
+  final List<dynamic> segments;
+
+  const _TvModeScreen({required this.segments});
+
+  @override
+  State<_TvModeScreen> createState() => _TvModeScreenState();
+}
+
+class _TvModeScreenState extends State<_TvModeScreen> {
+  late final PageController _pageController;
+  int _currentPage = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final total = widget.segments.length;
+    final l = AppLocalizations.of(context)!;
+    final progress = ((_currentPage + 1) / total).clamp(0.0, 1.0);
+
+    return Scaffold(
+      backgroundColor: const Color(0xFF0A1628),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [Color(0xFF0A1628), Color(0xFF0F2240), Color(0xFF0A1628)],
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // ── Top bar ──
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.08),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.close,
+                            color: Colors.white, size: 22),
+                      ),
+                    ),
+                    const Spacer(),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            gradient: Palette.skyGradient,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.tv_rounded,
+                              color: Colors.white, size: 16),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(l.calculate_tvMode,
+                            style:
+                                AppTextStyles.label(15, color: Palette.sky)),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // ── Progress bar ──
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: progress,
+                        backgroundColor: Colors.white.withValues(alpha: 0.1),
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(Palette.sky),
+                        minHeight: 4,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      '${_currentPage + 1} / $total',
+                      style:
+                          AppTextStyles.body(13, color: Palette.sky),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+
+              // ── PageView ──
+              Expanded(
+                child: PageView.builder(
+                  controller: _pageController,
+                  onPageChanged: (i) => setState(() => _currentPage = i),
+                  itemCount: total,
+                  itemBuilder: (context, index) {
+                    final segment = widget.segments[index];
+                    final question = MathOpDetector.normalizeQuestion(
+                      segment['question']?.toString() ??
+                          segment['text']?.toString() ??
+                          '',
+                    );
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 28, vertical: 16),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Number badge
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 8),
+                            decoration: BoxDecoration(
+                              gradient: Palette.skyGradient,
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Palette.sky.withValues(alpha: 0.4),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Text(
+                              '${l.calculate_questionsCount} ${index + 1}',
+                              style: AppTextStyles.heading(18,
+                                  color: Colors.white),
+                            ),
+                          ),
+                          const SizedBox(height: 36),
+
+                          // Question card with sky glow
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(32),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.06),
+                              borderRadius: BorderRadius.circular(28),
+                              border: Border.all(
+                                  color: Palette.sky.withValues(alpha: 0.35),
+                                  width: 1.5),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Palette.sky.withValues(alpha: 0.12),
+                                  blurRadius: 32,
+                                  spreadRadius: 4,
+                                ),
+                              ],
+                            ),
+                            child: Text(
+                              question,
+                              style: AppTextStyles.body(36,
+                                  color: Colors.white,
+                                  weight: FontWeight.w700),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+
+                          const SizedBox(height: 28),
+                          Text(
+                            l.calculate_tvModeHint,
+                            style: AppTextStyles.body(13,
+                                color: Colors.white.withValues(alpha: 0.35)),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+              // ── Navigation ──
+              Padding(
+                padding: const EdgeInsets.fromLTRB(28, 0, 28, 28),
+                child: Row(
+                  children: [
+                    // Prev
+                    GestureDetector(
+                      onTap: _currentPage > 0
+                          ? () => _pageController.previousPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              )
+                          : null,
+                      child: AnimatedOpacity(
+                        opacity: _currentPage > 0 ? 1.0 : 0.25,
+                        duration: const Duration(milliseconds: 200),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 14),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.07),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.15)),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.arrow_back_ios_new,
+                                  color: Colors.white, size: 18),
+                              const SizedBox(width: 6),
+                              Text('$_currentPage',
+                                  style: AppTextStyles.label(14,
+                                      color: Colors.white)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // Dots
+                    Expanded(
+                      child: Center(
+                        child: Wrap(
+                          spacing: 6,
+                          children: List.generate(
+                            total,
+                            (i) => AnimatedContainer(
+                              duration: const Duration(milliseconds: 200),
+                              width: i == _currentPage ? 22 : 7,
+                              height: 7,
+                              decoration: BoxDecoration(
+                                color: i == _currentPage
+                                    ? Palette.sky
+                                    : Colors.white.withValues(alpha: 0.25),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // Next
+                    GestureDetector(
+                      onTap: _currentPage < total - 1
+                          ? () => _pageController.nextPage(
+                                duration: const Duration(milliseconds: 300),
+                                curve: Curves.easeInOut,
+                              )
+                          : null,
+                      child: AnimatedOpacity(
+                        opacity: _currentPage < total - 1 ? 1.0 : 0.25,
+                        duration: const Duration(milliseconds: 200),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 14),
+                          decoration: BoxDecoration(
+                            gradient: _currentPage < total - 1
+                                ? Palette.skyGradient
+                                : null,
+                            color: _currentPage < total - 1
+                                ? null
+                                : Colors.white.withValues(alpha: 0.07),
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: _currentPage < total - 1
+                                ? Palette.buttonShadow
+                                : [],
+                          ),
+                          child: Row(
+                            children: [
+                              Text('${_currentPage + 2}',
+                                  style: AppTextStyles.label(14,
+                                      color: Colors.white)),
+                              const SizedBox(width: 6),
+                              const Icon(Icons.arrow_forward_ios,
+                                  color: Colors.white, size: 18),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -1508,6 +1508,12 @@ abstract class AppLocalizations {
   /// **'START'**
   String get languagedetail_startBtn;
 
+  /// No description provided for @languagedetail_openInYoutube.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in YouTube (TV)'**
+  String get languagedetail_openInYoutube;
+
   /// No description provided for @itemintro_recordToEnable.
   ///
   /// In en, this message translates to:
@@ -2696,11 +2702,47 @@ abstract class AppLocalizations {
   /// **'OPEN TIKTOK'**
   String get videodetail_openTiktok;
 
+  /// No description provided for @videodetail_openInTiktokTV.
+  ///
+  /// In en, this message translates to:
+  /// **'Open in TikTok (TV)'**
+  String get videodetail_openInTiktokTV;
+
   /// No description provided for @videodetail_noVideoUrl.
   ///
   /// In en, this message translates to:
   /// **'No video URL available'**
   String get videodetail_noVideoUrl;
+
+  /// No description provided for @calculate_tvMode.
+  ///
+  /// In en, this message translates to:
+  /// **'TV Mode'**
+  String get calculate_tvMode;
+
+  /// No description provided for @calculate_tvModeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Swipe to see next problem'**
+  String get calculate_tvModeHint;
+
+  /// No description provided for @calculate_questionsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'questions'**
+  String get calculate_questionsCount;
+
+  /// No description provided for @calculate_tvModeBannerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share to TV'**
+  String get calculate_tvModeBannerTitle;
+
+  /// No description provided for @calculate_tvModeBannerSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Show problems on big screen'**
+  String get calculate_tvModeBannerSub;
 
   /// No description provided for @languagehub_appTitle.
   ///
