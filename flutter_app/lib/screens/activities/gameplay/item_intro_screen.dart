@@ -1304,7 +1304,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen>
             ],
           ),
           // "You said" display when reviewed
-          if (isReviewed && recognizedTextDisplay.isNotEmpty) ...[
+          if (isReviewed) ...[
             const SizedBox(height: 6),
             Text(
               '${AppLocalizations.of(context)!.summary_youSaid}: "$recognizedTextDisplay"',

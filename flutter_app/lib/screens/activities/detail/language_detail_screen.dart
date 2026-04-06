@@ -207,13 +207,52 @@ class _LanguageDetailScreenState extends State<LanguageDetailScreen> {
                   const SizedBox(height: 20),
 
                   // ── Activity Title ──
-                  _buildSectionLabel(
-                    Icons.text_fields_rounded,
-                    AppLocalizations.of(context)!
-                        .languagedetail_activityTitleLabel,
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: Palette.cardShadow,
+                    ),
+                    clipBehavior: Clip.hardEdge,
+                    child: IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Container(width: 4, color: Palette.sky),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 14),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      const Icon(Icons.text_fields_rounded,
+                                          color: Palette.sky, size: 18),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        AppLocalizations.of(context)!
+                                            .languagedetail_activityTitleLabel,
+                                        style: AppTextStyles.label(13,
+                                            color: Palette.sky),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    name,
+                                    style: AppTextStyles.heading(18,
+                                        color: Palette.text),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  _buildContentCard(name),
                   const SizedBox(height: 16),
 
                   // ── Description (collapsible) ──
@@ -225,50 +264,61 @@ class _LanguageDetailScreenState extends State<LanguageDetailScreen> {
                           GestureDetector(
                             onTap: () =>
                                 setLocal(() => _descExpanded = !_descExpanded),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.info_outline_rounded,
-                                    color: Palette.sky, size: 20),
-                                const SizedBox(width: 8),
-                                Text(
-                                  AppLocalizations.of(context)!
-                                      .languagedetail_descriptionLabel,
-                                  style: AppTextStyles.heading(18,
-                                      color: Palette.sky),
-                                ),
-                                const Spacer(),
-                                AnimatedRotation(
-                                  turns: _descExpanded ? 0.5 : 0.0,
-                                  duration: const Duration(milliseconds: 200),
-                                  child: const Icon(
-                                      Icons.keyboard_arrow_down,
-                                      color: Palette.sky,
-                                      size: 24),
-                                ),
-                              ],
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 12),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(14),
+                                boxShadow: Palette.cardShadow,
+                              ),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.info_outline_rounded,
+                                      color: Palette.sky, size: 18),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      AppLocalizations.of(context)!
+                                          .languagedetail_descriptionLabel,
+                                      style: AppTextStyles.heading(16,
+                                          color: Palette.sky),
+                                    ),
+                                  ),
+                                  AnimatedRotation(
+                                    turns: _descExpanded ? 0.5 : 0.0,
+                                    duration: const Duration(milliseconds: 200),
+                                    child: const Icon(
+                                        Icons.keyboard_arrow_down,
+                                        color: Palette.sky,
+                                        size: 22),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                          AnimatedSize(
-                            duration: const Duration(milliseconds: 250),
-                            curve: Curves.easeInOut,
-                            child: _descExpanded
-                                ? Container(
-                                    width: double.infinity,
-                                    margin: const EdgeInsets.only(top: 8),
-                                    padding: const EdgeInsets.all(14),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(14),
-                                      boxShadow: Palette.cardShadow,
-                                      border: Border.all(
-                                          color: Palette.sky.withValues(alpha: 0.25)),
-                                    ),
-                                    child: Text(
-                                      widget.activity.description!,
-                                      style: AppTextStyles.body(15),
-                                    ),
-                                  )
-                                : const SizedBox.shrink(),
+                          AnimatedCrossFade(
+                            firstChild: const SizedBox.shrink(),
+                            secondChild: Container(
+                              width: double.infinity,
+                              margin: const EdgeInsets.only(top: 6),
+                              padding: const EdgeInsets.all(14),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(14),
+                                boxShadow: Palette.cardShadow,
+                                border: Border.all(
+                                    color: Palette.sky.withValues(alpha: 0.25)),
+                              ),
+                              child: Text(
+                                widget.activity.description!,
+                                style: AppTextStyles.body(15),
+                              ),
+                            ),
+                            crossFadeState: _descExpanded
+                                ? CrossFadeState.showSecond
+                                : CrossFadeState.showFirst,
+                            duration: const Duration(milliseconds: 200),
                           ),
                           const SizedBox(height: 16),
                         ],
@@ -293,27 +343,4 @@ class _LanguageDetailScreenState extends State<LanguageDetailScreen> {
     );
   }
 
-  Widget _buildSectionLabel(IconData icon, String title) {
-    return Row(
-      children: [
-        Icon(icon, color: Palette.sky, size: 20),
-        const SizedBox(width: 8),
-        Text(title, style: AppTextStyles.heading(18, color: Palette.sky)),
-      ],
-    );
-  }
-
-  Widget _buildContentCard(String text) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: Palette.cardShadow,
-        border: Border.all(color: Palette.sky.withValues(alpha: 0.25)),
-      ),
-      child: Text(text, style: AppTextStyles.body(15)),
-    );
-  }
 }
