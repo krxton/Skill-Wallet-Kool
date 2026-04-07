@@ -30,6 +30,11 @@ export async function proxy(req: NextRequest) {
 
   // /api/* requires valid X-API-Key header (only enforced when API_SECRET_KEY is set on server)
   // Exception: logged-in admin users (CMS internal calls) are always allowed
+  // Health check endpoint — always public (used by Docker healthcheck)
+  if (req.nextUrl.pathname === '/api/health') {
+    return res
+  }
+
   const isApiPath = req.nextUrl.pathname.startsWith('/api')
   if (isApiPath) {
     const expectedKey = process.env.API_SECRET_KEY
