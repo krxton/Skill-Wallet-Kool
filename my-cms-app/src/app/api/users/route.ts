@@ -52,10 +52,10 @@ export async function GET(request: Request) {
             ActivityRecord_id: true
           }
         },
-        users: {
+        ba_user: {
           select: {
             id: true,
-            raw_app_meta_data: true
+            role: true
           }
         }
       },
@@ -66,12 +66,11 @@ export async function GET(request: Request) {
 
     // Transform to match frontend interface
     const users = parents.map((parent) => {
-      const meta = (parent.users?.raw_app_meta_data as Record<string, any>) || {};
       return {
         id: parent.parent_id,
         fullName: parent.name_surname || 'N/A',
         email: parent.email,
-        role: meta.role || 'user',
+        role: parent.ba_user?.role || 'user',
         status: 'Active',
         verification: 'Verified',
         photoUrl: undefined,
