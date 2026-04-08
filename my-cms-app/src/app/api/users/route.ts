@@ -6,79 +6,78 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search');
-    const status = searchParams.get('status');
-    const verification = searchParams.get('verification');
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const skip = (page - 1) * limit;
 
-    // Build where clause
-    const where: any = {};
-
+    // --- Admins (from ba_user, no parent record) ---
+    const adminWhere: any = { role: 'admin' };
     if (search) {
-      where.OR = [
-        {
-          name_surname: {
-            contains: search,
-            mode: 'insensitive'
-          }
-        },
-        {
-          email: {
-            contains: search,
-            mode: 'insensitive'
-          }
-        }
+      adminWhere.OR = [
+        { name: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
       ];
     }
 
-    // Get total count
-    const totalCount = await prisma.parent.count({ where });
+    const admins = await prisma.user.findMany({
+      where: adminWhere,
+      orderBy: { createdAt: 'asc' },
+    });
+
+    const adminRows = admins.map((u) => ({
+      id: u.id,
+      fullName: u.name,
+      email: u.email,
+      role: 'admin' as const,
+      status: 'Active',
+      verification: 'Verified',
+      photoUrl: u.image ?? undefined,
+      createdAt: u.createdAt.toISOString(),
+      childrenCount: 0,
+      activityRecordCount: 0,
+      isAdmin: true,
+    }));
+
+    // --- Regular users (from parent table) ---
+    const parentWhere: any = {};
+    if (search) {
+      parentWhere.OR = [
+        { name_surname: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    const totalCount = await prisma.parent.count({ where: parentWhere });
     const totalPages = Math.ceil(totalCount / limit);
 
-    // Get parents with relations
     const parents = await prisma.parent.findMany({
-      where,
+      where: parentWhere,
       skip,
       take: limit,
       include: {
-        parent_and_child: {
-          include: {
-            child: true
-          }
-        },
-        activity_record: {
-          select: {
-            ActivityRecord_id: true
-          }
-        },
-        ba_user: {
-          select: {
-            id: true,
-            role: true
-          }
-        }
+        parent_and_child: { select: { child_id: true } },
+        activity_record: { select: { ActivityRecord_id: true } },
+        ba_user: { select: { role: true, image: true } },
       },
-      orderBy: {
-        created_date: 'desc'
-      }
+      orderBy: { created_date: 'desc' },
     });
 
-    // Transform to match frontend interface
-    const users = parents.map((parent) => {
-      return {
-        id: parent.parent_id,
-        fullName: parent.name_surname || 'N/A',
-        email: parent.email,
-        role: parent.ba_user?.role || 'user',
-        status: 'Active',
-        verification: 'Verified',
-        photoUrl: undefined,
-        createdAt: parent.created_date.toISOString(),
-        childrenCount: parent.parent_and_child.length,
-        activityRecordCount: parent.activity_record.length
-      };
-    });
+    const userRows = parents.map((parent) => ({
+      id: parent.parent_id,
+      fullName: parent.name_surname || 'N/A',
+      email: parent.email,
+      role: parent.ba_user?.role || 'user',
+      status: 'Active',
+      verification: 'Verified',
+      photoUrl: parent.ba_user?.image ?? undefined,
+      createdAt: parent.created_date.toISOString(),
+      childrenCount: parent.parent_and_child.length,
+      activityRecordCount: parent.activity_record.length,
+      isAdmin: false,
+    }));
+
+    // Admins always on top
+    const users = [...adminRows, ...userRows];
 
     return NextResponse.json({
       users,
@@ -86,8 +85,8 @@ export async function GET(request: Request) {
         currentPage: page,
         totalPages,
         totalCount,
-        limit
-      }
+        limit,
+      },
     });
   } catch (error: any) {
     console.error('GET /api/users error:', error);

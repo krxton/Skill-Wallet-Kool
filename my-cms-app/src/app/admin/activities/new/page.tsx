@@ -57,37 +57,24 @@ export default function NewActivityPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Get parentId via /api/parents/me
+  // Admin doesn't have a parent record — parentId stays empty (nullable in DB)
   useEffect(() => {
-    async function getParentId() {
+    async function checkSession() {
       try {
         const { data: session } = await authClient.getSession();
         if (!session?.user) {
           router.push('/login');
           return;
         }
-
-        const res = await fetch('/api/parents/me', {
-          headers: { 'x-api-key': '' }, // CMS internal — no API key needed (admin session)
-        });
-
-        if (!res.ok) {
-          setError('Parent profile not found. Please ensure your account is properly set up.');
-          setIsLoading(false);
-          return;
-        }
-
-        const parent = await res.json();
-        setFormData(prev => ({ ...prev, parentId: parent.parentId }));
         setIsLoading(false);
       } catch (err) {
-        console.error('Error getting parent ID:', err);
+        console.error('Error checking session:', err);
         setError('Failed to load user data');
         setIsLoading(false);
       }
     }
 
-    getParentId();
+    checkSession();
   }, [router]);
 
   // Extract video ID from URL

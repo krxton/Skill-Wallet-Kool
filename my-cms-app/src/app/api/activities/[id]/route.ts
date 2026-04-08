@@ -68,11 +68,11 @@ export async function GET(
       nameActivity: activity.name_activity,
       descriptionActivity: activity.description_activity || '',
       responses: 0,
-      parent: {
+      parent: activity.parent ? {
         id: activity.parent.parent_id,
         name: activity.parent.name_surname || 'N/A',
         email: activity.parent.email,
-      },
+      } : null,
       recentRecords: []
     };
 

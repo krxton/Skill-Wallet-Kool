@@ -83,7 +83,7 @@ model activity {
   name_activity        String
   description_activity String
   level_activity       String
-  parent_id            String            @db.Uuid
+  parent_id            String?           @db.Uuid
   category             String
   content              String
   maxscore             Decimal           @db.Decimal
@@ -94,7 +94,7 @@ model activity {
   update_at            DateTime          @db.Timestamptz(6)
   play_count           Decimal?          @db.Decimal
   is_public            Boolean?          @default(true)
-  parent               parent            @relation(fields: [parent_id], references: [parent_id], onDelete: NoAction, onUpdate: NoAction)
+  parent               parent?           @relation(fields: [parent_id], references: [parent_id], onDelete: NoAction, onUpdate: NoAction)
   activity_record      activity_record[]
 }
 
