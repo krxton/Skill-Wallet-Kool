@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabaseClient'
-import { User, LogOut, Settings } from 'lucide-react'
+import { authClient } from '@/lib/auth-client'
+import { LogOut } from 'lucide-react'
 
 interface UserData {
   email: string
@@ -16,20 +16,18 @@ export default function UserProfile() {
   const [showMenu, setShowMenu] = useState(false)
 
   useEffect(() => {
-    const getUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
+    authClient.getSession().then(({ data: session }) => {
       if (session?.user) {
         setUser({
           email: session.user.email || '',
-          name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User'
+          name: session.user.name || session.user.email?.split('@')[0] || 'User',
         })
       }
-    }
-    getUser()
+    })
   }, [])
 
   const handleLogout = async () => {
-    await supabase.auth.signOut()
+    await authClient.signOut()
     router.push('/login')
   }
 
@@ -37,7 +35,6 @@ export default function UserProfile() {
 
   return (
     <div className="relative">
-      {/* User Button */}
       <button
         onClick={() => setShowMenu(!showMenu)}
         className="flex items-center gap-3 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
@@ -55,18 +52,13 @@ export default function UserProfile() {
         </div>
       </button>
 
-      {/* Dropdown Menu */}
       {showMenu && (
         <>
-          {/* Backdrop */}
           <div
             className="fixed inset-0 z-10"
             onClick={() => setShowMenu(false)}
           />
-
-          {/* Menu */}
           <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-20">
-            {/* User Info */}
             <div className="px-4 py-3 border-b border-gray-100">
               <p className="text-sm font-semibold text-gray-900">
                 {user.name}
@@ -75,8 +67,6 @@ export default function UserProfile() {
                 {user.email}
               </p>
             </div>
-
-            {/* Menu Items */}
             <div className="py-2">
               <button
                 onClick={handleLogout}

@@ -1,38 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedParent } from '@/lib/get-parent';
+import { prisma } from '@/lib/prisma';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
 /**
  * GET /api/children/[id]/activity-history
- * Get activity history for a child.
  */
 export async function GET(request: NextRequest, context: RouteContext) {
   const auth = await getAuthenticatedParent(request);
   if (auth.error) return auth.error;
 
   const { id: childId } = await context.params;
-  const { supabase } = auth;
 
   try {
-    const { data, error } = await supabase
-      .from('activity_record')
-      .select(`
-        *,
-        activity:activity_id (
-          name_activity,
-          category,
-          maxscore
-        )
-      `)
-      .eq('child_id', childId)
-      .order('created_at', { ascending: false });
+    const records = await prisma.activity_record.findMany({
+      where: { child_id: childId },
+      include: {
+        activity: {
+          select: { name_activity: true, category: true, maxscore: true },
+        },
+      },
+      orderBy: { created_at: 'desc' },
+    });
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    return NextResponse.json(data || []);
+    return NextResponse.json(records);
   } catch (err: any) {
     return NextResponse.json(
       { error: 'Failed to get activity history', details: err.message },

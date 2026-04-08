@@ -1,81 +1,56 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthenticatedParent } from '@/lib/get-parent';
-import { createAuthClient } from '@/lib/auth-helpers';
+import { auth } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 /**
  * POST /api/parents/sync
  * Upsert parent record for authenticated user.
- * Called after login/register from Flutter.
+ * Called after login/register from Flutter (Bearer token) or web (cookie).
  *
  * Body: { email?: string, fullName?: string }
- * - fullName is optional for existing users (omit to preserve current name).
- * - fullName is required when creating a new parent record.
  * Response: { success: true, parent: { parentId, nameSurname, email } }
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createAuthClient(request);
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const session = await auth.api.getSession({ headers: request.headers });
 
-    if (authError || !user) {
+    if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { user } = session;
     const body = await request.json();
     const { email, fullName } = body;
 
     const emailToSave = email || user.email;
 
-    // Check if parent exists
-    const { data: existing } = await supabase
-      .from('parent')
-      .select('parent_id, name_surname, email, user_id')
-      .eq('user_id', user.id)
-      .maybeSingle();
+    const existing = await prisma.parent.findFirst({
+      where: { user_id: user.id },
+      select: { parent_id: true, name_surname: true, email: true, user_id: true },
+    });
 
     let parent;
 
     if (existing) {
       if (fullName) {
-        // Explicit name update requested (e.g. from profile settings)
-        const { data, error } = await supabase
-          .from('parent')
-          .update({ name_surname: fullName })
-          .eq('user_id', user.id)
-          .select('parent_id, name_surname, email')
-          .single();
-
-        if (error) {
-          return NextResponse.json(
-            { error: 'Failed to update parent', details: error.message },
-            { status: 500 }
-          );
-        }
-        parent = data;
+        parent = await prisma.parent.update({
+          where: { parent_id: existing.parent_id },
+          data: { name_surname: fullName },
+          select: { parent_id: true, name_surname: true, email: true },
+        });
       } else {
-        // No name provided — return existing record without modifying name
         parent = existing;
       }
     } else {
-      // Insert new parent — name required (fall back to email prefix)
       const nameToSave = fullName || emailToSave?.split('@')[0] || 'User';
-      const { data, error } = await supabase
-        .from('parent')
-        .insert({
+      parent = await prisma.parent.create({
+        data: {
           user_id: user.id,
           email: emailToSave,
           name_surname: nameToSave,
-        })
-        .select('parent_id, name_surname, email')
-        .single();
-
-      if (error) {
-        return NextResponse.json(
-          { error: 'Failed to create parent', details: error.message },
-          { status: 500 }
-        );
-      }
-      parent = data;
+        },
+        select: { parent_id: true, name_surname: true, email: true },
+      });
     }
 
     return NextResponse.json({

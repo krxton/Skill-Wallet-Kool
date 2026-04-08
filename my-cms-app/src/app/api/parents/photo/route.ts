@@ -65,9 +65,10 @@ export async function POST(request: NextRequest) {
 
     const photoUrl = `${urlData.publicUrl}?v=${Date.now()}`;
 
-    // อัปเดต user metadata ใน Supabase Auth
-    await supabase.auth.updateUser({
-      data: { photo_url: photoUrl },
+    // อัปเดต image field ใน ba_user
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { image: photoUrl },
     });
 
     return NextResponse.json({ success: true, photoUrl });

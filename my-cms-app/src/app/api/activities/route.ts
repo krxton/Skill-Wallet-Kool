@@ -1,7 +1,7 @@
 // app/api/activities/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { createAuthClient, getUserRole } from '@/lib/auth-helpers';
+import { auth } from '@/lib/auth';
 
 // Helper function to safely serialize JSON fields
 function safeJsonSerialize(value: any) {
@@ -206,10 +206,9 @@ export async function POST(request: NextRequest) {
     // Check auth & role (optional — unauthenticated = treat as user)
     let userRole: 'user' | 'admin' = 'user';
     try {
-      const supabase = await createAuthClient(request);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        userRole = getUserRole(user);
+      const session = await auth.api.getSession({ headers: request.headers });
+      if (session?.user) {
+        userRole = (session.user as any).role === 'admin' ? 'admin' : 'user';
       }
     } catch {
       // No auth = default user role

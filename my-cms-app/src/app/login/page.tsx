@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState, useEffect, Suspense } from 'react'
-import { supabase } from '@/lib/supabaseClient'
+import { authClient } from '@/lib/auth-client'
 import { LogIn, Mail, Lock, AlertCircle } from 'lucide-react'
 
 function LoginForm() {
@@ -13,7 +13,6 @@ function LoginForm() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  // Show error from middleware redirect (e.g. unauthorized)
   useEffect(() => {
     const urlError = searchParams.get('error')
     if (urlError === 'unauthorized') {
@@ -21,15 +20,13 @@ function LoginForm() {
     }
   }, [searchParams])
 
-  // Check if already logged in as admin
+  // Redirect if already logged in as admin
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (user && user.app_metadata?.role === 'admin') {
+    authClient.getSession().then(({ data: session }) => {
+      if ((session?.user as any)?.role === 'admin') {
         router.push('/admin/activities')
       }
-    }
-    checkSession()
+    })
   }, [router])
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -38,27 +35,25 @@ function LoginForm() {
     setLoading(true)
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data, error: signInError } = await authClient.signIn.email({
         email,
-        password
+        password,
       })
 
-      if (error) {
-        setError(error.message)
+      if (signInError) {
+        setError(signInError.message || 'เข้าสู่ระบบไม่สำเร็จ')
         return
       }
 
-      // Check role after login
-      const role = data.user?.app_metadata?.role
+      const role = (data?.user as any)?.role
       if (role !== 'admin') {
-        await supabase.auth.signOut()
+        await authClient.signOut()
         setError('คุณไม่มีสิทธิ์เข้าถึงระบบนี้ เฉพาะผู้ดูแลระบบเท่านั้น')
         return
       }
 
-      // Admin login successful - force reload to refresh middleware
       window.location.href = '/admin/activities'
-    } catch (err) {
+    } catch {
       setError('เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง')
     } finally {
       setLoading(false)

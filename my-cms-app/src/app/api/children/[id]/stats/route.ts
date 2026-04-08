@@ -1,46 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedParent } from '@/lib/get-parent';
+import { prisma } from '@/lib/prisma';
 
 type RouteContext = { params: Promise<{ id: string }> };
 
 /**
  * GET /api/children/[id]/stats
- * Get child stats: wallet, name, totalActivities.
  */
 export async function GET(request: NextRequest, context: RouteContext) {
   const auth = await getAuthenticatedParent(request);
   if (auth.error) return auth.error;
 
   const { id: childId } = await context.params;
-  const { supabase } = auth;
 
   try {
-    // Get child info
-    const { data: child, error: childError } = await supabase
-      .from('child')
-      .select('wallet, name_surname')
-      .eq('child_id', childId)
-      .single();
+    const child = await prisma.child.findUnique({
+      where: { child_id: childId },
+      select: { wallet: true, name_surname: true },
+    });
 
-    if (childError) {
-      return NextResponse.json({ error: childError.message }, { status: 500 });
+    if (!child) {
+      return NextResponse.json({ error: 'Child not found' }, { status: 404 });
     }
 
-    // Count activity records
-    const { data: records, error: recordError } = await supabase
-      .from('activity_record')
-      .select('ActivityRecord_id')
-      .eq('child_id', childId);
+    const totalActivities = await prisma.activity_record.count({
+      where: { child_id: childId },
+    });
 
-    const totalActivities = records ? records.length : 0;
-
-    // Handle wallet as potentially decimal
-    let wallet = 0;
-    if (typeof child.wallet === 'number') {
-      wallet = Math.floor(child.wallet);
-    } else if (child.wallet != null) {
-      wallet = parseInt(String(child.wallet)) || 0;
-    }
+    const wallet = child.wallet != null ? Math.floor(Number(child.wallet)) : 0;
 
     return NextResponse.json({
       wallet,

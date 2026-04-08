@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Send, Plus, Trash2 } from 'lucide-react';
-import { supabase } from '@/lib/supabaseClient';
+import { authClient } from '@/lib/auth-client';
 import UserProfile from '@/components/UserProfile';
 
 // Types
@@ -57,55 +57,28 @@ export default function NewActivityPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Get parentId from Supabase
+  // Get parentId via /api/parents/me
   useEffect(() => {
     async function getParentId() {
       try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
-        if (sessionError || !session) {
-          setError('Please log in to create activities');
-          router.push('/');
+        const { data: session } = await authClient.getSession();
+        if (!session?.user) {
+          router.push('/login');
           return;
         }
 
-        const user = session.user;
+        const res = await fetch('/api/parents/me', {
+          headers: { 'x-api-key': '' }, // CMS internal — no API key needed (admin session)
+        });
 
-        const { data: parent, error: parentError } = await supabase
-          .from('parent')
-          .select('parent_id, name_surname, email')
-          .eq('user_id', user.id)
-          .single();
-
-        if (parentError) {
-          const { data: parentByEmail, error: emailError } = await supabase
-            .from('parent')
-            .select('parent_id, name_surname, email')
-            .eq('email', user.email)
-            .single();
-
-          if (emailError || !parentByEmail) {
-            setError('Parent profile not found. Please ensure your account is properly set up.');
-            setIsLoading(false);
-            return;
-          }
-
-          await supabase
-            .from('parent')
-            .update({ user_id: user.id })
-            .eq('email', user.email);
-
-          setFormData(prev => ({
-            ...prev,
-            parentId: parentByEmail.parent_id
-          }));
-        } else {
-          setFormData(prev => ({
-            ...prev,
-            parentId: parent.parent_id
-          }));
+        if (!res.ok) {
+          setError('Parent profile not found. Please ensure your account is properly set up.');
+          setIsLoading(false);
+          return;
         }
-        
+
+        const parent = await res.json();
+        setFormData(prev => ({ ...prev, parentId: parent.parentId }));
         setIsLoading(false);
       } catch (err) {
         console.error('Error getting parent ID:', err);

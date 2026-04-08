@@ -21,14 +21,12 @@ WORKDIR /app
 # ---- Install openssl (Prisma needs it during build)
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
-# ---- Build arguments (important for Supabase + Prisma at build time)
-ARG NEXT_PUBLIC_SUPABASE_URL
-ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
+# ---- Build arguments (required for Prisma at build time)
+ARG NEXT_PUBLIC_APP_URL
 ARG DATABASE_URL
 ARG DIRECT_URL
 
-ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
-ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
+ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 ENV DATABASE_URL=$DATABASE_URL
 ENV DIRECT_URL=$DIRECT_URL
 ENV NEXT_TELEMETRY_DISABLED=1

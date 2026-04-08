@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
   const auth = await getAuthenticatedParent(request);
   if (auth.error) return auth.error;
 
-  const { supabase, parent } = auth;
+  const { parent } = auth;
 
   try {
     const body = await request.json();
@@ -76,22 +76,26 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'fullName is required' }, { status: 400 });
     }
 
-    // Use the existing RPC function to create child and link
-    const { data, error } = await supabase.rpc('create_child_and_link', {
-      p_name_surname: fullName,
-      p_birthday: birthday || '',
-      p_wallet: 0,
-      p_relationship: relationship || 'พ่อ/แม่',
+    // Create child and link to parent in a transaction
+    const result = await prisma.$transaction(async (tx) => {
+      const child = await tx.child.create({
+        data: {
+          name_surname: fullName,
+          birthday: birthday ? new Date(birthday) : null,
+          wallet: 0,
+        },
+      });
+      await tx.parent_and_child.create({
+        data: {
+          parent_id: parent.parent_id,
+          child_id: child.child_id,
+          relationship: relationship || 'พ่อ/แม่',
+        },
+      });
+      return child;
     });
 
-    if (error) {
-      return NextResponse.json(
-        { error: 'Failed to create child', details: error.message },
-        { status: 500 }
-      );
-    }
-
-    return NextResponse.json(data, { status: 201 });
+    return NextResponse.json({ child_id: result.child_id, name_surname: result.name_surname }, { status: 201 });
   } catch (err: any) {
     return NextResponse.json(
       { error: 'Failed to create child', details: err.message },
