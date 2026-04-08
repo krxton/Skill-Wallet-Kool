@@ -254,13 +254,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!body.parentId) {
-      return NextResponse.json(
-        { error: 'parentId is required' },
-        { status: 400 }
-      );
-    }
-
     // Prepare segments data
     let segmentsData = null;
     if (body.segments) {
@@ -281,7 +274,7 @@ export async function POST(request: NextRequest) {
         segments: segmentsData,
         videourl: body.videoUrl || null,
         thumbnailurl: body.thumbnailUrl || null,
-        parent_id: body.parentId,
+        parent_id: body.parentId || null,
         is_public: isPublic,
         update_at: new Date(),
       }

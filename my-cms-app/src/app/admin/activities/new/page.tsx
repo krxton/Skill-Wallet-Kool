@@ -276,11 +276,6 @@ export default function NewActivityPage() {
       return;
     }
 
-    if (!formData.parentId) {
-      alert('Authentication error. Please refresh and try again.');
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
