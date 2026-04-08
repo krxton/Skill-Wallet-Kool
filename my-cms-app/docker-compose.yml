@@ -1,4 +1,22 @@
 services:
+  db:
+    container_name: swk-postgres
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - swk_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   app:
     container_name: swk-cms
     build:
@@ -23,6 +41,8 @@ services:
 
     depends_on:
       whisper:
+        condition: service_healthy
+      db:
         condition: service_healthy
 
     restart: unless-stopped
@@ -55,3 +75,6 @@ services:
           memory: 3G
         reservations:
           memory: 1G
+
+volumes:
+  swk_postgres_data:
