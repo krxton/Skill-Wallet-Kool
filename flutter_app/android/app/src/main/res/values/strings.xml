@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SkillWalletKool</string>
+    <string name="facebook_app_id">1330680655538831</string>
+    <string name="fb_login_protocol_scheme">fb1330680655538831</string>
+    <string name="facebook_client_token">53e71fce68b58f2d8e9ee16a6b2e9a90</string>
+</resources>
