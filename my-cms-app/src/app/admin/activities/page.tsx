@@ -235,7 +235,7 @@ export default function ActivitiesPage() {
       )}
 
       {/* Table */}
-      <div className="bg-white rounded-lg shadow overflow-x-auto">
+      <div className="bg-white rounded-lg shadow overflow-x-auto overflow-y-visible">
         <table className="w-full min-w-[800px]">
           <thead className="bg-gray--light1 border-b border-gray4">
             <tr>
@@ -316,7 +316,7 @@ export default function ActivitiesPage() {
                         <MoreVertical size={16} className="text-secondary--text" />
                       </button>
                       {openMenuId === activity.activityId && (
-                        <div className="absolute right-0 top-full mt-1 bg-white border border-gray4 rounded-lg shadow-lg py-2 z-10">
+                        <div className="absolute right-0 top-full mt-1 bg-white border border-gray4 rounded-lg shadow-lg py-2 z-50">
                           <Link
                             href={`/admin/activities/${activity.activityId}`}
                             className="flex items-center gap-2 px-4 py-2 hover:bg-gray--light1 body-small-medium whitespace-nowrap"

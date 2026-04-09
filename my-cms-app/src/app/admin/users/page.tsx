@@ -6,6 +6,7 @@ import { Search, MoreVertical, Eye, UserCheck, UserX, ShieldCheck, Shield, Trash
 import UserProfile from '@/components/UserProfile';
 import Pagination from '@/components/admin/Pagination';
 import ConfirmModal from '@/components/admin/ConfirmModal';
+import { authClient } from '@/lib/auth-client';
 
 interface User {
   id: string;
@@ -30,6 +31,13 @@ export default function UsersPage() {
   const [openMenuId, setOpenMenuId]   = useState<string | null>(null);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting]   = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    authClient.getSession().then(({ data }) => {
+      if (data?.user?.id) setCurrentUserId(data.user.id);
+    });
+  }, []);
 
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -169,7 +177,7 @@ export default function UsersPage() {
 
       {/* Table */}
       <div className="bg-white rounded-lg shadow">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto overflow-y-visible">
           <table className="w-full min-w-[900px]">
             <thead className="bg-gray--light1 border-b border-gray4">
               <tr>
@@ -238,7 +246,7 @@ export default function UsersPage() {
                           <MoreVertical size={16} className="text-secondary--text" />
                         </button>
                         {openMenuId === user.id && (
-                          <div className="absolute right-0 top-full mt-1 bg-white border border-gray4 rounded-lg shadow-lg py-2 z-10 min-w-[140px]">
+                          <div className="absolute right-0 top-full mt-1 bg-white border border-gray4 rounded-lg shadow-lg py-2 z-50 min-w-[140px]">
                             <Link
                               href={`/admin/users/${user.id}`}
                               className="flex items-center gap-2 px-4 py-2 hover:bg-gray--light1 body-small-medium whitespace-nowrap"
@@ -247,13 +255,15 @@ export default function UsersPage() {
                               <Eye size={16} />
                               View Detail
                             </Link>
-                            <button
-                              className="w-full flex items-center gap-2 px-4 py-2 hover:bg-red--light6 body-small-medium whitespace-nowrap text-red--dark"
-                              onClick={() => { setOpenMenuId(null); setDeleteTargetId(user.id); }}
-                            >
-                              <Trash2 size={16} />
-                              Delete User
-                            </button>
+                            {user.id !== currentUserId && (
+                              <button
+                                className="w-full flex items-center gap-2 px-4 py-2 hover:bg-red--light6 body-small-medium whitespace-nowrap text-red--dark"
+                                onClick={() => { setOpenMenuId(null); setDeleteTargetId(user.id); }}
+                              >
+                                <Trash2 size={16} />
+                                Delete User
+                              </button>
+                            )}
                           </div>
                         )}
                       </div>
