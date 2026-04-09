@@ -34,6 +34,7 @@ export default function ActivitiesPage() {
   const [totalPages, setTotalPages]   = useState(1);
   const [total, setTotal]             = useState(0);
   const [openMenuId, setOpenMenuId]   = useState<string | null>(null);
+  const [menuPos, setMenuPos]         = useState<{ top: number; right: number } | null>(null);
 
   // สำหรับ confirmation modal
   const [deleteTargetId, setDeleteTargetId]     = useState<string | null>(null);
@@ -235,7 +236,7 @@ export default function ActivitiesPage() {
       )}
 
       {/* Table */}
-      <div className="bg-white rounded-lg shadow overflow-x-auto overflow-y-visible">
+      <div className="bg-white rounded-lg shadow overflow-x-auto">
         <table className="w-full min-w-[800px]">
           <thead className="bg-gray--light1 border-b border-gray4">
             <tr>
@@ -308,32 +309,22 @@ export default function ActivitiesPage() {
                     </button>
                   </td>
                   <td className="px-4 py-3">
-                    <div className="relative" ref={openMenuId === activity.activityId ? menuRef : null}>
+                    <div className="relative">
                       <button
-                        onClick={() => setOpenMenuId(openMenuId === activity.activityId ? null : activity.activityId)}
+                        onClick={(e) => {
+                          if (openMenuId === activity.activityId) {
+                            setOpenMenuId(null);
+                            setMenuPos(null);
+                          } else {
+                            const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                            setMenuPos({ top: rect.bottom + window.scrollY + 4, right: window.innerWidth - rect.right });
+                            setOpenMenuId(activity.activityId);
+                          }
+                        }}
                         className="p-1 hover:bg-gray--light1 rounded"
                       >
                         <MoreVertical size={16} className="text-secondary--text" />
                       </button>
-                      {openMenuId === activity.activityId && (
-                        <div className="absolute right-0 top-full mt-1 bg-white border border-gray4 rounded-lg shadow-lg py-2 z-50">
-                          <Link
-                            href={`/admin/activities/${activity.activityId}`}
-                            className="flex items-center gap-2 px-4 py-2 hover:bg-gray--light1 body-small-medium whitespace-nowrap"
-                            onClick={() => setOpenMenuId(null)}
-                          >
-                            <Edit size={16} />
-                            Edit
-                          </Link>
-                          <button
-                            onClick={() => { setOpenMenuId(null); setDeleteTargetId(activity.activityId); }}
-                            className="flex items-center gap-2 px-4 py-2 hover:bg-red--light6 body-small-medium text-red--dark w-full text-left whitespace-nowrap"
-                          >
-                            <Trash2 size={16} />
-                            Delete
-                          </button>
-                        </div>
-                      )}
                     </div>
                   </td>
                 </tr>
@@ -373,6 +364,35 @@ export default function ActivitiesPage() {
         onConfirm={executeBulkDelete}
         onCancel={() => setBulkDeletePending(false)}
       />
+
+      {/* Floating dropdown menu (fixed position — ไม่กระทบ layout) */}
+      {openMenuId && menuPos && (() => {
+        const activity = activities.find(a => a.activityId === openMenuId);
+        if (!activity) return null;
+        return (
+          <div
+            ref={menuRef}
+            style={{ position: 'fixed', top: menuPos.top, right: menuPos.right }}
+            className="bg-white border border-gray4 rounded-lg shadow-lg py-2 z-[9999]"
+          >
+            <Link
+              href={`/admin/activities/${activity.activityId}`}
+              className="flex items-center gap-2 px-4 py-2 hover:bg-gray--light1 body-small-medium whitespace-nowrap"
+              onClick={() => { setOpenMenuId(null); setMenuPos(null); }}
+            >
+              <Edit size={16} />
+              Edit
+            </Link>
+            <button
+              onClick={() => { setOpenMenuId(null); setMenuPos(null); setDeleteTargetId(activity.activityId); }}
+              className="flex items-center gap-2 px-4 py-2 hover:bg-red--light6 body-small-medium text-red--dark w-full text-left whitespace-nowrap"
+            >
+              <Trash2 size={16} />
+              Delete
+            </button>
+          </div>
+        );
+      })()}
     </div>
   );
 }
