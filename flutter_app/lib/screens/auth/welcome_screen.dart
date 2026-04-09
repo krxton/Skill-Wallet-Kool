@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import 'package:skill_wallet_kool/providers/user_provider.dart';
 import 'package:skill_wallet_kool/services/api_service.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:skill_wallet_kool/services/auth_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../routes/app_routes.dart';
 import '../../../theme/palette.dart';
@@ -267,38 +267,31 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     );
   }
 
-  // ========== Facebook Sign-In via Supabase OAuth ==========
+  // ========== Facebook Sign-In ==========
   Future<void> _handleFacebookSignIn() async {
     setState(() => _isLoading = true);
 
     try {
-      final supabase = Supabase.instance.client;
-
-      final LoginResult result = await FacebookAuth.instance.login(
-          permissions: ['public_profile', 'email'],
-          loginTracking: LoginTracking.enabled);
+      final result = await FacebookAuth.instance.login(
+        permissions: ['public_profile', 'email'],
+        loginTracking: LoginTracking.enabled,
+      );
 
       if (result.status == LoginStatus.success) {
         final accessToken = result.accessToken!.tokenString;
-        final response = await supabase.auth.signInWithIdToken(
-          provider: OAuthProvider.facebook,
+        final user = await AuthService().signInWithSocial(
+          provider: 'facebook',
           idToken: accessToken,
         );
-
-        final user = response.user;
-        if (user != null) {
-          await _handlePostOAuth(
-              provider: 'facebook',
-              userId: user.id,
-              email: user.email,
-              fullName: user.userMetadata?['full_name'] ??
-                  user.userMetadata?['name'] ??
-                  user.email?.split('@')[0]);
-        }
+        await _handlePostOAuth(
+          provider: 'facebook',
+          userId: user.id,
+          email: user.email,
+          fullName: user.name.isNotEmpty ? user.name : user.email.split('@')[0],
+        );
       } else {
-        // Handle login cancellation or failure
         setState(() => _isLoading = false);
-        debugPrint('Facebook Sign-In error: ${result.status}');
+        debugPrint('Facebook Sign-In cancelled: ${result.status}');
         if (mounted) {
           _showMessage(AppLocalizations.of(context)!
               .common_errorGeneric(result.status.toString()));
@@ -308,8 +301,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       setState(() => _isLoading = false);
       debugPrint('Facebook Sign-In error: $e');
       if (mounted) {
-        _showMessage(
-            AppLocalizations.of(context)!.common_errorGeneric(e.toString()));
+        _showMessage(AppLocalizations.of(context)!
+            .common_errorGeneric(e.toString().replaceFirst('Exception: ', '')));
       }
     }
   }
@@ -343,10 +336,10 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
   Future<void> _nativeGoogleSignIn() async {
     try {
+      // webClientId must match GOOGLE_CLIENT_ID in backend .env
       const webClientId =
-          '286775717840-494vogfnb2oclk746pgqu83o66sm7qsc.apps.googleusercontent.com';
-      const iosClientId =
-          '286775717840-etqs6h74ku98274lcb03be4hmoj12s7u.apps.googleusercontent.com';
+          '765972336394-nbcvpu9r7niacp5t9ce1ad8j23l80hha.apps.googleusercontent.com';
+      const iosClientId = '';
 
       final scopes = ['email', 'profile'];
       final googleSignIn = GoogleSignIn.instance;
@@ -370,25 +363,21 @@ class _WelcomeScreenState extends State<WelcomeScreen>
 
       final idToken = googleUser.authentication.idToken;
       if (idToken == null) {
-        throw const AuthException('No ID Token found.');
+        throw Exception('No ID Token found from Google.');
       }
 
-      final supabase = Supabase.instance.client;
-      final response = await supabase.auth.signInWithIdToken(
-        provider: OAuthProvider.google,
+      final user = await AuthService().signInWithSocial(
+        provider: 'google',
         idToken: idToken,
         accessToken: authorization.accessToken,
       );
 
-      final user = response.user;
-      if (user != null) {
-        await _handlePostOAuth(
-          provider: 'google',
-          userId: user.id,
-          email: user.email,
-          fullName: fullName ?? user.email?.split('@')[0],
-        );
-      }
+      await _handlePostOAuth(
+        provider: 'google',
+        userId: user.id,
+        email: user.email,
+        fullName: fullName ?? user.name,
+      );
     } catch (e) {
       setState(() => _isLoading = false);
       rethrow;

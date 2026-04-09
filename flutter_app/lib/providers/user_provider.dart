@@ -1,10 +1,9 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/api_service.dart';
+import '../services/auth_service.dart';
 
 class UserProvider extends ChangeNotifier {
-  final _supabase = Supabase.instance.client;
   final _apiService = ApiService();
 
   // ==========================================
@@ -18,11 +17,9 @@ class UserProvider extends ChangeNotifier {
   String? get currentParentId => _currentParentId;
   List<Map<String, dynamic>> get children => _children;
 
-  /// User role from Supabase app_metadata (read-only, set in dashboard only)
+  /// User role from Better Auth session
   String get userRole {
-    final meta = _supabase.auth.currentUser?.appMetadata;
-    if (meta != null && meta['role'] == 'admin') return 'admin';
-    return 'user';
+    return AuthService().currentUser?.role ?? 'user';
   }
 
   bool get isAdmin => userRole == 'admin';
@@ -92,11 +89,9 @@ class UserProvider extends ChangeNotifier {
       _currentParentName = result['nameSurname'] ?? '';
       _currentParentId = result['parentId']?.toString();
 
-      // Load photo URL: custom override first, then OAuth avatar fallback
-      final meta = _supabase.auth.currentUser?.userMetadata;
-      _parentPhotoUrl = (meta?['photo_url'] as String?) ??
-          (meta?['avatar_url'] as String?) ??
-          (meta?['picture'] as String?);
+      // Photo URL: from API response first, then from Better Auth user image
+      _parentPhotoUrl = (result['photoUrl'] as String?) ??
+          AuthService().currentUser?.image;
 
       notifyListeners();
     } catch (e) {
@@ -271,35 +266,12 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-  /// Use OAuth provider's avatar (Google / Facebook) and persist in user metadata.
-  /// Also removes any custom storage file (backend path) so storage stays clean.
+  /// Use OAuth provider's avatar (Google / Facebook).
+  /// Better Auth stores the avatar in user.image during social sign-in.
   Future<bool> setPhotoFromOAuth(String provider) async {
     try {
-      final user = _supabase.auth.currentUser;
-      if (user == null) return false;
-
-      final identity = user.identities?.firstWhere(
-        (i) => i.provider == provider,
-        orElse: () => throw Exception('No $provider identity'),
-      );
-
-      final url = (identity?.identityData?['avatar_url'] as String?) ??
-          (identity?.identityData?['picture'] as String?);
+      final url = AuthService().currentUser?.image;
       if (url == null) return false;
-
-      // Remove custom storage file at backend path if it exists
-      final userId = user.id;
-      try {
-        await _supabase.storage
-            .from('avatars')
-            .remove(['$userId/profile.jpg']);
-      } catch (_) {
-        // File may not exist — ignore
-      }
-
-      await _supabase.auth.updateUser(
-        UserAttributes(data: {'photo_url': url}),
-      );
       _parentPhotoUrl = url;
       notifyListeners();
       return true;

@@ -24,10 +24,27 @@ export async function POST(request: NextRequest) {
 
     const emailToSave = email || user.email;
 
-    const existing = await prisma.parent.findFirst({
+    // 1. หาจาก user_id ก่อน (login ครั้งที่ 2 เป็นต้นไป)
+    let existing = await prisma.parent.findFirst({
       where: { user_id: user.id },
       select: { parent_id: true, name_surname: true, email: true, user_id: true },
     });
+
+    // 2. Fallback: หาจาก email (กรณี migrate จาก Supabase — user_id ยัง NULL)
+    if (!existing && emailToSave) {
+      existing = await prisma.parent.findFirst({
+        where: { email: emailToSave, user_id: null },
+        select: { parent_id: true, name_surname: true, email: true, user_id: true },
+      });
+
+      // Link user_id ให้ทันที
+      if (existing) {
+        await prisma.parent.update({
+          where: { parent_id: existing.parent_id },
+          data: { user_id: user.id },
+        });
+      }
+    }
 
     let parent;
 

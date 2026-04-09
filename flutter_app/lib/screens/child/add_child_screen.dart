@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../services/auth_service.dart';
 import '../../services/child_service.dart';
 import '../../routes/app_routes.dart';
 import '../../theme/palette.dart';
@@ -162,7 +162,7 @@ class _AddChildScreenState extends State<AddChildScreen> {
       ),
     );
     if (confirm == true && mounted) {
-      await Supabase.instance.client.auth.signOut();
+      await AuthService().signOut();
       if (mounted) {
         Navigator.pushNamedAndRemoveUntil(
           context,

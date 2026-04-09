@@ -4,37 +4,23 @@ import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'auth_service.dart';
 
 class ApiService {
-  final _supabase = Supabase.instance.client;
-
   // 1. Base URL
   static String get _baseUrl =>
       dotenv.env['API_BASE_URL'] ?? 'http://127.0.0.1:3000/api';
 
-  // 2. Headers Getter with Supabase Authentication
+  // 2. Headers with Better Auth Bearer token
   Future<Map<String, String>> _getHeaders() async {
     final headers = <String, String>{
       'Content-Type': 'application/json',
       'X-API-Key': dotenv.env['API_SECRET_KEY'] ?? '',
     };
 
-    // Get Supabase access token — refresh if expired
-    var session = _supabase.auth.currentSession;
-
-    if (session != null && session.isExpired) {
-      try {
-        final res = await _supabase.auth.refreshSession();
-        session = res.session;
-      } catch (e) {
-        debugPrint('Token refresh failed: $e');
-        session = null;
-      }
-    }
-
-    if (session != null) {
-      headers['Authorization'] = 'Bearer ${session.accessToken}';
+    final token = await AuthService().token;
+    if (token != null) {
+      headers['Authorization'] = 'Bearer $token';
     }
 
     return headers;

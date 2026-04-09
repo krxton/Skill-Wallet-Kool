@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import 'package:skill_wallet_kool/main.dart';
 import 'package:skill_wallet_kool/routes/app_routes.dart';
@@ -8,6 +7,7 @@ import 'package:skill_wallet_kool/routes/app_routes.dart';
 // Import Provider
 import '../../../providers/user_provider.dart';
 import '../../../services/api_service.dart';
+import '../../../services/auth_service.dart';
 import '../../../theme/palette.dart';
 import '../../../theme/app_text_styles.dart';
 
@@ -218,7 +218,7 @@ class _SettingScreenState extends State<SettingScreen> {
     if (confirmed != true || !mounted) return;
 
     try {
-      await Supabase.instance.client.auth.signOut();
+      await AuthService().signOut();
     } catch (_) {}
 
     if (!mounted) return;
@@ -275,7 +275,7 @@ class _SettingScreenState extends State<SettingScreen> {
 
       // 2. Delete Supabase auth user
       try {
-        await Supabase.instance.client.auth.signOut();
+        await AuthService().signOut();
       } catch (_) {}
 
       // 3. Clear local state

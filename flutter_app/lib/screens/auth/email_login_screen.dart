@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import 'package:skill_wallet_kool/providers/user_provider.dart';
 import 'package:skill_wallet_kool/services/api_service.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:skill_wallet_kool/services/auth_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../routes/app_routes.dart';
 import '../../../theme/palette.dart';
@@ -324,46 +324,30 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final supabase = Supabase.instance.client;
       final email = _emailController.text.trim();
       final password = _passwordController.text;
 
       if (_mode == _AuthMode.login) {
-        final response = await supabase.auth.signInWithPassword(
-          email: email,
-          password: password,
+        final user = await AuthService().signInWithEmail(email, password);
+        await _handlePostAuth(
+          userId: user.id,
+          email: user.email,
+          fullName: user.name.isNotEmpty ? user.name : email.split('@')[0],
         );
-        final user = response.user;
-        if (user != null) {
-          await _handlePostAuth(
-            userId: user.id,
-            email: user.email,
-            fullName: user.userMetadata?['full_name'] as String? ??
-                email.split('@')[0],
-          );
-        }
       } else {
         final name = _nameController.text.trim();
-        final response = await supabase.auth.signUp(
-          email: email,
-          password: password,
-          data: {'full_name': name},
+        final nameToUse = name.isNotEmpty ? name : email.split('@')[0];
+        final user =
+            await AuthService().signUpWithEmail(email, password, nameToUse);
+        await _handlePostAuth(
+          userId: user.id,
+          email: user.email,
+          fullName: nameToUse,
         );
-        final user = response.user;
-        if (user != null) {
-          await _handlePostAuth(
-            userId: user.id,
-            email: user.email,
-            fullName: name.isNotEmpty ? name : email.split('@')[0],
-          );
-        }
       }
-    } on AuthException catch (e) {
-      setState(() => _isLoading = false);
-      _showMessage(e.message);
     } catch (e) {
       setState(() => _isLoading = false);
-      _showMessage(e.toString());
+      _showMessage(e.toString().replaceFirst('Exception: ', ''));
     }
   }
 
@@ -505,11 +489,10 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
               if (email.isEmpty) return;
               Navigator.pop(ctx);
               try {
-                await Supabase.instance.client.auth
-                    .resetPasswordForEmail(email);
+                await AuthService().forgotPassword(email);
                 if (mounted) _showMessage(l10n.email_resetSent);
               } catch (e) {
-                if (mounted) _showMessage(e.toString());
+                if (mounted) _showMessage(e.toString().replaceFirst('Exception: ', ''));
               }
             },
             child: Text(l10n.email_sendReset,
