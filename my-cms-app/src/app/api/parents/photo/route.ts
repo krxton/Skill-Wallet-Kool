@@ -1,21 +1,19 @@
 // api/parents/photo/route.ts
-// อัปโหลดรูปโปรไฟล์ของ parent ไปยัง Supabase Storage
-// แล้วอัปเดต photo_url ใน user metadata
+// อัปโหลดรูปโปรไฟล์ของ parent ไปยัง MinIO
+// แล้วอัปเดต image field ใน ba_user
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedParent } from '@/lib/get-parent';
-import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { uploadToMinio } from '@/lib/minio';
 import { prisma } from '@/lib/prisma';
 
 export async function POST(request: NextRequest) {
-  // ตรวจสอบ auth
   const auth = await getAuthenticatedParent(request);
   if ('error' in auth) {
     return NextResponse.json({ error: auth.error }, { status: 401 });
   }
-  const { user, parent } = auth;
+  const { user } = auth;
 
-  // รับไฟล์จาก multipart/form-data
   const formData = await request.formData();
   const file = formData.get('photo') as File | null;
 
@@ -23,49 +21,27 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'photo field is required' }, { status: 400 });
   }
 
-  // ตรวจ MIME type
   const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
   if (!allowedTypes.includes(file.type)) {
     return NextResponse.json(
       { error: 'Unsupported file type. Use JPEG, PNG or WebP.' },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
-  // จำกัดขนาดไฟล์ 5 MB
   const MAX_SIZE = 5 * 1024 * 1024;
   if (file.size > MAX_SIZE) {
     return NextResponse.json({ error: 'File too large (max 5 MB)' }, { status: 400 });
   }
 
   try {
-    const supabase = await createSupabaseServerClient();
     const bytes = await file.arrayBuffer();
     const buffer = new Uint8Array(bytes);
 
-    // path: avatars/{userId}/profile.jpg (ทับไฟล์เดิมถ้ามี)
-    const storagePath = `${user.id}/profile.jpg`;
+    // path: parents/{userId}/profile.jpg (overwrites previous)
+    const key = `parents/${user.id}/profile.jpg`;
+    const photoUrl = await uploadToMinio(key, buffer, file.type);
 
-    const { error: uploadError } = await supabase.storage
-      .from('avatars')
-      .upload(storagePath, buffer, {
-        contentType: file.type,
-        upsert: true,
-      });
-
-    if (uploadError) {
-      console.error('Storage upload error:', uploadError);
-      return NextResponse.json({ error: 'Failed to upload photo' }, { status: 500 });
-    }
-
-    // ดึง public URL
-    const { data: urlData } = supabase.storage
-      .from('avatars')
-      .getPublicUrl(storagePath);
-
-    const photoUrl = `${urlData.publicUrl}?v=${Date.now()}`;
-
-    // อัปเดต image field ใน ba_user
     await prisma.user.update({
       where: { id: user.id },
       data: { image: photoUrl },

@@ -26,21 +26,33 @@ class ProfileScreenState extends State<ProfileScreen> {
   bool _loading = true;
   bool _isEditMode = false;
   UserProvider? _userProvider;
+  String? _lastParentId;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadActivities();
       _userProvider = context.read<UserProvider>();
+      _lastParentId = _userProvider?.currentParentId;
       _userProvider!.addListener(_onProviderChanged);
+      _loadActivities();
     });
   }
 
   void _onProviderChanged() {
     final parentId = _userProvider?.currentParentId;
-    if (parentId != null && parentId.isNotEmpty && _myActivities.isEmpty) {
-      _loadActivities();
+    // Only reload when parentId actually changes (account switch)
+    if (parentId != _lastParentId) {
+      _lastParentId = parentId;
+      if (mounted) {
+        setState(() {
+          _myActivities = [];
+          _loading = parentId != null && parentId.isNotEmpty;
+        });
+      }
+      if (parentId != null && parentId.isNotEmpty) {
+        _loadActivities();
+      }
     }
   }
 
@@ -56,7 +68,10 @@ class ProfileScreenState extends State<ProfileScreen> {
   Future<void> _loadActivities() async {
     final parentId =
         Provider.of<UserProvider>(context, listen: false).currentParentId;
-    if (parentId == null || parentId.isEmpty) return;
+    if (parentId == null || parentId.isEmpty) {
+      if (mounted) setState(() => _loading = false);
+      return;
+    }
 
     setState(() => _loading = true);
     final activities = await _activityService.fetchMyActivities(parentId);
