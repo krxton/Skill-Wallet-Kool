@@ -177,21 +177,46 @@ export async function DELETE(
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Delete activities (onDelete: NoAction — must delete manually)
-    await prisma.activity.deleteMany({
+    // Collect child IDs and medal IDs before cascade removes the join tables
+    const parentChildren = await prisma.parent_and_child.findMany({
       where: { parent_id: params.id },
+      select: { child_id: true },
     });
+    const childIds = parentChildren.map(pc => pc.child_id).filter(Boolean) as string[];
+
+    const parentMedals = await prisma.parent_and_medals.findMany({
+      where: { parent_id: params.id },
+      select: { medals_id: true },
+    });
+    const medalIds = parentMedals.map(pm => pm.medals_id).filter(Boolean) as string[];
+
+    // Clear NoAction FK references to medals before deleting medals
+    if (medalIds.length > 0) {
+      await prisma.activity_record.deleteMany({ where: { medals_id: { in: medalIds } } });
+      await prisma.redemption.deleteMany({ where: { medals_id: { in: medalIds } } });
+      await prisma.medals.deleteMany({ where: { id: { in: medalIds } } });
+    }
+
+    // Clear NoAction FK references to children before deleting children
+    if (childIds.length > 0) {
+      await prisma.activity_record.deleteMany({ where: { child_id: { in: childIds } } });
+      await prisma.redemption.deleteMany({ where: { child_id: { in: childIds } } });
+    }
+
+    // Delete activities created by this parent (onDelete: NoAction on parent FK)
+    await prisma.activity.deleteMany({ where: { parent_id: params.id } });
 
     // Delete parent record (cascades: activity_record, parent_and_child, parent_and_medals, redemption)
-    await prisma.parent.delete({
-      where: { parent_id: params.id },
-    });
+    await prisma.parent.delete({ where: { parent_id: params.id } });
+
+    // Delete children (now safe — all FK references cleared above)
+    if (childIds.length > 0) {
+      await prisma.child.deleteMany({ where: { child_id: { in: childIds } } });
+    }
 
     // Delete Better Auth user (cascades sessions and accounts)
     if (parent.user_id) {
-      await prisma.user.delete({
-        where: { id: parent.user_id },
-      });
+      await prisma.user.delete({ where: { id: parent.user_id } });
     }
 
     return NextResponse.json({ success: true });
