@@ -43,6 +43,13 @@ dependencies:
   google_sign_in: ^7.2.0
   share_plus: ^10.1.4
 
+dependency_overrides:
+  record: 6.1.2
+  record_android: 1.4.4
+  record_ios: 1.1.4
+  record_linux: 1.2.1
+  record_platform_interface: 1.4.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

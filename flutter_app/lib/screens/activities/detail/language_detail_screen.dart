@@ -44,7 +44,6 @@ class _LanguageDetailScreenState extends State<LanguageDetailScreen> {
         params: const YoutubePlayerParams(
           showControls: true,
           showFullscreenButton: true,
-          origin: 'https://www.youtube-nocookie.com',
         ),
       );
     }
