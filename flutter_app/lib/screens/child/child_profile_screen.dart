@@ -1,6 +1,4 @@
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import '../../providers/user_provider.dart';
@@ -34,7 +32,7 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
   static const String _categoryCalculate = 'ด้านคำนวณ';
 
   int _selectedTab = 0;
-  Uint8List? _selectedImageBytes;
+  final bool _isUploading = false;
 
   // Activity data
   final ChildService _childService = ChildService();
@@ -86,32 +84,6 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
     }
   }
 
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    try {
-      final XFile? pickedFile = await picker.pickImage(
-        source: ImageSource.gallery,
-        imageQuality: 80,
-        maxWidth: 800,
-      );
-
-      if (pickedFile != null) {
-        final bytes = await pickedFile.readAsBytes();
-        setState(() {
-          _selectedImageBytes = bytes;
-        });
-      }
-    } catch (e) {
-      debugPrint("Error picking image: $e");
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text(AppLocalizations.of(context)!
-                  .common_errorGeneric(e.toString()))),
-        );
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -121,7 +93,18 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
     final childName =
         widget.name ?? userProvider.currentChildName ?? l10n.childprofile_unknownName;
     final childWallet = widget.points ?? userProvider.currentChildWallet;
-    final imageUrl = widget.imageUrl ?? '';
+
+    // ดึง photo_url ล่าสุดจาก provider (อัปเดตหลัง upload) แทน widget param
+    final childId = widget.childId;
+    String imageUrl = widget.imageUrl ?? '';
+    if (childId != null) {
+      final match = userProvider.children.firstWhere(
+        (c) => c['child']?['child_id'] == childId,
+        orElse: () => {},
+      );
+      final fresh = match['child']?['photo_url'] as String?;
+      if (fresh != null && fresh.isNotEmpty) imageUrl = fresh;
+    }
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -187,48 +170,15 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
 
                       // --- 1. Profile Image ---
                       Center(
-                        child: GestureDetector(
-                          onTap: _pickImage,
-                          child: Stack(
-                            children: [
-                              Container(
-                                width: 160,
-                                height: 160,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.grey.shade300,
-                                  border:
-                                      Border.all(color: Colors.white, width: 6),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.15),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 5),
-                                    ),
-                                  ],
-                                ),
-                                child: ClipOval(
-                                  child: _buildProfileImage(imageUrl),
-                                ),
-                              ),
-                              Positioned(
-                                bottom: 5,
-                                right: 5,
-                                child: Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: const BoxDecoration(
-                                    color: Colors.white,
-                                    shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                          color: Colors.black12, blurRadius: 4)
-                                    ],
-                                  ),
-                                  child: const Icon(Icons.camera_alt,
-                                      color: Colors.grey, size: 22),
-                                ),
-                              ),
-                            ],
+                        child: Container(
+                          width: 160,
+                          height: 160,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.grey.shade300,
+                          ),
+                          child: ClipOval(
+                            child: _buildProfileImage(imageUrl),
                           ),
                         ),
                       ),
@@ -304,12 +254,9 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
   }
 
   Widget _buildProfileImage(String imageUrl) {
-    if (_selectedImageBytes != null) {
-      return Image.memory(
-        _selectedImageBytes!,
-        fit: BoxFit.cover,
-        width: 160,
-        height: 160,
+    if (_isUploading) {
+      return const Center(
+        child: CircularProgressIndicator(color: Palette.sky),
       );
     }
 
@@ -319,13 +266,9 @@ class _ChildProfileScreenState extends State<ChildProfileScreen> {
         fit: BoxFit.cover,
         width: 160,
         height: 160,
-        errorBuilder: (context, error, stackTrace) {
-          return _buildDefaultProfileIcon();
-        },
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return Container(color: Colors.grey.shade300);
-        },
+        errorBuilder: (_, __, ___) => _buildDefaultProfileIcon(),
+        loadingBuilder: (_, child, progress) =>
+            progress == null ? child : Container(color: Colors.grey.shade300),
       );
     }
 

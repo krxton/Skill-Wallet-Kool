@@ -13,6 +13,7 @@ import '../../utils/youtube_helper.dart';
 
 import '../../theme/app_text_styles.dart';
 import '../../widgets/activity_card.dart';
+import '../../widgets/child_avatar.dart';
 import '../../widgets/draft_banner.dart';
 import '../../widgets/scrollable_activity_list.dart';
 import '../../widgets/main_bottom_nav.dart';
@@ -295,12 +296,11 @@ class _HomeScreenState extends State<HomeScreen> {
               final isSelected = id == userProvider.currentChildId;
               return ListTile(
                 contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                leading: CircleAvatar(
-                  backgroundColor: Palette.sky.withValues(alpha: 0.15),
-                  child: Text(
-                    name.isNotEmpty ? name[0].toUpperCase() : '?',
-                    style: AppTextStyles.heading(16, color: Palette.sky),
-                  ),
+                leading: ChildAvatar(
+                  photoUrl: child['photo_url'] as String?,
+                  name: name,
+                  radius: 20,
+                  fontSize: 16,
                 ),
                 title: Text(name, style: AppTextStyles.body(16)),
                 trailing: isSelected

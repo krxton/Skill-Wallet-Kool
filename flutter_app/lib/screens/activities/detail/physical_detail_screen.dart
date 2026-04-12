@@ -17,6 +17,7 @@ import '../../../theme/palette.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../utils/activity_l10n.dart';
 import '../../../widgets/sticky_bottom_button.dart';
+import '../../../widgets/child_avatar.dart';
 
 class PhysicalDetailScreen extends StatefulWidget {
   final Activity activity;
@@ -415,15 +416,12 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 child: Row(
                   children: [
-                    CircleAvatar(
+                    ChildAvatar(
+                      photoUrl: _getChildPhoto(
+                          context.read<UserProvider>().children, childId),
+                      name: childName,
                       radius: 16,
-                      backgroundColor: Palette.sky.withValues(alpha: 0.15),
-                      child: Text(
-                        childName.isNotEmpty
-                            ? childName[0].toUpperCase()
-                            : '?',
-                        style: AppTextStyles.heading(14, color: Palette.sky),
-                      ),
+                      fontSize: 14,
                     ),
                     const SizedBox(width: 10),
                     Expanded(
@@ -584,6 +582,16 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
       }
     }
     return '?';
+  }
+
+  String? _getChildPhoto(List<Map<String, dynamic>> children, String childId) {
+    for (final item in children) {
+      final child = item['child'] as Map<String, dynamic>?;
+      if (child != null && child['child_id']?.toString() == childId) {
+        return child['photo_url'] as String?;
+      }
+    }
+    return null;
   }
 
   // ----------------------------------------------------

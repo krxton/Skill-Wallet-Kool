@@ -222,11 +222,10 @@ class _ManageChildScreenState extends State<ManageChildScreen> {
                 child: Stack(
                   children: [
                     Container(
-                      width: 120,
-                      height: 120,
+                      width: 140,
+                      height: 140,
                       decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white, width: 4),
                           color: Colors.grey.shade300),
                       child: ClipOval(child: profileImageWidget),
                     ),
@@ -238,9 +237,9 @@ class _ManageChildScreenState extends State<ManageChildScreen> {
                         decoration: BoxDecoration(
                             color: Palette.yellow,
                             shape: BoxShape.circle,
-                            border: Border.all(color: Palette.cream, width: 2)),
+                            border: Border.all(color: Palette.cream, width: 3)),
                         child: const Icon(Icons.camera_alt,
-                            color: Colors.black87, size: 20),
+                            color: Colors.black87, size: 24),
                       ),
                     ),
                   ],

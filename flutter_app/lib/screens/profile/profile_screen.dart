@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
+import 'package:skill_wallet_kool/services/auth_service.dart';
 
 import '../../models/activity.dart';
 import '../../providers/user_provider.dart';
@@ -25,6 +27,7 @@ class ProfileScreenState extends State<ProfileScreen> {
   List<Activity> _myActivities = [];
   bool _loading = true;
   bool _isEditMode = false;
+  bool _uploading = false;
   UserProvider? _userProvider;
   String? _lastParentId;
 
@@ -64,6 +67,81 @@ class ProfileScreenState extends State<ProfileScreen> {
 
   /// Public method so HomeScreen can trigger a reload.
   void reloadActivities() => _loadActivities();
+
+  // ── Photo picker (parent) ──────────────────────────────
+
+  void _showPhotoOptions() {
+    final hasOAuthAvatar = AuthService().currentUser?.image != null;
+    final l = AppLocalizations.of(context)!;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Container(
+              width: 40, height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 8),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: Text(l.common_pickFromGallery),
+              onTap: () { Navigator.pop(ctx); _pickFromGallery(); },
+            ),
+            if (hasOAuthAvatar)
+              ListTile(
+                leading: const Icon(Icons.account_circle_outlined,
+                    color: Color(0xFF4285F4), size: 28),
+                title: Text(l.common_useGooglePhoto),
+                onTap: () { Navigator.pop(ctx); _useOAuthPhoto(); },
+              ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickFromGallery() async {
+    final picker = ImagePicker();
+    final XFile? picked =
+        await picker.pickImage(source: ImageSource.gallery, imageQuality: 80);
+    if (picked == null || !mounted) return;
+    setState(() => _uploading = true);
+    final bytes = await picked.readAsBytes();
+    if (!mounted) return;
+    final ok = await context.read<UserProvider>().uploadAndSetPhoto(bytes);
+    if (mounted) {
+      setState(() => _uploading = false);
+      if (!ok) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(AppLocalizations.of(context)!.common_uploadPhotoFailed),
+        ));
+      }
+    }
+  }
+
+  Future<void> _useOAuthPhoto() async {
+    setState(() => _uploading = true);
+    final ok =
+        await context.read<UserProvider>().setPhotoFromOAuth('oauth');
+    if (mounted) setState(() => _uploading = false);
+    if (mounted && !ok) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(
+            AppLocalizations.of(context)!.common_photoNotFound('Google')),
+      ));
+    }
+  }
 
   Future<void> _loadActivities() async {
     final parentId =
@@ -199,22 +277,46 @@ class ProfileScreenState extends State<ProfileScreen> {
                     child: Column(
                       children: [
                         GestureDetector(
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const SettingScreen(),
-                            ),
-                          ),
-                          child: CircleAvatar(
-                            radius: 80,
-                            backgroundColor: Colors.white,
-                            backgroundImage: photoUrl != null
-                                ? NetworkImage(photoUrl)
-                                : null,
-                            child: photoUrl == null
-                                ? const Icon(Icons.person,
-                                    size: 80, color: Colors.black87)
-                                : null,
+                          onTap: _showPhotoOptions,
+                          child: Stack(
+                            children: [
+                              Container(
+                                width: 160,
+                                height: 160,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.grey.shade300,
+                                  image: photoUrl != null && !_uploading
+                                      ? DecorationImage(
+                                          image: NetworkImage(photoUrl),
+                                          fit: BoxFit.cover,
+                                        )
+                                      : null,
+                                ),
+                                child: _uploading
+                                    ? const CircularProgressIndicator(
+                                        color: Palette.sky)
+                                    : photoUrl == null
+                                        ? const Icon(Icons.person,
+                                            size: 80, color: Colors.grey)
+                                        : null,
+                              ),
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Palette.yellow,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                        color: Palette.cream, width: 3),
+                                  ),
+                                  child: const Icon(Icons.camera_alt,
+                                      size: 24, color: Colors.black87),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         const SizedBox(height: 16),

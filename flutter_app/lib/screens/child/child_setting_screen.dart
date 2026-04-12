@@ -8,6 +8,7 @@ import 'add_child_screen.dart';
 import 'manage_child_screen.dart';
 import 'child_profile_screen.dart';
 import '../../providers/user_provider.dart';
+import '../../widgets/child_avatar.dart';
 
 class ChildSettingScreen extends StatefulWidget {
   const ChildSettingScreen({super.key});
@@ -283,22 +284,11 @@ class _ChildSettingScreenState extends State<ChildSettingScreen> {
                                     gradient: Palette.skyGradient,
                                   ),
                                 ),
-                              CircleAvatar(
+                              ChildAvatar(
+                                photoUrl: photoUrl,
+                                name: childName,
                                 radius: 32,
-                                backgroundColor:
-                                    Palette.sky.withValues(alpha: 0.10),
-                                backgroundImage: photoUrl.isNotEmpty
-                                    ? NetworkImage(photoUrl)
-                                    : null,
-                                child: photoUrl.isEmpty
-                                    ? Text(
-                                        childName.isNotEmpty
-                                            ? childName[0].toUpperCase()
-                                            : '?',
-                                        style: AppTextStyles.heading(26,
-                                            color: Palette.sky),
-                                      )
-                                    : null,
+                                fontSize: 26,
                               ),
                             ],
                           ),
