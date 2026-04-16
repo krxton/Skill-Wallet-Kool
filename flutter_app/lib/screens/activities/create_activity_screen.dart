@@ -43,7 +43,9 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
     _maxScoreCtrl.dispose();
     _videoUrlCtrl.dispose();
     for (final q in _questions) {
-      q.values.forEach((c) => c.dispose());
+      for (final c in q.values) {
+        c.dispose();
+      }
     }
     super.dispose();
   }
@@ -61,7 +63,9 @@ class _CreateActivityScreenState extends State<CreateActivityScreen> {
 
   void _removeQuestion(int index) {
     final removed = _questions.removeAt(index);
-    removed.values.forEach((c) => c.dispose());
+    for (final c in removed.values) {
+      c.dispose();
+    }
     setState(() {});
   }
 

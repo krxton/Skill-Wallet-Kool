@@ -212,7 +212,9 @@ class _ItemIntroScreenState extends State<ItemIntroScreen>
     final draft = await DraftService.loadDraft(_childId!);
     if (draft == null ||
         draft['type'] != DraftService.typeLanguage ||
-        draft['activityId'] != widget.activity.id) return;
+        draft['activityId'] != widget.activity.id) {
+      return;
+    }
     final data = draft['data'] as Map<String, dynamic>? ?? {};
     if (!mounted) return;
     final savedCurrent = data['current'] as int? ?? 1;

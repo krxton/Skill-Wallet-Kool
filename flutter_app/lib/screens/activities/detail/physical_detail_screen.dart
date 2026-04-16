@@ -80,7 +80,9 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
     final draft = await DraftService.loadDraft(childId);
     if (draft == null ||
         draft['type'] != DraftService.typePhysical ||
-        draft['activityId'] != widget.activity.id) return;
+        draft['activityId'] != widget.activity.id) {
+      return;
+    }
     final data = draft['data'] as Map<String, dynamic>? ?? {};
     if (!mounted) return;
     // Restore accumulated seconds first

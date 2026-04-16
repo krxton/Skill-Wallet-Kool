@@ -195,7 +195,9 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
     final draft = await DraftService.loadDraft(childId);
     if (draft == null ||
         draft['type'] != DraftService.typeCalculate ||
-        draft['activityId'] != widget.activity.id) return;
+        draft['activityId'] != widget.activity.id) {
+      return;
+    }
     final data = draft['data'] as Map<String, dynamic>? ?? {};
     if (!mounted) return;
     final savedStart = data['startTime'] as String?;

@@ -339,7 +339,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       // webClientId must match GOOGLE_CLIENT_ID in backend .env
       const webClientId =
           '765972336394-nbcvpu9r7niacp5t9ce1ad8j23l80hha.apps.googleusercontent.com';
-      const iosClientId = '';
+      const iosClientId =
+          '765972336394-sbuakvc3n35ttq4milr37ddqeafhrjkh.apps.googleusercontent.com';
 
       final scopes = ['email', 'profile'];
       final googleSignIn = GoogleSignIn.instance;
@@ -350,10 +351,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
       );
 
       final googleUser = await googleSignIn.authenticate();
-      if (googleUser == null) {
-        setState(() => _isLoading = false);
-        return;
-      }
 
       final String? fullName = googleUser.displayName;
 

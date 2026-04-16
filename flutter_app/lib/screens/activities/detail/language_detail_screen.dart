@@ -44,6 +44,7 @@ class _LanguageDetailScreenState extends State<LanguageDetailScreen> {
         params: const YoutubePlayerParams(
           showControls: true,
           showFullscreenButton: true,
+          origin: 'https://www.youtube-nocookie.com',
         ),
       );
     }
@@ -70,17 +71,13 @@ class _LanguageDetailScreenState extends State<LanguageDetailScreen> {
   Widget build(BuildContext context) {
     final String name = widget.activity.name;
 
-    if (_ytController != null) {
-      return YoutubePlayerScaffold(
-        controller: _ytController!,
-        aspectRatio: 16 / 9,
-        builder: (context, player) {
-          return _buildScaffold(context, name, videoWidget: player);
-        },
-      );
-    }
-
-    return _buildScaffold(context, name, videoWidget: null);
+    return _buildScaffold(
+      context,
+      name,
+      videoWidget: _ytController != null
+          ? YoutubePlayer(controller: _ytController!)
+          : null,
+    );
   }
 
   Widget _buildScaffold(

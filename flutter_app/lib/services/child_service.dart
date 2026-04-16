@@ -179,7 +179,7 @@ class ChildService {
         'cost': cost,
       });
 
-      if (result != null && result['id'] != null) {
+      if (result['id'] != null) {
         return {
           'id': result['id'],
           'name_medals': name,

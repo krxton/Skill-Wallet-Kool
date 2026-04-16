@@ -516,24 +516,21 @@ class _HomeScreenState extends State<HomeScreen> {
         activity.tiktokHtmlContent != null &&
         activity.thumbnailUrl != null;
 
-    final bool hasYouTubeVideo =
-        (category == 'ด้านภาษา' || category == 'LANGUAGE') &&
-            activity.videoUrl != null &&
-            activity.videoUrl!.contains('youtube');
-
     String? youtubeThumbnailUrl;
-    if (hasYouTubeVideo) {
+    if ((category == 'ด้านภาษา' || category == 'LANGUAGE') &&
+        activity.videoUrl != null) {
       final videoId = YouTubeHelper.extractVideoId(activity.videoUrl!);
       if (videoId != null) {
         youtubeThumbnailUrl =
             'https://img.youtube.com/vi/$videoId/hqdefault.jpg';
       }
     }
+    final bool hasYouTubeVideo = youtubeThumbnailUrl != null;
 
     String? thumbnailUrl;
     if (hasTikTokOEmbedData) {
       thumbnailUrl = activity.thumbnailUrl;
-    } else if (hasYouTubeVideo && youtubeThumbnailUrl != null) {
+    } else if (hasYouTubeVideo) {
       thumbnailUrl = youtubeThumbnailUrl;
     }
 

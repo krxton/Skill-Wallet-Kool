@@ -119,9 +119,12 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                               () => _obscurePassword = !_obscurePassword),
                         ),
                         validator: (v) {
-                          if (v == null || v.isEmpty)
+                          if (v == null || v.isEmpty) {
                             return l10n.email_enterPassword;
-                          if (v.length < 6) return l10n.email_passwordTooShort;
+                          }
+                          if (v.length < 6) {
+                            return l10n.email_passwordTooShort;
+                          }
                           return null;
                         },
                       ),
@@ -146,10 +149,12 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
                                     !_obscureConfirmPassword),
                           ),
                           validator: (v) {
-                            if (v == null || v.isEmpty)
+                            if (v == null || v.isEmpty) {
                               return l10n.email_enterPassword;
-                            if (v != _passwordController.text)
+                            }
+                            if (v != _passwordController.text) {
                               return l10n.email_passwordsDoNotMatch;
+                            }
                             return null;
                           },
                         ),
