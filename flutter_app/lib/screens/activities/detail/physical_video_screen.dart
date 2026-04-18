@@ -1,6 +1,7 @@
 // lib/screens/activities/detail/physical_video_screen.dart
 
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -46,8 +47,8 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
 
   @override
   void dispose() {
-    // Stop TikTok audio so it doesn't conflict with microphone on other screens
-    _webController?.pauseAllMediaPlayback();
+    // pauseAllMediaPlayback is iOS-only
+    if (Platform.isIOS) _webController?.pauseAllMediaPlayback();
     super.dispose();
   }
 
@@ -512,8 +513,8 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
                     Expanded(
                       child: GestureDetector(
                         onTap: () async {
-                          // Stop TikTok audio before entering activity screen
-                          await _webController?.pauseAllMediaPlayback();
+                          // pauseAllMediaPlayback is iOS-only
+                          if (Platform.isIOS) await _webController?.pauseAllMediaPlayback();
                           if (!context.mounted) return;
                           Navigator.pushNamed(
                             context,
