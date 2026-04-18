@@ -341,14 +341,13 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
                                     (controller, navigationAction) async {
                                   final url =
                                       navigationAction.request.url.toString();
-                                  final isMainFrame =
-                                      navigationAction.isForMainFrame;
 
+                                    // Explicit allow-list — everything else is cancelled
+                                  // (covers both iOS WKWebView iframe and Android WebView)
                                   final allowedPatterns = [
-                                    'about:blank',
                                     'tiktok.com/embed',
-                                    'embed.js',
                                     'embed.tiktok.com',
+                                    'embed.js',
                                     'lf16-tiktok',
                                     'musical.ly',
                                     'byteoversea',
@@ -362,20 +361,12 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
                                     }
                                   }
 
-                                  if (isMainFrame &&
-                                      !url.startsWith('data:') &&
-                                      !url.startsWith('about:')) {
-                                    return NavigationActionPolicy.CANCEL;
+                                  if (url.startsWith('data:') ||
+                                      url.startsWith('about:')) {
+                                    return NavigationActionPolicy.ALLOW;
                                   }
 
-                                  if (url.contains('tiktok.com/@') ||
-                                      url.contains('tiktok.com/video') ||
-                                      url.contains('vm.tiktok.com') ||
-                                      url.contains('tiktok.com/music')) {
-                                    return NavigationActionPolicy.CANCEL;
-                                  }
-
-                                  return NavigationActionPolicy.ALLOW;
+                                  return NavigationActionPolicy.CANCEL;
                                 },
                                 onCreateWindow:
                                     (controller, createWindowAction) async {
