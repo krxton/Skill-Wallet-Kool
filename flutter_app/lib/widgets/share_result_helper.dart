@@ -104,25 +104,24 @@ class _ShareBottomSheetState extends State<_ShareBottomSheet> {
     return '$emoji ${l.share_textTemplate(d.activityName, d.score, d.maxScore)}';
   }
 
-  Future<void> _shareAsImage() async {
+  Future<void> _share() async {
     if (_isSharing) return;
     setState(() => _isSharing = true);
 
     try {
       final d = widget.data;
       final origin = _getSharePositionOrigin();
+      final text = _buildShareText();
 
       if (d.hasEvidenceImage) {
-        // Share actual evidence image file only (no text)
         if (!mounted) return;
         Navigator.pop(context);
-
         await Share.shareXFiles(
           [XFile(d.evidenceImagePath!)],
+          text: text,
           sharePositionOrigin: origin,
         );
       } else {
-        // Fallback: screenshot the preview card (no text)
         final boundary = _cardKey.currentContext?.findRenderObject()
             as RenderRepaintBoundary?;
         if (boundary == null) return;
@@ -138,31 +137,12 @@ class _ShareBottomSheetState extends State<_ShareBottomSheet> {
 
         await Share.shareXFiles(
           [XFile.fromData(pngBytes, mimeType: 'image/png', name: 'result.png')],
+          text: text,
           sharePositionOrigin: origin,
         );
       }
     } catch (e) {
-      debugPrint('Share image error: $e');
-    } finally {
-      if (mounted) setState(() => _isSharing = false);
-    }
-  }
-
-  Future<void> _shareAsText() async {
-    if (_isSharing) return;
-    setState(() => _isSharing = true);
-
-    try {
-      final origin = _getSharePositionOrigin();
-      if (!mounted) return;
-      Navigator.pop(context);
-
-      await Share.share(
-        _buildShareText(),
-        sharePositionOrigin: origin,
-      );
-    } catch (e) {
-      debugPrint('Share text error: $e');
+      debugPrint('Share error: $e');
     } finally {
       if (mounted) setState(() => _isSharing = false);
     }
@@ -319,29 +299,13 @@ class _ShareBottomSheetState extends State<_ShareBottomSheet> {
             ),
           const SizedBox(height: 20),
 
-          // Share options
-          Row(
-            children: [
-              Expanded(
-                child: _ShareOptionButton(
-                  icon: Icons.image_outlined,
-                  label: l.share_asImage,
-                  color: Palette.sky,
-                  onTap: _shareAsImage,
-                  isLoading: _isSharing,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _ShareOptionButton(
-                  icon: Icons.text_snippet_outlined,
-                  label: l.share_asText,
-                  color: Palette.success,
-                  onTap: _shareAsText,
-                  isLoading: _isSharing,
-                ),
-              ),
-            ],
+          // Share button
+          _ShareOptionButton(
+            icon: Icons.share_rounded,
+            label: l.share_title,
+            color: Palette.sky,
+            onTap: _share,
+            isLoading: _isSharing,
           ),
         ],
       ),
