@@ -325,7 +325,10 @@ class _LanguageDetailScreenState extends State<LanguageDetailScreen> {
             ),
           ),
           StickyBottomButton(
-            onPressed: () {
+            onPressed: () async {
+              // Pause YouTube before leaving so audio doesn't bleed into gameplay
+              await _ytController?.pauseVideo();
+              if (!context.mounted) return;
               Navigator.pushNamed(
                 context,
                 AppRoutes.itemIntro,

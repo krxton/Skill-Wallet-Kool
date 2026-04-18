@@ -44,6 +44,13 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
     }
   }
 
+  @override
+  void dispose() {
+    // Stop TikTok audio so it doesn't conflict with microphone on other screens
+    _webController?.pauseAllMediaPlayback();
+    super.dispose();
+  }
+
   Future<void> _fetchTikTokThumbnail(String videoUrl) async {
     try {
       final uri = Uri.parse(
@@ -513,14 +520,19 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
                     // START
                     Expanded(
                       child: GestureDetector(
-                        onTap: () => Navigator.pushNamed(
-                          context,
-                          AppRoutes.physicalActivity,
-                          arguments: {
-                            'activity': activity,
-                            'extraChildIds': _extraChildIds,
-                          },
-                        ),
+                        onTap: () async {
+                          // Stop TikTok audio before entering activity screen
+                          await _webController?.pauseAllMediaPlayback();
+                          if (!context.mounted) return;
+                          Navigator.pushNamed(
+                            context,
+                            AppRoutes.physicalActivity,
+                            arguments: {
+                              'activity': activity,
+                              'extraChildIds': _extraChildIds,
+                            },
+                          );
+                        },
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 14),
                           decoration: BoxDecoration(
