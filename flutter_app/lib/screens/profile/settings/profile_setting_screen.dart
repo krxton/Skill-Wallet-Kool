@@ -118,10 +118,13 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
           backgroundColor: Colors.white,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: Text(
-            AppLocalizations.of(context)!.profileSet_deleteDialogTitle,
-            style: AppTextStyles.heading(24, color: Palette.pink),
-            textAlign: TextAlign.center,
+          title: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              AppLocalizations.of(context)!.profileSet_deleteDialogTitle,
+              style: AppTextStyles.heading(22, color: Palette.pink),
+              textAlign: TextAlign.center,
+            ),
           ),
           content: Text(
             AppLocalizations.of(context)!.profilesetting_areusureBtn,

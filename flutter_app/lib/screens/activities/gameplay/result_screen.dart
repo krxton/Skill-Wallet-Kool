@@ -62,13 +62,12 @@ class _ResultScreenState extends State<ResultScreen>
     String two(int n) => n.toString().padLeft(2, '0');
     final mm = two(time.inMinutes % 60), ss = two(time.inSeconds % 60);
 
-    // สี based on scoreEarned vs maxScore:
-    // เต็ม = เขียว, ≥ครึ่ง = เหลือง, <ครึ่ง = แดง
-    final Color scoreColor = scoreEarned >= maxScore
-        ? Palette.successAlt
-        : scoreEarned >= (maxScore / 2)
-            ? Palette.warning
-            : Palette.pink;
+    final double pct = maxScore > 0
+        ? (scoreEarned / maxScore).clamp(0.0, 1.0)
+        : 0.0;
+    final Color scoreColor = pct <= 0.5
+        ? Color.lerp(const Color(0xFFE53935), const Color(0xFFFDD835), pct * 2)!
+        : Color.lerp(const Color(0xFFFDD835), const Color(0xFF43A047), (pct - 0.5) * 2)!;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -119,7 +118,9 @@ class _ResultScreenState extends State<ResultScreen>
             Text(
               activityName.toUpperCase(),
               textAlign: TextAlign.center,
-              style: AppTextStyles.heading(22, color: Palette.deepGrey),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: AppTextStyles.heading(16, color: Palette.deepGrey),
             ),
             const SizedBox(height: 20),
 
@@ -140,9 +141,12 @@ class _ResultScreenState extends State<ResultScreen>
                       style: AppTextStyles.heading(18, color: Palette.deepGrey),
                     ),
                     const SizedBox(height: 10),
-                    Text(
-                      '$scoreEarned / $maxScore',
-                      style: AppTextStyles.heading(72, color: scoreColor),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        '$scoreEarned / $maxScore',
+                        style: AppTextStyles.heading(72, color: scoreColor),
+                      ),
                     ),
                     Text(
                       scoreEarned >= (maxScore / 2)

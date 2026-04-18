@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -50,6 +51,7 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
   // Evidence
   String? _videoPath;
   String? _imagePath;
+  Uint8List? _videoThumbnail;
   final TextEditingController _descriptionController = TextEditingController();
 
   // Segment Results
@@ -310,13 +312,19 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
       }
 
       if (pickedFile != null) {
-        setState(() {
-          if (isVideo) {
-            _videoPath = pickedFile!.path;
-          } else {
-            _imagePath = pickedFile!.path;
-          }
-        });
+        if (isVideo && !kIsWeb) {
+          final thumb = await VideoThumbnail.thumbnailData(
+            video: pickedFile.path,
+            imageFormat: ImageFormat.JPEG,
+            maxWidth: 400,
+            quality: 70,
+          );
+          if (mounted) setState(() { _videoPath = pickedFile!.path; _videoThumbnail = thumb; });
+        } else {
+          setState(() {
+            if (isVideo) { _videoPath = pickedFile!.path; } else { _imagePath = pickedFile!.path; }
+          });
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -1141,15 +1149,17 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                       ),
                     ],
                   )
-                : Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.add_photo_alternate,
-                          size: 40, color: Colors.grey),
-                      const SizedBox(height: 8),
-                      Text(AppLocalizations.of(context)!.common_addImage,
-                          style: AppTextStyles.body(12, color: Colors.grey)),
-                    ],
+                : Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.add_photo_alternate,
+                            size: 40, color: Colors.grey),
+                        const SizedBox(height: 8),
+                        Text(AppLocalizations.of(context)!.common_addImage,
+                            style: AppTextStyles.body(12, color: Colors.grey)),
+                      ],
+                    ),
                   ),
           ),
         ),
@@ -1180,19 +1190,41 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
             ),
             child: _videoPath != null
                 ? Stack(
+                    fit: StackFit.expand,
                     children: [
+                      if (_videoThumbnail != null)
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(18),
+                          child: Image.memory(
+                            _videoThumbnail!,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      else
+                        Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.videocam,
+                                  size: 50, color: Palette.success),
+                              const SizedBox(height: 8),
+                              Text(
+                                  AppLocalizations.of(context)!.common_videoAdded,
+                                  style: AppTextStyles.label(12,
+                                      color: Palette.success)),
+                            ],
+                          ),
+                        ),
                       Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.videocam,
-                                size: 50, color: Palette.success),
-                            const SizedBox(height: 8),
-                            Text(
-                                AppLocalizations.of(context)!.common_videoAdded,
-                                style: AppTextStyles.label(12,
-                                    color: Palette.success)),
-                          ],
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.45),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.play_arrow_rounded,
+                              color: Colors.white, size: 26),
                         ),
                       ),
                       Positioned(
@@ -1204,7 +1236,10 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                           child: IconButton(
                             icon: const Icon(Icons.close,
                                 color: Colors.white, size: 16),
-                            onPressed: () => setState(() => _videoPath = null),
+                            onPressed: () => setState(() {
+                              _videoPath = null;
+                              _videoThumbnail = null;
+                            }),
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(
                                 minWidth: 28, minHeight: 28),
@@ -1213,15 +1248,17 @@ class _CalculateActivityScreenState extends State<CalculateActivityScreen> {
                       ),
                     ],
                   )
-                : Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.add_circle_outline,
-                          size: 40, color: Colors.grey),
-                      const SizedBox(height: 8),
-                      Text(AppLocalizations.of(context)!.common_addVideo,
-                          style: AppTextStyles.body(12, color: Colors.grey)),
-                    ],
+                : Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.add_circle_outline,
+                            size: 40, color: Colors.grey),
+                        const SizedBox(height: 8),
+                        Text(AppLocalizations.of(context)!.common_addVideo,
+                            style: AppTextStyles.body(12, color: Colors.grey)),
+                      ],
+                    ),
                   ),
           ),
         ),

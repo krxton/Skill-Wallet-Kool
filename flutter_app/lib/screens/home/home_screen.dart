@@ -262,13 +262,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
     showModalBottomSheet(
       context: context,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (ctx) => Container(
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -342,6 +343,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     showModalBottomSheet(
       context: context,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (context) => StatefulBuilder(
@@ -521,8 +523,7 @@ class _HomeScreenState extends State<HomeScreen> {
         activity.videoUrl != null) {
       final videoId = YouTubeHelper.extractVideoId(activity.videoUrl!);
       if (videoId != null) {
-        youtubeThumbnailUrl =
-            'https://img.youtube.com/vi/$videoId/hqdefault.jpg';
+        youtubeThumbnailUrl = YouTubeHelper.thumbnailUrl(videoId);
       }
     }
     final bool hasYouTubeVideo = youtubeThumbnailUrl != null;

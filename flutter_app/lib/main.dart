@@ -124,9 +124,14 @@ class _SWKAppState extends State<SWKApp> {
       supportedLocales: AppLocalizations.supportedLocales,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
-      builder: (context, child) => Container(
-        decoration: BoxDecoration(gradient: Palette.appBackground),
-        child: child!,
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(
+          textScaler: TextScaler.noScaling,
+        ),
+        child: Container(
+          decoration: BoxDecoration(gradient: Palette.appBackground),
+          child: child!,
+        ),
       ),
       home: const AuthWrapper(),
       routes: appRoutes,

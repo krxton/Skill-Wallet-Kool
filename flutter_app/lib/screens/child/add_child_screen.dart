@@ -70,17 +70,17 @@ class _AddChildScreenState extends State<AddChildScreen> {
     final options = _relationOptions(l10n);
     await showModalBottomSheet<void>(
       context: context,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) => SafeArea(
-        child: Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: Column(
+      builder: (ctx) => Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 12),
@@ -122,7 +122,6 @@ class _AddChildScreenState extends State<AddChildScreen> {
             ],
           ),
         ),
-      ),
     );
   }
 

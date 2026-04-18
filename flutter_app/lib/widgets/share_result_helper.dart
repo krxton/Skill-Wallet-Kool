@@ -46,6 +46,7 @@ Future<void> showShareBottomSheet(
   final l = AppLocalizations.of(context)!;
   showModalBottomSheet(
     context: context,
+    useSafeArea: true,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
     ),
@@ -171,7 +172,10 @@ class _ShareBottomSheetState extends State<_ShareBottomSheet> {
   Widget build(BuildContext context) {
     final l = widget.l;
     final d = widget.data;
-    final scoreColor = d.isPassed ? Palette.successAlt : Palette.pink;
+    final pct = d.maxScore > 0 ? (d.score / d.maxScore).clamp(0.0, 1.0) : 0.0;
+    final scoreColor = pct <= 0.5
+        ? Color.lerp(const Color(0xFFE53935), const Color(0xFFFDD835), pct * 2)!
+        : Color.lerp(const Color(0xFFFDD835), const Color(0xFF43A047), (pct - 0.5) * 2)!;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),

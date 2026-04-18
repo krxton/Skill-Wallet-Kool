@@ -42,6 +42,7 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
 
     showModalBottomSheet(
       context: context,
+      useSafeArea: true,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (ctx) => StatefulBuilder(
@@ -50,7 +51,7 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
             color: Palette.cream,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+          padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,

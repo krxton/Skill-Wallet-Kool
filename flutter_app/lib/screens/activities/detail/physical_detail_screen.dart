@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 
 import '../../../models/activity.dart';
 import '../../../providers/user_provider.dart';
@@ -41,6 +42,7 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
 
   String? _videoPath;
   String? _imagePath;
+  Uint8List? _videoThumbnail;
 
   // ⏱️ เปลี่ยนจาก Timer เป็น Stopwatch (แม่นยำกว่า)
   Timer? _uiUpdateTimer; // Timer สำหรับอัพเดท UI เท่านั้น
@@ -202,13 +204,19 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
       if (pickedFile != null) {
         final String path = pickedFile.path;
 
-        setState(() {
-          if (isVideo) {
-            _videoPath = path;
-          } else {
-            _imagePath = path;
-          }
-        });
+        if (isVideo && !kIsWeb) {
+          final thumb = await VideoThumbnail.thumbnailData(
+            video: path,
+            imageFormat: ImageFormat.JPEG,
+            maxWidth: 400,
+            quality: 70,
+          );
+          if (mounted) setState(() { _videoPath = path; _videoThumbnail = thumb; });
+        } else {
+          setState(() {
+            if (isVideo) { _videoPath = path; } else { _imagePath = path; }
+          });
+        }
         debugPrint('📸 ${isVideo ? 'Video' : 'Image'} selected: $path');
       }
     } catch (e) {
@@ -394,11 +402,21 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
     );
   }
 
+  Color _scoreColor(double pct) {
+    final t = pct.clamp(0.0, 1.0);
+    if (t <= 0.5) {
+      return Color.lerp(const Color(0xFFE53935), const Color(0xFFFDD835), t * 2)!;
+    } else {
+      return Color.lerp(const Color(0xFFFDD835), const Color(0xFF43A047), (t - 0.5) * 2)!;
+    }
+  }
+
   Widget _buildChildScoreRow(String childId, String childName) {
     final score = _childScores[childId] ?? 0;
     final pct = widget.activity.maxScore > 0
         ? score / widget.activity.maxScore
         : 0.0;
+    final barColor = _scoreColor(pct);
     return Container(
       margin: const EdgeInsets.only(bottom: 2),
       decoration: BoxDecoration(
@@ -442,7 +460,7 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
                               backgroundColor:
                                   Colors.grey.withValues(alpha: 0.15),
                               valueColor: AlwaysStoppedAnimation<Color>(
-                                  Palette.sky),
+                                  barColor),
                               minHeight: 4,
                             ),
                           ),
@@ -475,12 +493,15 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
                       onTap: () =>
                           _showChildScoreDialog(childId, childName),
                       child: SizedBox(
-                        width: 56,
-                        child: Text(
-                          '$score/${widget.activity.maxScore}',
-                          style: AppTextStyles.heading(15,
-                              color: Palette.sky),
-                          textAlign: TextAlign.center,
+                        width: 44,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text(
+                            '$score',
+                            style: AppTextStyles.heading(18,
+                                color: barColor),
+                            textAlign: TextAlign.center,
+                          ),
                         ),
                       ),
                     ),
@@ -718,16 +739,19 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
                               size: 24,
                             ),
                             const SizedBox(width: 8),
-                            Text(
-                              _isPlaying
-                                  ? AppLocalizations.of(context)!
-                                      .physical_stopBtn
-                                  : AppLocalizations.of(context)!
-                                      .physical_startBtn,
-                              style: AppTextStyles.heading(20,
-                                  color: _isPlaying
-                                      ? Palette.sky
-                                      : Colors.white),
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                _isPlaying
+                                    ? AppLocalizations.of(context)!
+                                        .physical_stopBtn
+                                    : AppLocalizations.of(context)!
+                                        .physical_startBtn,
+                                style: AppTextStyles.heading(20,
+                                    color: _isPlaying
+                                        ? Palette.sky
+                                        : Colors.white),
+                              ),
                             ),
                           ],
                         ),
@@ -747,6 +771,22 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
                               .physical_medalsScoreLabel,
                           style:
                               AppTextStyles.heading(18, color: Palette.sky)),
+                      const Spacer(),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Palette.sky.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                              color: Palette.sky.withValues(alpha: 0.3)),
+                        ),
+                        child: Text(
+                          'Max: ${widget.activity.maxScore}',
+                          style:
+                              AppTextStyles.label(13, color: Palette.sky),
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 10),
@@ -863,20 +903,47 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
                             ),
                             clipBehavior: Clip.hardEdge,
                             child: _videoPath != null
-                                ? Stack(children: [
-                                    _mediaPlaceholder(
-                                        Icons.videocam_rounded,
-                                        AppLocalizations.of(context)!
-                                            .common_videoAdded,
-                                        true),
-                                    Positioned(
-                                      top: 4,
-                                      right: 4,
-                                      child: _removeBtn(
-                                          () => setState(
-                                              () => _videoPath = null)),
-                                    ),
-                                  ])
+                                ? Stack(
+                                    fit: StackFit.expand,
+                                    children: [
+                                      if (_videoThumbnail != null)
+                                        Image.memory(
+                                          _videoThumbnail!,
+                                          fit: BoxFit.cover,
+                                        )
+                                      else
+                                        Center(
+                                          child: _mediaPlaceholder(
+                                              Icons.videocam_rounded,
+                                              AppLocalizations.of(context)!
+                                                  .common_videoAdded,
+                                              true),
+                                        ),
+                                      // Play icon overlay
+                                      Center(
+                                        child: Container(
+                                          width: 40,
+                                          height: 40,
+                                          decoration: BoxDecoration(
+                                            color: Colors.black
+                                                .withValues(alpha: 0.45),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Icon(
+                                              Icons.play_arrow_rounded,
+                                              color: Colors.white,
+                                              size: 26),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: 4,
+                                        right: 4,
+                                        child: _removeBtn(() => setState(() {
+                                          _videoPath = null;
+                                          _videoThumbnail = null;
+                                        })),
+                                      ),
+                                    ])
                                 : _mediaPlaceholder(
                                     Icons.video_call_rounded,
                                     AppLocalizations.of(context)!
@@ -895,8 +962,12 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
           ),
           // 7. FINISH BUTTON (sticky bottom)
           StickyBottomButton(
-            onPressed:
-                isEvidenceAttached && !_isSubmitting ? _handleSubmit : null,
+            onPressed: isEvidenceAttached &&
+                    !_isSubmitting &&
+                    _elapsedSeconds > 0 &&
+                    !_isPlaying
+                ? _handleSubmit
+                : null,
             label: _isSubmitting
                 ? AppLocalizations.of(context)!.common_submitting
                 : AppLocalizations.of(context)!.common_finish,

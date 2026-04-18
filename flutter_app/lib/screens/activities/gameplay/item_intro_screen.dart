@@ -21,30 +21,8 @@ import '../../../theme/palette.dart';
 import '../../../theme/app_text_styles.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import '../../../utils/activity_l10n.dart';
+import '../../../utils/youtube_helper.dart';
 import 'activity_summary_screen.dart';
-
-/// Helper แยกเฉพาะไว้แปลง URL -> YouTube ID
-/// (ตั้งชื่อว่า YoutubeUrlHelper เพื่อไม่ให้ชนกับ widget YoutubePlayer ของ package)
-class YoutubeUrlHelper {
-  static String? convertUrlToId(String url, {bool trimWhitespaces = true}) {
-    if (!url.contains("http") && (url.length == 11)) return url;
-    if (trimWhitespaces) url = url.trim();
-    if (url.isEmpty) return null;
-    for (var exp in [
-      RegExp(
-          r"^https?\:\/\/(?:www\.|m\.)?youtube\.com\/watch\?.*v=([a-zA-Z0-9_\-]+).*$"),
-      RegExp(
-          r"^https?\:\/\/(?:www\.|m\.)?youtube\.com\/v\/([a-zA-Z0-9_\-]+).*$"),
-      RegExp(r"^https?\:\/\/(?:www\.|m\.)?youtu\.be\/([a-zA-Z0-9_\-]+).*$"),
-      RegExp(
-          r"^https?\:\/\/(?:www\.|m\.)?youtube\.com\/embed\/([a-zA-Z0-9_\-]+).*$"),
-    ]) {
-      Match? match = exp.firstMatch(url);
-      if (match != null && match.groupCount >= 1) return match.group(1);
-    }
-    return null;
-  }
-}
 
 class ItemIntroScreen extends StatefulWidget {
   final Activity activity;
@@ -150,7 +128,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen>
     // 3. กำหนด YouTube Video ID
     if (widget.activity.videoUrl != null) {
       _youtubeVideoId =
-          YoutubeUrlHelper.convertUrlToId(widget.activity.videoUrl!) ?? '';
+          YouTubeHelper.extractVideoId(widget.activity.videoUrl!) ?? '';
     }
 
     // 4. สร้าง YouTube controller ถ้ามี videoId
