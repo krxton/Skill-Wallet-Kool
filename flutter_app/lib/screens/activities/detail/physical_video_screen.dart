@@ -1,7 +1,10 @@
 // lib/screens/activities/detail/physical_video_screen.dart
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
 import '../../../l10n/app_localizations.dart';
@@ -30,6 +33,44 @@ class PhysicalVideoScreen extends StatefulWidget {
 class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
   bool _howToPlayExpanded = false;
   List<String> _extraChildIds = [];
+  InAppWebViewController? _webController;
+
+  @override
+  void initState() {
+    super.initState();
+    final videoUrl = widget.activity.videoUrl;
+    if (videoUrl != null && videoUrl.isNotEmpty) {
+      _fetchTikTokThumbnail(videoUrl);
+    }
+  }
+
+  Future<void> _fetchTikTokThumbnail(String videoUrl) async {
+    try {
+      final uri = Uri.parse(
+        'https://www.tiktok.com/oembed?url=${Uri.encodeComponent(videoUrl)}',
+      );
+      final response = await http.get(uri).timeout(const Duration(seconds: 8));
+      if (response.statusCode == 200 && mounted) {
+        final data = json.decode(response.body) as Map<String, dynamic>;
+        final thumb = data['thumbnail_url'] as String?;
+        if (thumb != null) {
+          // Inject thumbnail into the already-loaded InAppWebView
+          _webController?.evaluateJavascript(source: '''
+            (function() {
+              var cover = document.getElementById('cover-overlay');
+              if (!cover) return;
+              var img = new Image();
+              img.onload = function() {
+                cover.style.backgroundImage = 'url("$thumb")';
+                cover.dataset.ready = '1';
+              };
+              img.src = '$thumb';
+            })();
+          ''');
+        }
+      }
+    } catch (_) {}
+  }
 
   void _showChildPicker() {
     final userProvider = context.read<UserProvider>();
@@ -266,6 +307,7 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
                         color: Colors.black,
                         child: htmlContent.isNotEmpty
                             ? InAppWebView(
+                                onWebViewCreated: (c) => _webController = c,
                                 initialData: InAppWebViewInitialData(
                                   data: buildResponsiveTikTokHtml(htmlContent),
                                   mimeType: 'text/html',
@@ -297,6 +339,7 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
 
                                   final allowedPatterns = [
                                     'about:blank',
+                                    'tiktok.com/embed',
                                     'embed.js',
                                     'embed.tiktok.com',
                                     'lf16-tiktok',
@@ -451,7 +494,6 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
           ),
           // Sticky bottom buttons
           Container(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
             decoration: BoxDecoration(
               color: Palette.cream,
               boxShadow: [
@@ -462,93 +504,111 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
                 ),
               ],
             ),
-            child: Row(
-              children: [
-                // START — pink gradient
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => Navigator.pushNamed(
-                      context,
-                      AppRoutes.physicalActivity,
-                      arguments: {
-                        'activity': activity,
-                        'extraChildIds': _extraChildIds,
-                      },
-                    ),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Palette.sky, Color(0xFF0DA8F4)],
+            child: SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                child: Row(
+                  children: [
+                    // START
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => Navigator.pushNamed(
+                          context,
+                          AppRoutes.physicalActivity,
+                          arguments: {
+                            'activity': activity,
+                            'extraChildIds': _extraChildIds,
+                          },
                         ),
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: Palette.buttonShadow,
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.play_arrow_rounded,
-                              color: Colors.white, size: 22),
-                          const SizedBox(width: 6),
-                          Text(AppLocalizations.of(context)!.common_start,
-                              style: AppTextStyles.heading(18,
-                                  color: Colors.white)),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                // ADD CHILD — outlined or filled
-                Expanded(
-                  child: GestureDetector(
-                    onTap: _showChildPicker,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      decoration: BoxDecoration(
-                        color: _extraChildIds.isEmpty
-                            ? Colors.white
-                            : Palette.sky.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: _extraChildIds.isEmpty
-                              ? Colors.grey.shade300
-                              : Palette.sky,
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            _extraChildIds.isEmpty
-                                ? Icons.group_add_outlined
-                                : Icons.group_rounded,
-                            color: _extraChildIds.isEmpty
-                                ? Colors.grey
-                                : Palette.sky,
-                            size: 20,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Palette.sky, Color(0xFF0DA8F4)],
+                            ),
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: Palette.buttonShadow,
                           ),
-                          const SizedBox(width: 6),
-                          Text(
-                            _extraChildIds.isEmpty
-                                ? AppLocalizations.of(context)!
-                                    .videodetail_addBtn
-                                : AppLocalizations.of(context)!
-                                    .physical_childrenAdded(
-                                        _extraChildIds.length),
-                            style: AppTextStyles.heading(16,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.play_arrow_rounded,
+                                  color: Colors.white, size: 22),
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    AppLocalizations.of(context)!.common_start,
+                                    style: AppTextStyles.heading(18,
+                                        color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    // ADD CHILD
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: _showChildPicker,
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          decoration: BoxDecoration(
+                            color: _extraChildIds.isEmpty
+                                ? Colors.white
+                                : Palette.sky.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: _extraChildIds.isEmpty
+                                  ? Colors.grey.shade300
+                                  : Palette.sky,
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                _extraChildIds.isEmpty
+                                    ? Icons.group_add_outlined
+                                    : Icons.group_rounded,
                                 color: _extraChildIds.isEmpty
                                     ? Colors.grey
-                                    : Palette.sky),
+                                    : Palette.sky,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 6),
+                              Flexible(
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    _extraChildIds.isEmpty
+                                        ? AppLocalizations.of(context)!
+                                            .videodetail_addBtn
+                                        : AppLocalizations.of(context)!
+                                            .physical_childrenAdded(
+                                                _extraChildIds.length),
+                                    style: AppTextStyles.heading(16,
+                                        color: _extraChildIds.isEmpty
+                                            ? Colors.grey
+                                            : Palette.sky),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ],
@@ -643,26 +703,57 @@ String buildResponsiveTikTokHtml(String rawHtml) {
   blockquote.tiktok-embed section { display: none !important; }
   iframe { width:100%!important; height:100%!important; border:none!important; display:block!important; }
   a, aside { display: none !important; }
-  .top-blocker { position:absolute; top:0; left:0; right:0; height:40%; background:linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, transparent 100%); z-index:100; pointer-events:auto; }
-  .right-blocker { position:absolute; top:10%; right:0; width:20%; height:75%; z-index:100; pointer-events:auto; }
-  .bottom-center-blocker { position:absolute; bottom:0; left:100%; right:0; height:30%; background:linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 60%, transparent 100%); z-index:100; pointer-events:auto; }
-  .replay-area { position:absolute; bottom:0; left:0; width:15%; height:25%; z-index:99; pointer-events:none; }
+  .top-blocker { position:absolute; top:0; left:0; right:0; height:40%; background:linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, transparent 100%); z-index:100; pointer-events:none; }
+  .right-blocker { position:absolute; top:10%; right:0; width:20%; height:75%; z-index:100; pointer-events:none; }
+  .bottom-center-blocker { position:absolute; bottom:0; left:0; right:0; height:30%; background:linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 60%, transparent 100%); z-index:100; pointer-events:none; }
+
+  /* Cover overlay — shows thumbnail when paused/ended, pointer-events:none so
+     touches still reach TikTok's own play button at bottom-left of the iframe */
+  #cover-overlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 200;
+    background: black center/cover no-repeat;
+    pointer-events: none;
+  }
 </style>
 <script>
-  document.addEventListener('click', function(e) { const t=e.target; if(t.tagName==='A'||t.closest('a')){e.preventDefault();e.stopPropagation();return false;} }, true);
-  document.addEventListener('touchstart', function(e) { const t=e.target; if(t.tagName==='A'||t.closest('a')){e.preventDefault();e.stopPropagation();return false;} }, true);
-  function adjustEmbed(){const f=document.querySelector('iframe');if(f)f.style.cssText='width:100%!important;height:100%!important;border:none!important;';document.querySelectorAll('section').forEach(s=>s.style.display='none');}
-  const observer=new MutationObserver(adjustEmbed);observer.observe(document.body,{childList:true,subtree:true});
+  document.addEventListener('click', function(e){var t=e.target;if(t.tagName==='A'||t.closest('a')){e.preventDefault();e.stopPropagation();return false;}},true);
+  document.addEventListener('touchstart', function(e){var t=e.target;if(t.tagName==='A'||t.closest('a')){e.preventDefault();e.stopPropagation();return false;}},true);
+  function adjustEmbed(){var f=document.querySelector('iframe');if(f)f.style.cssText='width:100%!important;height:100%!important;border:none!important;';document.querySelectorAll('section').forEach(function(s){s.style.display='none';});}
+  new MutationObserver(adjustEmbed).observe(document.body,{childList:true,subtree:true});
   setInterval(adjustEmbed,300);
+
+  function showCover() { document.getElementById('cover-overlay').style.display = 'block'; }
+  function hideCover() { document.getElementById('cover-overlay').style.display = 'none'; }
+
+  /* Listen for TikTok embed postMessage state events */
+  window.addEventListener('message', function(evt) {
+    try {
+      var d = evt.data;
+      if (typeof d === 'string') d = JSON.parse(d);
+      if (!d || !d.type) return;
+      if (d.type === 'onStateChange') {
+        var s = d.data !== undefined ? d.data : d.value;
+        if (s === 'playing' || s === 1 || s === 'play') { hideCover(); }
+        else if (s === 'paused' || s === 2 || s === 'pause' ||
+                 s === 'ended'  || s === 0 || s === 'end') { showCover(); }
+      }
+    } catch(ex) {}
+  });
 </script>
 </head>
 <body>
 <div class="video-container">
   <div class="tiktok-content">$rawHtml</div>
+
+  <!-- Cover overlay: shows thumbnail when paused/ended; pointer-events:none keeps TikTok play button accessible -->
+  <div id="cover-overlay"></div>
+
   <div class="top-blocker"></div>
   <div class="right-blocker"></div>
   <div class="bottom-center-blocker"></div>
-  <div class="replay-area"></div>
 </div>
 </body>
 </html>
