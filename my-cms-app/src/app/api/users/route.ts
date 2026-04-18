@@ -29,8 +29,8 @@ export async function GET(request: Request) {
       fullName: u.name,
       email: u.email,
       role: 'admin' as const,
-      status: 'Active',
-      verification: 'Verified',
+      // status: 'Active',       // TODO: not yet implemented — hardcoded mock
+      // verification: 'Verified', // TODO: not yet implemented — hardcoded mock
       photoUrl: u.image ?? undefined,
       createdAt: u.createdAt.toISOString(),
       childrenCount: 0,

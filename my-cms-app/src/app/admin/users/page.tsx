@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
-import { Search, MoreVertical, Eye, UserCheck, UserX, ShieldCheck, Shield, Trash2 } from 'lucide-react';
+import { Search, MoreVertical, Eye, ShieldCheck, Shield, Trash2 } from 'lucide-react';
 import UserProfile from '@/components/UserProfile';
 import Pagination from '@/components/admin/Pagination';
 import ConfirmModal from '@/components/admin/ConfirmModal';
@@ -13,8 +13,8 @@ interface User {
   fullName: string;
   email: string;
   role: string;
-  status: string;
-  verification: string;
+  // status: string;       // TODO: not yet implemented — hardcoded mock
+  // verification: string; // TODO: not yet implemented — hardcoded mock
   photoUrl?: string;
   createdAt: string;
   childrenCount: number;
@@ -97,17 +97,18 @@ export default function UsersPage() {
 
   // --- Badge helpers ---
 
-  const getStatusBadge = (status: string) => {
-    const isActive = status === 'Active';
-    return (
-      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full body-xs-medium ${
-        isActive ? 'bg-green--light6 text-green--dark' : 'bg-red--light6 text-red--dark'
-      }`}>
-        {isActive ? <UserCheck size={12} /> : <UserX size={12} />}
-        {status}
-      </span>
-    );
-  };
+  // TODO: Status/Verification badges — not yet implemented (hardcoded mock data)
+  // const getStatusBadge = (status: string) => {
+  //   const isActive = status === 'Active';
+  //   return (
+  //     <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full body-xs-medium ${
+  //       isActive ? 'bg-green--light6 text-green--dark' : 'bg-red--light6 text-red--dark'
+  //     }`}>
+  //       {isActive ? <UserCheck size={12} /> : <UserX size={12} />}
+  //       {status}
+  //     </span>
+  //   );
+  // };
 
   const getRoleBadge = (role: string) => {
     const isAdmin = role === 'admin';
@@ -121,16 +122,16 @@ export default function UsersPage() {
     );
   };
 
-  const getVerificationBadge = (verification: string) => {
-    const isVerified = verification === 'Verified';
-    return (
-      <span className={`inline-flex items-center px-2 py-1 rounded-full body-xs-medium ${
-        isVerified ? 'bg-cyan--light3 text-purple--dark' : 'bg-yellow--light3 text-dark'
-      }`}>
-        {verification}
-      </span>
-    );
-  };
+  // const getVerificationBadge = (verification: string) => {
+  //   const isVerified = verification === 'Verified';
+  //   return (
+  //     <span className={`inline-flex items-center px-2 py-1 rounded-full body-xs-medium ${
+  //       isVerified ? 'bg-cyan--light3 text-purple--dark' : 'bg-yellow--light3 text-dark'
+  //     }`}>
+  //       {verification}
+  //     </span>
+  //   );
+  // };
 
   if (loading && users.length === 0) {
     return (
@@ -186,8 +187,8 @@ export default function UsersPage() {
                 <th className="px-4 py-3 text-left body-small-medium text-secondary--text">Full Name</th>
                 <th className="px-4 py-3 text-left body-small-medium text-secondary--text">Email</th>
                 <th className="w-20 px-3 py-3 text-center body-small-medium text-secondary--text">Role</th>
-                <th className="w-20 px-3 py-3 text-center body-small-medium text-secondary--text">Status</th>
-                <th className="w-24 px-3 py-3 text-center body-small-medium text-secondary--text">Verification</th>
+                {/* <th className="w-20 px-3 py-3 text-center body-small-medium text-secondary--text">Status</th> */}
+                {/* <th className="w-24 px-3 py-3 text-center body-small-medium text-secondary--text">Verification</th> */}
                 <th className="w-16 px-3 py-3 text-center body-small-medium text-secondary--text">Children</th>
                 <th className="w-16 px-3 py-3 text-center body-small-medium text-secondary--text">Activities</th>
                 <th className="w-28 px-3 py-3 text-left body-small-medium text-secondary--text whitespace-nowrap">Date Created</th>
@@ -197,7 +198,7 @@ export default function UsersPage() {
             <tbody className="divide-y divide-gray4">
               {users.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-4 py-8 text-center body-medium-regular text-secondary--text">
+                  <td colSpan={8} className="px-4 py-8 text-center body-medium-regular text-secondary--text">
                     No users found
                   </td>
                 </tr>
@@ -229,8 +230,8 @@ export default function UsersPage() {
                       <span className="truncate block" title={user.email}>{user.email}</span>
                     </td>
                     <td className="px-3 py-3 text-center">{getRoleBadge(user.role)}</td>
-                    <td className="px-3 py-3 text-center">{getStatusBadge(user.status)}</td>
-                    <td className="px-3 py-3 text-center">{getVerificationBadge(user.verification)}</td>
+                    {/* <td className="px-3 py-3 text-center">{getStatusBadge(user.status)}</td> */}
+                    {/* <td className="px-3 py-3 text-center">{getVerificationBadge(user.verification)}</td> */}
                     <td className="px-3 py-3 body-medium-regular text-center">{user.childrenCount}</td>
                     <td className="px-3 py-3 body-medium-regular text-center">{user.activityRecordCount}</td>
                     <td className="px-3 py-3 body-medium-regular whitespace-nowrap">

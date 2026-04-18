@@ -189,17 +189,17 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
 
                       const SizedBox(height: 12),
 
-                      // Forgot password (login mode only)
-                      if (!isRegister)
-                        Center(
-                          child: TextButton(
-                            onPressed: _showForgotPasswordDialog,
-                            child: Text(
-                              l10n.email_forgotPassword,
-                              style: AppTextStyles.body(14, color: Palette.sky),
-                            ),
-                          ),
-                        ),
+                      // TODO: Forgot password — not yet implemented (requires email provider setup)
+                      // if (!isRegister)
+                      //   Center(
+                      //     child: TextButton(
+                      //       onPressed: _showForgotPasswordDialog,
+                      //       child: Text(
+                      //         l10n.email_forgotPassword,
+                      //         style: AppTextStyles.body(14, color: Palette.sky),
+                      //       ),
+                      //     ),
+                      //   ),
 
                       const SizedBox(height: 8),
 
@@ -451,64 +451,65 @@ class _EmailLoginScreenState extends State<EmailLoginScreen> {
     }
   }
 
-  Future<void> _showForgotPasswordDialog() async {
-    final l10n = AppLocalizations.of(context)!;
-    final emailController = TextEditingController(
-      text: _emailController.text.trim(),
-    );
-
-    await showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(l10n.email_forgotTitle,
-            style: AppTextStyles.body(18, weight: FontWeight.bold)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(l10n.email_forgotMsg, style: AppTextStyles.body(14)),
-            const SizedBox(height: 12),
-            TextField(
-              controller: emailController,
-              keyboardType: TextInputType.emailAddress,
-              style: AppTextStyles.body(15),
-              decoration: InputDecoration(
-                hintText: l10n.email_emailHint,
-                hintStyle: AppTextStyles.body(15, color: Colors.black38),
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text(l10n.common_cancel,
-                style: AppTextStyles.body(14, color: Colors.black54)),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Palette.sky),
-            onPressed: () async {
-              final email = emailController.text.trim();
-              if (email.isEmpty) return;
-              Navigator.pop(ctx);
-              try {
-                await AuthService().forgotPassword(email);
-                if (mounted) _showMessage(l10n.email_resetSent);
-              } catch (e) {
-                if (mounted) _showMessage(e.toString().replaceFirst('Exception: ', ''));
-              }
-            },
-            child: Text(l10n.email_sendReset,
-                style: AppTextStyles.body(14, color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-
-    emailController.dispose();
-  }
+  // TODO: Forgot password — not yet implemented (requires email provider setup e.g. Resend/Nodemailer)
+  // Future<void> _showForgotPasswordDialog() async {
+  //   final l10n = AppLocalizations.of(context)!;
+  //   final emailController = TextEditingController(
+  //     text: _emailController.text.trim(),
+  //   );
+  //
+  //   await showDialog<void>(
+  //     context: context,
+  //     builder: (ctx) => AlertDialog(
+  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+  //       title: Text(l10n.email_forgotTitle,
+  //           style: AppTextStyles.body(18, weight: FontWeight.bold)),
+  //       content: Column(
+  //         mainAxisSize: MainAxisSize.min,
+  //         children: [
+  //           Text(l10n.email_forgotMsg, style: AppTextStyles.body(14)),
+  //           const SizedBox(height: 12),
+  //           TextField(
+  //             controller: emailController,
+  //             keyboardType: TextInputType.emailAddress,
+  //             style: AppTextStyles.body(15),
+  //             decoration: InputDecoration(
+  //               hintText: l10n.email_emailHint,
+  //               hintStyle: AppTextStyles.body(15, color: Colors.black38),
+  //               border:
+  //                   OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //       actions: [
+  //         TextButton(
+  //           onPressed: () => Navigator.pop(ctx),
+  //           child: Text(l10n.common_cancel,
+  //               style: AppTextStyles.body(14, color: Colors.black54)),
+  //         ),
+  //         ElevatedButton(
+  //           style: ElevatedButton.styleFrom(backgroundColor: Palette.sky),
+  //           onPressed: () async {
+  //             final email = emailController.text.trim();
+  //             if (email.isEmpty) return;
+  //             Navigator.pop(ctx);
+  //             try {
+  //               await AuthService().forgotPassword(email);
+  //               if (mounted) _showMessage(l10n.email_resetSent);
+  //             } catch (e) {
+  //               if (mounted) _showMessage(e.toString().replaceFirst('Exception: ', ''));
+  //             }
+  //           },
+  //           child: Text(l10n.email_sendReset,
+  //               style: AppTextStyles.body(14, color: Colors.white)),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  //
+  //   emailController.dispose();
+  // }
 
   void _showMessage(String message) {
     if (!mounted) return;
