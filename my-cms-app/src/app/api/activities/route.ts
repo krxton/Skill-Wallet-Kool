@@ -101,6 +101,7 @@ export async function GET(request: Request) {
         update_at: true,
         parent_id: true,
         is_public: true,
+        _count: { select: { activity_record: true } },
       },
       orderBy: {
         [orderByField]: orderByDir
@@ -117,8 +118,8 @@ export async function GET(request: Request) {
           category: activity.category,
           descriptionActivity: activity.description_activity || '',
           createdAt: activity.created_at.toISOString(),
-          responses: 0,
-          
+          responses: activity._count.activity_record,
+
           // Format สำหรับ EditForm
           id: activity.activity_id,
           name: activity.name_activity,
@@ -144,7 +145,7 @@ export async function GET(request: Request) {
           category: activity.category,
           descriptionActivity: activity.description_activity || '',
           createdAt: activity.created_at.toISOString(),
-          responses: 0,
+          responses: activity._count?.activity_record ?? 0,
           id: activity.activity_id,
           name: activity.name_activity,
           difficulty: activity.level_activity,

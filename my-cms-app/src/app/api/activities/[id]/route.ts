@@ -34,7 +34,19 @@ export async function GET(
             name_surname: true,
             email: true,
           }
-        }
+        },
+        _count: { select: { activity_record: true } },
+        activity_record: {
+          take: 10,
+          orderBy: { created_at: 'desc' },
+          select: {
+            ActivityRecord_id: true,
+            point: true,
+            date: true,
+            created_at: true,
+            child: { select: { name_surname: true } },
+          },
+        },
       }
     });
 
@@ -67,13 +79,19 @@ export async function GET(
       activityId: activity.activity_id,
       nameActivity: activity.name_activity,
       descriptionActivity: activity.description_activity || '',
-      responses: 0,
+      responses: activity._count.activity_record,
       parent: activity.parent ? {
         id: activity.parent.parent_id,
         name: activity.parent.name_surname || 'N/A',
         email: activity.parent.email,
       } : null,
-      recentRecords: []
+      recentRecords: activity.activity_record.map(r => ({
+        id: r.ActivityRecord_id,
+        childName: r.child?.name_surname || 'Unknown',
+        scoreEarned: r.point ? Number(r.point) : 0,
+        dateCompleted: (r.date ?? r.created_at).toISOString(),
+        status: 'Completed',
+      })),
     };
 
     return NextResponse.json(activityResponse);
