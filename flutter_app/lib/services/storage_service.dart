@@ -11,6 +11,7 @@ class StorageService {
   static const String _boxName = 'app_storage';
   static const String _tokenKey = 'auth_token';
   static const String _userKey = 'user_data';
+  static const String _providerKey = 'auth_provider';
 
   Box? _box;
 
@@ -70,6 +71,16 @@ class StorageService {
   Future<void> clearAll() async {
     await _ensureInitialized();
     await _box?.clear();
+  }
+
+  Future<void> saveProvider(String provider) async {
+    await _ensureInitialized();
+    await _box?.put(_providerKey, provider);
+  }
+
+  Future<String?> getProvider() async {
+    await _ensureInitialized();
+    return _box?.get(_providerKey) as String?;
   }
 
   // ✅ Clear specific keys

@@ -9,6 +9,7 @@ import 'package:skill_wallet_kool/l10n/app_localizations.dart';
 import 'package:skill_wallet_kool/providers/user_provider.dart';
 import 'package:skill_wallet_kool/services/api_service.dart';
 import 'package:skill_wallet_kool/services/auth_service.dart';
+import 'package:skill_wallet_kool/services/storage_service.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../routes/app_routes.dart';
 import '../../../theme/palette.dart';
@@ -282,7 +283,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         final user = await AuthService().signInWithSocial(
           provider: 'facebook',
           idToken: accessToken,
+          accessToken: accessToken,
         );
+        await StorageService().saveProvider('facebook');
         await _handlePostOAuth(
           provider: 'facebook',
           userId: user.id,
@@ -368,7 +371,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         idToken: idToken,
         accessToken: authorization.accessToken,
       );
-
+      await StorageService().saveProvider('google');
       await _handlePostOAuth(
         provider: 'google',
         userId: user.id,

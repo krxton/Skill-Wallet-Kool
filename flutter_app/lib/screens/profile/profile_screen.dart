@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
-import 'package:skill_wallet_kool/services/auth_service.dart';
+import 'package:skill_wallet_kool/services/storage_service.dart';
 
 import '../../models/activity.dart';
 import '../../providers/user_provider.dart';
@@ -70,8 +70,12 @@ class ProfileScreenState extends State<ProfileScreen> {
 
   // ── Photo picker (parent) ──────────────────────────────
 
-  void _showPhotoOptions() {
-    final hasOAuthAvatar = AuthService().currentUser?.image != null;
+  Future<void> _showPhotoOptions() async {
+    final provider = await StorageService().getProvider();
+    if (!mounted) return;
+    final isGoogle = provider == 'google';
+    final isFacebook = provider == 'facebook';
+    final hasOAuthAvatar = isGoogle || isFacebook;
     final l = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
@@ -97,12 +101,19 @@ class ProfileScreenState extends State<ProfileScreen> {
               title: Text(l.common_pickFromGallery),
               onTap: () { Navigator.pop(ctx); _pickFromGallery(); },
             ),
-            if (hasOAuthAvatar)
+            if (hasOAuthAvatar && isGoogle)
               ListTile(
                 leading: const Icon(Icons.account_circle_outlined,
                     color: Color(0xFF4285F4), size: 28),
                 title: Text(l.common_useGooglePhoto),
-                onTap: () { Navigator.pop(ctx); _useOAuthPhoto(); },
+                onTap: () { Navigator.pop(ctx); _useOAuthPhoto('oauth'); },
+              ),
+            if (hasOAuthAvatar && isFacebook)
+              ListTile(
+                leading: const Icon(Icons.facebook,
+                    color: Color(0xFF1877F2), size: 28),
+                title: Text(l.common_useFacebookPhoto),
+                onTap: () { Navigator.pop(ctx); _useOAuthPhoto('oauth'); },
               ),
             const SizedBox(height: 8),
           ],
@@ -130,15 +141,14 @@ class ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Future<void> _useOAuthPhoto() async {
+  Future<void> _useOAuthPhoto(String provider) async {
     setState(() => _uploading = true);
-    final ok =
-        await context.read<UserProvider>().setPhotoFromOAuth('oauth');
+    final ok = await context.read<UserProvider>().setPhotoFromOAuth(provider);
     if (mounted) setState(() => _uploading = false);
     if (mounted && !ok) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text(
-            AppLocalizations.of(context)!.common_photoNotFound('Google')),
+            AppLocalizations.of(context)!.common_photoNotFound(provider)),
       ));
     }
   }

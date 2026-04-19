@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:skill_wallet_kool/l10n/app_localizations.dart';
-import 'package:skill_wallet_kool/services/auth_service.dart';
+import 'package:skill_wallet_kool/services/storage_service.dart';
 
 import '../../../providers/user_provider.dart';
 import '../../../routes/app_routes.dart';
@@ -20,9 +20,12 @@ class ProfileSettingScreen extends StatefulWidget {
 class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
   bool _uploading = false;
 
-  void _showPhotoOptions() {
-    // Show "use OAuth avatar" option if the user signed in via social provider
-    final hasOAuthAvatar = AuthService().currentUser?.image != null;
+  Future<void> _showPhotoOptions() async {
+    final provider = await StorageService().getProvider();
+    if (!mounted) return;
+    final isGoogle = provider == 'google';
+    final isFacebook = provider == 'facebook';
+    final hasOAuthAvatar = isGoogle || isFacebook;
     final l = AppLocalizations.of(context)!;
 
     showModalBottomSheet(
@@ -53,11 +56,21 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
                 _pickFromGallery();
               },
             ),
-            if (hasOAuthAvatar)
+            if (hasOAuthAvatar && isGoogle)
               ListTile(
                 leading: const Icon(Icons.account_circle_outlined,
                     color: Color(0xFF4285F4), size: 28),
                 title: Text(l.common_useGooglePhoto),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _useOAuthPhoto('oauth');
+                },
+              ),
+            if (hasOAuthAvatar && isFacebook)
+              ListTile(
+                leading: const Icon(Icons.facebook,
+                    color: Color(0xFF1877F2), size: 28),
+                title: Text(l.common_useFacebookPhoto),
                 onTap: () {
                   Navigator.pop(ctx);
                   _useOAuthPhoto('oauth');
