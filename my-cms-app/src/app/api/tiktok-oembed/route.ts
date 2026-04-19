@@ -23,9 +23,14 @@ export async function POST(request: NextRequest) {
     let resolvedUrl = videoUrl.split('?')[0];
     if (!resolvedUrl.includes('/video/')) {
       try {
-        const headRes = await fetch(resolvedUrl, { method: 'HEAD', redirect: 'follow' });
-        if (headRes.url && headRes.url.includes('/video/')) {
-          resolvedUrl = headRes.url.split('?')[0];
+        // Use GET (not HEAD) — some TikTok short URLs only redirect properly for GET
+        const getRes = await fetch(resolvedUrl, {
+          method: 'GET',
+          redirect: 'follow',
+          headers: { 'User-Agent': 'Mozilla/5.0 (compatible)' },
+        });
+        if (getRes.url && getRes.url.includes('/video/')) {
+          resolvedUrl = getRes.url.split('?')[0];
         }
       } catch {
         // keep original if resolve fails

@@ -1,7 +1,7 @@
 // app/admin/activities/new/page.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Send, Plus, Trash2 } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
@@ -51,6 +51,8 @@ export default function NewActivityPage() {
     parentId: '',
   });
   const [videoId, setVideoId] = useState<string | null>(null);
+  const [isResolvingUrl, setIsResolvingUrl] = useState(false);
+  const resolveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isFetching, setIsFetching] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -123,9 +125,36 @@ export default function NewActivityPage() {
     }
 
     if (name === 'videoUrl') {
+      if (resolveTimerRef.current) clearTimeout(resolveTimerRef.current);
       const { id, type } = extractVideoId(value);
       if (type === 'youtube' || (type === 'tiktok' && selectedCategory === 'ด้านร่างกาย')) {
         setVideoId(id);
+        setIsResolvingUrl(false);
+      } else if (
+        selectedCategory === 'ด้านร่างกาย' &&
+        (value.includes('tiktok.com') || value.includes('vt.tiktok.com'))
+      ) {
+        // Short URL — resolve via oEmbed after debounce
+        setVideoId(null);
+        setIsResolvingUrl(true);
+        resolveTimerRef.current = setTimeout(async () => {
+          try {
+            const res = await fetch('/api/tiktok-oembed', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ videoUrl: value }),
+            });
+            if (res.ok) {
+              const data = await res.json();
+              const match = (data.html as string | undefined)?.match(/data-video-id="(\d+)"/);
+              if (match) setVideoId(match[1]);
+            }
+          } catch {}
+          setIsResolvingUrl(false);
+        }, 800);
+      } else {
+        setVideoId(null);
+        setIsResolvingUrl(false);
       }
     }
   };
@@ -476,7 +505,16 @@ export default function NewActivityPage() {
               </div>
 
               {/* Video Preview */}
-              {videoId && (
+              {isResolvingUrl && (
+                <div className="mt-4 bg-gray--light1 rounded-lg p-6 flex items-center justify-center gap-3 text-secondary--text">
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
+                  </svg>
+                  <span className="body-medium-regular">Resolving short URL...</span>
+                </div>
+              )}
+              {videoId && !isResolvingUrl && (
                 <div className="mt-4 bg-gray--light1 rounded-lg p-4">
                   {selectedCategory === 'ด้านภาษา' ? (
                     <div className="aspect-video w-full max-w-2xl mx-auto bg-black rounded-lg overflow-hidden">
