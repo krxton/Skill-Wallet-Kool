@@ -211,10 +211,18 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
             maxWidth: 400,
             quality: 70,
           );
-          if (mounted) setState(() { _videoPath = path; _videoThumbnail = thumb; });
+          if (mounted)
+            setState(() {
+              _videoPath = path;
+              _videoThumbnail = thumb;
+            });
         } else {
           setState(() {
-            if (isVideo) { _videoPath = path; } else { _imagePath = path; }
+            if (isVideo) {
+              _videoPath = path;
+            } else {
+              _imagePath = path;
+            }
           });
         }
         debugPrint('📸 ${isVideo ? 'Video' : 'Image'} selected: $path');
@@ -373,8 +381,7 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Icon(icon,
-            size: 36,
-            color: attached ? Palette.success : Colors.grey.shade400),
+            size: 36, color: attached ? Palette.success : Colors.grey.shade400),
         const SizedBox(height: 6),
         Text(label,
             style: AppTextStyles.body(12,
@@ -405,17 +412,18 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
   Color _scoreColor(double pct) {
     final t = pct.clamp(0.0, 1.0);
     if (t <= 0.5) {
-      return Color.lerp(const Color(0xFFE53935), const Color(0xFFFDD835), t * 2)!;
+      return Color.lerp(
+          const Color(0xFFE53935), const Color(0xFFFDD835), t * 2)!;
     } else {
-      return Color.lerp(const Color(0xFFFDD835), const Color(0xFF43A047), (t - 0.5) * 2)!;
+      return Color.lerp(
+          const Color(0xFFFDD835), const Color(0xFF43A047), (t - 0.5) * 2)!;
     }
   }
 
   Widget _buildChildScoreRow(String childId, String childName) {
     final score = _childScores[childId] ?? 0;
-    final pct = widget.activity.maxScore > 0
-        ? score / widget.activity.maxScore
-        : 0.0;
+    final pct =
+        widget.activity.maxScore > 0 ? score / widget.activity.maxScore : 0.0;
     final barColor = _scoreColor(pct);
     return Container(
       margin: const EdgeInsets.only(bottom: 2),
@@ -450,8 +458,8 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(childName,
-                              style: AppTextStyles.label(14,
-                                  color: Palette.text)),
+                              style:
+                                  AppTextStyles.label(14, color: Palette.text)),
                           const SizedBox(height: 4),
                           ClipRRect(
                             borderRadius: BorderRadius.circular(4),
@@ -459,8 +467,8 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
                               value: pct.toDouble(),
                               backgroundColor:
                                   Colors.grey.withValues(alpha: 0.15),
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                  barColor),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(barColor),
                               minHeight: 4,
                             ),
                           ),
@@ -471,8 +479,7 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
                     // Minus
                     GestureDetector(
                       onTap: () => setState(() {
-                        _childScores[childId] =
-                            (score > 0) ? score - 1 : 0;
+                        _childScores[childId] = (score > 0) ? score - 1 : 0;
                       }),
                       child: Container(
                         width: 32,
@@ -490,16 +497,14 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
                     const SizedBox(width: 6),
                     // Score display
                     GestureDetector(
-                      onTap: () =>
-                          _showChildScoreDialog(childId, childName),
+                      onTap: () => _showChildScoreDialog(childId, childName),
                       child: SizedBox(
                         width: 44,
                         child: FittedBox(
                           fit: BoxFit.scaleDown,
                           child: Text(
                             '$score',
-                            style: AppTextStyles.heading(18,
-                                color: barColor),
+                            style: AppTextStyles.heading(18, color: barColor),
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -521,11 +526,10 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
                           color: Palette.success.withValues(alpha: 0.1),
                           shape: BoxShape.circle,
                           border: Border.all(
-                              color:
-                                  Palette.success.withValues(alpha: 0.4)),
+                              color: Palette.success.withValues(alpha: 0.4)),
                         ),
-                        child: Icon(Icons.add,
-                            color: Palette.success, size: 16),
+                        child:
+                            Icon(Icons.add, color: Palette.success, size: 16),
                       ),
                     ),
                   ],
@@ -636,276 +640,265 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
         if (shouldPop && mounted) Navigator.pop(context);
       },
       child: Scaffold(
-      backgroundColor: Colors.transparent,
-      appBar: AppBar(
         backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
-          onPressed: () async {
-            final shouldPop = await _onWillPop();
-            if (shouldPop && mounted) Navigator.pop(context);
-          },
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black87),
+            onPressed: () async {
+              final shouldPop = await _onWillPop();
+              if (shouldPop && mounted) Navigator.pop(context);
+            },
+          ),
+          title: Text(
+              ActivityL10n.localizedActivityType(
+                  context, widget.activity.category),
+              style: AppTextStyles.heading(20, color: Colors.black)),
+          centerTitle: true,
         ),
-        title: Text(
-            ActivityL10n.localizedActivityType(
-                context, widget.activity.category),
-            style: AppTextStyles.heading(20, color: Colors.black)),
-        centerTitle: true,
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // ── Timer card ──
-                  Center(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 48, vertical: 14),
-                      decoration: BoxDecoration(
-                        gradient: _isPlaying
-                            ? const LinearGradient(
-                                colors: [Palette.sky, Color(0xFF0DA8F4)])
-                            : null,
-                        color: _isPlaying ? null : Colors.white,
-                        borderRadius: BorderRadius.circular(32),
-                        boxShadow: _isPlaying
-                            ? Palette.buttonShadow
-                            : Palette.cardShadow,
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            _isPlaying
-                                ? Icons.timer
-                                : Icons.timer_outlined,
-                            color: _isPlaying ? Colors.white : Palette.sky,
-                            size: 22,
-                          ),
-                          const SizedBox(width: 10),
-                          Text(
-                            '$mm:$ss',
-                            style: AppTextStyles.heading(30,
-                                color: _isPlaying
-                                    ? Colors.white
-                                    : Palette.sky),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // ── Start / Stop button ──
-                  Center(
-                    child: GestureDetector(
-                      onTap: _isSubmitting
-                          ? null
-                          : (_isPlaying ? _handleFinish : _handleStart),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 200),
+        body: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // ── Timer card ──
+                    Center(
+                      child: Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 48, vertical: 14),
                         decoration: BoxDecoration(
                           gradient: _isPlaying
-                              ? null
-                              : const LinearGradient(colors: [
-                                  Palette.sky,
-                                  Color(0xFF0DA8F4)
-                                ]),
-                          color: _isPlaying
-                              ? Palette.sky.withValues(alpha: 0.1)
+                              ? const LinearGradient(
+                                  colors: [Palette.sky, Color(0xFF0DA8F4)])
                               : null,
-                          borderRadius: BorderRadius.circular(24),
-                          border: _isPlaying
-                              ? Border.all(color: Palette.sky, width: 2)
-                              : null,
-                          boxShadow:
-                              _isPlaying ? [] : Palette.buttonShadow,
+                          color: _isPlaying ? null : Colors.white,
+                          borderRadius: BorderRadius.circular(32),
+                          boxShadow: _isPlaying
+                              ? Palette.buttonShadow
+                              : Palette.cardShadow,
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
-                              _isPlaying
-                                  ? Icons.stop_rounded
-                                  : Icons.play_arrow_rounded,
-                              color: _isPlaying ? Palette.sky : Colors.white,
-                              size: 24,
+                              _isPlaying ? Icons.timer : Icons.timer_outlined,
+                              color: _isPlaying ? Colors.white : Palette.sky,
+                              size: 22,
                             ),
-                            const SizedBox(width: 8),
-                            FittedBox(
-                              fit: BoxFit.scaleDown,
-                              child: Text(
-                                _isPlaying
-                                    ? AppLocalizations.of(context)!
-                                        .physical_stopBtn
-                                    : AppLocalizations.of(context)!
-                                        .physical_startBtn,
-                                style: AppTextStyles.heading(20,
-                                    color: _isPlaying
-                                        ? Palette.sky
-                                        : Colors.white),
-                              ),
+                            const SizedBox(width: 10),
+                            Text(
+                              '$mm:$ss',
+                              style: AppTextStyles.heading(30,
+                                  color:
+                                      _isPlaying ? Colors.white : Palette.sky),
                             ),
                           ],
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
+                    const SizedBox(height: 16),
 
-                  // ── Score section ──
-                  Row(
-                    children: [
-                      const Icon(Icons.star_rounded,
-                          color: Palette.sky, size: 20),
-                      const SizedBox(width: 8),
-                      Text(
-                          AppLocalizations.of(context)!
-                              .physical_medalsScoreLabel,
-                          style:
-                              AppTextStyles.heading(18, color: Palette.sky)),
-                      const Spacer(),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Palette.sky.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                              color: Palette.sky.withValues(alpha: 0.3)),
-                        ),
-                        child: Text(
-                          'Max: ${widget.activity.maxScore}',
-                          style:
-                              AppTextStyles.label(13, color: Palette.sky),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  _buildScoreSection(),
-                  const SizedBox(height: 20),
-
-                  // ── Diary ──
-                  Row(
-                    children: [
-                      const Icon(Icons.edit_note_rounded,
-                          color: Palette.sky, size: 20),
-                      const SizedBox(width: 8),
-                      Text(AppLocalizations.of(context)!.physical_diaryLabel,
-                          style:
-                              AppTextStyles.heading(18, color: Palette.sky)),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Container(
-                    height: 100,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: Palette.cardShadow,
-                      border: Border.all(
-                          color: Palette.sky.withValues(alpha: 0.2)),
-                    ),
-                    child: TextField(
-                      controller: _descriptionController,
-                      decoration: InputDecoration(
-                          hintText: AppLocalizations.of(context)!
-                              .physical_diaryHint,
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.all(12)),
-                      maxLines: null,
-                      expands: true,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  // ── Evidence (image + video) ──
-                  Row(
-                    children: [
-                      const Icon(Icons.photo_library_rounded,
-                          color: Palette.sky, size: 20),
-                      const SizedBox(width: 8),
-                      Text(AppLocalizations.of(context)!.common_evidence,
-                          style:
-                              AppTextStyles.heading(18, color: Palette.sky)),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      // Image picker
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => _handleMediaSelection(isVideo: false),
-                          child: Container(
-                            height: 120,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: Palette.cardShadow,
-                              border: Border.all(
-                                color: _imagePath != null
-                                    ? Palette.success
-                                    : Colors.grey.shade200,
-                                width: _imagePath != null ? 2 : 1,
+                    // ── Start / Stop button ──
+                    Center(
+                      child: GestureDetector(
+                        onTap: _isSubmitting
+                            ? null
+                            : (_isPlaying ? _handleFinish : _handleStart),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 48, vertical: 14),
+                          decoration: BoxDecoration(
+                            gradient: _isPlaying
+                                ? null
+                                : const LinearGradient(
+                                    colors: [Palette.sky, Color(0xFF0DA8F4)]),
+                            color: _isPlaying
+                                ? Palette.sky.withValues(alpha: 0.1)
+                                : null,
+                            borderRadius: BorderRadius.circular(24),
+                            border: _isPlaying
+                                ? Border.all(color: Palette.sky, width: 2)
+                                : null,
+                            boxShadow: _isPlaying ? [] : Palette.buttonShadow,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                _isPlaying
+                                    ? Icons.stop_rounded
+                                    : Icons.play_arrow_rounded,
+                                color: _isPlaying ? Palette.sky : Colors.white,
+                                size: 24,
                               ),
-                            ),
-                            clipBehavior: Clip.hardEdge,
-                            child: _imagePath != null && !kIsWeb
-                                ? Stack(children: [
-                                    SizedBox.expand(
-                                      child: Image.file(
-                                          File(_imagePath!),
-                                          fit: BoxFit.cover),
-                                    ),
-                                    Positioned(
-                                      top: 4,
-                                      right: 4,
-                                      child: _removeBtn(
-                                          () => setState(
-                                              () => _imagePath = null)),
-                                    ),
-                                  ])
-                                : _mediaPlaceholder(
-                                    Icons.add_photo_alternate_rounded,
-                                    AppLocalizations.of(context)!
-                                        .common_addImage,
-                                    _imagePath != null,
-                                  ),
+                              const SizedBox(width: 8),
+                              FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text(
+                                  _isPlaying
+                                      ? AppLocalizations.of(context)!
+                                          .physical_stopBtn
+                                      : AppLocalizations.of(context)!
+                                          .physical_startBtn,
+                                  style: AppTextStyles.heading(20,
+                                      color: _isPlaying
+                                          ? Palette.sky
+                                          : Colors.white),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                      const SizedBox(width: 10),
-                      // Video picker
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => _handleMediaSelection(isVideo: true),
-                          child: Container(
-                            height: 120,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: Palette.cardShadow,
-                              border: Border.all(
-                                color: _videoPath != null
-                                    ? Palette.success
-                                    : Colors.grey.shade200,
-                                width: _videoPath != null ? 2 : 1,
+                    ),
+                    const SizedBox(height: 24),
+
+                    // ── Score section ──
+                    Row(
+                      children: [
+                        const Icon(Icons.star_rounded,
+                            color: Palette.sky, size: 20),
+                        const SizedBox(width: 8),
+                        Text(
+                            AppLocalizations.of(context)!
+                                .physical_medalsScoreLabel,
+                            style:
+                                AppTextStyles.heading(18, color: Palette.sky)),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Palette.sky.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                                color: Palette.sky.withValues(alpha: 0.3)),
+                          ),
+                          child: Text(
+                            'Max: ${widget.activity.maxScore}',
+                            style: AppTextStyles.label(13, color: Palette.sky),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    _buildScoreSection(),
+                    const SizedBox(height: 20),
+
+                    // ── Diary ──
+                    Row(
+                      children: [
+                        const Icon(Icons.edit_note_rounded,
+                            color: Palette.sky, size: 20),
+                        const SizedBox(width: 8),
+                        Text(AppLocalizations.of(context)!.physical_diaryLabel,
+                            style:
+                                AppTextStyles.heading(18, color: Palette.sky)),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Container(
+                      height: 100,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: Palette.cardShadow,
+                        border: Border.all(
+                            color: Palette.sky.withValues(alpha: 0.2)),
+                      ),
+                      child: TextField(
+                        controller: _descriptionController,
+                        decoration: InputDecoration(
+                            hintText: AppLocalizations.of(context)!
+                                .physical_diaryHint,
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.all(12)),
+                        maxLines: null,
+                        expands: true,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // ── Evidence (image + video) ──
+                    Row(
+                      children: [
+                        const Icon(Icons.photo_library_rounded,
+                            color: Palette.sky, size: 20),
+                        const SizedBox(width: 8),
+                        Text(AppLocalizations.of(context)!.common_evidence,
+                            style:
+                                AppTextStyles.heading(18, color: Palette.sky)),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        // Image picker
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => _handleMediaSelection(isVideo: false),
+                            child: Container(
+                              height: 120,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: Palette.cardShadow,
+                                border: Border.all(
+                                  color: _imagePath != null
+                                      ? Palette.success
+                                      : Colors.grey.shade200,
+                                  width: _imagePath != null ? 2 : 1,
+                                ),
                               ),
+                              clipBehavior: Clip.hardEdge,
+                              child: _imagePath != null && !kIsWeb
+                                  ? Stack(children: [
+                                      SizedBox.expand(
+                                        child: Image.file(File(_imagePath!),
+                                            fit: BoxFit.cover),
+                                      ),
+                                      Positioned(
+                                        top: 4,
+                                        right: 4,
+                                        child: _removeBtn(() =>
+                                            setState(() => _imagePath = null)),
+                                      ),
+                                    ])
+                                  : _mediaPlaceholder(
+                                      Icons.add_photo_alternate_rounded,
+                                      AppLocalizations.of(context)!
+                                          .common_addImage,
+                                      _imagePath != null,
+                                    ),
                             ),
-                            clipBehavior: Clip.hardEdge,
-                            child: _videoPath != null
-                                ? Stack(
-                                    fit: StackFit.expand,
-                                    children: [
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        // Video picker
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => _handleMediaSelection(isVideo: true),
+                            child: Container(
+                              height: 120,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: Palette.cardShadow,
+                                border: Border.all(
+                                  color: _videoPath != null
+                                      ? Palette.success
+                                      : Colors.grey.shade200,
+                                  width: _videoPath != null ? 2 : 1,
+                                ),
+                              ),
+                              clipBehavior: Clip.hardEdge,
+                              child: _videoPath != null
+                                  ? Stack(fit: StackFit.expand, children: [
                                       if (_videoThumbnail != null)
                                         Image.memory(
                                           _videoThumbnail!,
@@ -939,44 +932,44 @@ class _PhysicalDetailScreenState extends State<PhysicalDetailScreen> {
                                         top: 4,
                                         right: 4,
                                         child: _removeBtn(() => setState(() {
-                                          _videoPath = null;
-                                          _videoThumbnail = null;
-                                        })),
+                                              _videoPath = null;
+                                              _videoThumbnail = null;
+                                            })),
                                       ),
                                     ])
-                                : _mediaPlaceholder(
-                                    Icons.video_call_rounded,
-                                    AppLocalizations.of(context)!
-                                        .common_addVideo,
-                                    false,
-                                  ),
+                                  : _mediaPlaceholder(
+                                      Icons.video_call_rounded,
+                                      AppLocalizations.of(context)!
+                                          .common_addVideo,
+                                      false,
+                                    ),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 30),
-                ],
+                      ],
+                    ),
+                    const SizedBox(height: 30),
+                  ],
+                ),
               ),
             ),
-          ),
-          // 7. FINISH BUTTON (sticky bottom)
-          StickyBottomButton(
-            onPressed: isEvidenceAttached &&
-                    !_isSubmitting &&
-                    _elapsedSeconds > 0 &&
-                    !_isPlaying
-                ? _handleSubmit
-                : null,
-            label: _isSubmitting
-                ? AppLocalizations.of(context)!.common_submitting
-                : AppLocalizations.of(context)!.common_finish,
-            color: Palette.success,
-            isLoading: _isSubmitting,
-          ),
-        ],
-      ),
-    ), // Scaffold
+            // 7. FINISH BUTTON (sticky bottom)
+            StickyBottomButton(
+              onPressed: isEvidenceAttached &&
+                      !_isSubmitting &&
+                      _elapsedSeconds > 0 &&
+                      !_isPlaying
+                  ? _handleSubmit
+                  : null,
+              label: _isSubmitting
+                  ? AppLocalizations.of(context)!.common_submitting
+                  : AppLocalizations.of(context)!.common_finish,
+              color: Palette.success,
+              isLoading: _isSubmitting,
+            ),
+          ],
+        ),
+      ), // Scaffold
     ); // PopScope
   }
 }

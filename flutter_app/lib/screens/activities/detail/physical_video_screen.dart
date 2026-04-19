@@ -33,7 +33,6 @@ class PhysicalVideoScreen extends StatefulWidget {
 
 class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
   bool _howToPlayExpanded = false;
-  bool _embedFailed = false;
   List<String> _extraChildIds = [];
   InAppWebViewController? _webController;
 
@@ -239,8 +238,9 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
     final String htmlContent = () {
       final stored = activity.tiktokHtmlContent ?? '';
       if (stored.isNotEmpty) return stored;
-      final vid = _extractTikTokVideoId(videoUrl);
-      if (vid != null) return _buildTikTokBlockquote(vid);
+      // Fallback: build embed from videoUrl if tiktokHtmlContent not stored
+      final videoId = _extractTikTokVideoId(videoUrl);
+      if (videoId != null) return _buildTikTokBlockquote(videoId);
       return '';
     }();
     final String name = activity.name;
@@ -266,8 +266,8 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // Open in TikTok (TV) button — hidden when embed is unavailable
-                  if (videoUrl.isNotEmpty && !_embedFailed)
+                  // Open in TikTok (TV) button
+                  if (videoUrl.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 10),
                       child: GestureDetector(
@@ -313,16 +313,13 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
                       borderRadius: BorderRadius.circular(24),
                       child: Container(
                         color: Colors.black,
-                        child: _embedFailed
-                            ? _buildEmbedFailedCard(context, videoUrl)
-                            : htmlContent.isNotEmpty
+                        child: htmlContent.isNotEmpty
                             ? InAppWebView(
                                 onWebViewCreated: (c) => _webController = c,
                                 initialData: InAppWebViewInitialData(
                                   data: buildResponsiveTikTokHtml(htmlContent),
                                   mimeType: 'text/html',
                                   encoding: 'utf-8',
-                                  baseUrl: WebUri('https://www.tiktok.com'),
                                 ),
                                 initialSettings: InAppWebViewSettings(
                                   javaScriptEnabled: true,
@@ -345,37 +342,32 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
                                     (controller, navigationAction) async {
                                   final url =
                                       navigationAction.request.url.toString();
-                                  if (url.startsWith('data:') ||
-                                      url.startsWith('about:') ||
-                                      url.startsWith('blob:')) {
-                                    return NavigationActionPolicy.ALLOW;
-                                  }
-                                  final allowedDomains = [
-                                    'tiktok.com',
-                                    'tiktokcdn.com',
-                                    'tiktokv.com',
+
+                                  // Explicit allow-list — everything else is cancelled
+                                  // (covers both iOS WKWebView iframe and Android WebView)
+                                  final allowedPatterns = [
+                                    'tiktok.com/embed',
+                                    'embed.tiktok.com',
+                                    'embed.js',
+                                    'lf16-tiktok',
                                     'musical.ly',
                                     'byteoversea',
                                     'byteimg',
                                     'ibytedtos',
-                                    'ttwstatic.com',
-                                    'snssdk',
                                   ];
-                                  for (final domain in allowedDomains) {
-                                    if (url.contains(domain)) {
+
+                                  for (final pattern in allowedPatterns) {
+                                    if (url.contains(pattern)) {
                                       return NavigationActionPolicy.ALLOW;
                                     }
                                   }
-                                  return NavigationActionPolicy.CANCEL;
-                                },
-                                onReceivedError:
-                                    (controller, request, error) {
-                                  if (error.description
-                                      .contains('BLOCKED_BY_ORB')) {
-                                    if (mounted) {
-                                      setState(() => _embedFailed = true);
-                                    }
+
+                                  if (url.startsWith('data:') ||
+                                      url.startsWith('about:')) {
+                                    return NavigationActionPolicy.ALLOW;
                                   }
+
+                                  return NavigationActionPolicy.CANCEL;
                                 },
                                 onCreateWindow:
                                     (controller, createWindowAction) async {
@@ -522,7 +514,8 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
                       child: GestureDetector(
                         onTap: () async {
                           // pauseAllMediaPlayback is iOS-only
-                          if (Platform.isIOS) await _webController?.pauseAllMediaPlayback();
+                          if (Platform.isIOS)
+                            await _webController?.pauseAllMediaPlayback();
                           if (!context.mounted) return;
                           Navigator.pushNamed(
                             context,
@@ -673,55 +666,6 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
               AppLocalizations.of(context)!.videodetail_noVideoUrl,
               style: AppTextStyles.body(12, color: Colors.white70),
             ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEmbedFailedCard(BuildContext context, String videoUrl) {
-    return Container(
-      color: Colors.black,
-      alignment: Alignment.center,
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.lock_outline_rounded,
-              color: Colors.white70, size: 52),
-          const SizedBox(height: 16),
-          Text(
-            'วิดีโอนี้ดูได้บน TikTok เท่านั้น',
-            style: AppTextStyles.heading(16, color: Colors.white),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'ผู้สร้างปิดการแสดงผลในแอปอื่น',
-            style: AppTextStyles.body(13, color: Colors.white60),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-          ElevatedButton.icon(
-            onPressed: () async {
-              final uri = Uri.parse(videoUrl);
-              if (await canLaunchUrl(uri)) {
-                await launchUrl(uri, mode: LaunchMode.externalApplication);
-              }
-            },
-            icon: const Icon(Icons.open_in_new_rounded, size: 18),
-            label: Text(
-              AppLocalizations.of(context)!.videodetail_openInTiktokTV,
-              style: AppTextStyles.heading(15, color: Colors.black),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              foregroundColor: Colors.black,
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16)),
-            ),
-          ),
         ],
       ),
     );
