@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:audioplayers/audioplayers.dart' as ap;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:record/record.dart';
@@ -44,6 +45,7 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> {
   final AudioEvaluationQueue _evaluationQueue = AudioEvaluationQueue();
   final ActivityService _activityService = ActivityService();
   final List<String> _tempAudioFiles = [];
+  final ap.AudioPlayer _playbackPlayer = ap.AudioPlayer();
 
   int? _recordingIndex;
   bool _isRecording = false;
@@ -52,15 +54,35 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> {
   String _recordedFilePath = '';
   BytesBuilder? _webBytesBuilder;
   StreamSubscription<List<int>>? _webAudioSub;
+  String? _playingAudioPath;
 
   @override
   void initState() {
     super.initState();
+    _playbackPlayer.onPlayerComplete.listen((_) {
+      if (mounted) setState(() => _playingAudioPath = null);
+    });
+  }
+
+  Future<void> _playAudio(String? path) async {
+    if (path == null || path.isEmpty) return;
+    if (_playingAudioPath == path) {
+      await _playbackPlayer.pause();
+      setState(() => _playingAudioPath = null);
+      return;
+    }
+    try {
+      await _playbackPlayer.play(ap.DeviceFileSource(path));
+      setState(() => _playingAudioPath = path);
+    } catch (e) {
+      debugPrint('Playback error: $e');
+    }
   }
 
   @override
   void dispose() {
     _audioRecorder.dispose();
+    _playbackPlayer.dispose();
     _recordingTimer?.cancel();
     _webAudioSub?.cancel();
     for (final path in _tempAudioFiles) {
@@ -295,6 +317,8 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> {
                   itemBuilder: (context, i) {
                     final thisRecording = _isRecording && _recordingIndex == i;
                     final otherRecording = _isRecording && _recordingIndex != i;
+                    final audioPath = results[i].audioUrl;
+                    final hasAudio = audioPath != null && audioPath.isNotEmpty;
                     return _SegmentCard(
                       index: i,
                       result: results[i],
@@ -303,6 +327,8 @@ class _ActivitySummaryScreenState extends State<ActivitySummaryScreen> {
                       onToggleRecord: otherRecording ? null : () => _handleRecord(i),
                       onPlaySection: _isRecording ? null : () =>
                           Navigator.pop(context, {'playSection': i}),
+                      onPlayAudio: hasAudio ? () => _playAudio(audioPath) : null,
+                      isPlayingAudio: _playingAudioPath == audioPath && audioPath != null,
                     );
                   },
                 );
@@ -407,6 +433,8 @@ class _SegmentCard extends StatelessWidget {
     required this.recordingDuration,
     required this.onToggleRecord,
     required this.onPlaySection,
+    required this.onPlayAudio,
+    required this.isPlayingAudio,
   });
 
   final int index;
@@ -415,6 +443,8 @@ class _SegmentCard extends StatelessWidget {
   final Duration recordingDuration;
   final VoidCallback? onToggleRecord;
   final VoidCallback? onPlaySection;
+  final VoidCallback? onPlayAudio;
+  final bool isPlayingAudio;
 
   @override
   Widget build(BuildContext context) {
@@ -503,6 +533,19 @@ class _SegmentCard extends StatelessWidget {
                         ),
                       ],
                     ),
+                    if (onPlayAudio != null) ...[
+                      const SizedBox(height: 8),
+                      _ActionBtn(
+                        icon: isPlayingAudio
+                            ? Icons.pause_circle_rounded
+                            : Icons.headphones_rounded,
+                        label: isPlayingAudio
+                            ? l10n.itemintro_pausePlayback
+                            : l10n.itemintro_listenRecording,
+                        color: Palette.sky,
+                        onTap: onPlayAudio,
+                      ),
+                    ],
                   ],
                 ),
               ),

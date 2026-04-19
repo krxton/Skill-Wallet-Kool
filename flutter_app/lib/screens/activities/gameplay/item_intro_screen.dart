@@ -668,7 +668,7 @@ class _ItemIntroScreenState extends State<ItemIntroScreen>
       final result = await _activityService.finalizeQuest(
         childId: _childId!,
         activityId: widget.activity.id,
-        segmentResults: _segmentResults,
+        segmentResults: _resultsNotifier.value,
         activityMaxScore: widget.activity.maxScore,
         timeSpent: timeSpentSeconds,
       );
@@ -716,7 +716,23 @@ class _ItemIntroScreenState extends State<ItemIntroScreen>
       ),
     );
 
-    if (!mounted || pop == null) return;
+    if (!mounted) return;
+
+    // Sync local list from the shared notifier (summary may have updated it)
+    setState(() {
+      _segmentResults
+        ..clear()
+        ..addAll(_resultsNotifier.value);
+      final r = _segmentResults[current - 1];
+      state = switch (r.status) {
+        SegmentStatus.done => 'reviewed',
+        SegmentStatus.processing => 'processing',
+        _ => 'idle',
+      };
+      point = r.maxScore;
+    });
+
+    if (pop == null) return;
 
     final segIdx = pop['reRecord'] ?? pop['playSection'];
     if (segIdx == null) return;
