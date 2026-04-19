@@ -29,6 +29,12 @@ export const auth = betterAuth({
       : {}),
   },
   plugins: [bearer()],
+  account: {
+    accountLinking: {
+      enabled: true,
+      trustedProviders: ['google', 'facebook'],
+    },
+  },
   user: {
     additionalFields: {
       role: {
