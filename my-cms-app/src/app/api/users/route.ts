@@ -22,6 +22,7 @@ export async function GET(request: Request) {
     const admins = await prisma.user.findMany({
       where: adminWhere,
       orderBy: { createdAt: 'asc' },
+      include: { accounts: { select: { providerId: true } } },
     });
 
     const adminRows = admins.map((u) => ({
@@ -29,6 +30,7 @@ export async function GET(request: Request) {
       fullName: u.name,
       email: u.email,
       role: 'admin' as const,
+      providers: u.accounts.map((a) => a.providerId),
       // status: 'Active',       // TODO: not yet implemented — hardcoded mock
       // verification: 'Verified', // TODO: not yet implemented — hardcoded mock
       photoUrl: u.image ?? undefined,
@@ -57,7 +59,13 @@ export async function GET(request: Request) {
       include: {
         parent_and_child: { select: { child_id: true } },
         activity_record: { select: { ActivityRecord_id: true } },
-        ba_user: { select: { role: true, image: true } },
+        ba_user: {
+          select: {
+            role: true,
+            image: true,
+            accounts: { select: { providerId: true } },
+          },
+        },
       },
       orderBy: { created_date: 'desc' },
     });
@@ -67,8 +75,9 @@ export async function GET(request: Request) {
       fullName: parent.name_surname || 'N/A',
       email: parent.email,
       role: parent.ba_user?.role || 'user',
-      status: 'Active',
-      verification: 'Verified',
+      providers: parent.ba_user?.accounts.map((a) => a.providerId) ?? [],
+      // status: 'Active',       // TODO: not yet implemented — hardcoded mock
+      // verification: 'Verified', // TODO: not yet implemented — hardcoded mock
       photoUrl: parent.ba_user?.image ?? undefined,
       createdAt: parent.created_date.toISOString(),
       childrenCount: parent.parent_and_child.length,
