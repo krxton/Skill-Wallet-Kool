@@ -13,10 +13,16 @@ export async function GET(request: NextRequest) {
     return auth.error;
   }
 
+  const baUser = await prisma.user.findUnique({
+    where: { id: auth.user.id },
+    select: { image: true },
+  });
+
   return NextResponse.json({
     parentId: auth.parent.parent_id,
     nameSurname: auth.parent.name_surname,
     email: auth.parent.email,
+    photoUrl: baUser?.image ?? null,
   });
 }
 

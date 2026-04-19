@@ -7,6 +7,35 @@ import { getAuthenticatedParent } from '@/lib/get-parent';
 import { uploadToMinio } from '@/lib/minio';
 import { prisma } from '@/lib/prisma';
 
+/**
+ * PUT /api/parents/photo
+ * Set photo URL directly (revert to OAuth provider photo).
+ * Body: { photoUrl: string }
+ */
+export async function PUT(request: NextRequest) {
+  const auth = await getAuthenticatedParent(request);
+  if ('error' in auth) return auth.error;
+  const { user } = auth;
+
+  const body = await request.json();
+  const { photoUrl } = body as { photoUrl?: string };
+
+  if (!photoUrl || typeof photoUrl !== 'string') {
+    return NextResponse.json({ error: 'photoUrl is required' }, { status: 400 });
+  }
+
+  try {
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { image: photoUrl },
+    });
+    return NextResponse.json({ success: true, photoUrl });
+  } catch (error) {
+    console.error('PUT /api/parents/photo error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
 export async function POST(request: NextRequest) {
   const auth = await getAuthenticatedParent(request);
   if ('error' in auth) {

@@ -173,16 +173,25 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
   }
 
   // --- ฟังก์ชันทำงานเมื่อยืนยันการลบ ---
-  void _performDeleteAccount() {
-    // 1. เรียก Provider ให้ล้างข้อมูล
-    context.read<UserProvider>().clearUserData();
-
-    // 2. ดีดกลับไปหน้า Welcome (หรือ Login) และลบประวัติการเปิดหน้าทั้งหมดทิ้ง
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      AppRoutes.welcome,
-      (route) => false,
-    );
+  Future<void> _performDeleteAccount() async {
+    setState(() => _uploading = true);
+    final ok = await context.read<UserProvider>().deleteAccount();
+    if (!mounted) return;
+    setState(() => _uploading = false);
+    if (ok) {
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        AppRoutes.welcome,
+        (route) => false,
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              AppLocalizations.of(context)!.common_errorGeneric('delete failed')),
+        ),
+      );
+    }
   }
 
   @override
@@ -301,15 +310,15 @@ class _ProfileSettingScreenState extends State<ProfileSettingScreen> {
               const SizedBox(height: 40),
 
               // --- Delete Account Button ---
-              // GestureDetector(
-              //   onTap: () {
-              //     _showDeleteConfirmation(context);
-              //   },
-              //   child: Text(
-              //     AppLocalizations.of(context)!.profilesetting_deleteaccoutBtn,
-              //     style: AppTextStyles.heading(20, color: Palette.pink),
-              //   ),
-              // ),
+              GestureDetector(
+                onTap: _uploading
+                    ? null
+                    : () => _showDeleteConfirmation(context),
+                child: Text(
+                  AppLocalizations.of(context)!.profilesetting_deleteaccoutBtn,
+                  style: AppTextStyles.heading(20, color: Palette.pink),
+                ),
+              ),
             ],
           ),
         ),

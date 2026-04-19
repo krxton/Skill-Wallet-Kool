@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
+import '../services/storage_service.dart';
 
 class UserProvider extends ChangeNotifier {
   final _apiService = ApiService();
@@ -266,17 +267,38 @@ class UserProvider extends ChangeNotifier {
     }
   }
 
-  /// Use OAuth provider's avatar (Google / Facebook).
-  /// Better Auth stores the avatar in user.image during social sign-in.
+  /// Revert to original OAuth provider photo (Google / Facebook).
+  /// Reads the URL saved at login time, updates DB, and refreshes local state.
   Future<bool> setPhotoFromOAuth(String provider) async {
     try {
-      final url = AuthService().currentUser?.image;
+      final url = await StorageService().getOAuthPhotoUrl();
       if (url == null) return false;
+      // Update DB — ignore errors so local state still updates even if server is behind
+      try {
+        await _apiService.put('/parents/photo', {'photoUrl': url});
+      } catch (e) {
+        debugPrint('setPhotoFromOAuth backend update failed (will retry on next login): $e');
+      }
       _parentPhotoUrl = url;
       notifyListeners();
       return true;
     } catch (e) {
       debugPrint('setPhotoFromOAuth error: $e');
+      return false;
+    }
+  }
+
+  /// Permanently delete the current parent account from the server,
+  /// sign out, and clear all local state.
+  Future<bool> deleteAccount() async {
+    try {
+      await _apiService.delete('/parents/me');
+      await AuthService().signOut();
+      clearUserData();
+      await StorageService().clearAll();
+      return true;
+    } catch (e) {
+      debugPrint('deleteAccount error: $e');
       return false;
     }
   }

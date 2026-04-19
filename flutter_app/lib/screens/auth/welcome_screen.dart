@@ -286,6 +286,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           accessToken: accessToken,
         );
         await StorageService().saveProvider('facebook');
+        if (user.image != null) {
+          await StorageService().saveOAuthPhotoUrl(user.image!);
+        }
         await _handlePostOAuth(
           provider: 'facebook',
           userId: user.id,
@@ -372,6 +375,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         accessToken: authorization.accessToken,
       );
       await StorageService().saveProvider('google');
+      if (user.image != null) {
+        await StorageService().saveOAuthPhotoUrl(user.image!);
+      }
       await _handlePostOAuth(
         provider: 'google',
         userId: user.id,

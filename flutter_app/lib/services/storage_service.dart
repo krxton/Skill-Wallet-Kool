@@ -12,6 +12,7 @@ class StorageService {
   static const String _tokenKey = 'auth_token';
   static const String _userKey = 'user_data';
   static const String _providerKey = 'auth_provider';
+  static const String _oauthPhotoKey = 'oauth_photo_url';
 
   Box? _box;
 
@@ -81,6 +82,16 @@ class StorageService {
   Future<String?> getProvider() async {
     await _ensureInitialized();
     return _box?.get(_providerKey) as String?;
+  }
+
+  Future<void> saveOAuthPhotoUrl(String url) async {
+    await _ensureInitialized();
+    await _box?.put(_oauthPhotoKey, url);
+  }
+
+  Future<String?> getOAuthPhotoUrl() async {
+    await _ensureInitialized();
+    return _box?.get(_oauthPhotoKey) as String?;
   }
 
   // ✅ Clear specific keys

@@ -126,6 +126,33 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>> put(String path, dynamic body) async {
+    final headers = await _getHeaders();
+    final response = await http
+        .put(
+          Uri.parse('$_baseUrl$path'),
+          headers: headers,
+          body: jsonEncode(body),
+        )
+        .timeout(const Duration(seconds: 15));
+
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      if (response.body.isEmpty) return {};
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    } else {
+      String errorMessage = 'Failed to process request: ${response.statusCode}';
+      try {
+        if (response.body.isNotEmpty) {
+          final errorBody = jsonDecode(response.body);
+          if (errorBody is Map && errorBody.containsKey('error')) {
+            errorMessage = errorBody['error'];
+          }
+        }
+      } catch (_) {}
+      throw Exception('API Error (${response.statusCode}): $errorMessage');
+    }
+  }
+
   Future<Map<String, dynamic>> patch(String path, dynamic body) async {
     final headers = await _getHeaders();
     final response = await http
