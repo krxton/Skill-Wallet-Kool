@@ -42,6 +42,10 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
   Timer? _sessionTimer;
   int _sessionSecondsLeft = 0;
 
+  // Last redemption info for behavior assessment
+  String? _lastRedemptionId;
+  int _lastRedemptionCost = 0;
+
   final ChildService _childService = ChildService();
 
   @override
@@ -684,6 +688,10 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
         });
       }
 
+      // Store redemption info for behavior assessment
+      _lastRedemptionId = result['redemptionId'] as String?;
+      _lastRedemptionCost = cost;
+
       // Reload data in background to ensure consistency
       _loadData();
 
@@ -846,39 +854,38 @@ class _MedalsRedemptionScreenState extends State<MedalsRedemptionScreen> {
 
   Future<void> _applyBehaviorBonus(int rating) async {
     final loc = AppLocalizations.of(context)!;
-    // 1% of child's total wallet as bonus/deduction
-    final delta = (_currentScore * 0.01).round();
-    int pointChange = 0;
+    // 1% of wallet-after-redemption, applied back to the redemption cost
+    final delta = (_currentScore * 0.01).round().clamp(1, 999999);
+    int behaviorDelta = 0;
+    int adjustedCost = _lastRedemptionCost;
     String message;
 
     if (rating > 0) {
-      pointChange = delta.clamp(1, 999999);
-      message = loc.agreement_bonusMsg(pointChange);
+      behaviorDelta = delta;
+      adjustedCost = (_lastRedemptionCost - delta).clamp(0, 999999);
+      message = loc.agreement_bonusMsg(delta);
     } else if (rating < 0) {
-      pointChange = -delta.clamp(1, 999999);
-      message = loc.agreement_deductMsg(delta.clamp(1, 999999));
+      behaviorDelta = -delta;
+      adjustedCost = _lastRedemptionCost + delta;
+      message = loc.agreement_deductMsg(delta);
     } else {
       message = loc.agreement_noChange;
     }
 
-    if (pointChange != 0) {
-      final userProvider = context.read<UserProvider>();
-      final childId = widget.childId ?? userProvider.currentChildId;
-      if (childId != null) {
-        final result = await _childService.adjustWallet(
-          childId: childId,
-          delta: pointChange,
-        );
-        if (mounted && result['success'] == true) {
-          final newWallet = result['newWallet'];
-          setState(() {
-            _currentScore = newWallet is int
-                ? newWallet
-                : int.tryParse(newWallet.toString()) ?? _currentScore;
-          });
-          // Reload data to ensure consistency
-          _loadData();
-        }
+    if (behaviorDelta != 0 && _lastRedemptionId != null) {
+      final result = await _childService.applyBehaviorToRedemption(
+        redemptionId: _lastRedemptionId!,
+        behaviorDelta: behaviorDelta,
+        adjustedCost: adjustedCost,
+      );
+      if (mounted && result['success'] == true) {
+        final newWallet = result['newWallet'];
+        setState(() {
+          _currentScore = newWallet is int
+              ? newWallet
+              : int.tryParse(newWallet.toString()) ?? _currentScore;
+        });
+        _loadData();
       }
     }
 

@@ -57,12 +57,14 @@ export async function POST(request: NextRequest) {
 
     const newWallet = currentWallet - redeemCost;
 
+    let redemptionId: string;
+
     await prisma.$transaction(async (tx) => {
       await tx.child.update({
         where: { child_id: childId },
         data: { wallet: newWallet },
       });
-      await tx.redemption.create({
+      const redemption = await tx.redemption.create({
         data: {
           child_id: childId,
           medals_id: medalsId,
@@ -70,7 +72,9 @@ export async function POST(request: NextRequest) {
           point_for_reward: redeemCost,
           date_redemption: new Date(),
         },
+        select: { redemption_id: true },
       });
+      redemptionId = redemption.redemption_id;
     });
 
     return NextResponse.json({
@@ -78,6 +82,7 @@ export async function POST(request: NextRequest) {
       message: 'Medal redeemed successfully!',
       newWallet,
       cost: redeemCost,
+      redemptionId: redemptionId!,
     });
   } catch (error) {
     console.error('Redeem medal error:', error);

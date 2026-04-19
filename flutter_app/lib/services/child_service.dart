@@ -262,6 +262,7 @@ class ChildService {
             ? newWallet
             : int.tryParse(newWallet.toString()) ?? 0,
         'message': result['message'] ?? 'แลกของรางวัลสำเร็จ!',
+        'redemptionId': result['redemptionId'] as String?,
       };
     } catch (e) {
       debugPrint('redeemMedal error: $e');
@@ -323,6 +324,32 @@ class ChildService {
       };
     } catch (e) {
       debugPrint('adjustWallet error: $e');
+      return {'success': false, 'error': e.toString()};
+    }
+  }
+
+  /// อัพเดท redemption record ด้วย behavior assessment result
+  /// behaviorDelta: บวก = ดี (คืนคะแนน), ลบ = ไม่ดี (หักเพิ่ม), 0 = ไม่เปลี่ยน
+  /// adjustedCost: ต้นทุนจริงที่บันทึกใน record
+  Future<Map<String, dynamic>> applyBehaviorToRedemption({
+    required String redemptionId,
+    required int behaviorDelta,
+    required int adjustedCost,
+  }) async {
+    try {
+      final result = await _apiService.patch(
+        '/redemptions/$redemptionId',
+        {'behaviorDelta': behaviorDelta, 'adjustedCost': adjustedCost},
+      );
+      final newWallet = result['newWallet'];
+      return {
+        'success': result['success'] == true,
+        'newWallet': newWallet is int
+            ? newWallet
+            : int.tryParse(newWallet.toString()) ?? 0,
+      };
+    } catch (e) {
+      debugPrint('applyBehaviorToRedemption error: $e');
       return {'success': false, 'error': e.toString()};
     }
   }
