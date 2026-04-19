@@ -47,9 +47,9 @@
 	</array>
 	<!-- Facebook Sign-in Section -->
 	<key>FacebookAppID</key>
-	<string>2963610230515338</string>
+	<string>1330680655538831</string>
 	<key>FacebookClientToken</key>
-	<string>3f9b1f8abe33bfe0529348a7ae159ba8</string>
+	<string>f3903000c3975124750e24989b4d453f</string>
 	<key>FacebookDisplayName</key>
 	<string>Skill-Wallet-Kool</string>
 	<key>NSMicrophoneUsageDescription</key>
@@ -66,7 +66,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>fb2963610230515338</string>
+				<string>fb1330680655538831</string>
 				<!-- Google Sign-in reversed client ID -->
 				<string>com.googleusercontent.apps.765972336394-sbuakvc3n35ttq4milr37ddqeafhrjkh</string>
 				<!-- Deep link scheme for OAuth callback (Facebook, etc.) -->
