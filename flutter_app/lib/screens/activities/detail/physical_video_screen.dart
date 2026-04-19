@@ -320,6 +320,7 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
                                   data: buildResponsiveTikTokHtml(htmlContent),
                                   mimeType: 'text/html',
                                   encoding: 'utf-8',
+                                  baseUrl: WebUri('https://www.tiktok.com'),
                                 ),
                                 initialSettings: InAppWebViewSettings(
                                   javaScriptEnabled: true,
@@ -343,28 +344,29 @@ class _PhysicalVideoScreenState extends State<PhysicalVideoScreen> {
                                   final url =
                                       navigationAction.request.url.toString();
 
-                                    // Explicit allow-list — everything else is cancelled
-                                  // (covers both iOS WKWebView iframe and Android WebView)
-                                  final allowedPatterns = [
-                                    'tiktok.com/embed',
-                                    'embed.tiktok.com',
-                                    'embed.js',
-                                    'lf16-tiktok',
+                                  if (url.startsWith('data:') ||
+                                      url.startsWith('about:') ||
+                                      url.startsWith('blob:')) {
+                                    return NavigationActionPolicy.ALLOW;
+                                  }
+
+                                  // Allow all TikTok and CDN domains needed for playback
+                                  final allowedDomains = [
+                                    'tiktok.com',
+                                    'tiktokcdn.com',
+                                    'tiktokv.com',
                                     'musical.ly',
                                     'byteoversea',
                                     'byteimg',
                                     'ibytedtos',
+                                    'ttwstatic.com',
+                                    'snssdk',
                                   ];
 
-                                  for (final pattern in allowedPatterns) {
-                                    if (url.contains(pattern)) {
+                                  for (final domain in allowedDomains) {
+                                    if (url.contains(domain)) {
                                       return NavigationActionPolicy.ALLOW;
                                     }
-                                  }
-
-                                  if (url.startsWith('data:') ||
-                                      url.startsWith('about:')) {
-                                    return NavigationActionPolicy.ALLOW;
                                   }
 
                                   return NavigationActionPolicy.CANCEL;
