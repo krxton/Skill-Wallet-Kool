@@ -71,11 +71,8 @@ class ProfileScreenState extends State<ProfileScreen> {
   // ── Photo picker (parent) ──────────────────────────────
 
   Future<void> _showPhotoOptions() async {
-    final provider = await StorageService().getProvider();
+    final oauthPhotoUrl = await StorageService().getOAuthPhotoUrl();
     if (!mounted) return;
-    final isGoogle = provider == 'google';
-    final isFacebook = provider == 'facebook';
-    final hasOAuthAvatar = isGoogle || isFacebook;
     final l = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
@@ -101,18 +98,10 @@ class ProfileScreenState extends State<ProfileScreen> {
               title: Text(l.common_pickFromGallery),
               onTap: () { Navigator.pop(ctx); _pickFromGallery(); },
             ),
-            if (hasOAuthAvatar && isGoogle)
+            if (oauthPhotoUrl != null)
               ListTile(
-                leading: const Icon(Icons.account_circle_outlined,
-                    color: Color(0xFF4285F4), size: 28),
-                title: Text(l.common_useGooglePhoto),
-                onTap: () { Navigator.pop(ctx); _useOAuthPhoto('oauth'); },
-              ),
-            if (hasOAuthAvatar && isFacebook)
-              ListTile(
-                leading: const Icon(Icons.facebook,
-                    color: Color(0xFF1877F2), size: 28),
-                title: Text(l.common_useFacebookPhoto),
+                leading: const Icon(Icons.account_circle_outlined, size: 28),
+                title: Text(l.common_useOriginalPhoto),
                 onTap: () { Navigator.pop(ctx); _useOAuthPhoto('oauth'); },
               ),
             const SizedBox(height: 8),

@@ -2438,6 +2438,12 @@ abstract class AppLocalizations {
   /// **'Use Facebook profile photo'**
   String get common_useFacebookPhoto;
 
+  /// No description provided for @common_useOriginalPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Use original profile photo'**
+  String get common_useOriginalPhoto;
+
   /// No description provided for @common_uploadPhotoFailed.
   ///
   /// In en, this message translates to:

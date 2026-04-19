@@ -555,6 +555,7 @@
   "common_pickFromGallery": "Pick from gallery",
   "common_useGooglePhoto": "Use Google profile photo",
   "common_useFacebookPhoto": "Use Facebook profile photo",
+  "common_useOriginalPhoto": "Use previous profile photo",
   "common_uploadPhotoFailed": "Photo upload failed",
   "common_photoNotFound": "No profile photo found from {provider}",
   "@common_photoNotFound": {

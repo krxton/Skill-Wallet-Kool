@@ -1254,6 +1254,9 @@ class AppLocalizationsTh extends AppLocalizations {
   String get common_useFacebookPhoto => 'ใช้รูปโปรไฟล์ Facebook';
 
   @override
+  String get common_useOriginalPhoto => 'ใช้รูปโปรไฟล์เดิม';
+
+  @override
   String get common_uploadPhotoFailed => 'อัปโหลดรูปไม่สำเร็จ';
 
   @override

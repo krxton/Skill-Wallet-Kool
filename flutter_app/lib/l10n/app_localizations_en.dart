@@ -1257,6 +1257,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get common_useFacebookPhoto => 'Use Facebook profile photo';
 
   @override
+  String get common_useOriginalPhoto => 'Use previous profile photo';
+
+  @override
   String get common_uploadPhotoFailed => 'Photo upload failed';
 
   @override

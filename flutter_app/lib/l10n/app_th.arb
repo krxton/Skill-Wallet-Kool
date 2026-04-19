@@ -558,6 +558,7 @@
   "common_pickFromGallery": "เลือกรูปจากแกลเลอรี",
   "common_useGooglePhoto": "ใช้รูปโปรไฟล์ Google",
   "common_useFacebookPhoto": "ใช้รูปโปรไฟล์ Facebook",
+  "common_useOriginalPhoto": "ใช้รูปโปรไฟล์เดิม",
   "common_uploadPhotoFailed": "อัปโหลดรูปไม่สำเร็จ",
   "common_photoNotFound": "ไม่พบรูปโปรไฟล์จาก {provider}",
   "@common_photoNotFound": {
