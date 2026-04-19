@@ -2441,7 +2441,7 @@ abstract class AppLocalizations {
   /// No description provided for @common_useOriginalPhoto.
   ///
   /// In en, this message translates to:
-  /// **'Use original profile photo'**
+  /// **'Use previous profile photo'**
   String get common_useOriginalPhoto;
 
   /// No description provided for @common_uploadPhotoFailed.
